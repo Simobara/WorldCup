@@ -1,0 +1,71 @@
+Vercel Hobby – Mini Guida Pratica (Checklist)
+
+1) Struttura del progetto
+- /src                → codice frontend (React/Vite)
+- /server             → codice server riutilizzabile (router, helper, schemi mongoose, ecc.)
+- /api/server.js      → UNICA Serverless Function (Express) che importa dal folder /server
+- /public             → asset statici (se usi Vite)
+- /dist               → output build (generato da vite build)
+
+⚠️ Sul piano Hobby, massimo 12 Serverless Functions per deploy.
+→ Ogni file dentro /api è una function. Tieni SOLO /api/server.js.
+
+2) vercel.json (moderno, per SPA + API)
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/server.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "installCommand": "npm i -g npm@11.3.0 && npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "env": { "NODE_ENV": "production" }
+}
+
+3) api/server.js (pattern serverless corretto)
+- Non usare app.listen(...)
+- Esporta l’handler: module.exports = (req, res) => app(req, res);
+- Importa router/helper da ../server/... (FUORI da /api)
+
+4) Variabili d’ambiente (Importante)
+- In sviluppo: .env locale (mai committare)
+- In produzione: Vercel → Project → Settings → Environment Variables
+- Esempi: USERNAME, PASSWORD, CLUSTER_URL, DB_NAME_SERIE_A, DB_NAME_COPPA_ITA, VITE_API_URL_PROD, VITE_API_URL_DEV
+
+5) Build & Output
+- Script: "build": "vite build"
+- Output Directory: dist (impostato in vercel.json)
+- SPA routing: la rewrite "/(.*) → /index.html" evita 404 su rotte client-side
+
+6) Limiti piano Hobby (principali)
+- Max 12 Serverless Functions per deploy
+- Timeout function: 10s
+- Memoria function: 125 MB
+- Build concurrency: 1
+- Niente feature avanzate di protezione/team
+
+7) Pattern consigliati
+- Accorpa endpoint in un’unica app Express (un file /api/server.js) e usa router modulari in /server/routes
+- Mantieni connessioni a DB con cache (es. mongoose) per ridurre tempi di cold start
+- Evita JSX/React in codice server (usa .js puro)
+- Metti asset o script CLI non necessari fuori dal percorso /api o ignorali nel deploy
+- Usa import relativi stabili (../server/...) e centralizza le costanti in /server/config
+
+8) Debug & Deploy
+- Se Vercel usa una config vecchia: Redeploy con “Clear build cache”
+- Se vedi “Due to `builds` existing…”: stai usando una config legacy; usa il vercel.json moderno
+- Se vedi “> 12 Serverless Functions”: controlla che in /api ci sia SOLO server.js
+- Se vedi errori rollup native.js: aggiorna npm (installCommand) e pinna rollup (es. 4.14.3)
+
+9) Comandi utili
+- Lista file sotto /api: git ls-files "api/**/*"
+- Spostare fuori da /api: git mv api/<file> server/<path>/
+- Forzare reinstall: rm -rf node_modules package-lock.json && npm install
+- Build locale: npm run build && ls -la dist
+
+10) Routine di deploy
+1. npm run build (verifica che dist/ esista)
+2. git add -A && git commit -m "deploy" && git push origin main
+3. Vercel → Deployments → Redeploy (Clear build cache)
+4. Testa: / (frontend), /api/test (backend), una rotta client (es. /classifica)

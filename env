@@ -1,0 +1,89 @@
+# I VALORI SONO GIUSTI
+USERNAME=           simobara12
+PASSWORD=           Sz8u77XxojY02izx
+CLUSTER_URL=        cluster0.ifvjt1z.mongodb.net
+
+#------------------------------------DATABASE CAMPIONATO
+DB_NAME_SERIE_A=    2025-SerieA
+#------------------------------------DATABASE COPPAITALIA
+DB_NAME_COPPA_ITA=  2025-CoppaItalia
+#--------------------------------------------------------
+
+
+#------------------------------------CONNESSIONE COMPLETA:
+mongodb+srv://simobara12:Sz8u77XxojY02izx@cluster0.ifvjt1z.mongodb.net/serieA-2025?retryWrites=true&w=majority&appName=Cluster0&connectTimeoutMS=10000
+
+#------------------------------------DEVELOPMENT - PRODUCT.
+VITE_API_URL_DEV=http://localhost:5000
+VITE_API_URL_PROD=https://ita-serie-a.vercel.app
+
+#------------------------------------NODE
+NODE_ENV=production
+# Se questo è solo per avviare il server in dev, puoi farlo da terminale:
+# NODE_ENV=production npm run dev
+NODE_OPTIONS=--no-deprecation
+#--------------------------------------------------------
+
+
+#------------------------------------GIORNATA CLOU N
+COLLECTION_GIORNATA_CLOU_N=     giornataClouN
+#------------------------------------COPPA ITALIA
+COLLECTION_COPPA_ITA_TRENTADUESIMI_A1=CoppaIta1TrentaduesimiA1
+COLLECTION_COPPA_ITA_TRENTADUESIMI_A2=CoppaIta1TrentaduesimiA2
+COLLECTION_COPPA_ITA_TRENTADUESIMI_A3=CoppaIta1TrentaduesimiA3
+COLLECTION_COPPA_ITA_TRENTADUESIMI_A4=CoppaIta1TrentaduesimiA4
+COLLECTION_COPPA_ITA_TRENTADUESIMI_A5=CoppaIta1TrentaduesimiA5
+COLLECTION_COPPA_ITA_TRENTADUESIMI_A6=CoppaIta1TrentaduesimiA6
+COLLECTION_COPPA_ITA_TRENTADUESIMI_A7=CoppaIta1TrentaduesimiA7
+COLLECTION_COPPA_ITA_TRENTADUESIMI_A8=CoppaIta1TrentaduesimiA8
+COLLECTION_COPPA_ITA_TRENTADUESIMI_B1=CoppaIta1TrentaduesimiB1
+COLLECTION_COPPA_ITA_TRENTADUESIMI_B2=CoppaIta1TrentaduesimiB2
+COLLECTION_COPPA_ITA_TRENTADUESIMI_B3=CoppaIta1TrentaduesimiB3
+COLLECTION_COPPA_ITA_TRENTADUESIMI_B4=CoppaIta1TrentaduesimiB4
+COLLECTION_COPPA_ITA_TRENTADUESIMI_B5=CoppaIta1TrentaduesimiB5
+COLLECTION_COPPA_ITA_TRENTADUESIMI_B6=CoppaIta1TrentaduesimiB6
+COLLECTION_COPPA_ITA_TRENTADUESIMI_B7=CoppaIta1TrentaduesimiB7
+COLLECTION_COPPA_ITA_TRENTADUESIMI_B8=CoppaIta1TrentaduesimiB8
+
+COLLECTION_COPPA_ITA_SEDICESIMI_A1=CoppaIta2SedicesimiA1
+COLLECTION_COPPA_ITA_SEDICESIMI_A2=CoppaIta2SedicesimiA2
+COLLECTION_COPPA_ITA_SEDICESIMI_A3=CoppaIta2SedicesimiA3
+COLLECTION_COPPA_ITA_SEDICESIMI_A4=CoppaIta2SedicesimiA4
+COLLECTION_COPPA_ITA_SEDICESIMI_A5=CoppaIta2SedicesimiA5
+COLLECTION_COPPA_ITA_SEDICESIMI_A6=CoppaIta2SedicesimiA6
+COLLECTION_COPPA_ITA_SEDICESIMI_A7=CoppaIta2SedicesimiA7
+COLLECTION_COPPA_ITA_SEDICESIMI_A8=CoppaIta2SedicesimiA8
+COLLECTION_COPPA_ITA_SEDICESIMI_B1=CoppaIta2SedicesimiB1
+COLLECTION_COPPA_ITA_SEDICESIMI_B2=CoppaIta2SedicesimiB2
+COLLECTION_COPPA_ITA_SEDICESIMI_B3=CoppaIta2SedicesimiB3
+COLLECTION_COPPA_ITA_SEDICESIMI_B4=CoppaIta2SedicesimiB4
+COLLECTION_COPPA_ITA_SEDICESIMI_B5=CoppaIta2SedicesimiB5
+COLLECTION_COPPA_ITA_SEDICESIMI_B6=CoppaIta2SedicesimiB6
+COLLECTION_COPPA_ITA_SEDICESIMI_B7=CoppaIta2SedicesimiB7
+COLLECTION_COPPA_ITA_SEDICESIMI_B8=CoppaIta2SedicesimiB8
+
+COLLECTION_COPPA_ITA_OTTAVI_A1=CoppaIta3OttaviA1
+COLLECTION_COPPA_ITA_OTTAVI_A2=CoppaIta3OttaviA2
+COLLECTION_COPPA_ITA_OTTAVI_A3=CoppaIta3OttaviA3
+COLLECTION_COPPA_ITA_OTTAVI_A4=CoppaIta3OttaviA4
+COLLECTION_COPPA_ITA_OTTAVI_B1=CoppaIta3OttaviB1
+COLLECTION_COPPA_ITA_OTTAVI_B2=CoppaIta3OttaviB2
+COLLECTION_COPPA_ITA_OTTAVI_B3=CoppaIta3OttaviB3
+COLLECTION_COPPA_ITA_OTTAVI_B4=CoppaIta3OttaviB4
+
+COLLECTION_COPPA_ITA_QUARTI_A1=CoppaIta4QuartiA1
+COLLECTION_COPPA_ITA_QUARTI_A2=CoppaIta4QuartiA2
+COLLECTION_COPPA_ITA_QUARTI_B1=CoppaIta4QuartiB1
+COLLECTION_COPPA_ITA_QUARTI_B2=CoppaIta4QuartiB2
+
+COLLECTION_COPPA_ITA_SEMIF_A=CoppaIta5SemifA
+COLLECTION_COPPA_ITA_SEMIF_B=CoppaIta5SemifB
+
+COLLECTION_COPPA_ITA_FINALE=CoppaIta6Finale
+#---------------------------------------------------------------
+
+
+
+
+
+

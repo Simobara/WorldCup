@@ -1,0 +1,53 @@
+{
+  "name": "1my-calcio",
+  "version": "1.0.0",
+  "scripts": {
+    "preinstall": "if [ -n \"$VERCEL\" ]; then npm i -g npm@11.3.0; fi",
+    "postinstall": "if [ -n \"$VERCEL\" ]; then npm i @rollup/rollup-linux-x64-gnu@4.14.3 --no-save; fi",
+    "start": "NODE_OPTIONS='--no-deprecation' vite",
+    "dev": "cross-env NODE_ENV=development vite",
+    "build": "cross-env NODE_ENV=production vite build",
+    "serve-dist": "NODE_OPTIONS='--no-deprecation' serve dist"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.16",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.11",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.25.9",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.2",
+    "nodemailer": "^6.9.14",
+    "postcss": "^8.4.32",
+    "react": "^18.3.1",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^18.3.1",
+    "twilio": "^4.19.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/typography": "^0.5.13",
+    "@vitejs/plugin-react": "^4.2.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.55.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.7.4",
+    "rollup": "^4.50.0",
+    "tailwindcss": "^3.4.4",
+    "tailwindcss-filters": "^3.0.0",
+    "vite": "^6.3.5"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}

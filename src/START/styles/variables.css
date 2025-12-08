@@ -1,0 +1,169 @@
+/* variables.css
+   Struttura:
+   A) Alias (rimandano ad altre var, nessun colore “puro”)
+   B) Colori puri (HEX/RGB/RGBA/transparent)
+      B1) Gs = sezione1 (CssGs)
+      B2) Ts = sezione3 (CssTs)
+   C) Globali (NO CAMB)
+   Note di riferimento Tailwind in fondo
+*/
+
+:root {
+  /* ============================================================
+     A) VARIABILI “ALIAS” (puntano ad altre variabili)
+     ============================================================ */
+
+  /* Pin risultati */
+  --pin-win:  var(--win-color);
+  --pin-draw: var(--draw-color);
+  --pin-lose: var(--lose-color);
+
+  /* Hover tab */
+  --ts-tab-hover-home: var(--homeBg-color);
+  --ts-tab-hover-away: var(--awayBg-color);
+
+  /* Titoli squadre (tabella) */
+  --ts-bg-sq-casa:  var(--homeBg-color);
+  --ts-bg-sq-fuori: var(--awayBg-color);
+
+  /* Colori risultati (testo) */
+  --ts-col-res-home: var(--homeRes-color);
+  --ts-col-res-away: var(--awayRes-color);
+
+  /* Stato Win/Draw/Lose (bg & text) */
+  --ts-win-bg:    var(--win-color);
+  --ts-win-text:  var(--win-color);
+  --ts-draw-bg:   var(--draw-color);
+  --ts-draw-text: var(--draw-color);
+  --ts-lose-bg:   var(--lose-color);
+  --ts-lose-text: var(--lose-color);
+
+  /* Spessori/varie */
+  --underline-thickness: 3px;
+
+
+  /* ============================================================
+     B) VARIABILI CON COLORI PURI
+     ============================================================ */
+
+  /* ---------------- B1) SEZIONE CLASSIFICA – sezione1 (CssGs) ---------------- */
+
+  /* Background base/hover */
+  --gs-bg0: transparent;                  /* Tailwind: bg-transparent */
+  --gs-bg1: #374151;                  /* Tailwind: bg-gray-700    */
+  --gs-bg2: #334155b3;                /* Tailwind: slate-700/70   */
+  --gs-bg3: rgb(35, 40, 51);          /* vicino a slate-800/70    */
+
+  /* Testi base */
+  --gs-base-text: #374151;            /* Tailwind: text-gray-700  */
+
+  /* Bordi & linee */
+  --gs-border-partite: #831843;       /* Tailwind: border-pink-900 */
+  --gs-border-line-next-match:#8D003B;/* Tailwind: border-pink-700 */
+
+  /* Giorni della settimana */
+  --gs-col-bg-day-week: #374151b3;    /* gray-700/70 */
+  --gs-col-text-day-week: #4b5563;    /* gray-600    */
+  --gs-col-bg-day-sab: #0b6894;       /* custom sky-500 */
+  --gs-col-text-day-sab: #000000;     /* black */
+  --gs-col-bg-day-dom: #0a4e72;       /* custom sky-700 */
+  --gs-col-text-day-dom: #000000;     /* black */
+
+  /* Stato “playing” */
+  --gs-playing-text: #06b6d4cc;       /* cyan-500/80 */
+  --gs-playing-pts-text: #4b5563cc;   /* gray-600/80 */
+
+
+
+  /* ---------------- B2) SEZIONE CLASSIFICA – sezione3 (CssTs) ---------------- */
+
+  /* Background vari */
+  --ts-bg0: transparent;                  /* bg-transparent */
+  --ts-bg9: #000000;                  /* bg-black       */
+
+  /* Testi specifici */
+  --ts-text-cf: #3b82f6;              /* blue-500 */
+
+  /* Badge (Serie A/B/AB/N) */
+  --ts-a-team-text: #000000;          /* black */
+  --ts-a-team-bg-rgb: 91 125 144;         /* rgb triplet */
+  --ts-a-team-bg: rgb(91, 125, 144);  /* solid bg */
+  --ts-a-team-border: #CEF8FF;        /* cyan soft */
+
+  --ts-b-team-text:  #575B63;         /* gray-600 */
+  --ts-ab-team-text: #075985;         /* sky-800  */
+  --ts-n-team-text:  #AFAFAF;         /* light gray */
+
+  --ts-n-team-bg-rgb: 38 38 38;           /* #262626 */
+  --ts-n-team-bg: rgb(22, 22, 22);    /* dark grey */
+  /* --ts-n-team-border: #9c9c9c;       // opzionale */
+
+  /* Testo risultati comuni */
+  --ts-col-res-bg:   #1f2937;         /* gray-800 */
+  --ts-col-res-line: #1f2937;         /* gray-800 */
+
+  /* Hover righe squadra */
+  --ts-hover-sq-home: #b91c1c;        /* red-700 */
+  --ts-hover-sq-away: #075985;        /* sky-800 */
+
+
+  /* ============================================================
+     C) VARIABILI GLOBALI (NO CAMB)
+     ============================================================ */
+
+  --win-color:  #FF006A;
+  --draw-color: #6D7142;
+  --lose-color: #312e2e;
+
+  --homeBg-color:  #FF006A;
+  --awayBg-color:  #507908;
+--awayBg-hover: linear-gradient(90deg, #6D7142 80%, indigo 90%);
+
+  --homeRes-color: #244873;
+  --awayRes-color: #2b2b2b;
+}
+
+/* utilities.css (oppure dentro un tuo file globale importato una volta) */
+.hover-away-gradient:hover {
+  background-image: var(--awayBg-hover);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.bg-away-hover {
+  background-image: var(--awayBg-hover);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* ===========================================================
+   Palette completa (ordinata iniziando dai blu)
+
+   Blu profondi (i tuoi)======================================
+   #020c2d
+   #022545
+   #022F51
+   #03325C
+   #045b8a
+
+   Blu / Sky / Cyan Tailwind================================
+   sky-800    #075985
+   sky-700    #0369a1
+   sky-600    #0284c7
+   sky-500    #0ea5e9
+   blue-500   #3b82f6
+   cyan-500   #06b6d4
+
+   Neutri (grigi / slate)=====================================
+   gray-800   #1f2937
+   slate-800  #1e293b
+   slate-700  #334155
+   gray-700   #374151
+   gray-600   #4b5563
+
+   Toni caldi
+   pink-900   #831843
+   red-700    #b91c1c
+   pink-700   #be185d
+============================================================ */
+

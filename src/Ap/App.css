@@ -1,0 +1,17 @@
+/* -----------------------------------------------------------------------------
+📄 File: App.css
+Scopo: importare i layer base di Tailwind CSS per l’intera applicazione.
+
+🔹 Contiene:
+- Reset e stili globali (`base`)
+- Componenti predefiniti (`components`)
+- Utility classes di Tailwind (`utilities`)
+
+Note:
+- Questo file funge da punto di ingresso principale per Tailwind.
+- Non aggiungere regole custom qui: creare file dedicati (es. header.css, pagSerieA.css).
+------------------------------------------------------------------------------*/
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";

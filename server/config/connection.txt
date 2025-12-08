@@ -1,0 +1,15 @@
+
+mongodb+srv://simobara12:Sz8u77XxojY02izx@cluster0.ifvjt1z.mongodb.net/cluster0?retryWrites=true&w=majority
+
+Esempio:
+    • Progetto: MyProject
+        ◦ Cluster: Cluster0
+            ▪ Database: myDatabase
+                • Collezione: users
+                • Collezione: products
+            ▪ Database: analytics
+                • Collezione: logs
+
+
+
+mongodb+srv://simobara12:Sz8u77XxojY02izx@cluster0.ifvjt1z.mongodb.net/serieA-2025?retryWrites=true&w=majority&appName=Cluster0
