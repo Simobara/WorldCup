@@ -1,24 +1,36 @@
-// src/components/1standingsComp/rettGroup.jsx (o rettangolo.jsx, come l'hai chiamato)
+// src/components/1standingsComp/rettGroup.jsx
 
 const RettGroup = ({
   color = "bg-sky-900",
   colsSpan = 1, // quante colonne copre
-  noVertical = false, // se true: niente bordi verticali
+  label = "", // ✅ testo opzionale
 }) => {
-  const borderClass = noVertical
-    ? "border-t-2 border-b-2 border-black" // solo sopra/sotto
-    : "border-2 border-black"; // tutti i lati
+  const isDarkBg =
+    color.includes("gray-800") ||
+    color.includes("gray-900") ||
+    color.includes("black") ||
+    color.includes("sky-900");
+
+  const textColorClass = isDarkBg ? "text-white" : "text-black";
 
   return (
     <div
       className={`
-        h-12
+        h-8
         ${color}
-        ${borderClass}
+        border-2 border-black
+        rounded-tr-3xl
         shadow-lg
+        flex items-center justify-center
       `}
-      style={{ width: `${32 * colsSpan}px` }} // 32px per colonna
-    ></div>
+      style={{ width: `${32 * colsSpan}px` }}
+    >
+      {label && (
+        <span className={`text-xs font-bold tracking-tight ${textColorClass}`}>
+          {label}
+        </span>
+      )}
+    </div>
   );
 };
 

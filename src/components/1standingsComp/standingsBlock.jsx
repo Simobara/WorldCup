@@ -24,12 +24,22 @@ const createDateLabels = () => {
 };
 
 const StandingsBlock = () => {
-  // 🔥 QUI: creiamo le 39 etichette
   const titleLabels = createDateLabels();
 
   return (
     <div className=" top-[12rem] left-0 relative">
+      {/* ✅ LOGO SOPRA LA PRIMA CITTÀ */}
+
+      <div className="absolute -left-4 -top-28 w-72 flex justify-center z-50">
+        <img
+          src="/assts/LogoStandings.png"
+          alt="Logo standings"
+          className="h-28 w-auto object-contain"
+        />
+      </div>
+
       {/* ✅ COLONNA 16 CITTÀ */}
+
       <div className="absolute left-14 flex flex-col">
         {Array.from({ length: 16 }).map((_, i) => {
           let color = "bg-sky-900";
@@ -44,16 +54,20 @@ const StandingsBlock = () => {
 
       {/* ✅ GRIGLIA A DESTRA */}
       <div className="absolute left-[15rem] -top-16">
-        <div className="absolute -top-12 left-0 flex">
-          <RettGroup color="bg-white" colsSpan={17} />
-          <RettGroup color="bg-orange-300" colsSpan={6} />
-          <RettGroup color="bg-sky-300" colsSpan={4} />
-          <RettGroup color="bg-gray-800" colsSpan={1} />
-          <RettGroup color="bg-orange-300" colsSpan={3} />
-          <RettGroup color="bg-gray-800" colsSpan={2} />
-          <RettGroup color="bg-sky-300" colsSpan={2} />
-          <RettGroup color="bg-gray-800" colsSpan={2} />
-          <RettGroup color="bg-orange-300" colsSpan={2} />
+        <div className="absolute -top-8 left-0 flex">
+          <RettGroup
+            color="bg-white"
+            colsSpan={17}
+            label="GROUP STAGE MATCHES"
+          />
+          <RettGroup color="bg-orange-300" colsSpan={6} label="ROUND OF 32" />
+          <RettGroup color="bg-sky-300" colsSpan={4} label="ROUND OF 16" />
+          <RettGroup color="bg-gray-800" colsSpan={1} label="" />
+          <RettGroup color="bg-orange-300" colsSpan={3} label="QUARTER" />
+          <RettGroup color="bg-gray-800" colsSpan={2} label="" />
+          <RettGroup color="bg-sky-300" colsSpan={2} label="SEMIFIN" />
+          <RettGroup color="bg-gray-800" colsSpan={2} label="" />
+          <RettGroup color="bg-orange-300" colsSpan={2} label="FINALS" />
         </div>
 
         {/* PRIMA GRIGLIA: 39 colonne, titoli con pattern + date */}
