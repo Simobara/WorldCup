@@ -4,6 +4,7 @@ const RettangoloVerticale = ({
   color = "bg-gray-300",
   top = "top-8",
   height = "h-[18rem]",
+  label = "",
 }) => {
   return (
     <div
@@ -18,8 +19,23 @@ const RettangoloVerticale = ({
         shadow-lg
         rounded-tl-3xl
         rounded-bl-3xl
+        flex items-center justify-center   
       `}
-    ></div>
+    >
+      {label && (
+        <span
+          className="
+            text-sm uppercase text-black
+            font-medium
+            transform -rotate-90        
+            whitespace-nowrap
+            tracking-widest
+          "
+        >
+          {label}
+        </span>
+      )}
+    </div>
   );
 };
 

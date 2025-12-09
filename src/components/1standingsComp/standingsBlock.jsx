@@ -39,17 +39,32 @@ const StandingsBlock = () => {
       </div>
 
       {/* ✅ COLONNA 16 CITTÀ */}
-
       <div className="absolute left-14 flex flex-col">
-        {Array.from({ length: 16 }).map((_, i) => {
-          let color = "bg-sky-900";
+        {[
+          // 🔵 SKY – PRIME 4
+          { name: "Vancouver", color: "bg-sky-300" },
+          { name: "Seattle", color: "bg-sky-300" },
+          { name: "San Francisco", color: "bg-sky-300" },
+          { name: "Los Angeles", color: "bg-sky-300" },
 
-          if (i < 4) color = "bg-sky-300";
-          else if (i < 10) color = "bg-green-500";
-          else color = "bg-rose-300";
+          // 🟢 GREEN – SUCCESSIVE 6
+          { name: "Guadalajara", color: "bg-green-500" },
+          { name: "Mexico City", color: "bg-green-500" },
+          { name: "Monterey", color: "bg-green-500" },
+          { name: "Houston", color: "bg-green-500" },
+          { name: "Dallas", color: "bg-green-500" },
+          { name: "Kansas City", color: "bg-green-500" },
 
-          return <ContainerCitta key={i} color={color} isLast={i === 15} />;
-        })}
+          // 🌸 ROSE – ULTIME 6
+          { name: "Atlanta", color: "bg-rose-300" },
+          { name: "Miami", color: "bg-rose-300" },
+          { name: "Toronto", color: "bg-rose-300" },
+          { name: "Boston", color: "bg-rose-300" },
+          { name: "Philadelphia", color: "bg-rose-300" },
+          { name: "New Jersey", color: "bg-rose-300" },
+        ].map((city, i) => (
+          <ContainerCitta key={i} color={city.color} label={city.name} />
+        ))}
       </div>
 
       {/* ✅ GRIGLIA A DESTRA */}
@@ -93,21 +108,26 @@ const StandingsBlock = () => {
         <Grid rows={16} cellHeightClass="h-12" cols={39} />
       </div>
 
-      {/* ✅ RETTANGOLI VERTICALI */}
+      {/* ✅ RETTANGOLI VERTICALI CON TESTO */}
       <RettangoloVerticale
         top="top-[0rem]"
         height="h-[12rem]"
         color="bg-blue-300"
+        label="WESTERN REGION"
       />
+
       <RettangoloVerticale
         top="top-[12rem]"
         height="h-[18rem]"
         color="bg-green-300"
+        label="CENTRAL REGION"
       />
+
       <RettangoloVerticale
         top="top-[30rem]"
         height="h-[18rem]"
         color="bg-rose-300"
+        label="EASTERN REGION"
       />
     </div>
   );
