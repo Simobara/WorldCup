@@ -51,10 +51,16 @@ const Grid = ({
           return "border border-black";
         })();
 
-        const finalColor = forceColor || config.color;
-
+        // ✅ PRIMA: etichetta (solo sulla prima riga)
         const label = rowIndex === 0 ? columnLabels[colIndex] : null;
         const hasLabel = !!label;
+
+        // ✅ POI: weekend (solo se c'è una label e ha il flag)
+        const isWeekendCell = hasLabel && label.isWeekend;
+
+        // ✅ POI: colore finale
+        const finalColor =
+          forceColor || (isWeekendCell ? "bg-sky-400" : config.color);
 
         return (
           <div
@@ -64,7 +70,7 @@ const Grid = ({
           >
             {hasLabel && typeof label === "object" ? (
               <div className="flex flex-col justify-between items-center h-full py-1">
-                {/* giorno della settimana in alto (es. T) */}
+                {/* giorno della settimana in alto (S, M, T, ecc.) */}
                 <span className="text-sm leading-none font-bold">
                   {label.top}
                 </span>

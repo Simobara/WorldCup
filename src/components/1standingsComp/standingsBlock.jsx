@@ -5,18 +5,22 @@ import RettangoloVerticale from "./rettVert";
 
 // 👇 genera le 39 etichette dal 11/06/2026 al 19/07/2026
 const createDateLabels = () => {
-  const start = new Date(2026, 5, 11); // 5 = giugno
-  const end = new Date(2026, 6, 19); // 6 = luglio
+  const start = new Date(2026, 5, 11); // 11 giugno 2026
+  const end = new Date(2026, 6, 19); // 19 luglio 2026
 
-  // 0=Sun ... 6=Sat
-  const dayLetters = ["D", "L", "M", "M", "G", "V", "S"]; // versione italiana: Dom, Lun, Mar, Mer, Gio, Ven, Sab
+  // ✅ Inglese: 0=Sun, 1=Mon, ...
+  const dayLettersEN = ["S", "M", "T", "W", "T", "F", "S"];
 
   const labels = [];
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const dayIndex = d.getDay();
+    const isWeekend = dayIndex === 0 || dayIndex === 6; // ✅ domenica o sabato
+
     labels.push({
-      top: dayLetters[d.getDay()], // lettera del giorno (G, V, S, ecc.)
-      bottom: d.getDate().toString(), // numero del giorno (11, 12, 13, ...)
+      top: dayLettersEN[dayIndex], // ✅ lettera inglese
+      bottom: d.getDate().toString(), // ✅ numero giorno
+      isWeekend, // ✅ flag per colore
     });
   }
 
