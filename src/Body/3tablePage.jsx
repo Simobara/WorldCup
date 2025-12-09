@@ -1,4 +1,4 @@
-import BlokQuadRett from "../components/4blokQuadRett";
+import BlokQuadRett from "../components/2groupStageComp/4blokQuadRett";
 // Se in futuro riattivi le linee, puoi importarle qui:
 // import Lineahor32 from "./Lineahor32";
 // import Lineahor16 from "./Lineahor16";

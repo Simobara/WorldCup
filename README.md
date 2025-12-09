@@ -1,6 +1,6 @@
 <a name="top"></a>
 
-# ITA_SerieA - The BEsT App
+# WorldCup - The BEsT App
 
 ## Badges
 
@@ -17,7 +17,7 @@
 
 ## Demo
 
-![Finished App](SerieA.jpg)
+![Finished App](WC.png)
 
 ---
 
@@ -50,18 +50,18 @@
 
 ## Prerequisites
 
-  ```sh
-  **Node.js**: Scarica e installa Node.js da [nodejs.org](https://nodejs.org/). Verifica l'installazione con:
-    node -v
-    npm -v
-    git -v
-  ```
+```sh
+**Node.js**: Scarica e installa Node.js da [nodejs.org](https://nodejs.org/). Verifica l'installazione con:
+  node -v
+  npm -v
+  git -v
+```
 
 ## Installation
 
 ```sh
-  git clone https://github.com/Simobara/ITA_SerieA.git
-  cd ITA_SerieA
+  git clone https://github.com/Simobara/WorldCup.git
+  cd WorldCup
   npm install
   npm run dev
 ```
@@ -1157,6 +1157,7 @@
 ```
 
 [⤴️ top1](#top1)
+
 </details>
 
 ## License

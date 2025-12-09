@@ -9,13 +9,13 @@ const TopInfo = () => {
         absolute top-0 left-1/2 -translate-x-1/2 z-50
         w-[100%] max-w-[420px]
         bg-white rounded-xl shadow-lg
-        px-6 py-3
+        px-6 py-2
         flex items-center justify-between gap-2
       "
     >
       {/* ✅ STANDINGS */}
       <div
-        onClick={() => navigate("/StandingsPage")}
+        onClick={() => navigate("/standingsPage")}
         className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-200 transition cursor-pointer"
       >
         StandingsPage
@@ -23,15 +23,15 @@ const TopInfo = () => {
 
       {/* ✅ GROUP STAGE */}
       <div
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/groupStagePage")}
         className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-200 transition cursor-pointer"
       >
         GroupStagePage
       </div>
 
-      {/* ✅ TABELLONE (home) */}
+      {/* ✅ TABLE */}
       <div
-        onClick={() => navigate("/TablePage")}
+        onClick={() => navigate("/tablePage")}
         className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-200 transition cursor-pointer"
       >
         TablePage

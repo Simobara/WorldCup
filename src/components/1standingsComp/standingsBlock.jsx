@@ -1,0 +1,101 @@
+import ContainerCitta from "./containerCitta";
+import Grid from "./grid";
+import RettGroup from "./rettGroup";
+import RettangoloVerticale from "./rettVert";
+
+// 👇 genera le 39 etichette dal 11/06/2026 al 19/07/2026
+const createDateLabels = () => {
+  const start = new Date(2026, 5, 11); // 5 = giugno
+  const end = new Date(2026, 6, 19); // 6 = luglio
+
+  // 0=Sun ... 6=Sat
+  const dayLetters = ["D", "L", "M", "M", "G", "V", "S"]; // versione italiana: Dom, Lun, Mar, Mer, Gio, Ven, Sab
+
+  const labels = [];
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    labels.push({
+      top: dayLetters[d.getDay()], // lettera del giorno (G, V, S, ecc.)
+      bottom: d.getDate().toString(), // numero del giorno (11, 12, 13, ...)
+    });
+  }
+
+  return labels;
+};
+
+const StandingsBlock = () => {
+  // 🔥 QUI: creiamo le 39 etichette
+  const titleLabels = createDateLabels();
+
+  return (
+    <div className=" top-[12rem] left-0 relative">
+      {/* ✅ COLONNA 16 CITTÀ */}
+      <div className="absolute left-14 flex flex-col">
+        {Array.from({ length: 16 }).map((_, i) => {
+          let color = "bg-sky-900";
+
+          if (i < 4) color = "bg-sky-300";
+          else if (i < 10) color = "bg-green-500";
+          else color = "bg-rose-300";
+
+          return <ContainerCitta key={i} color={color} isLast={i === 15} />;
+        })}
+      </div>
+
+      {/* ✅ GRIGLIA A DESTRA */}
+      <div className="absolute left-[15rem] -top-16">
+        <div className="absolute -top-12 left-0 flex">
+          <RettGroup color="bg-white" colsSpan={17} />
+          <RettGroup color="bg-orange-300" colsSpan={6} />
+          <RettGroup color="bg-sky-300" colsSpan={4} />
+          <RettGroup color="bg-gray-800" colsSpan={1} />
+          <RettGroup color="bg-orange-300" colsSpan={3} />
+          <RettGroup color="bg-gray-800" colsSpan={2} />
+          <RettGroup color="bg-sky-300" colsSpan={2} />
+          <RettGroup color="bg-gray-800" colsSpan={2} />
+          <RettGroup color="bg-orange-300" colsSpan={2} />
+        </div>
+
+        {/* PRIMA GRIGLIA: 39 colonne, titoli con pattern + date */}
+        <Grid
+          rows={1}
+          cols={39}
+          cellHeightClass="h-16"
+          patternOverride={[
+            [17, "bg-white", false, false],
+            [6, "bg-orange-300", false, false],
+            [4, "bg-sky-300", false, false],
+            [1, "bg-gray-800", false, false],
+            [3, "bg-orange-300", false, false],
+            [2, "bg-gray-800", false, false],
+            [2, "bg-sky-300", false, false],
+            [2, "bg-gray-800", false, false],
+            [2, "bg-orange-300", false, false],
+          ]}
+          columnLabels={titleLabels}
+        />
+
+        {/* SECONDA GRIGLIA: 16 righe squadre */}
+        <Grid rows={16} cellHeightClass="h-12" cols={39} />
+      </div>
+
+      {/* ✅ RETTANGOLI VERTICALI */}
+      <RettangoloVerticale
+        top="top-[0rem]"
+        height="h-[12rem]"
+        color="bg-blue-300"
+      />
+      <RettangoloVerticale
+        top="top-[12rem]"
+        height="h-[18rem]"
+        color="bg-green-300"
+      />
+      <RettangoloVerticale
+        top="top-[30rem]"
+        height="h-[18rem]"
+        color="bg-rose-300"
+      />
+    </div>
+  );
+};
+export default StandingsBlock;

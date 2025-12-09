@@ -1,9 +1,14 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 
-import GroupStagePage from "../Body/groupStagePage";
-import StandingsPage from "../Body/standingsPage";
-import TablePage from "../Body/TablePage";
-import TopInfo from "../components/0TopInfo";
+import TopInfo from "../Ap/TopInfo";
+import StandingsPage from "../Body/1standingsPage";
+import GroupStagePage from "../Body/2groupStagePage";
+import TablePage from "../Body/3tablePage";
 
 const App = () => {
   return (
@@ -12,9 +17,13 @@ const App = () => {
         <TopInfo />
         <div className="h-full w-full flex">
           <Routes>
-            <Route path="/StandingsPage" element={<StandingsPage />} />
-            <Route path="/TablePage" element={<TablePage />} />
-            <Route path="/" element={<GroupStagePage />} />
+            <Route
+              path="/"
+              element={<Navigate to="/standingsPage" replace />}
+            />
+            <Route path="/standingsPage" element={<StandingsPage />} />
+            <Route path="/groupStagePage" element={<GroupStagePage />} />
+            <Route path="/tablePage" element={<TablePage />} />
           </Routes>
         </div>
       </div>
