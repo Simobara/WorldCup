@@ -7,7 +7,7 @@ const RettDat = ({ leftLabel, rightLabel }) => {
                     w-24 h-16 
                     sm:w-28 sm:h-16 
                     md:w-32 md:h-20
-                    bg-red-900 rounded-[16px] shadow-xl overflow-hidden"
+                    bg-pink-900 rounded-[16px] shadow-xl overflow-hidden"
     >
       {/* ✅ Area risultati in ALTO */}
       <div className="absolute top-0 left-0 w-full h-[20%] text-[10px] sm:text-xs text-white">
@@ -18,7 +18,7 @@ const RettDat = ({ leftLabel, rightLabel }) => {
           </div>
 
           {/* bottone al centro */}
-          <button className="w-3 h-3 sm:w-4 sm:h-4 bg-black rounded-sm mx-auto cursor-pointer"></button>
+          {/* <button className="w-3 h-3 sm:w-4 sm:h-4 bg-black rounded-sm mx-auto cursor-pointer"></button> */}
 
           {/* testo destra, più interno */}
           <div className="flex justify-end">
