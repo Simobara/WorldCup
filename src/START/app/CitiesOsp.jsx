@@ -1,25 +1,29 @@
-// src/components/1standingsComp/citiesConfig.js
+// src/components/1standingsComp/citiesOsp.js
+
+const SKY = "bg-sky-400";
+const GREEN = "bg-green-500";
+const ROSE = "bg-rose-300";
 
 export const citiesOsp = [
   // 🔵 SKY – PRIME 4
-  { name: "Vancouver", color: "bg-sky-300" },
-  { name: "Seattle", color: "bg-sky-300" },
-  { name: "San Francisco", color: "bg-sky-300" },
-  { name: "Los Angeles", color: "bg-sky-300" },
+  { name: "Vancouver",      color: SKY },
+  { name: "Seattle",        color: SKY },
+  { name: "San Francisco",  color: SKY },
+  { name: "Los Angeles",    color: SKY },
 
   // 🟢 GREEN – SUCCESSIVE 6
-  { name: "Guadalajara", color: "bg-green-500" },
-  { name: "Mexico City", color: "bg-green-500" },
-  { name: "Monterrey", color: "bg-green-500" },
-  { name: "Houston", color: "bg-green-500" },
-  { name: "Dallas", color: "bg-green-500" },
-  { name: "Kansas City", color: "bg-green-500" },
+  { name: "Guadalajara",    color: GREEN },
+  { name: "Mexico City",    color: GREEN },
+  { name: "Monterrey",      color: GREEN },
+  { name: "Houston",        color: GREEN },
+  { name: "Dallas",         color: GREEN },
+  { name: "Kansas City",    color: GREEN },
 
   // 🌸 ROSE – ULTIME 6
-  { name: "Atlanta", color: "bg-rose-300" },
-  { name: "Miami", color: "bg-rose-300" },
-  { name: "Toronto", color: "bg-rose-300" },
-  { name: "Boston", color: "bg-rose-300" },
-  { name: "Philadelphia", color: "bg-rose-300" },
-  { name: "New Jersey", color: "bg-rose-300" },
+  { name: "Atlanta",        color: ROSE },
+  { name: "Miami",          color: ROSE },
+  { name: "Toronto",        color: ROSE },
+  { name: "Boston",         color: ROSE },
+  { name: "Philadelphia",   color: ROSE },
+  { name: "New Jersey",     color: ROSE },
 ];

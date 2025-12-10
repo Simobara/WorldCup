@@ -32,7 +32,7 @@ const StandingsBlock = () => {
       <RettangoloVerticale
         top="top-[0rem]"
         height="h-[12rem]"
-        color="bg-blue-300"
+        color="bg-sky-400"
         label="WESTERN REGION"
       />
       <RettangoloVerticale
@@ -58,14 +58,14 @@ const StandingsBlock = () => {
           cellHeightClass="h-16"
           patternOverride={[
             [17, "bg-white", false, false],
-            [6, "bg-orange-300", false, false],
+            [6, "bg-orange-400", false, false],
             [4, "bg-sky-300", false, false],
             [1, "bg-gray-800", false, false],
-            [3, "bg-orange-300", false, false],
+            [3, "bg-orange-400", false, false],
             [2, "bg-gray-800", false, false],
             [2, "bg-sky-300", false, false],
             [2, "bg-gray-800", false, false],
-            [2, "bg-orange-300", false, false],
+            [2, "bg-yellow-400", false, false],
           ]}
           columnLabels={titleLabels}
         />
@@ -76,14 +76,14 @@ const StandingsBlock = () => {
             colsSpan={17}
             label="GROUP STAGE MATCHES"
           />
-          <RettGroup color="bg-orange-300" colsSpan={6} label="ROUND OF 32" />
+          <RettGroup color="bg-orange-400" colsSpan={6} label="ROUND OF 32" />
           <RettGroup color="bg-sky-300" colsSpan={4} label="ROUND OF 16" />
           <RettGroup color="bg-gray-800" colsSpan={1} label="" />
-          <RettGroup color="bg-orange-300" colsSpan={3} label="QUARTER" />
+          <RettGroup color="bg-orange-400" colsSpan={3} label="QUARTER" />
           <RettGroup color="bg-gray-800" colsSpan={2} label="" />
           <RettGroup color="bg-sky-300" colsSpan={2} label="SEMIFIN" />
           <RettGroup color="bg-gray-800" colsSpan={2} label="" />
-          <RettGroup color="bg-orange-300" colsSpan={2} label="FINALS" />
+          <RettGroup color="bg-yellow-400" colsSpan={2} label="FINALS" />
         </div>
 
         {/* SECONDA GRIGLIA: 16 righe squadre / città */}

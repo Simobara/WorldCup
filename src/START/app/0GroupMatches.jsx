@@ -151,15 +151,15 @@ group_E: {
         ],
     },
 },
-// Gruppo F - Olanda Giappone PlayUefaB Tunisia--------------------------------------------------------------------------------------------------F
+// Gruppo F - Olanda Japan PlayUefaB Tunisia--------------------------------------------------------------------------------------------------F
 group_F: {
     giornata_1: {
         dates: [
             'GIU/14',
         ],
         matches: [
-            { numero: 1, city: 'Dallas',            time: '22:00',  team1: 'Olanda',            team2: 'Giappone',           pron:' ', results:' ' },
-            { numero: 2, city: 'Monterrey',         time: '04:00',  team1: 'PlayB',             team2: 'Tunisia',            pron:' ', results:' ' },
+            { numero: 1, city: 'Dallas',            time: '22:00',  team1: 'Olanda',            team2: 'Japan',             pron:' ', results:' ' },
+            { numero: 2, city: 'Monterrey',         time: '04:00',  team1: 'PlayB',             team2: 'Tunisia',           pron:' ', results:' ' },
         ],
     },
     giornata_2: {
@@ -167,7 +167,7 @@ group_F: {
             'GIU/20',
         ],
         matches: [
-            { numero: 3, city: 'Monterrey',         time: '06:00',  team1: 'Tunisia',           team2: 'Giappone',          pron:' ', results:' ' },
+            { numero: 3, city: 'Monterrey',         time: '06:00',  team1: 'Tunisia',           team2: 'Japan',             pron:' ', results:' ' },
             { numero: 4, city: 'Houston',           time: '19:00',  team1: 'Olanda',            team2: 'PlayB',             pron:' ', results:' ' },
         ],
     },
@@ -177,7 +177,7 @@ group_F: {
         ],
         matches: [
             { numero: 5, city: 'Kansas City',       time: '01:00',  team1: 'Tunisia',           team2: 'Olanda',            pron:' ', results:' ' },
-            { numero: 6, city: 'Dallas',            time: '01:00',  team1: 'Giappone',          team2: 'PlayB',             pron:' ', results:' ' },
+            { numero: 6, city: 'Dallas',            time: '01:00',  team1: 'Japan',             team2: 'PlayB',                pron:' ', results:' ' },
         ],
     },
 },
@@ -211,7 +211,7 @@ group_G: {
         ],
     },
 },
-// Gruppo H - Spagna Capo Verde Arabia Saudita Uruguay-------------------------------------------------------------------------------------------H
+// Gruppo H - Spagna Capo Verde ASaudita Uruguay-------------------------------------------------------------------------------------------H
 group_H: {
     giornata_1: {
         dates: [
@@ -219,7 +219,7 @@ group_H: {
         ],
         matches: [
             { numero: 1, city: 'Atlanta',           time: '18:00', team1: 'Spagna',             team2: 'Capo Verde',        pron:' ', results:' ' },
-            { numero: 2, city: 'Miami',             time: '24:00', team1: 'Arabia Saudita',     team2: 'Uruguay',           pron:' ', results:' ' },
+            { numero: 2, city: 'Miami',             time: '24:00', team1: 'ASaudita',           team2: 'Uruguay',           pron:' ', results:' ' },
         ],
     },
     giornata_2: {
@@ -227,7 +227,7 @@ group_H: {
             'GIU/21',
         ],
         matches: [
-            { numero: 3, city: 'Atlanta',           time: '18:00', team1: 'Spagna',             team2: 'Arabia Saudita',    pron:' ', results:' ' },
+            { numero: 3, city: 'Atlanta',           time: '18:00', team1: 'Spagna',             team2: 'ASaudita',    pron:' ', results:' ' },
             { numero: 4, city: 'Miami',             time: '24:00', team1: 'Uruguay',            team2: 'Capo Verde',        pron:' ', results:' ' },
         ],
     },
@@ -236,7 +236,7 @@ group_H: {
             'GIU/26',
         ],
         matches: [
-            { numero: 5, city: 'Houston',           time: '02:00', team1: 'Capo Verde',         team2: 'Arabia Saudita',    pron:' ', results:' ' },
+            { numero: 5, city: 'Houston',           time: '02:00', team1: 'Capo Verde',         team2: 'ASaudita',    pron:' ', results:' ' },
             { numero: 6, city: 'Guadalajara',       time: '02:00', team1: 'Uruguay',            team2: 'Spagna',            pron:' ', results:' ' },
         ],
     },
@@ -271,14 +271,14 @@ group_I: {
       ],
     },
 },
-// Gruppo J - Argentina Algeria Austria Giordania------------------------------------------------------------------------------------------------J
+// Gruppo J - Argentina Algeria Autria Jordania------------------------------------------------------------------------------------------------J
 group_J: {
     giornata_1: {
         dates: [
             'GIU/16',
         ],
         matches: [
-            { numero: 1, city: 'San Francisco',     time: '06:00', team1: 'Austria',            team2: 'Giordania',         pron:' ', results:' ' },
+            { numero: 1, city: 'San Francisco',     time: '06:00', team1: 'Autria',             team2: 'Jordania',         pron:' ', results:' ' },
             { numero: 2, city: 'Kansas City',       time: '03:00', team1: 'Argentina',          team2: 'Algeria',           pron:' ', results:' ' },
         ],
     },
@@ -287,8 +287,8 @@ group_J: {
             'GIU/22',
         ],
         matches: [
-            { numero: 3, city: 'Dallas',            time: '19:00', team1: 'Argentina',          team2: 'Austria',           pron:' ', results:' ' },
-            { numero: 4, city: 'San Francisco',     time: '05:00', team1: 'Giordania',          team2: 'Algeria',           pron:' ', results:' ' },
+            { numero: 3, city: 'Dallas',            time: '19:00', team1: 'Argentina',          team2: 'Autria',           pron:' ', results:' ' },
+            { numero: 4, city: 'San Francisco',     time: '05:00', team1: 'Jordania',           team2: 'Algeria',           pron:' ', results:' ' },
         ],
     },
     giornata_3: {
@@ -296,8 +296,8 @@ group_J: {
             'GIU/27',
         ],
         matches: [
-            { numero: 5, city: 'Kansas City',       time: '04:00', team1: 'Algeria',            team2: 'Austria',           pron:' ', results:' ' },
-            { numero: 6, city: 'Dallas',            time: '04:00', team1: 'Giordania',          team2: 'Argentina',         pron:' ', results:' ' },
+            { numero: 5, city: 'Kansas City',       time: '04:00', team1: 'Algeria',            team2: 'Autria',           pron:' ', results:' ' },
+            { numero: 6, city: 'Dallas',            time: '04:00', team1: 'Jordania',           team2: 'Argentina',         pron:' ', results:' ' },
         ],
     },
 },
