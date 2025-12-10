@@ -19,31 +19,31 @@ const TablePage = () => {
           </div>
 
           <div>
-            <div className="relative md:mt-10 mt-6">
+            <div className="relative md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
-            <div className="relative mt-20">
+            <div className="relative md:mt-20 mt-12">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-10 mt-6">
+            <div className="relative md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
-            <div className="relative mt-20">
+            <div className="relative md:mt-20 mt-12">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-10 mt-6">
+            <div className="relative md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
-            <div className="relative mt-20">
+            <div className="relative md:mt-20 mt-12">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-10 mt-6">
+            <div className="relative md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
           </div>
