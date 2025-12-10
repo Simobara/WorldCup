@@ -11,7 +11,7 @@ const StandingsBlock = () => {
   const mergedHighlights = getMergedHighlights();
 
   return (
-    <div className="md:top-[12rem] top-[9rem] left-0 relative">
+    <div className="md:top-[12rem] top-[9rem] md:left-0 -left-2 relative">
       {/* ✅ LOGO */}
       <div className="absolute md:-left-4 -left-16 -top-28 md:-top-28 w-52 md:w-72 flex justify-center z-50">
         {/* ✅ LOGO MOBILE (PIÙ GRANDE) */}

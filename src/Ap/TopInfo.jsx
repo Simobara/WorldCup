@@ -16,7 +16,7 @@ const TopInfo = () => {
       {/* ✅ STANDINGS */}
       <div
         onClick={() => navigate("/standingsPage")}
-        className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-200 transition cursor-pointer"
+        className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-700 transition cursor-pointer"
       >
         StandingsPage
       </div>
@@ -24,7 +24,7 @@ const TopInfo = () => {
       {/* ✅ GROUP STAGE */}
       <div
         onClick={() => navigate("/groupStagePage")}
-        className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-200 transition cursor-pointer"
+        className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-700 transition cursor-pointer"
       >
         GroupStagePage
       </div>
@@ -32,7 +32,7 @@ const TopInfo = () => {
       {/* ✅ TABLE */}
       <div
         onClick={() => navigate("/tablePage")}
-        className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-200 transition cursor-pointer"
+        className="text-black font-normal rounded-lg text-md px-2 py-1 hover:bg-sky-700 transition cursor-pointer"
       >
         TablePage
       </div>
