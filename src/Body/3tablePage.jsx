@@ -79,17 +79,17 @@ const TablePage = () => {
         {/* ✅ VERDE → centrale dentro, laterali fuori------------------------------------------------------ */}
         <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
           {/* ✅ BLOCCO CENTRALE (centrato nella colonna) */}
-          <div className="relative z-10 md:-top-12 -top-24">
+          <div className="relative z-10 md:-top-12 -top-28">
             <BlokQuadRett />
           </div>
 
           {/* ✅ BLOCCO SINISTRO (esce verso sinistra di 2rem) */}
-          <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[24rem] md:-ml-16 -ml-10 z-10">
+          <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[20rem] md:-ml-16 -ml-10 z-10">
             <BlokQuadRett />
           </div>
 
           {/* ✅ BLOCCO DESTRO (esce verso destra di 2rem) */}
-          <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[24rem] md:-mr-16 -mr-10 z-10">
+          <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[20rem] md:-mr-16 -mr-10 z-10">
             <BlokQuadRett />
           </div>
         </div>
