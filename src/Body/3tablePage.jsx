@@ -11,7 +11,7 @@ const TablePage = () => {
       "
     >
       {/* Contenitore largo orizzontale: le 7 colonne una di fianco all'altra */}
-      <div className="flex h-full min-w-[1200px] md:min-w-full max-w-[1800px] mx-auto px-6 md:px-0">
+      <div className="flex h-full min-w-[1200px] md:min-w-full max-w-[1800px] md:mx-auto mx-0 md:px-6 px-0">
         {/* ✅ PRIMA COLONNA */}
         <div className="relative flex-1 h-full bg-red flex flex-col items-center pt-12">
           <div className=" md:-mt-8 -mt-4">
@@ -79,17 +79,17 @@ const TablePage = () => {
         {/* ✅ VERDE → centrale dentro, laterali fuori------------------------------------------------------ */}
         <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
           {/* ✅ BLOCCO CENTRALE (centrato nella colonna) */}
-          <div className="relative z-10 md:-top-12 -top-28">
+          <div className="relative z-10 md:-top-12 -top-24">
             <BlokQuadRett />
           </div>
 
           {/* ✅ BLOCCO SINISTRO (esce verso sinistra di 2rem) */}
-          <div className="absolute left-1/2 -translate-x-full md:top-0 top-[24rem] md:-ml-16 -ml-10 z-10">
+          <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[24rem] md:-ml-16 -ml-10 z-10">
             <BlokQuadRett />
           </div>
 
           {/* ✅ BLOCCO DESTRO (esce verso destra di 2rem) */}
-          <div className="absolute right-1/2 translate-x-full md:top-0 top-[24rem] md:-mr-16 -mr-10 z-10">
+          <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[24rem] md:-mr-16 -mr-10 z-10">
             <BlokQuadRett />
           </div>
         </div>
