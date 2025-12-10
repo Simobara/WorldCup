@@ -31,68 +31,72 @@ const StandingsBlock = () => {
       {/* ✅ RETTANGOLI VERTICALI CON TESTO */}
       <RettangoloVerticale
         top="top-[0rem]"
-        height="h-[12rem]"
+        height="md:h-[12rem] h-[11rem]"
         color="bg-sky-400"
         label="WESTERN REGION"
       />
       <RettangoloVerticale
-        top="top-[12rem]"
-        height="h-[18rem]"
+        top="md:top-[12rem] top-[11rem]"
+        height="md:h-[18rem] h-[16.5rem]"
         color="bg-green-300"
         label="CENTRAL REGION"
       />
       <RettangoloVerticale
-        top="top-[30rem]"
-        height="h-[18rem]"
+        top="md:top-[30rem] top-[27.5rem]"
+        height="md:h-[18rem] h-[16.5rem]"
         color="bg-rose-300"
         label="EASTERN REGION"
       />
 
       {/* ------------------------------------------------------------------ */}
       {/* ✅ GRIGLIA A DESTRA */}
-      <div className="absolute left-[15rem] -top-16">
-        {/* PRIMA GRIGLIA: 39 colonne, titoli con pattern + date */}
-        <Grid
-          rows={1}
-          cols={39}
-          cellHeightClass="h-16"
-          patternOverride={[
-            [17, "bg-white", false, false],
-            [6, "bg-orange-400", false, false],
-            [4, "bg-sky-300", false, false],
-            [1, "bg-gray-800", false, false],
-            [3, "bg-orange-400", false, false],
-            [2, "bg-gray-800", false, false],
-            [2, "bg-sky-300", false, false],
-            [2, "bg-gray-800", false, false],
-            [2, "bg-yellow-400", false, false],
-          ]}
-          columnLabels={titleLabels}
-        />
+      <div className="absolute left-[15rem] -top-28 w-[calc(100vw-15rem)] overflow-x-auto overflow-y-visible">
+        {/* Contenuto reale della griglia: più largo del contenitore → scroll orizzontale */}
+        <div className="relative inline-block min-w-max pt-8">
+          {/* 🔹 BARRA COLORATA SOPRA LA GRIGLIA */}
+          <div className="absolute top-0 left-0 flex z-50">
+            <RettGroup
+              color="bg-white"
+              colsSpan={17}
+              label="GROUP STAGE MATCHES"
+            />
+            <RettGroup color="bg-orange-400" colsSpan={6} label="ROUND OF 32" />
+            <RettGroup color="bg-sky-300" colsSpan={4} label="ROUND OF 16" />
+            <RettGroup color="bg-gray-800" colsSpan={1} label="" />
+            <RettGroup color="bg-orange-400" colsSpan={3} label="QUARTER" />
+            <RettGroup color="bg-gray-800" colsSpan={2} label="" />
+            <RettGroup color="bg-sky-300" colsSpan={2} label="SEMIFIN" />
+            <RettGroup color="bg-gray-800" colsSpan={2} label="" />
+            <RettGroup color="bg-yellow-400" colsSpan={2} label="FINALS" />
+          </div>
 
-        <div className="absolute -top-8 left-0 flex">
-          <RettGroup
-            color="bg-white"
-            colsSpan={17}
-            label="GROUP STAGE MATCHES"
+          {/* 🔹 PRIMA GRIGLIA: 39 colonne, titoli con pattern + date */}
+          <Grid
+            rows={1}
+            cols={39}
+            cellHeightClass="h-20"
+            patternOverride={[
+              [17, "bg-white", false, false],
+              [6, "bg-orange-400", false, false],
+              [4, "bg-sky-300", false, false],
+              [1, "bg-gray-800", false, false],
+              [3, "bg-orange-400", false, false],
+              [2, "bg-gray-800", false, false],
+              [2, "bg-sky-300", false, false],
+              [2, "bg-gray-800", false, false],
+              [2, "bg-yellow-400", false, false],
+            ]}
+            columnLabels={titleLabels}
           />
-          <RettGroup color="bg-orange-400" colsSpan={6} label="ROUND OF 32" />
-          <RettGroup color="bg-sky-300" colsSpan={4} label="ROUND OF 16" />
-          <RettGroup color="bg-gray-800" colsSpan={1} label="" />
-          <RettGroup color="bg-orange-400" colsSpan={3} label="QUARTER" />
-          <RettGroup color="bg-gray-800" colsSpan={2} label="" />
-          <RettGroup color="bg-sky-300" colsSpan={2} label="SEMIFIN" />
-          <RettGroup color="bg-gray-800" colsSpan={2} label="" />
-          <RettGroup color="bg-yellow-400" colsSpan={2} label="FINALS" />
-        </div>
 
-        {/* SECONDA GRIGLIA: 16 righe squadre / città */}
-        <Grid
-          rows={citiesOsp.length}
-          cols={39}
-          cellHeightClass="h-12"
-          highlightedCells={mergedHighlights}
-        />
+          {/* 🔹 SECONDA GRIGLIA: 16 righe squadre / città */}
+          <Grid
+            rows={citiesOsp.length}
+            cols={39}
+            cellHeightClass="md:h-12 h-11"
+            highlightedCells={mergedHighlights}
+          />
+        </div>
       </div>
     </div>
   );
