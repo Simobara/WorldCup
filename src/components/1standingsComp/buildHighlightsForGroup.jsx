@@ -39,9 +39,34 @@ export const buildHighlightsForGroup = (
 
       const cellKey = `${rowIndex}-${colIndex}`;
 
-      // 🔹 abbreviazioni team1 / team2 (prime 3 lettere, maiuscole)
-      const t1 = (match.team1 || "").slice(0, 3).toUpperCase();
-      const t2 = (match.team2 || "").slice(0, 3).toUpperCase();
+      // 🔹 LOGICA CHE TI SERVE:
+      // Se team1/team2 sono vuoti ma esistono pos1/pos2 → usa pos1/pos2
+      // Altrimenti usa team1/team2.
+      const hasTeam =
+        (match.team1 && match.team1.trim() !== "") ||
+        (match.team2 && match.team2.trim() !== "");
+      const hasPos =
+        (match.pos1 && match.pos1.trim() !== "") ||
+        (match.pos2 && match.pos2.trim() !== "");
+
+      let raw1, raw2;
+      let usePos = false;
+
+      if (!hasTeam && hasPos) {
+        // caso round32: team1/team2 vuoti, pos1/pos2 pieni
+        raw1 = match.pos1 || "";
+        raw2 = match.pos2 || "";
+        usePos = true;
+      } else {
+        // caso classico gironi: team1/team2
+        raw1 = match.team1 || "";
+        raw2 = match.team2 || "";
+      }
+
+      // 🔹 Se usiamo pos → li lasciamo così ("2A", "2B")
+      //     Se usiamo team → accorciamo e mettiamo maiuscolo ("MEX", "USA")
+      const t1 = usePos ? raw1 : raw1.slice(0, 3).toUpperCase();
+      const t2 = usePos ? raw2 : raw2.slice(0, 3).toUpperCase();
 
       const teamsShort = t1 && t2 ? `${t1} ${t2}` : t1 || t2 || null;
       const goto = match.goto || null;
@@ -49,7 +74,7 @@ export const buildHighlightsForGroup = (
       // 🔹 salviamo un oggetto con colore + sigle squadre
       highlighted[cellKey] = {
         color, // es. "bg-green-500"
-        teams: teamsShort, // es. "MEX-SOU"
+        teams: teamsShort, // es. "2A 2B" oppure "MEX USA"
         goto,
       };
     });

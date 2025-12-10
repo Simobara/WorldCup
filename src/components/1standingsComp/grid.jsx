@@ -11,14 +11,14 @@ const Grid = ({
 }) => {
   const defaultPattern = [
     [17, "bg-gray-400", false, false],
-    [6, "bg-gray-600", false, false],
-    [4, "bg-gray-400", false, false],
-    [1, "bg-gray-800", true, false],
-    [3, "bg-gray-400", false, false],
-    [2, "bg-gray-800", true, true],
+    [6, "bg-gray-700", false, false],
+    [4, "bg-gray-600", false, false],
+    [1, "bg-gray-900", true, false],
+    [3, "bg-gray-500", false, false],
+    [2, "bg-gray-900", true, true],
     [2, "bg-gray-400", false, false],
-    [2, "bg-gray-800", true, true],
-    [2, "bg-gray-400", false, false],
+    [2, "bg-gray-900", true, true],
+    [2, "bg-gray-300", false, false],
   ];
 
   const pattern = patternOverride || defaultPattern;
@@ -85,7 +85,7 @@ const Grid = ({
           colIndex === 13; // secondo blocco (6 caselle dopo, es. giorno 22)
 
         const dividerClass = isDividerAfterSix
-          ? "border-l-8 border-l-sky-700"
+          ? "border-l-8 border-l-gray-700"
           : "";
 
         return (
@@ -112,7 +112,7 @@ const Grid = ({
             ) : null}
 
             {/* LETTERA GRUPPO IN ALTO (solo righe delle città) */}
-            {highlightLabel && rowIndex > 0 && (
+            {highlightLabel && (
               <div className="absolute top-0 left-0 w-full flex justify-center z-30">
                 <span className="text-[10px] font-extrabold leading-none translate-y-[-1px]">
                   {highlightLabel}
@@ -120,18 +120,52 @@ const Grid = ({
               </div>
             )}
 
-            {/* SIGLA SQUADRE CENTRATA NEL QUADRATO (prime 3 lettere team1-team2) */}
-            {highlightTeams && (
-              <div className="absolute inset-0 flex justify-center items-center z-30">
-                <span className="text-white text-[12px] font-extrabold leading-none tracking-wide">
-                  {highlightTeams}
-                </span>
-              </div>
-            )}
+            {highlightTeams &&
+              (() => {
+                // separa pos1 e pos2 (es: "1A 2B")
+                const [pos1, pos2] = highlightTeams.split(" ");
+
+                const getStyle = (p) => {
+                  if (!p) return "text-white text-[12px] font-xs";
+
+                  // ✅ Caso 1: formato singolo valido → 1A, 2B, 3C
+                  const singleMatch = p.match(/^([1-3])([A-Z])$/i);
+
+                  if (singleMatch) {
+                    const num = singleMatch[1];
+
+                    if (num === "1")
+                      return "text-red-500 text-[12px] font-bold";
+                    if (num === "2")
+                      return "text-green-500 text-[12px] font-bold";
+                    if (num === "3")
+                      return "text-gray-200 text-[6px] font-bold tracking-tight";
+                  }
+
+                  // ✅ Caso 2: formato multiplo SOLO per 3 → es: 3A/B/C/D/F
+                  const multiThreeMatch = p.match(/^3[A-Z](\/[A-Z])+$/i);
+
+                  if (multiThreeMatch) {
+                    return "text-gray-200 text-[6px] font-bold tracking-tight";
+                  }
+
+                  // ✅ Tutto il resto resta neutro
+                  return "text-white text-[12px] font-xs";
+                };
+
+                return (
+                  <div className="absolute inset-0 flex flex-col justify-center items-center z-30 leading-none">
+                    <span className={getStyle(pos1)}>{pos1}</span>
+
+                    <span className={getStyle(pos2)}>{pos2}</span>
+                  </div>
+                );
+              })()}
+
             {/* NUMERO GOTO IN BASSO (solo se esiste, es. knockout) */}
-            {highlightGoto && rowIndex > 0 && (
+            {highlightGoto && (
               <div className="absolute bottom-[1px] left-2 w-full flex justify-center items-center z-40">
-                <span className="text-yellow-200 text-[9px] font-extrabold leading-none">
+                <span className="text-yellow-300 text-[9px] font-extrabold leading-none pb-9">
                   {highlightGoto}
                 </span>
               </div>

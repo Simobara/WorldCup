@@ -1,12 +1,12 @@
 const groupFinal26 = {
-//ROUNDOF32-------------------------------------------------------------------------------------------------------------------------------------------|
+//ROUNDOF32-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 round32: {    
     giornata_1:{
         dates: [
             'GIU/28', 
         ],
         matches: [
-            { numero: 1,  city: 'Los Angeles',    time: '',  team1: '2A',  team2: '2B',         goto:'73',      pron:' ', results:' '  },
+            { numero: 1,  city: 'Los Angeles',    time: '',  pos1:'2A' ,team1: '',          pos2:'2B',          team2: '',          goto:'73',      pron:' ', results:' '  },
         ],
     },
     giornata_2:{
@@ -14,9 +14,9 @@ round32: {
             'GIU/29', 
         ],
         matches: [
-            { numero: 1,  city: 'Houston',        time: '',  team1: '1C',  team2: '2F',          goto:'76',     pron:' ', results:' ' },
-            { numero: 2,  city: 'Boston',         time: '',  team1: '1E',  team2: '3A/B/C/D/F',  goto:'74',     pron:' ', results:' ' },
-            { numero: 3,  city: 'Monterrey',      time: '',  team1: '1F',  team2: '2C',          goto:'75',     pron:' ', results:' ' },
+            { numero: 1,  city: 'Houston',        time: '',  pos1:'1C', team1: '',          pos2:'2F',           team2: '',          goto:'76',     pron:' ', results:' ' },
+            { numero: 2,  city: 'Boston',         time: '',  pos1:'1E', team1: '',          pos2:'3A/B/C/D/F',   team2: '',          goto:'74',     pron:' ', results:' ' },
+            { numero: 3,  city: 'Monterrey',      time: '',  pos1:'1F', team1: '',          pos2:'2C',           team2: '',          goto:'75',     pron:' ', results:' ' },
         ],
     },
     giornata_3:{
@@ -24,9 +24,9 @@ round32: {
             'GIU/30',
         ],
         matches: [
-            { numero: 1,  city: 'Dallas',         time: '',  team1: '2E',  team2: '2I',           goto:'75',     pron:' ', results:' ' },
-            { numero: 2,  city: 'New Jersey',      time: '',  team1: '1I',  team2: '3C/D/F/G/H',   goto:'79',     pron:' ', results:' ' },
-            { numero: 3,  city: 'Mexico City',    time: '',  team1: '1A',  team2: '3C/E/F/H/I',   goto:'75',     pron:' ', results:' ' },
+            { numero: 1,  city: 'Dallas',         time: '',  pos1:'2E', team1: '',          pos2:'2I',            team2: '',          goto:'75',     pron:' ', results:' ' },
+            { numero: 2,  city: 'New Jersey',     time: '',  pos1:'1I', team1: '',          pos2:'3C/D/F/G/H',    team2: '',          goto:'79',     pron:' ', results:' ' },
+            { numero: 3,  city: 'Mexico City',    time: '',  pos1:'1A', team1: '',          pos2:'3C/E/F/H/I',    team2: '',          goto:'75',     pron:' ', results:' ' },
         ],
     },
     giornata_4:{
@@ -34,9 +34,10 @@ round32: {
             'LUG/01',
         ],
         matches: [
-            { numero: 1,  city: 'Atlanta',        time: '',  team1: '1L',  team2: '3E/H/I/J/K',    goto:'80',     pron:' ', results:' ' },
-            { numero: 2,  city: 'Seattle',        time: '',  team1: '1G',  team2: '3A/E/H/I/J',    goto:'82',     pron:' ', results:' ' },
-            { numero: 3,  city: 'San Francisco',  time: '',  team1: '1D',  team2: '3B/E/F/I/J',    goto:'81',     pron:' ', results:' ' },
+            { numero: 1,  city: 'Atlanta',        time: '',  pos1:'1L', team1: '',          pos2:'3E/H/I/J/K',    team2: '',          goto:'80',     pron:' ', results:' ' },
+            { numero: 2,  city: 'Seattle',        time: '',  pos1:'1G', team1: '',          pos2:'3A/E/H/I/J',    team2: '',          goto:'82',     pron:' ', results:' ' },
+            { numero: 3,  city: 'San Francisco',  time: '',  pos1:'1D', team1: '',          pos2:'3B/E/F/I/J',    team2: '',          goto:'81',     pron:' ', results:' ' },
+
         ],
     },
     giornata_5:{
@@ -44,9 +45,10 @@ round32: {
             'LUG/02',
         ],
         matches: [
-            { numero: 1, city: 'Los Angeles',    time: '',  team1: '1H',  team2: '2J',              goto:'84',     pron:' ', results:' ' },
-            { numero: 2, city: 'Toronto',        time: '',  team1: '2K',  team2: '2L',              goto:'83',     pron:' ', results:' ' },
-            { numero: 3, city: 'Vancouver',      time: '',  team1: '1B',  team2: '3E/F/G/I/J',      goto:'85',     pron:' ', results:' ' },
+            { numero: 1, city: 'Los Angeles',    time: '',  pos1:'1H', team1: '',          pos2:'2J',            team2: '',          goto:'84',     pron:' ', results:' ' },
+            { numero: 2, city: 'Toronto',        time: '',  pos1:'2K', team1: '',          pos2:'2L',            team2: '',          goto:'83',     pron:' ', results:' ' },
+            { numero: 3, city: 'Vancouver',      time: '',  pos1:'1B', team1: '',          pos2:'3E/F/G/I/J',    team2: '',          goto:'85',     pron:' ', results:' ' },
+
         ],
     },
     giornata_6:{
@@ -54,21 +56,23 @@ round32: {
             'LUG/03',
         ],
         matches: [
-            { numero: 1, city: 'Dallas',         time: '',  team1: '2D',  team2: '2G',               goto:'88',     pron:' ', results:' ' },
-            { numero: 2, city: 'Miami',          time: '',  team1: '1J',  team2: '2H',               goto:'86',     pron:' ', results:' ' },
-            { numero: 3, city: 'Kansas City',    time: '',  team1: '1K',  team2: '3D/E/I/J/L',       goto:'87',     pron:' ', results:' ' },
+            { numero: 1, city: 'Dallas',         time: '',  pos1:'2D', team1: '',          pos2:'2G',            team2: '',          goto:'88',     pron:' ', results:' ' },
+            { numero: 2, city: 'Miami',          time: '',  pos1:'1J', team1: '',          pos2:'2H',            team2: '',          goto:'86',     pron:' ', results:' ' },
+            { numero: 3, city: 'Kansas City',    time: '',  pos1:'1K', team1: '',          pos2:'3D/E/I/J/L',    team2: '',          goto:'87',     pron:' ', results:' ' },
+
         ],
     },
 },
-//ROUNDOF16-------------------------------------------------------------------------------------------------------------------------------------------|
+//ROUNDOF16-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 round16: {
     giornata_1: {
         dates: [
             'LUG/04'
         ],
         matches: [
-            { numero: 89, city: 'Philadelphia',   time: '',  team1: '74', team2: '77',              goto:'89',      pron:' ', results:' ' },
-            { numero: 90, city: 'Houston',        time: '',  team1: '73', team2: '75',              goto:'90',      pron:' ', results:' ' },
+            { numero: 89, city: 'Philadelphia',   time: '',  pos1:'74', team1: '',          pos2:'77',            team2: '',          goto:'89',      pron:' ', results:' ' },
+            { numero: 90, city: 'Houston',        time: '',  pos1:'73', team1: '',          pos2:'75',            team2: '',          goto:'90',      pron:' ', results:' ' },
+
         ],
     },
     giornata_2: {
@@ -76,8 +80,8 @@ round16: {
             'LUG/05'
         ],
         matches: [
-            { numero: 91, city: 'New Jersey',     time: '',  team1: '76', team2: '78',              goto:'91',      pron:' ', results:' ' },
-            { numero: 92, city: 'Mexico City',    time: '',  team1: '79', team2: '80',              goto:'92',      pron:' ', results:' ' },
+            { numero: 91, city: 'New Jersey',     time: '',  pos1:'76', team1: '',          pos2:'78',            team2: '',          goto:'91',      pron:' ', results:' ' },
+            { numero: 92, city: 'Mexico City',    time: '',  pos1:'79', team1: '',          pos2:'80',            team2: '',          goto:'92',      pron:' ', results:' ' },
         ],
     },
     giornata_3: {
@@ -85,8 +89,9 @@ round16: {
             'LUG/06'
         ],
         matches: [
-            { numero: 93, city: 'Dallas',         time: '', team1: '83', team2: '84',               goto:'93',      pron:' ', results:' ' },
-            { numero: 94, city: 'Seattle',        time: '', team1: '81', team2: '82',               goto:'94',      pron:' ', results:' ' },
+            { numero: 93, city: 'Dallas',         time: '',  pos1:'83', team1: '',          pos2:'84',            team2: '',          goto:'93',      pron:' ', results:' ' },
+            { numero: 94, city: 'Seattle',        time: '',  pos1:'81', team1: '',          pos2:'82',            team2: '',          goto:'94',      pron:' ', results:' ' },
+
         ],
     },
     giornata_4: {
@@ -94,19 +99,21 @@ round16: {
             'LUG/07'
         ],
         matches: [
-            { numero: 95, city: 'Atlanta',        time: '', team1: '86', team2: '88',                goto:'95',      pron:' ', results:' ' },
-            { numero: 96, city: 'Vancouver',      time: '', team1: '85', team2: '87',                goto:'96',      pron:' ', results:' ' },
+            { numero: 95, city: 'Atlanta',        time: '',  pos1:'86', team1: '',          pos2:'88',            team2: '',          goto:'95',      pron:' ', results:' ' },
+            { numero: 96, city: 'Vancouver',      time: '',  pos1:'85', team1: '',          pos2:'87',            team2: '',          goto:'96',      pron:' ', results:' ' },
+
         ],
     },
 },
-//QUARTERFINALS---------------------------------------------------------------------------------------------------------------------------------------|
+//QUARTERFINALS-------------------------------------------------------------------------------------------------------------------------------------------------------------|
 quarterFinals: {    
     giornata_1:{
         dates: [
             'LUG/09',
         ],
         matches: [
-            { numero: 1,  city: 'Boston',          time: '',  team1: '89',  team2: '90',             goto:'97',      pron:' ', results:' ' },
+            { numero: 1,  city: 'Boston',          time: '',  pos1:'89', team1: '',          pos2:'90',            team2: '',          goto:'97',      pron:' ', results:' ' },
+
         ],
     },
     giornata_2:{
@@ -114,7 +121,8 @@ quarterFinals: {
             'LUG/10',
         ],
         matches: [
-            { numero: 1,  city: 'Los Angeles',     time: '',  team1: '93',  team2: '94',              goto:'98',      pron:' ', results:' ' },
+            { numero: 1,  city: 'Los Angeles',     time: '',  pos1:'93', team1: '',          pos2:'94',            team2: '',          goto:'98',      pron:' ', results:' ' },
+
         ],
     },
     giornata_3:{
@@ -122,19 +130,21 @@ quarterFinals: {
             'LUG/11',
         ],
         matches: [
-            { numero: 1,  city: 'Miami',            time: '',  team1: '91',  team2: '92',              goto:'99',      pron:' ', results:' ' },
-            { numero: 2,  city: 'Kansas City',      time: '',  team1: '95',  team2: '96',              goto:'100',     pron:' ', results:' ' },
+            { numero: 1,  city: 'Miami',            time: '',  pos1:'91', team1: '',          pos2:'92',            team2: '',          goto:'99',      pron:' ', results:' ' },
+            { numero: 2,  city: 'Kansas City',      time: '',  pos1:'95', team1: '',          pos2:'96',            team2: '',          goto:'100',     pron:' ', results:' ' },
+
         ],
     },
 },
-// SEMIFINALS-----------------------------------------------------------------------------------------------------------------------------------------|
+// SEMIFINALS---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 semifinals: {    
     giornata_1:{
         dates: [
             'LUG/14',
         ],
         matches: [
-            { numero: 1,  city: 'Dallas',            time: '',  team1: '97',  team2: '98',               goto:'',    pron:' ', results:' ' },
+            { numero: 1,  city: 'Dallas',            time: '',  pos1:'97', team1: '',          pos2:'98',            team2: '',          goto:'',    pron:' ', results:' ' },
+
         ],
     },
     giornata_2:{
@@ -142,18 +152,20 @@ semifinals: {
             'LUG/15',
         ],
         matches: [
-            { numero: 1,  city: 'Atlanta',           time: '',  team1: '99',  team2: '100',                goto:'',   pron:' ', results:' ' },
+            { numero: 1,  city: 'Atlanta',           time: '',  pos1:'99', team1: '',          pos2:'100',            team2: '',          goto:'',   pron:' ', results:' ' },
+
         ],
     },
 },
-// FINAL ---------------------------------------------------------------------------------------------------------------------------------------------|
+// FINAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 final34: {
     giornata_1:{
         dates: [
             'LUG/18',
         ],
         matches: [
-            { numero: 1,  city: 'Miami',              time: '',  team1: 'FINAL',  team2: '3/4',            pron:' ', results:' ' },
+            { numero: 1,  city: 'Miami',              time: '',  pos1:'FIN', team1: '',          pos2:'3/4',            team2: '',          pron:' ', results:' ' },
+
         ],
     },
   },
@@ -163,13 +175,14 @@ final: {
             'LUG/19',
         ],
         matches: [
-            { numero: 1,  city: 'New Jersey',          time: '',  team1: 'WINNER',  team2: '',             pron:' ', results:' ' },
+            { numero: 1,  city: 'New Jersey',          time: '',  pos1:'WIN', team1: '',          pos2:'',            team2: '',          pron:' ', results:' ' },
+
         ],
     },
   },
 };
 
 
-//----------------------------------------------------------------------------------------------------------------------------------------------------|
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 export const groupFinal = groupFinal26;
 export const currentYear = 2026;
