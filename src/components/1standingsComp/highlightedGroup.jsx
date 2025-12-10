@@ -3,12 +3,28 @@ import { groupFinal } from "../../START/app/1GroupFinal";
 import { citiesOsp } from "../../START/app/CitiesOsp";
 import { buildHighlightsForGroup } from "./buildHighlightsForGroup";
 import { createDateLabels } from "./createDate";
-
+// 🔹 Aggiunge automaticamente la lettera del gruppo (A, B, ...) senza perdere teams
 const withAutoGroupLabel = (highlights, groupKey) => {
-  const label = groupKey.replace("group_", ""); // "group_A" → "A"
+  const label = groupKey.replace("group_", ""); // "group_A" → "A", "group_" → ""
 
   return Object.fromEntries(
-    Object.entries(highlights).map(([key, color]) => [key, { color, label }])
+    Object.entries(highlights).map(([key, value]) => {
+      // value può essere:
+      // - stringa (vecchio caso)
+      // - oggetto { color, teams }
+
+      if (typeof value === "string") {
+        return [key, { color: value, label }];
+      }
+
+      return [
+        key,
+        {
+          ...value, // mantiene color, teams, ecc.
+          label, // aggiunge lettera gruppo ("A", "B"... o "" per knockout)
+        },
+      ];
+    })
   );
 };
 
@@ -30,7 +46,7 @@ export const getMergedHighlights = () => {
       groupMatches.group_B,
       titleLabels,
       citiesOsp,
-      "bg-red-500"
+      "bg-pink-700"
     ),
     "group_B"
   );
@@ -134,7 +150,7 @@ export const getMergedHighlights = () => {
     ),
     "group_L"
   );
-//-----------------------------------------------------|
+  //-----------------------------------------------------|
   const highlightedCellsRoundOf32 = withAutoGroupLabel(
     buildHighlightsForGroup(
       groupFinal.round32,

@@ -8,7 +8,7 @@ export const buildHighlightsForGroup = (
 ) => {
   const highlighted = {};
 
-  const giornate = Object.values(group); // giornata_1, giornata_2, giornata_3
+  const giornate = Object.values(group); // giornata_1, giornata_2, giornata_3...
 
   giornate.forEach((giornata) => {
     const { dates, matches } = giornata;
@@ -38,7 +38,20 @@ export const buildHighlightsForGroup = (
       if (rowIndex === -1) return;
 
       const cellKey = `${rowIndex}-${colIndex}`;
-      highlighted[cellKey] = color;
+
+      // 🔹 abbreviazioni team1 / team2 (prime 3 lettere, maiuscole)
+      const t1 = (match.team1 || "").slice(0, 3).toUpperCase();
+      const t2 = (match.team2 || "").slice(0, 3).toUpperCase();
+
+      const teamsShort = t1 && t2 ? `${t1} ${t2}` : t1 || t2 || null;
+      const goto = match.goto || null;
+
+      // 🔹 salviamo un oggetto con colore + sigle squadre
+      highlighted[cellKey] = {
+        color, // es. "bg-green-500"
+        teams: teamsShort, // es. "MEX-SOU"
+        goto,
+      };
     });
   });
 

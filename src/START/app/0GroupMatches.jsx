@@ -1,13 +1,13 @@
 const groupMatches26 = {
-// Gruppo A – Messico Sudafrica Corea del Sud PlayoffUefaD--------------------------------------------------------------------------------------A
+// Gruppo A – Messico Sudafrica Korea PlayUefaD--------------------------------------------------------------------------------------------------A
 group_A: {    
     giornata_1:{
         dates: [
             'GIU/11', 
         ],
         matches: [
-            { numero: 1, city: 'Mexico City',   time: '21:00',      team1: 'Mexico',       team2: 'South Africa',    pron:' ', results:' ' },
-            { numero: 2, city: 'Guadalajara',   time: '04:00',      team1: 'South Korea',  team2: 'PlayoffD',        pron:' ', results:' ' },
+            { numero: 1, city: 'Mexico City',   time: '21:00',      team1: 'Mexico',        team2: 'SAfrica',       pron:' ', results:' ' },
+            { numero: 2, city: 'Guadalajara',   time: '04:00',      team1: 'Korea',        team2: 'PlayD',         pron:' ', results:' ' },
         ],
     },
     giornata_2:{
@@ -15,8 +15,8 @@ group_A: {
             'GIU/18', 
         ],
         matches: [
-            { numero: 3, city: 'Atlanta',       time: '18:00',      team1: 'PlayoffD',      team2: 'South Africa',    pron:' ', results:' ' },
-            { numero: 4, city: 'Guadalajara',   time: '03:00',      team1: 'Mexico',        team2: 'South Korea',     pron:' ', results:' ' },
+            { numero: 3, city: 'Atlanta',       time: '18:00',      team1: 'PlayD',         team2: 'SAfrica',       pron:' ', results:' ' },
+            { numero: 4, city: 'Guadalajara',   time: '03:00',      team1: 'Mexico',        team2: 'Korea',        pron:' ', results:' ' },
         ],
     },
     giornata_3:{
@@ -24,12 +24,12 @@ group_A: {
             'GIU/24',
         ],
         matches: [
-            { numero: 5, city: 'Monterrey',     time: '03:00',      team1: 'South Africa',  team2: 'South Korea',     pron: ' ', results: ' '},
-            { numero: 6, city: 'Mexico City',   time: '03:00',      team1: 'PlayoffD',      team2: 'Mexico',          pron: ' ', results: ' '},
+            { numero: 5, city: 'Monterrey',     time: '03:00',      team1: 'SAfrica',       team2: 'Korea',        pron: ' ', results: ' '},
+            { numero: 6, city: 'Mexico City',   time: '03:00',      team1: 'PlayD',         team2: 'Mexico',        pron: ' ', results: ' '},
         ],
     },
 },
-// Gruppo B - Canada Qatar Svizzera Italia -----------------------------------------------------------------------------------------------------B
+// Gruppo B - Canada Qatar Svizzera Italia ------------------------------------------------------------------------------------------------------B
 group_B: {
     giornata_1: {
         dates: [
@@ -60,7 +60,7 @@ group_B: {
         ],
     },
 },
-// Gruppo C - Brasile Marocco Haiti Scozia------------------------------------------------------------------------------------------------------C
+// Gruppo C - Brasile Marocco Haiti Scozia-------------------------------------------------------------------------------------------------------C
 group_C: {
     giornata_1: {
         dates: [
@@ -90,7 +90,7 @@ group_C: {
         ],
     },
 },
-// Gruppo D - Usa Paraguay Australia PlayoffUefaC-----------------------------------------------------------------------------------------------D
+// Gruppo D - Usa Paraguay Australia PlayUefaC---------------------------------------------------------------------------------------------------D
 group_D: {
     giornata_1: {
         dates: [
@@ -99,7 +99,7 @@ group_D: {
         ],
         matches: [
             { numero: 1, city: 'Los Angeles',       time: '03:00', team1: 'Usa',            team2: 'Paraguay',          pron:' ', results:' ' },
-            { numero: 2, city: 'Vancouver',         time: '06:00', team1: 'Australia',      team2: 'PlayoffC',          pron:' ', results:' ' },
+            { numero: 2, city: 'Vancouver',         time: '06:00', team1: 'Australia',      team2: 'PlayC',             pron:' ', results:' ' },
         ],
     },
     giornata_2: {
@@ -107,7 +107,7 @@ group_D: {
             'GIU/19',
         ],
         matches: [
-            { numero: 3, city: 'San Francisco',     time: '06:00', team1: 'PlayoffC',       team2: 'Paraguay',          pron:' ', results:' ' },
+            { numero: 3, city: 'San Francisco',     time: '06:00', team1: 'PlayC',          team2: 'Paraguay',          pron:' ', results:' ' },
             { numero: 4, city: 'Seattle',           time: '21:00', team1: 'Usa',            team2: 'Australia',         pron:' ', results:' ' },
         ],
     },
@@ -116,12 +116,12 @@ group_D: {
             'GIU/25',
         ],
         matches: [
-            { numero: 5, city: 'Los Angeles',        time: '04:00', team1: 'PlayoffC',       team2: 'Usa',               pron:' ', results:' ' },
+            { numero: 5, city: 'Los Angeles',        time: '04:00', team1: 'PlayC',         team2: 'Usa',                pron:' ', results:' ' },
             { numero: 6, city: 'San Francisco',      time: '04:00', team1: 'Paraguay',       team2: 'Australia',         pron:' ', results:' ' },
         ],
     },
 },
-// Gruppo E - Germania Curacao Costa d'Avorio Ecuador-------------------------------------------------------------------------------------------E
+// Gruppo E - Germania Curacao Costa d'Avorio Ecuador--------------------------------------------------------------------------------------------E
 group_E: {
     giornata_1: {
         dates: [
@@ -147,19 +147,19 @@ group_E: {
         ],
         matches: [
             { numero: 5, city: 'Philadelphia',      time: '22:00',  team1: 'Curacao',         team2: "Costa D'Avorio",     pron:' ', results:' ' },
-            { numero: 6, city: 'New Jersey',          time: '22:00',  team1: 'Ecuador',         team2: 'Germania',           pron:' ', results:' ' },
+            { numero: 6, city: 'New Jersey',          time: '22:00',  team1: 'Ecuador',       team2: 'Germania',           pron:' ', results:' ' },
         ],
     },
 },
-// Gruppo F - Olanda Giappone PlayoffUefaB Tunisia----------------------------------------------------------------------------------------------F
+// Gruppo F - Olanda Giappone PlayUefaB Tunisia--------------------------------------------------------------------------------------------------F
 group_F: {
     giornata_1: {
         dates: [
             'GIU/14',
         ],
         matches: [
-            { numero: 1, city: 'Dallas',            time: '22:00',  team1: 'Olanda',           team2: 'Giappone',           pron:' ', results:' ' },
-            { numero: 2, city: 'Monterrey',         time: '04:00',  team1: 'PlayoffB',         team2: 'Tunisia',            pron:' ', results:' ' },
+            { numero: 1, city: 'Dallas',            time: '22:00',  team1: 'Olanda',            team2: 'Giappone',           pron:' ', results:' ' },
+            { numero: 2, city: 'Monterrey',         time: '04:00',  team1: 'PlayB',             team2: 'Tunisia',            pron:' ', results:' ' },
         ],
     },
     giornata_2: {
@@ -168,7 +168,7 @@ group_F: {
         ],
         matches: [
             { numero: 3, city: 'Monterrey',         time: '06:00',  team1: 'Tunisia',           team2: 'Giappone',          pron:' ', results:' ' },
-            { numero: 4, city: 'Houston',           time: '19:00',  team1: 'Olanda',            team2: 'PlayoffB',          pron:' ', results:' ' },
+            { numero: 4, city: 'Houston',           time: '19:00',  team1: 'Olanda',            team2: 'PlayB',             pron:' ', results:' ' },
         ],
     },
     giornata_3: {
@@ -177,11 +177,11 @@ group_F: {
         ],
         matches: [
             { numero: 5, city: 'Kansas City',       time: '01:00',  team1: 'Tunisia',           team2: 'Olanda',            pron:' ', results:' ' },
-            { numero: 6, city: 'Dallas',            time: '01:00',  team1: 'Giappone',          team2: 'PlayoffB',          pron:' ', results:' ' },
+            { numero: 6, city: 'Dallas',            time: '01:00',  team1: 'Giappone',          team2: 'PlayB',             pron:' ', results:' ' },
         ],
     },
 },
-// Gruppo G - Belgio Egitto Iran Nuova Zelanda--------------------------------------------------------------------------------------------------G
+// Gruppo G - Belgio Egitto Iran Nuova Zelanda---------------------------------------------------------------------------------------------------G
 group_G: {
     giornata_1: {
         dates: [
@@ -211,7 +211,7 @@ group_G: {
         ],
     },
 },
-// Gruppo H - Spagna Capo Verde Arabia Saudita Uruguay------------------------------------------------------------------------------------------H
+// Gruppo H - Spagna Capo Verde Arabia Saudita Uruguay-------------------------------------------------------------------------------------------H
 group_H: {
     giornata_1: {
         dates: [
@@ -241,15 +241,15 @@ group_H: {
         ],
     },
 },
-// Gruppo I - Francia Senegal PlayoffFifa2 Norvegia---------------------------------------------------------------------------------------------I
+// Gruppo I - Francia Senegal PlayFifa2 Norvegia-------------------------------------------------------------------------------------------------I
 group_I: {
     giornata_1: {
         dates: [
             'GIU/16',
         ],
         matches: [
-            { numero: 1, city: 'New Jersey',          time: '21:00', team1: 'Francia',            team2: 'Senegal',           pron:' ', results:' ' },
-            { numero: 2, city: 'Boston',              time: '24:00', team1: 'Playoff2',           team2: 'Norvegia',          pron:' ', results:' ' },
+            { numero: 1, city: 'New Jersey',          time: '21:00', team1: 'Francia',            team2: 'Senegal',        pron:' ', results:' ' },
+            { numero: 2, city: 'Boston',              time: '24:00', team1: 'Play2',              team2: 'Norvegia',       pron:' ', results:' ' },
         ],
     },
     giornata_2: {
@@ -257,8 +257,8 @@ group_I: {
             'GIU/22',
         ],
         matches: [
-            { numero: 3, city: 'Philadelphia',      time: '23:00', team1: 'Francia',            team2: 'Playoff2',          pron:' ', results:' ' },
-            { numero: 4, city: 'New Jersey',          time: '02:00', team1: 'Norvegia',           team2: 'Senegal',           pron:' ', results:' ' },
+            { numero: 3, city: 'Philadelphia',        time: '23:00', team1: 'Francia',            team2: 'Play2',          pron:' ', results:' ' },
+            { numero: 4, city: 'New Jersey',          time: '02:00', team1: 'Norvegia',           team2: 'Senegal',        pron:' ', results:' ' },
         ],
     },
     giornata_3: {
@@ -266,12 +266,12 @@ group_I: {
             'GIU/26',
         ],
         matches: [
-            { numero: 5, city: 'Boston',            time: '21:00', team1: 'Norvegia',           team2: 'Francia',           pron:' ', results:' ' },
-            { numero: 6, city: 'Toronto',           time: '21:00', team1: 'Senegal',            team2: 'Playoff2',          pron:' ', results:' ' },
+            { numero: 5, city: 'Boston',              time: '21:00', team1: 'Norvegia',           team2: 'Francia',        pron:' ', results:' ' },
+            { numero: 6, city: 'Toronto',             time: '21:00', team1: 'Senegal',            team2: 'Play2',          pron:' ', results:' ' },
       ],
     },
 },
-// Gruppo J - Argentina Algeria Austria Giordania-----------------------------------------------------------------------------------------------J
+// Gruppo J - Argentina Algeria Austria Giordania------------------------------------------------------------------------------------------------J
 group_J: {
     giornata_1: {
         dates: [
@@ -301,15 +301,15 @@ group_J: {
         ],
     },
 },
-// Gruppo K - Portogallo PlayoffFifa1 Uzbekistan Colombia---------------------------------------------------------------------------------------K
+// Gruppo K - Portogallo PlayFifa1 Uzbekistan Colombia-------------------------------------------------------------------------------------------K
 group_K: {
     giornata_1: {
         dates: [
             'GIU/17',
         ],
         matches: [
-            { numero: 1, city: 'Houston',           time: '19:00', team1: 'Portogallo',         team2: 'Playoff1',          pron:' ', results:' ' },
-            { numero: 2, city: 'Mexico City',       time: '04:00', team1: 'Uzbekistan',         team2: 'Colombia',          pron:' ', results:' ' },
+            { numero: 1, city: 'Houston',           time: '19:00', team1: 'Portogallo',         team2: 'Play1',          pron:' ', results:' ' },
+            { numero: 2, city: 'Mexico City',       time: '04:00', team1: 'Uzbekistan',         team2: 'Colombia',       pron:' ', results:' ' },
         ],
     },
     giornata_2: {
@@ -317,8 +317,8 @@ group_K: {
             'GIU/23',
         ],
         matches: [
-            { numero: 3, city: 'Houston',           time: '19:00', team1: 'Portogallo',         team2: 'Uzbekistan',        pron:' ', results:' ' },
-            { numero: 4, city: 'Guadalajara',       time: '04:00', team1: 'Colombia',           team2: 'Playoff1',          pron:' ', results:' ' },
+            { numero: 3, city: 'Houston',           time: '19:00', team1: 'Portogallo',         team2: 'Uzbekistan',     pron:' ', results:' ' },
+            { numero: 4, city: 'Guadalajara',       time: '04:00', team1: 'Colombia',           team2: 'Play1',          pron:' ', results:' ' },
         ],
     },
     giornata_3: {
@@ -326,8 +326,8 @@ group_K: {
             'GIU/27',
         ],
         matches: [
-            { numero: 5, city: 'Miami',             time: '01:30', team1: 'Colombia',           team2: 'Portogallo',        pron:' ', results:' ' },
-            { numero: 6, city: 'Atlanta',           time: '01:30', team1: 'Playoff1',           team2: 'Uzbekistan',        pron:' ', results:' ' },
+            { numero: 5, city: 'Miami',             time: '01:30', team1: 'Colombia',           team2: 'Portogallo',     pron:' ', results:' ' },
+            { numero: 6, city: 'Atlanta',           time: '01:30', team1: 'Play1',              team2: 'Uzbekistan',     pron:' ', results:' ' },
         ],
     },
 },
