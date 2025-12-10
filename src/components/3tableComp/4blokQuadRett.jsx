@@ -8,6 +8,7 @@ const BlokQuadRett = ({
   secondSquareLabel = "3ABCDF",
   rettLeftLabel = "A",
   rettRightLabel = "B",
+  rettColor = "bg-gray-200", // ✅ default
   className = "",
 }) => {
   return (
@@ -20,7 +21,11 @@ const BlokQuadRett = ({
 
       {/* RETTANGOLO PINK → SEMPRE SOTTO I QUADRATI */}
       <div className="absolute left-1/2 -translate-x-1/2 -mt-20 z-0 flex flex-col items-center">
-        <RettDat leftLabel={rettLeftLabel} rightLabel={rettRightLabel} />
+        <RettDat
+          leftLabel={rettLeftLabel}
+          rightLabel={rettRightLabel}
+          color={rettColor}
+        />
       </div>
 
       {/* RETTRIS (NUMERI) */}

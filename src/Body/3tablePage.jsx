@@ -15,36 +15,43 @@ const TablePage = () => {
         {/* ✅ PRIMA COLONNA */}
         <div className="relative flex-1 h-full bg-red flex flex-col items-center pt-12">
           <div className=" md:-mt-8 -mt-4">
-            <BlokQuadRett />
+            <BlokQuadRett
+              firstSquareLabel="E1"
+              secondSquareLabel="3ABCDF"
+              team1=""
+              team2=""
+              rettColor="bg-green-600"
+              className=""
+            />
           </div>
 
           <div>
             <div className="md:mt-10 mt-8">
-              <BlokQuadRett />
+              <BlokQuadRett rettColor="bg-green-600" />
             </div>
 
             <div className="md:mt-20 mt-16">
-              <BlokQuadRett />
+              <BlokQuadRett rettColor="bg-green-600" />
             </div>
 
             <div className="md:mt-10 mt-8">
-              <BlokQuadRett />
+              <BlokQuadRett rettColor="bg-green-600" />
             </div>
 
             <div className="md:mt-20 mt-16">
-              <BlokQuadRett />
+              <BlokQuadRett rettColor="bg-pink-600" />
             </div>
 
             <div className="md:mt-10 mt-8">
-              <BlokQuadRett />
+              <BlokQuadRett rettColor="bg-pink-600" />
             </div>
 
             <div className="md:mt-20 mt-16">
-              <BlokQuadRett />
+              <BlokQuadRett rettColor="bg-pink-600" />
             </div>
 
             <div className="md:mt-10 mt-8">
-              <BlokQuadRett />
+              <BlokQuadRett rettColor="bg-pink-600" />
             </div>
           </div>
         </div>
@@ -52,27 +59,27 @@ const TablePage = () => {
         {/* ✅ SECONDA COLONNA - ARANCIONE (4 BLOCCHI) */}
         <div className="relative flex-1 h-full flex bg-orange flex-col items-center pt-12">
           <div className="md:mt-8 mt-8 ml-2">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-green-600" />
           </div>
           <div className="md:mt-44 mt-32 ml-2">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-green-600" />
           </div>
           <div className="md:mt-48 mt-40 ml-2">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-pink-600" />
           </div>
           <div className="md:mt-44 mt-32 ml-2">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-pink-600" />
           </div>
         </div>
 
         {/* ✅ GIALLA → 2 BLOCCHI PEGATI A SINISTRA */}
         <div className="relative flex-1 h-full bg-yellow flex flex-col items-start pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-green-600" />
           </div>
 
           <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -ml-8">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-pink-600" />
           </div>
         </div>
 
@@ -80,72 +87,72 @@ const TablePage = () => {
         <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
           {/* ✅ BLOCCO CENTRALE (centrato nella colonna) */}
           <div className="relative z-10 md:-top-12 -top-28">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-yellow-500" />
           </div>
 
           {/* ✅ BLOCCO SINISTRO (esce verso sinistra di 2rem) */}
           <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[22rem] md:-ml-16 -ml-12 z-10">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-gradient-to-l from-green-600 to-pink-600" />
           </div>
 
           {/* ✅ BLOCCO DESTRO (esce verso destra di 2rem) */}
           <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[22rem] md:-mr-16 -mr-12 z-10">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-gradient-to-r from-orange-500 to-fuchsia-600" />
           </div>
         </div>
 
         {/* ✅ BLU → 2 BLOCCHI (come la GIALLA) */}
         <div className="relative flex-1 h-full bg-yellow flex flex-col items-end pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -mr-8">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-orange-500" />
           </div>
 
           <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -mr-8">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-fuchsia-600" />
           </div>
         </div>
 
         {/* ✅ COLONNA INDIGO → 4 BLOCCHI (come ARANCIONE) */}
         <div className="relative flex-1 h-full bg-indigo flex flex-col items-center pt-12">
           <div className="md:mt-8 mt-8 mr-2">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-orange-500" />
           </div>
           <div className="md:mt-44 mt-32 mr-2">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-orange-500" />
           </div>
           <div className="md:mt-48 mt-40 mr-2">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-fuchsia-600" />
           </div>
           <div className="md:mt-44 mt-32 mr-2">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-fuchsia-600" />
           </div>
         </div>
 
         {/* ✅ COLONNA VIOLA (come la PRIMA COLONNA) */}
         <div className="relative flex-1 h-full bg-purple flex flex-col items-center pt-12">
           <div className="md:-mt-8 -mt-4">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-orange-500" />
           </div>
           <div className="md:mt-10 mt-8">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-orange-500" />
           </div>
           <div className="md:mt-20 mt-16">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-orange-500" />
           </div>
           <div className="md:mt-10 mt-8">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-orange-500" />
           </div>
           <div className="md:mt-20 mt-16">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-fuchsia-600" />
           </div>
           <div className="md:mt-10 mt-8">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-fuchsia-600" />
           </div>
           <div className="md:mt-20 mt-16">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-fuchsia-600" />
           </div>
           <div className="md:mt-10 mt-8">
-            <BlokQuadRett />
+            <BlokQuadRett rettColor="bg-fuchsia-600" />
           </div>
         </div>
       </div>
