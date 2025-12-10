@@ -54,29 +54,41 @@ const Grid = ({
 
         const label = rowIndex === 0 ? columnLabels[colIndex] : null;
         const hasLabel = !!label;
-        const isWeekendCell = hasLabel && label.isWeekend;
+
+        // ❗ weekend SOLO sulla PRIMA RIGA (date)
+        const isWeekendCell = rowIndex === 0 && hasLabel && label.isWeekend;
 
         // 👇 chiave univoca cella
         const cellKey = `${rowIndex}-${colIndex}`;
-        const highlightColor = highlightedCells[cellKey] || null;
+        const rawHighlight = highlightedCells[cellKey];
 
-        // 👇 ordine di priorità: highlight > forceColor > weekend > pattern
-        const finalColor =
-          highlightColor ||
-          forceColor ||
-          (isWeekendCell ? "bg-sky-00" : config.color);
+        // 👇 può essere stringa ("bg-...") o oggetto { color, label }
+        let highlightColor = null;
+        let highlightLabel = null;
+
+        if (typeof rawHighlight === "string") {
+          highlightColor = rawHighlight;
+        } else if (rawHighlight && typeof rawHighlight === "object") {
+          highlightColor = rawHighlight.color || null;
+          highlightLabel = rawHighlight.label || null;
+        }
+
+        // 👇 ordine di priorità: highlight > forceColor > pattern
+        //    il weekend NON cambia il colore di base, aggiunge solo un overlay
+        const finalColor = highlightColor || forceColor || config.color;
+
         return (
           <div
             key={i}
-            className={`relative overflow-hidden ${cellHeightClass} ${highlightColor || forceColor || config.color} ${borderClass}`}
+            className={`relative overflow-hidden ${cellHeightClass} ${finalColor} ${borderClass}`}
             style={{ width: "32px" }}
           >
-            {/* ✅ OVERLAY WEEKEND SOLO SOPRA */}
+            {/* ✅ OVERLAY WEEKEND SOLO SOPRA, SOLO PRIMA RIGA, solo se non highlight/force */}
             {isWeekendCell && !highlightColor && !forceColor && (
               <div className="absolute top-0 left-0 w-full h-1/2 bg-sky-600 pointer-events-none z-10" />
             )}
 
-            {/* ✅ LABEL SOLO IN PRIMA RIGA */}
+            {/* ✅ LABEL SOLO IN PRIMA RIGA (le date) */}
             {hasLabel && typeof label === "object" ? (
               <div className="relative z-20 flex flex-col justify-between items-center h-full py-1">
                 <span className="text-sm leading-none font-bold">
@@ -87,6 +99,15 @@ const Grid = ({
                 </span>
               </div>
             ) : null}
+
+            {/* ✅ LETTERA DEL GRUPPO IN ALTO, righe > 0 */}
+            {rowIndex > 0 && highlightLabel && (
+              <div className="absolute top-0 left-0 w-full flex justify-center z-30">
+                <span className="text-[10px] font-extrabold leading-none translate-y-[-1px]">
+                  {highlightLabel}
+                </span>
+              </div>
+            )}
           </div>
         );
       })}
