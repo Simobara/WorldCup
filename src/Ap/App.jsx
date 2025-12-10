@@ -13,7 +13,7 @@ import TablePage from "../Body/3tablePage";
 const App = () => {
   return (
     <Router>
-      <div className="relative h-screen w-screen bg-sky-950 overflow-hidden">
+      <div className="relative h-[90vh] md:h-screen w-screen bg-sky-950 overflow-hidden">
         <TopInfo />
         <div className="h-full w-full flex">
           <Routes>
