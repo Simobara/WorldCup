@@ -96,7 +96,7 @@ const Grid = ({
           >
             {/* OVERLAY WEEKEND SOLO SOPRA, SOLO PRIMA RIGA, se non c'è highlight/force */}
             {isWeekendCell && !highlightColor && !forceColor && (
-              <div className="absolute top-0 left-0 w-full h-1/2 bg-sky-600 pointer-events-none z-10" />
+              <div className="absolute top-0 left-0 w-full h-1/2 bg-sky-500/40 pointer-events-none z-10" />
             )}
 
             {/* LABEL DATA (prima riga) */}

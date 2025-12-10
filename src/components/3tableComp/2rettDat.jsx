@@ -3,9 +3,9 @@ const RettDat = ({ leftLabel, rightLabel }) => {
     <div
       className="relative z-0
               w-32 h-16 
-              sm:w-28 sm:h-16 
+              sm:w-32 sm:h-16 
               md:w-32 md:h-20
-              bg-pink-900 rounded-[16px] shadow-xl overflow-hidden"
+              bg-sky-800 rounded-[16px] shadow-xl overflow-hidden"
     >
       {/* ✅ Area risultati in ALTO */}
       <div className="absolute top-0 left-0 w-full h-[20%] text-[10px] sm:text-xs text-white">

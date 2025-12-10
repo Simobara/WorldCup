@@ -134,7 +134,7 @@ semifinals: {
             'LUG/14',
         ],
         matches: [
-            { numero: 1,  city: 'Dallas',            time: '',  team1: '97',  team2: '98',               goto:'101',    pron:' ', results:' ' },
+            { numero: 1,  city: 'Dallas',            time: '',  team1: '97',  team2: '98',               goto:'',    pron:' ', results:' ' },
         ],
     },
     giornata_2:{
@@ -142,7 +142,7 @@ semifinals: {
             'LUG/15',
         ],
         matches: [
-            { numero: 1,  city: 'Atlanta',           time: '',  team1: '99',  team2: '100',                goto:'102',   pron:' ', results:' ' },
+            { numero: 1,  city: 'Atlanta',           time: '',  team1: '99',  team2: '100',                goto:'',   pron:' ', results:' ' },
         ],
     },
 },

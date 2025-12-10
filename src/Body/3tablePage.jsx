@@ -1,4 +1,4 @@
-import BlokQuadRett from "../components/2tableComp/4blokQuadRett";
+import BlokQuadRett from "../components/3tableComp/4blokQuadRett";
 
 const TablePage = () => {
   return (
@@ -11,7 +11,7 @@ const TablePage = () => {
       "
     >
       {/* Contenitore largo orizzontale: le 7 colonne una di fianco all'altra */}
-      <div className="flex h-full w-max">
+      <div className="flex h-full min-w-full max-w-[1800px] mx-auto">
         {/* ✅ PRIMA COLONNA */}
         <div className="flex-1 h-full bg-red flex flex-col items-center pt-12">
           <div className="relative md:-mt-8 -mt-6">
@@ -19,7 +19,7 @@ const TablePage = () => {
           </div>
 
           <div>
-            <div className="relative md:mt-12 mt-8">
+            <div className="relative md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
@@ -27,7 +27,7 @@ const TablePage = () => {
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-12 mt-8">
+            <div className="relative md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
@@ -35,7 +35,7 @@ const TablePage = () => {
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-12 mt-8">
+            <div className="relative md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
@@ -43,7 +43,7 @@ const TablePage = () => {
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-12 mt-8">
+            <div className="relative md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
           </div>
@@ -54,13 +54,13 @@ const TablePage = () => {
           <div className="relative md:mt-8 mt-4 ml-2">
             <BlokQuadRett />
           </div>
-          <div className="md:mt-48 mt-44 ml-2">
+          <div className="md:mt-44 mt-44 ml-2">
             <BlokQuadRett />
           </div>
           <div className="md:mt-48 mt-44 ml-2">
             <BlokQuadRett />
           </div>
-          <div className="md:mt-48 mt-44 ml-2">
+          <div className="md:mt-44 mt-44 ml-2">
             <BlokQuadRett />
           </div>
         </div>
@@ -71,52 +71,52 @@ const TablePage = () => {
             <BlokQuadRett />
           </div>
 
-          <div className="md:mt-[28rem] mt-[26rem]">
+          <div className="md:mt-[26rem] mt-[26rem]">
             <BlokQuadRett />
           </div>
         </div>
 
-        {/* ✅ VERDE → centrale dentro, laterali fuori */}
-        <div className="flex-1 h-full bg-green relative overflow-visible flex items-center justify-center">
+        {/* ✅ VERDE → centrale dentro, laterali fuori------------------------------------------------------ */}
+        <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
           {/* ✅ BLOCCO CENTRALE (centrato nella colonna) */}
           <div className="relative z-10">
             <BlokQuadRett />
           </div>
 
           {/* ✅ BLOCCO SINISTRO (esce verso sinistra di 2rem) */}
-          <div className="absolute left-1/2 -translate-x-full -ml-28 z-0">
+          <div className="absolute left-1/2 -translate-x-full -ml-20 z-0">
             <BlokQuadRett />
           </div>
 
           {/* ✅ BLOCCO DESTRO (esce verso destra di 2rem) */}
-          <div className="absolute left-1/2 ml-28 z-0">
+          <div className="absolute left-1/2 ml-20 z-0">
             <BlokQuadRett />
           </div>
         </div>
 
         {/* ✅ BLU → 2 BLOCCHI (come la GIALLA) */}
         <div className="flex-1 h-full bg-yellow flex flex-col items-end pt-12">
-          <div className="mt-[10rem]">
+          <div className="md:mt-[10rem] mt-[8.5rem]">
             <BlokQuadRett />
           </div>
 
-          <div className="mt-[28rem]">
+          <div className="md:mt-[26rem] mt-[26rem]">
             <BlokQuadRett />
           </div>
         </div>
 
         {/* ✅ COLONNA INDIGO → 4 BLOCCHI (come ARANCIONE) */}
         <div className="flex-1 h-full bg-indigo flex flex-col items-center pt-12">
-          <div className="mt-8">
+          <div className="relative md:mt-8 mt-4 mr-2">
             <BlokQuadRett />
           </div>
-          <div className="mt-48">
+          <div className="md:mt-44 mt-44 mr-2">
             <BlokQuadRett />
           </div>
-          <div className="mt-48">
+          <div className="md:mt-48 mt-44 mr-2">
             <BlokQuadRett />
           </div>
-          <div className="mt-48">
+          <div className="md:mt-44 mt-44 mr-2">
             <BlokQuadRett />
           </div>
         </div>
@@ -126,25 +126,25 @@ const TablePage = () => {
           <div className="-mt-8">
             <BlokQuadRett />
           </div>
-          <div className="mt-12">
+          <div className="relative md:mt-10 mt-8">
             <BlokQuadRett />
           </div>
           <div className="mt-20">
             <BlokQuadRett />
           </div>
-          <div className="mt-12">
+          <div className="relative md:mt-10 mt-8">
             <BlokQuadRett />
           </div>
           <div className="mt-20">
             <BlokQuadRett />
           </div>
-          <div className="mt-12">
+          <div className="relative md:mt-10 mt-8">
             <BlokQuadRett />
           </div>
           <div className="mt-20">
             <BlokQuadRett />
           </div>
-          <div className="mt-12">
+          <div className="relative md:mt-10 mt-8">
             <BlokQuadRett />
           </div>
         </div>
