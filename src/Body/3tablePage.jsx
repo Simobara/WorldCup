@@ -23,7 +23,7 @@ const TablePage = () => {
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-20 mt-12">
+            <div className="relative md:mt-20 mt-16">
               <BlokQuadRett />
             </div>
 
@@ -31,7 +31,7 @@ const TablePage = () => {
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-20 mt-12">
+            <div className="relative md:mt-20 mt-16">
               <BlokQuadRett />
             </div>
 
@@ -39,7 +39,7 @@ const TablePage = () => {
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-20 mt-12">
+            <div className="relative md:mt-20 mt-16">
               <BlokQuadRett />
             </div>
 
