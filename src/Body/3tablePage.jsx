@@ -13,45 +13,45 @@ const TablePage = () => {
       {/* Contenitore largo orizzontale: le 7 colonne una di fianco all'altra */}
       <div className="flex h-full min-w-full max-w-[1800px] mx-auto">
         {/* ✅ PRIMA COLONNA */}
-        <div className="flex-1 h-full bg-red flex flex-col items-center pt-12">
-          <div className="relative md:-mt-8 -mt-6">
+        <div className="relative flex-1 h-full bg-red flex flex-col items-center pt-12">
+          <div className=" md:-mt-8 -mt-4">
             <BlokQuadRett />
           </div>
 
           <div>
-            <div className="relative md:mt-10 mt-8">
+            <div className="md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-20 mt-16">
+            <div className="md:mt-20 mt-16">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-10 mt-8">
+            <div className="md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-20 mt-16">
+            <div className="md:mt-20 mt-16">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-10 mt-8">
+            <div className="md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-20 mt-16">
+            <div className="md:mt-20 mt-16">
               <BlokQuadRett />
             </div>
 
-            <div className="relative md:mt-10 mt-8">
+            <div className="md:mt-10 mt-8">
               <BlokQuadRett />
             </div>
           </div>
         </div>
 
         {/* ✅ SECONDA COLONNA - ARANCIONE (4 BLOCCHI) */}
-        <div className="flex-1 h-full flex bg-orange flex-col items-center pt-12">
-          <div className="relative md:mt-8 mt-4 ml-2">
+        <div className="relative flex-1 h-full flex bg-orange flex-col items-center pt-12">
+          <div className="md:mt-8 mt-4 ml-2">
             <BlokQuadRett />
           </div>
           <div className="md:mt-44 mt-44 ml-2">
@@ -106,8 +106,8 @@ const TablePage = () => {
         </div>
 
         {/* ✅ COLONNA INDIGO → 4 BLOCCHI (come ARANCIONE) */}
-        <div className="flex-1 h-full bg-indigo flex flex-col items-center pt-12">
-          <div className="relative md:mt-8 mt-4 mr-2">
+        <div className="relative flex-1 h-full bg-indigo flex flex-col items-center pt-12">
+          <div className="md:mt-8 mt-4 mr-2">
             <BlokQuadRett />
           </div>
           <div className="md:mt-44 mt-44 mr-2">
@@ -122,29 +122,29 @@ const TablePage = () => {
         </div>
 
         {/* ✅ COLONNA VIOLA (come la PRIMA COLONNA) */}
-        <div className="flex-1 h-full bg-purple flex flex-col items-center pt-12">
-          <div className="-mt-8">
+        <div className="relative flex-1 h-full bg-purple flex flex-col items-center pt-12">
+          <div className="md:-mt-8 -mt-4">
             <BlokQuadRett />
           </div>
-          <div className="relative md:mt-10 mt-8">
+          <div className="md:mt-10 mt-8">
             <BlokQuadRett />
           </div>
-          <div className="mt-20">
+          <div className="md:mt-20 mt-16">
             <BlokQuadRett />
           </div>
-          <div className="relative md:mt-10 mt-8">
+          <div className="md:mt-10 mt-8">
             <BlokQuadRett />
           </div>
-          <div className="mt-20">
+          <div className="md:mt-20 mt-16">
             <BlokQuadRett />
           </div>
-          <div className="relative md:mt-10 mt-8">
+          <div className="md:mt-10 mt-8">
             <BlokQuadRett />
           </div>
-          <div className="mt-20">
+          <div className="md:mt-20 mt-16">
             <BlokQuadRett />
           </div>
-          <div className="relative md:mt-10 mt-8">
+          <div className="md:mt-10 mt-8">
             <BlokQuadRett />
           </div>
         </div>

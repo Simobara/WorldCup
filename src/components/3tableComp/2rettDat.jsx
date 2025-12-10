@@ -5,7 +5,7 @@ const RettDat = ({ leftLabel, rightLabel }) => {
                md:h-16 sm:h-16 h-12
                md:w-32 sm:w-32 w-32
                md:mt-0 mt-4
-              bg-pink-800 rounded-[16px] shadow-xl overflow-hidden"
+              bg-pink-700 rounded-[16px] shadow-xl overflow-hidden"
     >
       {/* ✅ Area risultati in ALTO */}
       <div className="absolute top-0 left-0 w-full h-[20%] text-[10px] sm:text-xs text-white">
