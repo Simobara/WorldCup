@@ -9,7 +9,7 @@ const TopInfo = () => {
         absolute top-0 left-1/2 -translate-x-1/2
         w-[100%] max-w-[420px]
         bg-white rounded-xl shadow-lg
-        px-6 py-2
+        px-6 md:py-2 py-0
         flex items-center justify-between gap-2 z-[999]
       "
     >
