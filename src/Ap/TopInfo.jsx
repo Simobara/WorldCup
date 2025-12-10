@@ -6,11 +6,11 @@ const TopInfo = () => {
   return (
     <div
       className="
-        absolute top-0 left-1/2 -translate-x-1/2 z-50
+        absolute top-0 left-1/2 -translate-x-1/2
         w-[100%] max-w-[420px]
         bg-white rounded-xl shadow-lg
         px-6 py-2
-        flex items-center justify-between gap-2
+        flex items-center justify-between gap-2 z-[999]
       "
     >
       {/* ✅ STANDINGS */}

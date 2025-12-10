@@ -11,14 +11,14 @@ const StandingsBlock = () => {
   const mergedHighlights = getMergedHighlights();
 
   return (
-    <div className="top-[12rem] left-0 relative">
+    <div className="md:top-[12rem] top-[10rem] left-0 relative">
       {/* ✅ LOGO */}
       <div className="absolute md:-left-4 -left-16 -top-32 md:-top-28 w-52 md:w-72 flex justify-center z-50">
         {/* ✅ LOGO MOBILE (PIÙ GRANDE) */}
         <img
           src="/assts/LogoStandingsMobile.png"
           alt="Logo standings mobile"
-          className="block md:hidden h-32 w-auto object-contain"
+          className="block md:hidden h-28 w-auto object-contain z-10"
         />
 
         {/* ✅ LOGO DESKTOP */}
@@ -30,7 +30,7 @@ const StandingsBlock = () => {
       </div>
 
       {/* ✅ COLONNA 16 CITTÀ */}
-      <div className="absolute md:left-14 left-6 flex flex-col lg:w-30 w-14">
+      <div className="absolute -top-4 md:top-0 md:left-14 left-6 flex flex-col lg:w-30 w-14">
         {citiesOsp.map((city, i) => (
           <ContainerCitta key={i} color={city.color} label={city.name} />
         ))}
@@ -38,20 +38,20 @@ const StandingsBlock = () => {
 
       {/* ✅ RETTANGOLI VERTICALI CON TESTO */}
       <RettangoloVerticale
-        top="top-[0rem]"
-        height="md:h-[12rem] h-[11rem]"
+        top="md:top-[0rem] -top-[1rem] "
+        height="md:h-[12rem] h-[10rem]"
         color="bg-sky-400"
         label="WESTERN REGION"
       />
       <RettangoloVerticale
-        top="md:top-[12rem] top-[11rem]"
-        height="md:h-[18rem] h-[16.5rem]"
+        top="md:top-[12rem] top-[9rem]"
+        height="md:h-[18rem] h-[15rem]"
         color="bg-green-300"
         label="CENTRAL REGION"
       />
       <RettangoloVerticale
-        top="md:top-[30rem] top-[27.5rem]"
-        height="md:h-[18rem] h-[16.5rem]"
+        top="md:top-[30rem] top-[24rem]"
+        height="md:h-[18rem] h-[15rem]"
         color="bg-rose-300"
         label="EASTERN REGION"
       />
@@ -82,7 +82,7 @@ const StandingsBlock = () => {
           <Grid
             rows={1}
             cols={39}
-            cellHeightClass="h-20"
+            cellHeightClass="md:h-20 h-16"
             patternOverride={[
               [17, "bg-white", false, false],
               [6, "bg-orange-400", false, false],
@@ -101,7 +101,7 @@ const StandingsBlock = () => {
           <Grid
             rows={citiesOsp.length}
             cols={39}
-            cellHeightClass="md:h-12 h-11"
+            cellHeightClass="md:h-12 h-10"
             highlightedCells={mergedHighlights}
           />
         </div>

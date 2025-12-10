@@ -5,7 +5,12 @@ const RettangoloVerticale = ({
   top = "top-8",
   height = "h-[18rem]",
   label = "",
+  labelMobile = "",
 }) => {
+  // 🔹 Testo usato su mobile: se non passi labelMobile,
+  // togliamo automaticamente la parola "REGION" dal label completo
+  const mobileText = (labelMobile || label.replace(/ *REGION/i, "")).trim();
+
   return (
     <div
       className={`
@@ -23,17 +28,35 @@ const RettangoloVerticale = ({
       `}
     >
       {label && (
-        <span
-          className="
-            text-sm uppercase text-black
-            font-medium
-            transform -rotate-90        
-            whitespace-nowrap
-            tracking-widest
-          "
-        >
-          {label}
-        </span>
+        <>
+          {/* ✅ MOBILE: testo corto SENZA "REGION" */}
+          <span
+            className="
+              block md:hidden
+              text-[10px] uppercase text-black
+              font-medium
+              transform -rotate-90        
+              whitespace-nowrap
+              tracking-widest
+            "
+          >
+            {mobileText}
+          </span>
+
+          {/* ✅ DESKTOP: testo completo (con REGION) */}
+          <span
+            className="
+              hidden md:block
+              text-sm uppercase text-black
+              font-medium
+              transform -rotate-90        
+              whitespace-nowrap
+              tracking-widest
+            "
+          >
+            {label}
+          </span>
+        </>
       )}
     </div>
   );

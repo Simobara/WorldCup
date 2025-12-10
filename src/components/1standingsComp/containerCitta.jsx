@@ -6,7 +6,7 @@ const ContainerCitta = ({ color = "bg-sky-900", label = "" }) => {
   return (
     <div
       className={`
-        md:w-52 w-30 md:h-12 h-11
+        md:w-52 w-30 md:h-12 h-10
         ${color}
         border-2 border-black
         shadow-lg

@@ -153,7 +153,7 @@ final34: {
             'LUG/18',
         ],
         matches: [
-            { numero: 1,  city: 'Miami',              time: '',  team1: 'l101',  team2: 'l102',            pron:' ', results:' ' },
+            { numero: 1,  city: 'Miami',              time: '',  team1: 'FINAL',  team2: '3/4',            pron:' ', results:' ' },
         ],
     },
   },
@@ -163,7 +163,7 @@ final: {
             'LUG/19',
         ],
         matches: [
-            { numero: 1,  city: 'New Jersey',          time: '',  team1: 'w101',  team2: 'w102',             pron:' ', results:' ' },
+            { numero: 1,  city: 'New Jersey',          time: '',  team1: 'WINNER',  team2: '',             pron:' ', results:' ' },
         ],
     },
   },
