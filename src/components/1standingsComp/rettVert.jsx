@@ -12,7 +12,7 @@ const RettangoloVerticale = ({
         absolute
         ${top}
         left-2
-        w-12
+        md:w-12 w-6
         ${height}
         ${color}
         border-2 border-black

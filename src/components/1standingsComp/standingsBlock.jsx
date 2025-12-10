@@ -11,18 +11,26 @@ const StandingsBlock = () => {
   const mergedHighlights = getMergedHighlights();
 
   return (
-    <div className=" top-[12rem] left-0 relative">
+    <div className="top-[12rem] left-0 relative">
       {/* ✅ LOGO */}
-      <div className="absolute -left-4 -top-28 w-72 flex justify-center z-50">
+      <div className="absolute md:-left-4 -left-16 -top-32 md:-top-28 w-52 md:w-72 flex justify-center z-50">
+        {/* ✅ LOGO MOBILE (PIÙ GRANDE) */}
+        <img
+          src="/assts/LogoStandingsMobile.png"
+          alt="Logo standings mobile"
+          className="block md:hidden h-32 w-auto object-contain"
+        />
+
+        {/* ✅ LOGO DESKTOP */}
         <img
           src="/assts/LogoStandings.png"
           alt="Logo standings"
-          className="h-28 w-auto object-contain"
+          className="hidden md:block h-28 w-auto object-contain"
         />
       </div>
 
       {/* ✅ COLONNA 16 CITTÀ */}
-      <div className="absolute left-14 flex flex-col">
+      <div className="absolute md:left-14 left-6 flex flex-col lg:w-30 w-14">
         {citiesOsp.map((city, i) => (
           <ContainerCitta key={i} color={city.color} label={city.name} />
         ))}
@@ -50,7 +58,7 @@ const StandingsBlock = () => {
 
       {/* ------------------------------------------------------------------ */}
       {/* ✅ GRIGLIA A DESTRA */}
-      <div className="absolute left-[15rem] -top-28 w-[calc(100vw-15rem)] overflow-x-auto overflow-y-visible">
+      <div className="absolute md:left-[15rem] left-[5rem] -top-28 w-[calc(100vw-5rem)] md:w-[calc(100vw-15rem)] overflow-x-auto overflow-y-visible">
         {/* Contenuto reale della griglia: più largo del contenitore → scroll orizzontale */}
         <div className="relative inline-block min-w-max pt-8">
           {/* 🔹 BARRA COLORATA SOPRA LA GRIGLIA */}

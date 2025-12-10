@@ -81,8 +81,8 @@ const Grid = ({
 
         // DIVISORI VERTICALI (6 e 12) – muro sky-700
         const isDividerAfterSix =
-          colIndex === 6 || // primo blocco (dopo 6 caselle, es. giorno 17)
-          colIndex === 12; // secondo blocco (6 caselle dopo, es. giorno 22)
+          colIndex === 7 || // primo blocco (dopo 6 caselle, es. giorno 17)
+          colIndex === 13; // secondo blocco (6 caselle dopo, es. giorno 22)
 
         const dividerClass = isDividerAfterSix
           ? "border-l-8 border-l-sky-700"
