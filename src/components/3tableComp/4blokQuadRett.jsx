@@ -13,7 +13,7 @@ const BlokQuadRett = ({
   return (
     <div className={`relative z-[10] ${className}`}>
       {/* QUADRATI SOPRA */}
-      <div className="flex gap-0 relative z-10">
+      <div className="flex gap-0 relative z-10 ">
         <Quadrato label={firstSquareLabel} />
         <Quadrato label={secondSquareLabel} />
       </div>
