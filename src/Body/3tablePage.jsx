@@ -84,12 +84,12 @@ const TablePage = () => {
           </div>
 
           {/* ✅ BLOCCO SINISTRO (esce verso sinistra di 2rem) */}
-          <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[22rem] md:-ml-16 -ml-10 z-10">
+          <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[22rem] md:-ml-16 -ml-12 z-10">
             <BlokQuadRett />
           </div>
 
           {/* ✅ BLOCCO DESTRO (esce verso destra di 2rem) */}
-          <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[22rem] md:-mr-16 -mr-10 z-10">
+          <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[22rem] md:-mr-16 -mr-12 z-10">
             <BlokQuadRett />
           </div>
         </div>
