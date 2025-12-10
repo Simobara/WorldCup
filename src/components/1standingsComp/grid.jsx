@@ -6,7 +6,8 @@ const Grid = ({
   cellHeightClass = "h-12",
   forceColor = null,
   patternOverride = null,
-  columnLabels = [], // ✅ etichette per colonna (solo prima riga)
+  columnLabels = [],
+  highlightedCells = {},
 }) => {
   const defaultPattern = [
     [17, "bg-gray-400", false, false],
@@ -51,30 +52,36 @@ const Grid = ({
           return "border border-black";
         })();
 
-        // ✅ PRIMA: etichetta (solo sulla prima riga)
         const label = rowIndex === 0 ? columnLabels[colIndex] : null;
         const hasLabel = !!label;
-
-        // ✅ POI: weekend (solo se c'è una label e ha il flag)
         const isWeekendCell = hasLabel && label.isWeekend;
 
-        // ✅ POI: colore finale
-        const finalColor =
-          forceColor || (isWeekendCell ? "bg-sky-400" : config.color);
+        // 👇 chiave univoca cella
+        const cellKey = `${rowIndex}-${colIndex}`;
+        const highlightColor = highlightedCells[cellKey] || null;
 
+        // 👇 ordine di priorità: highlight > forceColor > weekend > pattern
+        const finalColor =
+          highlightColor ||
+          forceColor ||
+          (isWeekendCell ? "bg-sky-00" : config.color);
         return (
           <div
             key={i}
-            className={`${cellHeightClass} ${finalColor} ${borderClass}`}
+            className={`relative overflow-hidden ${cellHeightClass} ${highlightColor || forceColor || config.color} ${borderClass}`}
             style={{ width: "32px" }}
           >
+            {/* ✅ OVERLAY WEEKEND SOLO SOPRA */}
+            {isWeekendCell && !highlightColor && !forceColor && (
+              <div className="absolute top-0 left-0 w-full h-1/2 bg-sky-600 pointer-events-none z-10" />
+            )}
+
+            {/* ✅ LABEL SOLO IN PRIMA RIGA */}
             {hasLabel && typeof label === "object" ? (
-              <div className="flex flex-col justify-between items-center h-full py-1">
-                {/* giorno della settimana in alto (S, M, T, ecc.) */}
+              <div className="relative z-20 flex flex-col justify-between items-center h-full py-1">
                 <span className="text-sm leading-none font-bold">
                   {label.top}
                 </span>
-                {/* numero del giorno in basso */}
                 <span className="text-lg leading-none font-extrabold">
                   {label.bottom}
                 </span>
