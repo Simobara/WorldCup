@@ -51,27 +51,27 @@ const TablePage = () => {
 
         {/* ✅ SECONDA COLONNA - ARANCIONE (4 BLOCCHI) */}
         <div className="relative flex-1 h-full flex bg-orange flex-col items-center pt-12">
-          <div className="md:mt-8 mt-4 ml-2">
+          <div className="md:mt-8 mt-8 ml-2">
             <BlokQuadRett />
           </div>
-          <div className="md:mt-44 mt-44 ml-2">
+          <div className="md:mt-44 mt-32 ml-2">
             <BlokQuadRett />
           </div>
-          <div className="md:mt-48 mt-44 ml-2">
+          <div className="md:mt-48 mt-40 ml-2">
             <BlokQuadRett />
           </div>
-          <div className="md:mt-44 mt-44 ml-2">
+          <div className="md:mt-44 mt-32 ml-2">
             <BlokQuadRett />
           </div>
         </div>
 
         {/* ✅ GIALLA → 2 BLOCCHI PEGATI A SINISTRA */}
-        <div className="flex-1 h-full bg-yellow flex flex-col items-start pt-12">
-          <div className="md:mt-[10rem] mt-[8.5rem]">
+        <div className="relative flex-1 h-full bg-yellow-200 flex flex-col items-start pt-12">
+          <div className="md:mt-[10rem] mt-[8rem]">
             <BlokQuadRett />
           </div>
 
-          <div className="md:mt-[26rem] mt-[26rem]">
+          <div className="md:mt-[26rem] mt-[20rem]">
             <BlokQuadRett />
           </div>
         </div>
@@ -79,7 +79,7 @@ const TablePage = () => {
         {/* ✅ VERDE → centrale dentro, laterali fuori------------------------------------------------------ */}
         <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
           {/* ✅ BLOCCO CENTRALE (centrato nella colonna) */}
-          <div className="relative z-10">
+          <div className="relative z-10 md:-top-12 -top-12">
             <BlokQuadRett />
           </div>
 
@@ -95,28 +95,28 @@ const TablePage = () => {
         </div>
 
         {/* ✅ BLU → 2 BLOCCHI (come la GIALLA) */}
-        <div className="flex-1 h-full bg-yellow flex flex-col items-end pt-12">
-          <div className="md:mt-[10rem] mt-[8.5rem]">
+        <div className="relative flex-1 h-full bg-green-200 flex flex-col items-end pt-12">
+          <div className="md:mt-[10rem] mt-[8rem]">
             <BlokQuadRett />
           </div>
 
-          <div className="md:mt-[26rem] mt-[26rem]">
+          <div className="md:mt-[26rem] mt-[20rem]">
             <BlokQuadRett />
           </div>
         </div>
 
         {/* ✅ COLONNA INDIGO → 4 BLOCCHI (come ARANCIONE) */}
         <div className="relative flex-1 h-full bg-indigo flex flex-col items-center pt-12">
-          <div className="md:mt-8 mt-4 mr-2">
+          <div className="md:mt-8 mt-8 mr-2">
             <BlokQuadRett />
           </div>
-          <div className="md:mt-44 mt-44 mr-2">
+          <div className="md:mt-44 mt-32 mr-2">
             <BlokQuadRett />
           </div>
-          <div className="md:mt-48 mt-44 mr-2">
+          <div className="md:mt-48 mt-40 mr-2">
             <BlokQuadRett />
           </div>
-          <div className="md:mt-44 mt-44 mr-2">
+          <div className="md:mt-44 mt-32 mr-2">
             <BlokQuadRett />
           </div>
         </div>
