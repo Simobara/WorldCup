@@ -1,8 +1,8 @@
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { groupFinal } from "../../START/app/1GroupFinal";
 import { citiesOsp } from "../../START/app/CitiesOsp";
-import { buildHighlightsForGroup } from "./buildHighlightsForGroup";
-import { createDateLabels } from "./createDate";
+import { createDateLabels } from "./1createDate";
+import { buildHighlightsForGroup } from "./3buildHighlightsForGroup";
 // 🔹 Aggiunge automaticamente la lettera del gruppo (A, B, ...) senza perdere teams
 const withAutoGroupLabel = (highlights, groupKey) => {
   const label = groupKey.replace("group_", ""); // "group_A" → "A", "group_" → ""

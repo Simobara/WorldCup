@@ -177,7 +177,7 @@ const Grid = ({
 
             {/* ORARIO PARTITA (solo righe città, se presente) */}
             {highlightTime && (
-              <div className="absolute top-[20px] right-0 z-50 items-center justify-center">
+              <div className="absolute md:top-[28px] top-[20px] right-0 z-50 items-center justify-center">
                 <span className="text-[10px] md:text-[9px] font-semibold text-black leading-none">
                   {highlightTime}
                 </span>

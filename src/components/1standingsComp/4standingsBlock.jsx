@@ -1,10 +1,10 @@
 import { citiesOsp } from "../../START/app/CitiesOsp";
-import { getMergedHighlights } from "../1standingsComp/highlightedGroup";
-import ContainerCitta from "./containerCitta";
-import { createDateLabels } from "./createDate";
-import Grid from "./grid";
-import RettGroup from "./rettGroup";
-import RettangoloVerticale from "./rettVert";
+import { getMergedHighlights } from "./2highlightedGroup";
+import { createDateLabels } from "./1createDate";
+import ContainerCitta from "./5containerCitta";
+import Grid from "./8grid";
+import RettGroup from "./7rettGroup";
+import RettangoloVerticale from "./6rettVert";
 
 const StandingsBlock = () => {
   const titleLabels = createDateLabels();

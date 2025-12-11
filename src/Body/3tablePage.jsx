@@ -80,15 +80,18 @@ const TablePage = () => {
   return (
     <div
       className="
-        flex-1 h-screen bg-black relative top-0
-        overflow-y-hidden overflow-x-auto
-        md:overflow-y-auto md:overflow-x-auto
-      "
+    flex-1 h-screen 
+    relative top-0
+    overflow-y-hidden overflow-x-auto
+    md:overflow-y-auto md:overflow-x-auto
+    [background-image:linear-gradient(to_right,theme(colors.sky.950),theme(colors.sky.300),theme(colors.sky.950)),linear-gradient(to_bottom,theme(colors.sky.950),theme(colors.sky.300),theme(colors.sky.950))]
+    bg-blend-multiply
+  "
     >
       {/* Contenitore largo orizzontale: le 7 colonne una di fianco all'altra */}
       <div className="flex h-full min-w-[1200px] md:min-w-full max-w-[1800px] md:mx-auto mx-0 md:px-6 px-0">
         {/* ✅ COLONNA 32 A */}
-        <div className="relative flex-1 h-full bg-purple flex flex-col items-center pt-12">
+        <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
           <div className=" md:-mt-8 -mt-4">
             {/* A1 */}
             <BlokQuadRett
@@ -197,7 +200,7 @@ const TablePage = () => {
         </div>
 
         {/* ✅ COLONNA 16 A */}
-        <div className="relative flex-1 h-full flex bg-orange flex-col items-center pt-12">
+        <div className="relative flex-1 h-full flex bg-orange flex-col items-center md:pt-20 pt-12">
           <div className="md:mt-8 mt-8 ml-2">
             {/* A5 */}
             <BlokQuadRett
@@ -250,7 +253,7 @@ const TablePage = () => {
 
         {/* ✅ COLONNA QUARTI A */}
         {/* ✅ COLONNA QUARTI A */}
-        <div className="relative flex-1 h-full bg-blue flex flex-col items-start pt-12">
+        <div className="relative flex-1 h-full bg-blue flex flex-col items-start md:pt-20 pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
             {/* A7 */}
             <BlokQuadRett
@@ -322,7 +325,7 @@ const TablePage = () => {
 
         {/* ✅ COLONNA SEMIFINALI FINALE ------------------------------------------------------------------------ */}
         {/* ✅ COLONNA QUARTI B */}
-        <div className="relative flex-1 h-full bg-blue flex flex-col items-end pt-12">
+        <div className="relative flex-1 h-full bg-blue flex flex-col items-end md:pt-20 pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -mr-8">
             {/* C7 */}
             <BlokQuadRett
@@ -351,7 +354,7 @@ const TablePage = () => {
         </div>
 
         {/* ✅ COLONNA 16 B */}
-        <div className="relative flex-1 h-full bg-orange flex flex-col items-center pt-12">
+        <div className="relative flex-1 h-full bg-orange flex flex-col items-center md:pt-20 pt-12">
           <div className="md:mt-8 mt-8 mr-2">
             {/* C5 */}
             <BlokQuadRett
@@ -403,7 +406,7 @@ const TablePage = () => {
         </div>
 
         {/* ✅ COLONNA 32 B */}
-        <div className="relative flex-1 h-full bg-purple flex flex-col items-center pt-12">
+        <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
           <div className="md:-mt-8 -mt-4">
             {/* C1 */}
             <BlokQuadRett

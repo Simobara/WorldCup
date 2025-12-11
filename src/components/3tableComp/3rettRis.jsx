@@ -32,24 +32,24 @@ const RettRis = ({ results }) => {
       <div className="absolute bottom-6 md:bottom-0 left-0 w-full h-[20%] text-black flex items-center justify-center">
         <div className="flex items-center justify-between w-full px-2">
           {/* BLOCCO SINISTRO → RIS + TS per TEAM1 */}
-          <div className="flex items-center gap-1 text-black">
+          <div className="flex items-center gap-1 ">
             {/* RIS team1 (grande) */}
-            <span className="text-xl font-bold text-black">
+            <span className="text-xl font-bold text-gray-200">
               {risScore.home || "-"}
             </span>
             {/* TS team1 (piccolo) */}
-            <span className="text-sm font-bold text-gray-800">
+            <span className="text-sm font-bold text-gray-400">
               {tsScore.home || ""}
             </span>
           </div>
 
           {/* BLOCCO CENTRALE → RIGORI team1 - team2 */}
           <div className="flex items-center gap-1 ">
-            <span className="text-sm font-bold text-gray-500">
+            <span className="text-sm font-bold text-black">
               {rScore.home || ""}
             </span>
             <span className="text-sm font-bold">-</span>
-            <span className="text-sm font-bold text-gray-500">
+            <span className="text-sm font-bold text-black">
               {rScore.away || ""}
             </span>
           </div>
@@ -57,11 +57,11 @@ const RettRis = ({ results }) => {
           {/* BLOCCO DESTRO → TS + RIS per TEAM2 */}
           <div className="flex items-center gap-1 ">
             {/* TS team2 (piccolo) */}
-            <span className="text-sm font-bold text-gray-800">
+            <span className="text-sm font-bold text-gray-400">
               {tsScore.away || ""}
             </span>
             {/* RIS team2 (grande) */}
-            <span className="text-xl font-bold text-black">
+            <span className="text-xl font-bold text-gray-200">
               {risScore.away || "-"}
             </span>
           </div>

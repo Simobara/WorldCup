@@ -6,7 +6,7 @@ round32: {
             'GIU/28', 
         ],
         matches: [
-            { numero: 1,  city: 'LAngeles',    time: '04:00',  pos1:'2A', team1:'', pos2:'2B', team2:'', goto:'73', fg:'A3',  pron:' ', results:{ ris:' ', TS:' ', R:' ' } },
+            { numero: 1,  city: 'LAngeles',    time: '04:00',  pos1:'2A', team1:'', pos2:'2B', team2:'', goto:'73', fg:'A3',  pron:' ', results:{ ris:'2-2', TS:'2-2', R:'5-6' } },
         ],
     },
 
