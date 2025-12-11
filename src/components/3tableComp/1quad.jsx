@@ -4,7 +4,7 @@ const Quadrato = ({
   flag,
   phase = "round32",
   advanced = false,
-  isPronTeam = false, // 🆕
+  isPronTeam = false,
 }) => {
   const bgByPhase = {
     round32: "bg-sky-800",
