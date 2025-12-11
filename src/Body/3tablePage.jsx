@@ -268,8 +268,8 @@ const TablePage = () => {
       <div
         className="
         flex h-full
-        w-[2000px]      
-        md:w-[1700px]
+          
+        md:w-[1700px] w-[1400px]    
         mx-0
         md:-px-2 px-0
       "
