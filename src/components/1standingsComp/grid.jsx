@@ -176,7 +176,7 @@ const Grid = ({
             {/* NUMERO GOTO IN BASSO (solo se esiste, es. knockout) */}
             {highlightGoto && (
               <div className="absolute bottom-[1px] left-2 w-full flex justify-center items-center z-40">
-                <span className="text-yellow-300 text-[9px] font-extrabold leading-none pb-9">
+                <span className="text-yellow-400 text-[9px] font-extrabold leading-none md:pb-9 pb-7 pl-1">
                   {highlightGoto}
                 </span>
               </div>

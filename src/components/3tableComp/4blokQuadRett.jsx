@@ -8,8 +8,9 @@ const BlokQuadRett = ({
   secondSquareLabel = " ",
   rettLeftLabel = "A",
   rettRightLabel = "B",
-  rettColor = "bg-gray-200",
+  rettColor = "bg-gray-800",
   className = " ",
+   results = null,     
 }) => {
   return (
     <div className={`relative z-[10] ${className}`}>
@@ -34,7 +35,7 @@ const BlokQuadRett = ({
         - da md in su: z-0 → torna tutto sotto i quadrati (layout “normale”)
       */}
       <div className="absolute left-1/2 -translate-x-1/2 -mt-14 md:-mt-16 z-20 md:z-0 flex flex-col items-center">
-        <RettRis />
+        <RettRis results={results}/>
       </div>
     </div>
   );

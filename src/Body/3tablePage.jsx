@@ -2,14 +2,13 @@ import BlokQuadRett from "../components/3tableComp/4blokQuadRett";
 import { groupFinal } from "../START/app/1GroupFinal";
 
 const TablePage = () => {
-  // 👇 prende la parte round32 dall’oggetto grande
   const round32 = groupFinal.round32;
 
   // prendo tutti i match delle giornate in un unico array
   const allRound32Matches = Object.values(round32).flatMap((giornata) =>
     giornata.matches.map((match) => ({
       ...match,
-      date: giornata.dates[0] || "", // 👈 aggiungo la data dentro al match
+      date: giornata.dates[0] || "",
     }))
   );
 
@@ -41,7 +40,6 @@ const TablePage = () => {
   const mD4 = getMatchByFg("D4");
 
   return (
-    // 👉 Wrapper come StandingsPage ma con scroll solo orizzontale su mobile
     <div
       className="
         flex-1 h-screen bg-black relative top-0
@@ -51,8 +49,8 @@ const TablePage = () => {
     >
       {/* Contenitore largo orizzontale: le 7 colonne una di fianco all'altra */}
       <div className="flex h-full min-w-[1200px] md:min-w-full max-w-[1800px] md:mx-auto mx-0 md:px-6 px-0">
-        {/* ✅ PRIMA COLONNA */}
-        <div className="relative flex-1 h-full bg-red flex flex-col items-center pt-12">
+        {/* ✅ COLONNA 32 A */}
+        <div className="relative flex-1 h-full bg-purple flex flex-col items-center pt-12">
           <div className=" md:-mt-8 -mt-4">
             {/* A1 */}
             <BlokQuadRett
@@ -61,6 +59,7 @@ const TablePage = () => {
               secondSquareLabel={mA1?.pos2 || ""}
               rettLeftLabel={mA1?.date || ""}
               rettRightLabel={mA1?.city || ""}
+              results={mA1?.results || null}
             />
           </div>
 
@@ -73,6 +72,7 @@ const TablePage = () => {
                 secondSquareLabel={mA2?.pos2 || ""}
                 rettLeftLabel={mA2?.date || ""}
                 rettRightLabel={mA2?.city || ""}
+                results={mA2?.results || null}
               />
             </div>
 
@@ -84,6 +84,7 @@ const TablePage = () => {
                 secondSquareLabel={mA3?.pos2 || ""}
                 rettLeftLabel={mA3?.date || ""}
                 rettRightLabel={mA3?.city || ""}
+                results={mA3?.results || null}
               />
             </div>
 
@@ -95,6 +96,7 @@ const TablePage = () => {
                 secondSquareLabel={mA4?.pos2 || ""}
                 rettLeftLabel={mA4?.date || ""}
                 rettRightLabel={mA4?.city || ""}
+                results={mA4?.results || null}
               />
             </div>
 
@@ -106,6 +108,7 @@ const TablePage = () => {
                 secondSquareLabel={mB1?.pos2 || ""}
                 rettLeftLabel={mB1?.date || ""}
                 rettRightLabel={mB1?.city || ""}
+                results={mB1?.results || null}
               />
             </div>
 
@@ -117,6 +120,7 @@ const TablePage = () => {
                 secondSquareLabel={mB2?.pos2 || ""}
                 rettLeftLabel={mB2?.date || ""}
                 rettRightLabel={mB2?.city || ""}
+                results={mB2?.results || null}
               />
             </div>
 
@@ -128,6 +132,7 @@ const TablePage = () => {
                 secondSquareLabel={mB3?.pos2 || ""}
                 rettLeftLabel={mB3?.date || ""}
                 rettRightLabel={mB3?.city || ""}
+                results={mB3?.results || null}
               />
             </div>
 
@@ -139,12 +144,13 @@ const TablePage = () => {
                 secondSquareLabel={mB4?.pos2 || ""}
                 rettLeftLabel={mB4?.date || ""}
                 rettRightLabel={mB4?.city || ""}
+                results={mB4?.results || null}
               />
             </div>
           </div>
         </div>
 
-        {/* ✅ SECONDA COLONNA - ARANCIONE (4 BLOCCHI) */}
+        {/* ✅ COLONNA 16 A */}
         <div className="relative flex-1 h-full flex bg-orange flex-col items-center pt-12">
           <div className="md:mt-8 mt-8 ml-2">
             <BlokQuadRett rettColor="bg-green-600" />
@@ -160,8 +166,8 @@ const TablePage = () => {
           </div>
         </div>
 
-        {/* ✅ GIALLA → 2 BLOCCHI PEGATI A SINISTRA */}
-        <div className="relative flex-1 h-full bg-yellow flex flex-col items-start pt-12">
+        {/* ✅ COLONNA QUARTI A */}
+        <div className="relative flex-1 h-full bg-blue flex flex-col items-start pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
             <BlokQuadRett rettColor="bg-green-600" />
           </div>
@@ -171,26 +177,26 @@ const TablePage = () => {
           </div>
         </div>
 
-        {/* ✅ VERDE → centrale dentro, laterali fuori------------------------------------------------------ */}
+        {/* ✅ COLONNA SEMIFINALI FINALE ------------------------------------------------------------------------ */}
         <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
-          {/* ✅ BLOCCO CENTRALE (centrato nella colonna) */}
+          {/* ✅ FINALE */}
           <div className="relative z-10 md:-top-12 -top-28">
             <BlokQuadRett rettColor="bg-yellow-500" />
           </div>
 
-          {/* ✅ BLOCCO SINISTRO (esce verso sinistra di 2rem) */}
+          {/* ✅ SEMIFINALE A  */}
           <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[22rem] md:-ml-16 -ml-12 z-10">
             <BlokQuadRett rettColor="bg-gradient-to-l from-green-600 to-pink-600" />
           </div>
 
-          {/* ✅ BLOCCO DESTRO (esce verso destra di 2rem) */}
+          {/* ✅ SEMIFINALE B */}
           <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[22rem] md:-mr-16 -mr-12 z-10">
             <BlokQuadRett rettColor="bg-gradient-to-r from-orange-500 to-fuchsia-600" />
           </div>
         </div>
-
-        {/* ✅ BLU → 2 BLOCCHI (come la GIALLA) */}
-        <div className="relative flex-1 h-full bg-yellow flex flex-col items-end pt-12">
+        {/* ✅ COLONNA SEMIFINALI FINALE ------------------------------------------------------------------------ */}
+        {/* ✅ COLONNA QUARTI B */}
+        <div className="relative flex-1 h-full bg-blue flex flex-col items-end pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -mr-8">
             <BlokQuadRett rettColor="bg-orange-500" />
           </div>
@@ -200,8 +206,8 @@ const TablePage = () => {
           </div>
         </div>
 
-        {/* ✅ COLONNA INDIGO → 4 BLOCCHI (come ARANCIONE) */}
-        <div className="relative flex-1 h-full bg-indigo flex flex-col items-center pt-12">
+        {/* ✅ COLONNA 16 B */}
+        <div className="relative flex-1 h-full bg-orange flex flex-col items-center pt-12">
           <div className="md:mt-8 mt-8 mr-2">
             <BlokQuadRett rettColor="bg-orange-500" />
           </div>
@@ -216,7 +222,7 @@ const TablePage = () => {
           </div>
         </div>
 
-        {/* ✅ COLONNA VIOLA (come la PRIMA COLONNA) */}
+        {/* ✅ COLONNA 32 B */}
         <div className="relative flex-1 h-full bg-purple flex flex-col items-center pt-12">
           <div className="md:-mt-8 -mt-4">
             {/* C1 */}
@@ -226,6 +232,7 @@ const TablePage = () => {
               secondSquareLabel={mC1?.pos2 || ""}
               rettLeftLabel={mC1?.date || ""}
               rettRightLabel={mC1?.city || ""}
+              results={mC1?.results || null}
             />
           </div>
           <div className="md:mt-10 mt-8">
@@ -236,6 +243,7 @@ const TablePage = () => {
               secondSquareLabel={mC2?.pos2 || ""}
               rettLeftLabel={mC2?.date || ""}
               rettRightLabel={mC2?.city || ""}
+              results={mC2?.results || null}
             />
           </div>
           <div className="md:mt-20 mt-16">
@@ -246,6 +254,7 @@ const TablePage = () => {
               secondSquareLabel={mC3?.pos2 || ""}
               rettLeftLabel={mC3?.date || ""}
               rettRightLabel={mC3?.city || ""}
+              results={mC3?.results || null}
             />
           </div>
           <div className="md:mt-10 mt-8">
@@ -256,6 +265,7 @@ const TablePage = () => {
               secondSquareLabel={mC4?.pos2 || ""}
               rettLeftLabel={mC4?.date || ""}
               rettRightLabel={mC4?.city || ""}
+              results={mC4?.results || null}
             />
           </div>
           <div className="md:mt-20 mt-16">
@@ -266,6 +276,7 @@ const TablePage = () => {
               secondSquareLabel={mD1?.pos2 || ""}
               rettLeftLabel={mD1?.date || ""}
               rettRightLabel={mD1?.city || ""}
+              results={mD1?.results || null}
             />
           </div>
           <div className="md:mt-10 mt-8">
@@ -276,6 +287,7 @@ const TablePage = () => {
               secondSquareLabel={mD2?.pos2 || ""}
               rettLeftLabel={mD2?.date || ""}
               rettRightLabel={mD2?.city || ""}
+              results={mD2?.results || null}
             />
           </div>
           <div className="md:mt-20 mt-16">
@@ -286,6 +298,7 @@ const TablePage = () => {
               secondSquareLabel={mD3?.pos2 || ""}
               rettLeftLabel={mD3?.date || ""}
               rettRightLabel={mD3?.city || ""}
+              results={mD3?.results || null}
             />
           </div>
           <div className="md:mt-10 mt-8">
@@ -296,6 +309,7 @@ const TablePage = () => {
               secondSquareLabel={mD4?.pos2 || ""}
               rettLeftLabel={mD4?.date || ""}
               rettRightLabel={mD4?.city || ""}
+              results={mD4?.results || null}
             />
           </div>
         </div>
