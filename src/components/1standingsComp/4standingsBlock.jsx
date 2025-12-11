@@ -15,7 +15,7 @@ const StandingsBlock = () => {
       {/* ✅ LOGO */}
       <div className="absolute md:-left-4 -left-16 -top-28 md:-top-28 w-52 md:w-72 flex justify-center z-50">
         <div className="relative">
-          {/* 🔵 Bottone centrato PERFETTAMENTE sopra l’immagine */}
+          {/* 🔵 Bottone centrato PERFETTAMENTE sopra l’immagine
           <button
             onClick={() => console.log("Apro la label!")}
             className="
@@ -29,7 +29,7 @@ const StandingsBlock = () => {
       "
           >
             k
-          </button>
+          </button> */}
 
           {/* ✅ LOGO MOBILE */}
           <img
