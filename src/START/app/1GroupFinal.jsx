@@ -158,7 +158,7 @@ final34: {
             'LUG/18',
         ],
         matches: [
-            { numero: 1,  city: 'Miami',              time: '23:00',  pos1:'FIN', team1: '',          pos2:'3/4',            team2: '',          fg:'F2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'Miami',              time: '23:00',  pos1:' ', team1: '',          pos2:'3/4',            team2: '',          fg:'F2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
         ],
     },
 },
@@ -168,7 +168,7 @@ final: {
             'LUG/19',
         ],
         matches: [
-            { numero: 1,  city: 'NJersey',            time: '00:00',  pos1:'WIN', team1: '',          pos2:'',               team2: '',          fg:'F1',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'NJersey',            time: '00:00',  pos1:'', team1: '',          pos2:'',               team2: '',          fg:'F1',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
         ],
     },
 },

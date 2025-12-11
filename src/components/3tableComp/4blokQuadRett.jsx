@@ -36,7 +36,7 @@ const BlokQuadRett = ({
         - su mobile: z-20 → sopra i quadrati (così i numeri si vedono)
         - da md in su: z-0 → torna tutto sotto i quadrati (layout “normale”)
       */}
-      <div className="absolute left-1/2 -translate-x-1/2 -mt-14 md:-mt-16 z-20 md:z-0 flex flex-col items-center">
+      <div className="absolute left-1/2 -translate-x-1/2 -mt-12 md:-mt-16 z-20 md:z-0 flex flex-col items-center">
         <RettRis results={results} />
       </div>
     </div>

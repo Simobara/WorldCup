@@ -86,7 +86,7 @@ export const getMergedHighlights = () => {
       groupMatches.group_F,
       titleLabels,
       citiesOsp,
-      "bg-green-900"
+      "bg-green-700"
     ),
     "group_F"
   );
