@@ -19,7 +19,7 @@ const Quadrato = ({
   // 🟦🟪 BORDO NUOVO
   const borderColor = isPronTeam
     ? "border-fuchsia-600" // PRON
-    : "border-sky-700"; // TEAM REALI
+    : "border-white"; // TEAM REALI
 
   // 🟡 Regola grayscale
   const isRound32 = phase === "round32";
@@ -45,7 +45,7 @@ const Quadrato = ({
             md:top-0 -top-1
             left-1/2 -translate-x-1/2 
             text-yellow-500 font-extrabold bg-black
-            text-[0.55rem] md:text-[0.20rem] px-1
+            md:text-[0.50rem] text-[0.55rem] px-1
           "
         >
           {label}
