@@ -365,11 +365,11 @@ const TablePage = () => {
               className="
         absolute
         left-1/2 
-        md:-top-4 top-0
-        md:translate-x-2 -translate-x-0
+        md:-top-4 -top-4
+        md:translate-x-2 translate-x-4
         bg-transparent
         border-0 border-yellow-400
-        text-black font-bold
+        text-yellow-500 yellow-400 font-bold
         text-xs md:text-sm
         px-0 py-0
         rounded-full z-50       
