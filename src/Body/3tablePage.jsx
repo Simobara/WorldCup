@@ -367,7 +367,7 @@ const TablePage = () => {
               className="
         absolute
         left-1/2 
-        md:-top-4 -top-4
+        md:-top-[1.5rem] -top-4
         md:translate-x-2 translate-x-4
         bg-transparent
         border-0 border-yellow-400
