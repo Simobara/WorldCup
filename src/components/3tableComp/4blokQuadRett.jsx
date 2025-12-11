@@ -13,6 +13,8 @@ const BlokQuadRett = ({
   // 🔹 nuove props logiche
   firstAdvanced = false,
   secondAdvanced = false,
+  firstIsPron = false, // 🆕 arriva da TablePage
+  secondIsPron = false, // 🆕
   phase = "round32",
   rettLeftLabel = "A",
   rettRightLabel = "B",
@@ -30,6 +32,7 @@ const BlokQuadRett = ({
           teamName={firstTeamName}
           flag={firstTeamFlag}
           advanced={firstAdvanced}
+          isPronTeam={firstIsPron} // 🆕 qui passo l’info
           phase={phase}
         />
         <Quadrato
@@ -37,6 +40,7 @@ const BlokQuadRett = ({
           teamName={secondTeamName}
           flag={secondTeamFlag}
           advanced={secondAdvanced}
+          isPronTeam={secondIsPron} // 🆕 qui passo l’info
           phase={phase}
         />
       </div>

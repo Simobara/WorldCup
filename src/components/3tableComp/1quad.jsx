@@ -1,12 +1,11 @@
-// src/components/3tableComp/1quad.jsx
 const Quadrato = ({
   label,
   teamName,
   flag,
   phase = "round32",
   advanced = false,
+  isPronTeam = false,   // 🆕
 }) => {
-  // 🔹 background per fase
   const bgByPhase = {
     round32: "bg-sky-800",
     round16: "bg-emerald-700",
@@ -17,11 +16,18 @@ const Quadrato = ({
 
   const bgColor = bgByPhase[phase] || "bg-sky-800";
 
-  // 🔹 colore bordo in base se avanza
-  const borderColor = advanced ? "border-sky-400" : "border-sky-400";
+  // 🟦🟪 BORDO NUOVO
+  const borderColor = isPronTeam
+    ? "border-fuchsia-600"  // PRON
+    : "border-sky-700";      // TEAM REALI
 
-  // 🔹 se NON avanza → contenuto in scala di grigi
-  const contentFilterClass = advanced ? "" : "filter grayscale";
+  // 🟡 Regola grayscale
+  const isRound32 = phase === "round32";
+  const contentFilterClass = isRound32
+    ? ""
+    : advanced
+    ? ""
+    : "filter grayscale";
 
   return (
     <div
@@ -32,7 +38,6 @@ const Quadrato = ({
         overflow-hidden z-0
       `}
     >
-      {/* Etichetta sopra TUTTO */}
       {label && (
         <span
           className="
@@ -47,16 +52,12 @@ const Quadrato = ({
         </span>
       )}
 
-      {/* Contenuto (bandiera o nome) con eventuale grayscale */}
       <div className={`absolute inset-0 w-full h-full ${contentFilterClass}`}>
         {flag ? (
           <img
             src={flag}
             alt={teamName || label}
-            className="
-              w-full h-full 
-              object-cover 
-            "
+            className="w-full h-full object-cover"
           />
         ) : (
           <span className="flex items-center justify-center w-full h-full text-[0.7rem] md:text-sm font-semibold text-white px-1 text-center">

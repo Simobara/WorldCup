@@ -236,6 +236,8 @@ const TablePage = () => {
         secondSquareLabel={match.pos2 || ""}
         firstTeamName={displayCode1}
         secondTeamName={displayCode2}
+        firstIsPron={isPron1}
+        secondIsPron={isPron2}
         firstTeamFlag={displayCode1 ? getFlag(displayCode1) : null}
         secondTeamFlag={displayCode2 ? getFlag(displayCode2) : null}
         firstAdvanced={
