@@ -4,12 +4,12 @@ import RettDat from "./2rettDat";
 import RettRis from "./3rettRis";
 
 const BlokQuadRett = ({
-  firstSquareLabel = "E1",
-  secondSquareLabel = "3ABCDF",
+  firstSquareLabel = " ",
+  secondSquareLabel = " ",
   rettLeftLabel = "A",
   rettRightLabel = "B",
-  rettColor = "bg-gray-200", // ✅ default
-  className = "",
+  rettColor = "bg-gray-200",
+  className = " ",
 }) => {
   return (
     <div className={`relative z-[10] ${className}`}>

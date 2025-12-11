@@ -88,10 +88,21 @@ const Grid = ({
           ? "border-l-8 border-l-gray-700"
           : "";
 
+        // 🔹 DIVISORI ORIZZONTALI – muri stile verticali
+        const isHorizontalDivider =
+          rowIndex === 4 || // primo muro
+          rowIndex === 10; // secondo muro (3 righe dopo)
+
+        const horizontalDividerClass = isHorizontalDivider
+          ? rowIndex === 4
+            ? "border-t-4 border-t-green-500"
+            : "border-t-4 border-t-pink-500"
+          : "";
+
         return (
           <div
             key={i}
-            className={`relative overflow-hidden ${cellHeightClass} ${finalColor} ${borderClass} ${dividerClass}`}
+            className={`relative overflow-hidden ${cellHeightClass} ${finalColor} ${borderClass} ${dividerClass} ${horizontalDividerClass}`}
             style={{ width: "32px" }}
           >
             {/* OVERLAY WEEKEND SOLO SOPRA, SOLO PRIMA RIGA, se non c'è highlight/force */}

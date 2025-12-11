@@ -8,16 +8,17 @@ const RettDat = ({ leftLabel, rightLabel, color = "bg-pink-700" }) => {
         md:mt-0 mt-4
         ${color} rounded-[16px] shadow-xl overflow-hidden`}
     >
-      {/* ✅ Area risultati in ALTO */}
-      <div className="absolute top-0 left-0 w-full h-[20%] text-[10px] sm:text-xs text-white">
-        <div className="grid grid-cols-3 h-full items-center px-2">
-          <div className="flex justify-start">
-            <span className="font-bold">{leftLabel}</span>
-          </div>
-          <div className="flex justify-end">
-            <span className="font-bold">{rightLabel}</span>
-          </div>
-        </div>
+      {/* ✅ DATA + CITY – stessa linea */}
+      <div className="absolute top-0 left-0 w-full h-[40%] flex items-center justify-between px-3 text-white">
+        {/* DATA — più grande */}
+        <span className="font-extrabold text-[13px] sm:text-[15px] leading-none">
+          {leftLabel}
+        </span>
+
+        {/* CITY — a destra, più piccola */}
+        <span className="font-semibold text-[10px] sm:text-[12px] leading-none text-right">
+          {rightLabel}
+        </span>
       </div>
 
       {/* ✅ Contenuto principale in BASSO */}

@@ -6,7 +6,7 @@ round32: {
             'GIU/28', 
         ],
         matches: [
-            { numero: 1,  city: 'Los Angeles',    time: '',  pos1:'2A' ,team1: '',          pos2:'2B',          team2: '',          goto:'73',      pron:' ', results:' '  },
+            { numero: 1,  city: 'Los Angeles',    time: '',  pos1:'2A' ,team1: '',          pos2:'2B',          team2: '',         goto:'73',      fg:'A3', pron:' ', results:' '  },
         ],
     },
     giornata_2:{
@@ -14,9 +14,9 @@ round32: {
             'GIU/29', 
         ],
         matches: [
-            { numero: 1,  city: 'Houston',        time: '',  pos1:'1C', team1: '',          pos2:'2F',           team2: '',          goto:'76',     pron:' ', results:' ' },
-            { numero: 2,  city: 'Boston',         time: '',  pos1:'1E', team1: '',          pos2:'3A/B/C/D/F',   team2: '',          goto:'74',     pron:' ', results:' ' },
-            { numero: 3,  city: 'Monterrey',      time: '',  pos1:'1F', team1: '',          pos2:'2C',           team2: '',          goto:'75',     pron:' ', results:' ' },
+            { numero: 1,  city: 'Houston',        time: '',  pos1:'1C', team1: '',          pos2:'2F',           team2: '',         goto:'76',     fg:'C1',     pron:' ', results:' ' },
+            { numero: 2,  city: 'Boston',         time: '',  pos1:'1E', team1: '',          pos2:'3A/B/C/D/F',   team2: '',         goto:'74',     fg:'A1',     pron:' ', results:' ' },
+            { numero: 3,  city: 'Monterrey',      time: '',  pos1:'1F', team1: '',          pos2:'2C',           team2: '',         goto:'75',     fg:'A4',     pron:' ', results:' ' },
         ],
     },
     giornata_3:{
@@ -24,9 +24,9 @@ round32: {
             'GIU/30',
         ],
         matches: [
-            { numero: 1,  city: 'Dallas',         time: '',  pos1:'2E', team1: '',          pos2:'2I',            team2: '',          goto:'75',     pron:' ', results:' ' },
-            { numero: 2,  city: 'New Jersey',     time: '',  pos1:'1I', team1: '',          pos2:'3C/D/F/G/H',    team2: '',          goto:'79',     pron:' ', results:' ' },
-            { numero: 3,  city: 'Mexico City',    time: '',  pos1:'1A', team1: '',          pos2:'3C/E/F/H/I',    team2: '',          goto:'75',     pron:' ', results:' ' },
+            { numero: 1,  city: 'Dallas',         time: '',  pos1:'2E', team1: '',          pos2:'2I',            team2: '',          goto:'75',    fg:'C2',    pron:' ', results:' ' },
+            { numero: 2,  city: 'New Jersey',     time: '',  pos1:'1I', team1: '',          pos2:'3C/D/F/G/H',    team2: '',          goto:'79',    fg:'A2',    pron:' ', results:' ' },
+            { numero: 3,  city: 'Mexico City',    time: '',  pos1:'1A', team1: '',          pos2:'3G/E/F/H/I',    team2: '',          goto:'75',    fg:'C3',    pron:' ', results:' ' },
         ],
     },
     giornata_4:{
@@ -34,9 +34,9 @@ round32: {
             'LUG/01',
         ],
         matches: [
-            { numero: 1,  city: 'Atlanta',        time: '',  pos1:'1L', team1: '',          pos2:'3E/H/I/J/K',    team2: '',          goto:'80',     pron:' ', results:' ' },
-            { numero: 2,  city: 'Seattle',        time: '',  pos1:'1G', team1: '',          pos2:'3A/E/H/I/J',    team2: '',          goto:'82',     pron:' ', results:' ' },
-            { numero: 3,  city: 'San Francisco',  time: '',  pos1:'1D', team1: '',          pos2:'3B/E/F/I/J',    team2: '',          goto:'81',     pron:' ', results:' ' },
+            { numero: 1,  city: 'Atlanta',        time: '',  pos1:'1L', team1: '',          pos2:'3E/H/I/J/K',    team2: '',          goto:'80',    fg:'C4', pron:' ', results:' ' },
+            { numero: 2,  city: 'Seattle',        time: '',  pos1:'1G', team1: '',          pos2:'3A/E/H/I/J',    team2: '',          goto:'82',    fg:'B4',    pron:' ', results:' ' },
+            { numero: 3,  city: 'San Francisco',  time: '',  pos1:'1D', team1: '',          pos2:'3B/E/F/I/J',    team2: '',          goto:'81',    fg:'B3',    pron:' ', results:' ' },
 
         ],
     },
@@ -45,9 +45,9 @@ round32: {
             'LUG/02',
         ],
         matches: [
-            { numero: 1, city: 'Los Angeles',    time: '',  pos1:'1H', team1: '',          pos2:'2J',            team2: '',          goto:'84',     pron:' ', results:' ' },
-            { numero: 2, city: 'Toronto',        time: '',  pos1:'2K', team1: '',          pos2:'2L',            team2: '',          goto:'83',     pron:' ', results:' ' },
-            { numero: 3, city: 'Vancouver',      time: '',  pos1:'1B', team1: '',          pos2:'3E/F/G/I/J',    team2: '',          goto:'85',     pron:' ', results:' ' },
+            { numero: 1, city: 'Los Angeles',    time: '',  pos1:'1H', team1: '',          pos2:'2J',            team2: '',          goto:'84',     fg:'B2',    pron:' ', results:' ' },
+            { numero: 2, city: 'Toronto',        time: '',  pos1:'2K', team1: '',          pos2:'2L',            team2: '',          goto:'83',     fg:'B1',    pron:' ', results:' ' },
+            { numero: 3, city: 'Vancouver',      time: '',  pos1:'1B', team1: '',          pos2:'3E/F/G/I/J',    team2: '',          goto:'85',     fg:'D3',    pron:' ', results:' ' },
 
         ],
     },
@@ -56,9 +56,9 @@ round32: {
             'LUG/03',
         ],
         matches: [
-            { numero: 1, city: 'Dallas',         time: '',  pos1:'2D', team1: '',          pos2:'2G',            team2: '',          goto:'88',     pron:' ', results:' ' },
-            { numero: 2, city: 'Miami',          time: '',  pos1:'1J', team1: '',          pos2:'2H',            team2: '',          goto:'86',     pron:' ', results:' ' },
-            { numero: 3, city: 'Kansas City',    time: '',  pos1:'1K', team1: '',          pos2:'3D/E/I/J/L',    team2: '',          goto:'87',     pron:' ', results:' ' },
+            { numero: 1, city: 'Dallas',         time: '',  pos1:'2D', team1: '',          pos2:'2G',            team2: '',          goto:'88',     fg:'D2',    pron:' ', results:' ' },
+            { numero: 2, city: 'Miami',          time: '',  pos1:'1J', team1: '',          pos2:'2H',            team2: '',          goto:'86',     fg:'D1',    pron:' ', results:' ' },
+            { numero: 3, city: 'Kansas City',    time: '',  pos1:'1K', team1: '',          pos2:'3D/E/I/J/L',    team2: '',          goto:'87',     fg:'D4',    pron:' ', results:' ' },
 
         ],
     },
