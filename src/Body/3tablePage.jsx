@@ -256,144 +256,136 @@ const TablePage = () => {
   };
 
   return (
-    <>
-      {/* 🔥 SFONDO FISSO, NON SI MUOVE MAI */}
-      <div
-        className="
-        fixed inset-0
-        bg-fixed
-        [background-image:linear-gradient(to_right,theme(colors.sky.950),theme(colors.sky.300),theme(colors.sky.950)),linear-gradient(to_bottom,theme(colors.sky.950),theme(colors.sky.300),theme(colors.sky.950))]
-        bg-blend-multiply
-        -z-10
+    <div
+      className="
+      w-full h-screen
+      relative
+      
+      overflow-x-auto overflow-y-hidden
+      md:overflow-x-auto md:overflow-y-hidden
+      [background-image:linear-gradient(to_right,theme(colors.sky.950),theme(colors.sky.300),theme(colors.sky.950)),linear-gradient(to_bottom,theme(colors.sky.950),theme(colors.sky.300),theme(colors.sky.950))]
+      bg-blend-multiply
       "
-      />
-
-      {/* 🔄 CONTENUTO CHE SCROLLA SOPRA LO SFONDO */}
+    >
+      {/* Contenitore largo orizzontale: le 7 colonne una di fianco all'altra */}
       <div
         className="
-        w-full h-screen
-        relative
-        overflow-x-auto overflow-y-hidden
-        md:overflow-x-auto md:overflow-y-hidden
+        flex h-full
+          
+        md:w-[1700px] w-[1400px]    
+        mx-0
+        md:-px-2 px-0
       "
       >
-        {/* Contenitore largo orizzontale: le 7 colonne una di fianco all'altra */}
-        <div
-          className="
-          flex h-full
-          md:w-[1700px] w-[1400px]    
-          mx-0
-          md:-px-2 px-0
-        "
-        >
-          {/* ✅ COLONNA 32 A */}
-          <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
-            <div className="md:-mt-8 -mt-4">
-              {/* A1 */}
-              {renderMatchBlock(mA1, "bg-green-600", "round32")}
-            </div>
-
-            <div>
-              <div className="md:mt-10 mt-8">
-                {/* A2 */}
-                {renderMatchBlock(mA2, "bg-green-600", "round32")}
-              </div>
-
-              <div className="md:mt-20 mt-16">
-                {/* A3 */}
-                {renderMatchBlock(mA3, "bg-green-600", "round32")}
-              </div>
-
-              <div className="md:mt-10 mt-8">
-                {/* A4 */}
-                {renderMatchBlock(mA4, "bg-green-600", "round32")}
-              </div>
-
-              <div className="md:mt-20 mt-16">
-                {/* B1 */}
-                {renderMatchBlock(mB1, "bg-pink-600", "round32")}
-              </div>
-
-              <div className="md:mt-10 mt-8">
-                {/* B2 */}
-                {renderMatchBlock(mB2, "bg-pink-600", "round32")}
-              </div>
-
-              <div className="md:mt-20 mt-16">
-                {/* B3 */}
-                {renderMatchBlock(mB3, "bg-pink-600", "round32")}
-              </div>
-
-              <div className="md:mt-10 mt-8">
-                {/* B4 */}
-                {renderMatchBlock(mB4, "bg-pink-600", "round32")}
-              </div>
-            </div>
+        {/* ✅ COLONNA 32 A */}
+        <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
+          <div className="md:-mt-8 -mt-4">
+            {/* A1 */}
+            {renderMatchBlock(mA1, "bg-green-600", "round32")}
           </div>
 
-          {/* ✅ COLONNA 16 A */}
-          <div className="relative flex-1 h-full flex bg-orange flex-col items-center md:pt-20 pt-12">
-            <div className="md:mt-8 mt-8 ml-2">
-              {/* A5 */}
-              {renderMatchBlock(mA5, "bg-green-600", "round16")}
+          <div>
+            <div className="md:mt-10 mt-8">
+              {/* A2 */}
+              {renderMatchBlock(mA2, "bg-green-600", "round32")}
             </div>
 
-            <div className="md:mt-44 mt-32 ml-2">
-              {/* A6 */}
-              {renderMatchBlock(mA6, "bg-green-600", "round16")}
+            <div className="md:mt-20 mt-16">
+              {/* A3 */}
+              {renderMatchBlock(mA3, "bg-green-600", "round32")}
             </div>
 
-            <div className="md:mt-48 mt-40 ml-2">
-              {/* B5 */}
-              {renderMatchBlock(mB5, "bg-pink-600", "round16")}
+            <div className="md:mt-10 mt-8">
+              {/* A4 */}
+              {renderMatchBlock(mA4, "bg-green-600", "round32")}
             </div>
 
-            <div className="md:mt-44 mt-32 ml-2">
-              {/* B6 */}
-              {renderMatchBlock(mB6, "bg-pink-600", "round16")}
+            <div className="md:mt-20 mt-16">
+              {/* B1 */}
+              {renderMatchBlock(mB1, "bg-pink-600", "round32")}
+            </div>
+
+            <div className="md:mt-10 mt-8">
+              {/* B2 */}
+              {renderMatchBlock(mB2, "bg-pink-600", "round32")}
+            </div>
+
+            <div className="md:mt-20 mt-16">
+              {/* B3 */}
+              {renderMatchBlock(mB3, "bg-pink-600", "round32")}
+            </div>
+
+            <div className="md:mt-10 mt-8">
+              {/* B4 */}
+              {renderMatchBlock(mB4, "bg-pink-600", "round32")}
             </div>
           </div>
+        </div>
 
-          {/* ✅ COLONNA QUARTI A */}
-          <div className="relative flex-1 h-full bg-blue flex flex-col items-start md:pt-20 pt-12">
-            <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
-              {/* A7 */}
-              {renderMatchBlock(mA7, "bg-green-600", "quarter")}
-            </div>
-
-            <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -ml-8">
-              {/* B7 */}
-              {renderMatchBlock(mB7, "bg-pink-600", "quarter")}
-            </div>
+        {/* ✅ COLONNA 16 A */}
+        <div className="relative flex-1 h-full flex bg-orange flex-col items-center md:pt-20 pt-12">
+          <div className="md:mt-8 mt-8 ml-2">
+            {/* A5 */}
+            {renderMatchBlock(mA5, "bg-green-600", "round16")}
           </div>
-          {/* ✅ COLONNA SEMIFINALI FINALE */}
-          <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
+
+          <div className="md:mt-44 mt-32 ml-2">
+            {/* A6 */}
+            {renderMatchBlock(mA6, "bg-green-600", "round16")}
+          </div>
+
+          <div className="md:mt-48 mt-40 ml-2">
+            {/* B5 */}
+            {renderMatchBlock(mB5, "bg-pink-600", "round16")}
+          </div>
+
+          <div className="md:mt-44 mt-32 ml-2">
+            {/* B6 */}
+            {renderMatchBlock(mB6, "bg-pink-600", "round16")}
+          </div>
+        </div>
+
+        {/* ✅ COLONNA QUARTI A */}
+        <div className="relative flex-1 h-full bg-blue flex flex-col items-start md:pt-20 pt-12">
+          <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
+            {/* A7 */}
+            {renderMatchBlock(mA7, "bg-green-600", "quarter")}
+          </div>
+
+          <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -ml-8">
+            {/* B7 */}
+            {renderMatchBlock(mB7, "bg-pink-600", "quarter")}
+          </div>
+        </div>
+        {/* ✅ COLONNA SEMIFINALI FINALE */}
+        <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
+          {/* ✅ FINALE F1 */}
+          <div className="relative md:-top-12 -top-28 flex items-center justify-center">
+            {/* 🏆 COPPA ENORME, VINCOLATA AL BLOCCO DELLA FINALE */}
             {/* ✅ FINALE F1 */}
-            <div className="relative md:-top-12 -top-28 flex items-center justify-center">
+            <div className="relative md:-top-12 -top-30 flex items-center justify-center">
               {/* 🏆 COPPA ENORME, VINCOLATA AL BLOCCO DELLA FINALE */}
-              {/* ✅ FINALE F1 */}
-              <div className="relative md:-top-12 -top-30 flex items-center justify-center">
-                {/* 🏆 COPPA ENORME, VINCOLATA AL BLOCCO DELLA FINALE */}
-                <img
-                  src="/assts/WCOfficial.png"
-                  alt="World Cup"
-                  className="absolute 
+
+              <img
+                src="/assts/WCOfficial.png"
+                alt="World Cup"
+                className="absolute 
                       md:left-18 left-1/2 
-                      md:top-36 top-32 
-                      md:w-[400px] w-[400px]
+                      md:top-36 top-24 
+                      md:w-[400px] w-[360px]
                       -translate-x-1/2 -translate-y-1/2
                       max-w-none pointer-events-none
                     "
-                />
+              />
 
-                {/* blocco finale sopra la coppa */}
-                <div className="relative z-10">
-                  {renderMatchBlock(mF1, "bg-yellow-500", "final")}
-                </div>
-                {/* 🔘 BOTTONE ALTO CENTRO */}
-                <button
-                  onClick={() => setShowPron((prev) => !prev)}
-                  className="
+              {/* blocco finale sopra la coppa */}
+              <div className="relative z-10">
+                {renderMatchBlock(mF1, "bg-yellow-500", "final")}
+              </div>
+              {/* 🔘 BOTTONE ALTO CENTRO */}
+              <button
+                onClick={() => setShowPron((prev) => !prev)}
+                className="
         absolute
         left-1/2 
         md:-top-[1.5rem] -top-4
@@ -405,107 +397,106 @@ const TablePage = () => {
         px-0 py-0
         rounded-full z-50       
       "
-                >
-                  {showPron ? "" : ""}
-                  ""
-                </button>
-              </div>
-            </div>
-            {/* ✅ SEMIFINALE A → AB1 */}
-            <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[22rem] md:-ml-16 -ml-12 z-10">
-              {renderMatchBlock(
-                mAB1,
-                "bg-gradient-to-l from-green-600 to-pink-600",
-                "semi"
-              )}
-            </div>
-            {/* ✅ SEMIFINALE B → CD1 */}
-            <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[22rem] md:-mr-16 -mr-12 z-10">
-              {renderMatchBlock(
-                mCD1,
-                "bg-gradient-to-r from-orange-500 to-fuchsia-600",
-                "semi"
-              )}
+              >
+                {showPron ? "" : ""}
+                ""
+              </button>
             </div>
           </div>
-          {/* ✅ COLONNA SEMIFINALI FINALE ------------------------------------------------------------------------ */}
-          {/* ✅ COLONNA QUARTI B */}
-          <div className="relative flex-1 h-full bg-blue flex flex-col items-end md:pt-20 pt-12">
-            <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -mr-8">
-              {/* C7 */}
-              {renderMatchBlock(mC7, "bg-orange-500", "quarter")}
-            </div>
-            <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -mr-8">
-              {/* D7 */}
-              {renderMatchBlock(mD7, "bg-fuchsia-600", "quarter")}
-            </div>
+          {/* ✅ SEMIFINALE A → AB1 */}
+          <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[22rem] md:-ml-16 -ml-12 z-10">
+            {renderMatchBlock(
+              mAB1,
+              "bg-gradient-to-l from-green-600 to-pink-600",
+              "semi"
+            )}
+          </div>
+          {/* ✅ SEMIFINALE B → CD1 */}
+          <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[22rem] md:-mr-16 -mr-12 z-10">
+            {renderMatchBlock(
+              mCD1,
+              "bg-gradient-to-r from-orange-500 to-fuchsia-600",
+              "semi"
+            )}
+          </div>
+        </div>
+        {/* ✅ COLONNA SEMIFINALI FINALE ------------------------------------------------------------------------ */}
+        {/* ✅ COLONNA QUARTI B */}
+        <div className="relative flex-1 h-full bg-blue flex flex-col items-end md:pt-20 pt-12">
+          <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -mr-8">
+            {/* C7 */}
+            {renderMatchBlock(mC7, "bg-orange-500", "quarter")}
+          </div>
+          <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -mr-8">
+            {/* D7 */}
+            {renderMatchBlock(mD7, "bg-fuchsia-600", "quarter")}
+          </div>
+        </div>
+
+        {/* ✅ COLONNA 16 B */}
+        <div className="relative flex-1 h-full bg-orange flex flex-col items-center md:pt-20 pt-12">
+          <div className="md:mt-8 mt-8 mr-2">
+            {/* C5 */}
+            {renderMatchBlock(mC5, "bg-orange-500", "round16")}
+          </div>
+          <div className="md:mt-44 mt-32 mr-2">
+            {/* C6 */}
+            {renderMatchBlock(mC6, "bg-orange-500", "round16")}
+          </div>
+          <div className="md:mt-48 mt-40 mr-2">
+            {/* D5 */}
+            {renderMatchBlock(mD5, "bg-fuchsia-600", "round16")}
+          </div>
+          <div className="md:mt-44 mt-32 mr-2">
+            {/* D6 */}
+            {renderMatchBlock(mD6, "bg-fuchsia-600", "round16")}
+          </div>
+        </div>
+
+        {/* ✅ COLONNA 32 B */}
+        <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
+          <div className="md:-mt-8 -mt-4">
+            {/* C1 */}
+            {renderMatchBlock(mC1, "bg-orange-500", "round32")}
           </div>
 
-          {/* ✅ COLONNA 16 B */}
-          <div className="relative flex-1 h-full bg-orange flex flex-col items-center md:pt-20 pt-12">
-            <div className="md:mt-8 mt-8 mr-2">
-              {/* C5 */}
-              {renderMatchBlock(mC5, "bg-orange-500", "round16")}
-            </div>
-            <div className="md:mt-44 mt-32 mr-2">
-              {/* C6 */}
-              {renderMatchBlock(mC6, "bg-orange-500", "round16")}
-            </div>
-            <div className="md:mt-48 mt-40 mr-2">
-              {/* D5 */}
-              {renderMatchBlock(mD5, "bg-fuchsia-600", "round16")}
-            </div>
-            <div className="md:mt-44 mt-32 mr-2">
-              {/* D6 */}
-              {renderMatchBlock(mD6, "bg-fuchsia-600", "round16")}
-            </div>
+          <div className="md:mt-10 mt-8">
+            {/* C2 */}
+            {renderMatchBlock(mC2, "bg-orange-500", "round32")}
           </div>
 
-          {/* ✅ COLONNA 32 B */}
-          <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
-            <div className="md:-mt-8 -mt-4">
-              {/* C1 */}
-              {renderMatchBlock(mC1, "bg-orange-500", "round32")}
-            </div>
+          <div className="md:mt-20 mt-16">
+            {/* C3 */}
+            {renderMatchBlock(mC3, "bg-orange-500", "round32")}
+          </div>
 
-            <div className="md:mt-10 mt-8">
-              {/* C2 */}
-              {renderMatchBlock(mC2, "bg-orange-500", "round32")}
-            </div>
+          <div className="md:mt-10 mt-8">
+            {/* C4 */}
+            {renderMatchBlock(mC4, "bg-orange-500", "round32")}
+          </div>
 
-            <div className="md:mt-20 mt-16">
-              {/* C3 */}
-              {renderMatchBlock(mC3, "bg-orange-500", "round32")}
-            </div>
+          <div className="md:mt-20 mt-16">
+            {/* D1 */}
+            {renderMatchBlock(mD1, "bg-fuchsia-600", "round32")}
+          </div>
 
-            <div className="md:mt-10 mt-8">
-              {/* C4 */}
-              {renderMatchBlock(mC4, "bg-orange-500", "round32")}
-            </div>
+          <div className="md:mt-10 mt-8">
+            {/* D2 */}
+            {renderMatchBlock(mD2, "bg-fuchsia-600", "round32")}
+          </div>
 
-            <div className="md:mt-20 mt-16">
-              {/* D1 */}
-              {renderMatchBlock(mD1, "bg-fuchsia-600", "round32")}
-            </div>
+          <div className="md:mt-20 mt-16">
+            {/* D3 */}
+            {renderMatchBlock(mD3, "bg-fuchsia-600", "round32")}
+          </div>
 
-            <div className="md:mt-10 mt-8">
-              {/* D2 */}
-              {renderMatchBlock(mD2, "bg-fuchsia-600", "round32")}
-            </div>
-
-            <div className="md:mt-20 mt-16">
-              {/* D3 */}
-              {renderMatchBlock(mD3, "bg-fuchsia-600", "round32")}
-            </div>
-
-            <div className="md:mt-10 mt-8">
-              {/* D4 */}
-              {renderMatchBlock(mD4, "bg-fuchsia-600", "round32")}
-            </div>
+          <div className="md:mt-10 mt-8">
+            {/* D4 */}
+            {renderMatchBlock(mD4, "bg-fuchsia-600", "round32")}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

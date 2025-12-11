@@ -34,18 +34,18 @@ const Quadrato = ({
       className={`
         relative w-16 md:h-16 h-12 
         ${bgColor} border-x-2 border-y-4 ${borderColor}
-        rounded-[16px] shadow-xl flex items-center justify-center 
-        overflow-hidden z-0
+        rounded-[14px] shadow-xl flex items-center justify-center 
+        overflow-hidden z-60
       `}
     >
       {label && (
         <span
           className="
-            absolute z-50
+            absolute
             md:top-0 -top-1
             left-1/2 -translate-x-1/2 
             text-yellow-500 font-extrabold bg-black
-            text-[0.55rem] md:text-[0.55rem] px-1
+            text-[0.55rem] md:text-[0.20rem] px-1
           "
         >
           {label}
