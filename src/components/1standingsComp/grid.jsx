@@ -66,6 +66,7 @@ const Grid = ({
         let highlightLabel = null;
         let highlightTeams = null;
         let highlightGoto = null;
+        let highlightTime = null;
 
         if (typeof rawHighlight === "string") {
           highlightColor = rawHighlight;
@@ -73,7 +74,8 @@ const Grid = ({
           highlightColor = rawHighlight.color || null;
           highlightLabel = rawHighlight.label || null;
           highlightTeams = rawHighlight.teams || null;
-          highlightGoto = rawHighlight.goto || null; // ⭐ nuovo
+          highlightGoto = rawHighlight.goto || null;
+          highlightTime = rawHighlight.time || null;
         }
 
         // ordine di priorità: highlight > forceColor > pattern base
@@ -124,7 +126,7 @@ const Grid = ({
 
             {/* LETTERA GRUPPO IN ALTO (solo righe delle città) */}
             {highlightLabel && (
-              <div className="absolute top-0 left-0 w-full flex justify-center z-30">
+              <div className="absolute -top-[1px] left-0 w-full flex justify-center z-30">
                 <span className="text-[10px] font-extrabold leading-none translate-y-[-1px]">
                   {highlightLabel}
                 </span>
@@ -146,9 +148,9 @@ const Grid = ({
                     const num = singleMatch[1];
 
                     if (num === "1")
-                      return "text-red-500 text-[12px] font-bold";
+                      return "text-red-700 text-[12px] font-bold";
                     if (num === "2")
-                      return "text-green-500 text-[12px] font-bold";
+                      return "text-green-400 text-[12px] font-bold";
                     if (num === "3")
                       return "text-gray-200 text-[6px] font-bold tracking-tight";
                   }
@@ -172,6 +174,15 @@ const Grid = ({
                   </div>
                 );
               })()}
+
+            {/* ORARIO PARTITA (solo righe città, se presente) */}
+            {highlightTime && (
+              <div className="absolute top-[20px] right-0 z-50 items-center justify-center">
+                <span className="text-[10px] md:text-[9px] font-semibold text-black leading-none">
+                  {highlightTime}
+                </span>
+              </div>
+            )}
 
             {/* NUMERO GOTO IN BASSO (solo se esiste, es. knockout) */}
             {highlightGoto && (

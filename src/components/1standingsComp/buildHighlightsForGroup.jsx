@@ -70,12 +70,14 @@ export const buildHighlightsForGroup = (
 
       const teamsShort = t1 && t2 ? `${t1} ${t2}` : t1 || t2 || null;
       const goto = match.goto || null;
+      const time = match.time || null;
 
       // 🔹 salviamo un oggetto con colore + sigle squadre
       highlighted[cellKey] = {
         color, // es. "bg-green-500"
         teams: teamsShort, // es. "2A 2B" oppure "MEX USA"
         goto,
+        time,
       };
     });
   });

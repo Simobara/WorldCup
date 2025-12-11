@@ -97,6 +97,7 @@ const TablePage = () => {
               secondSquareLabel={mA1?.pos2 || ""}
               rettLeftLabel={mA1?.date || ""}
               rettRightLabel={mA1?.city || ""}
+              rettTimeLabel={mA1?.time || ""}
               results={mA1?.results || null}
             />
           </div>
@@ -110,6 +111,7 @@ const TablePage = () => {
                 secondSquareLabel={mA2?.pos2 || ""}
                 rettLeftLabel={mA2?.date || ""}
                 rettRightLabel={mA2?.city || ""}
+                rettTimeLabel={mA2?.time || ""}
                 results={mA2?.results || null}
               />
             </div>
@@ -122,6 +124,7 @@ const TablePage = () => {
                 secondSquareLabel={mA3?.pos2 || ""}
                 rettLeftLabel={mA3?.date || ""}
                 rettRightLabel={mA3?.city || ""}
+                rettTimeLabel={mA3?.time || ""}
                 results={mA3?.results || null}
               />
             </div>
@@ -134,6 +137,7 @@ const TablePage = () => {
                 secondSquareLabel={mA4?.pos2 || ""}
                 rettLeftLabel={mA4?.date || ""}
                 rettRightLabel={mA4?.city || ""}
+                rettTimeLabel={mA4?.time || ""}
                 results={mA4?.results || null}
               />
             </div>
@@ -146,6 +150,7 @@ const TablePage = () => {
                 secondSquareLabel={mB1?.pos2 || ""}
                 rettLeftLabel={mB1?.date || ""}
                 rettRightLabel={mB1?.city || ""}
+                rettTimeLabel={mB1?.time || ""}
                 results={mB1?.results || null}
               />
             </div>
@@ -158,6 +163,7 @@ const TablePage = () => {
                 secondSquareLabel={mB2?.pos2 || ""}
                 rettLeftLabel={mB2?.date || ""}
                 rettRightLabel={mB2?.city || ""}
+                rettTimeLabel={mB2?.time || ""}
                 results={mB2?.results || null}
               />
             </div>
@@ -170,6 +176,7 @@ const TablePage = () => {
                 secondSquareLabel={mB3?.pos2 || ""}
                 rettLeftLabel={mB3?.date || ""}
                 rettRightLabel={mB3?.city || ""}
+                rettTimeLabel={mB3?.time || ""}
                 results={mB3?.results || null}
               />
             </div>
@@ -182,6 +189,7 @@ const TablePage = () => {
                 secondSquareLabel={mB4?.pos2 || ""}
                 rettLeftLabel={mB4?.date || ""}
                 rettRightLabel={mB4?.city || ""}
+                rettTimeLabel={mB4?.time || ""}
                 results={mB4?.results || null}
               />
             </div>
@@ -198,6 +206,7 @@ const TablePage = () => {
               secondSquareLabel={mA5?.pos2 || ""}
               rettLeftLabel={mA5?.date || ""}
               rettRightLabel={mA5?.city || ""}
+              rettTimeLabel={mA5?.time || ""}
               results={mA5?.results || null}
             />
           </div>
@@ -209,6 +218,7 @@ const TablePage = () => {
               secondSquareLabel={mA6?.pos2 || ""}
               rettLeftLabel={mA6?.date || ""}
               rettRightLabel={mA6?.city || ""}
+              rettTimeLabel={mA6?.time || ""}
               results={mA6?.results || null}
             />
           </div>
@@ -220,6 +230,7 @@ const TablePage = () => {
               secondSquareLabel={mB5?.pos2 || ""}
               rettLeftLabel={mB5?.date || ""}
               rettRightLabel={mB5?.city || ""}
+              rettTimeLabel={mB5?.time || ""}
               results={mB5?.results || null}
             />
           </div>
@@ -231,6 +242,7 @@ const TablePage = () => {
               secondSquareLabel={mB6?.pos2 || ""}
               rettLeftLabel={mB6?.date || ""}
               rettRightLabel={mB6?.city || ""}
+              rettTimeLabel={mB6?.time || ""}
               results={mB6?.results || null}
             />
           </div>
@@ -247,6 +259,7 @@ const TablePage = () => {
               secondSquareLabel={mA7?.pos2 || ""}
               rettLeftLabel={mA7?.date || ""}
               rettRightLabel={mA7?.city || ""}
+              rettTimeLabel={mA7?.time || ""}
               results={mA7?.results || null}
             />
           </div>
@@ -259,6 +272,7 @@ const TablePage = () => {
               secondSquareLabel={mB7?.pos2 || ""}
               rettLeftLabel={mB7?.date || ""}
               rettRightLabel={mB7?.city || ""}
+              rettTimeLabel={mB7?.time || ""}
               results={mB7?.results || null}
             />
           </div>
@@ -274,6 +288,7 @@ const TablePage = () => {
               secondSquareLabel={mF1?.pos2 || ""}
               rettLeftLabel={mF1?.date || ""}
               rettRightLabel={mF1?.city || ""}
+              rettTimeLabel={mF1?.time || ""}
               results={mF1?.results || null}
             />
           </div>
@@ -286,6 +301,7 @@ const TablePage = () => {
               secondSquareLabel={mAB1?.pos2 || ""}
               rettLeftLabel={mAB1?.date || ""}
               rettRightLabel={mAB1?.city || ""}
+              rettTimeLabel={mAB1?.time || ""}
               results={mAB1?.results || null}
             />
           </div>
@@ -298,6 +314,7 @@ const TablePage = () => {
               secondSquareLabel={mCD1?.pos2 || ""}
               rettLeftLabel={mCD1?.date || ""}
               rettRightLabel={mCD1?.city || ""}
+              rettTimeLabel={mCD1?.time || ""}
               results={mCD1?.results || null}
             />
           </div>
@@ -314,6 +331,7 @@ const TablePage = () => {
               secondSquareLabel={mC7?.pos2 || ""}
               rettLeftLabel={mC7?.date || ""}
               rettRightLabel={mC7?.city || ""}
+              rettTimeLabel={mC7?.time || ""}
               results={mC7?.results || null}
             />
           </div>
@@ -326,6 +344,7 @@ const TablePage = () => {
               secondSquareLabel={mD7?.pos2 || ""}
               rettLeftLabel={mD7?.date || ""}
               rettRightLabel={mD7?.city || ""}
+              rettTimeLabel={mD7?.time || ""}
               results={mD7?.results || null}
             />
           </div>
@@ -341,6 +360,7 @@ const TablePage = () => {
               secondSquareLabel={mC5?.pos2 || ""}
               rettLeftLabel={mC5?.date || ""}
               rettRightLabel={mC5?.city || ""}
+              rettTimeLabel={mC5?.time || ""}
               results={mC5?.results || null}
             />
           </div>
@@ -352,6 +372,7 @@ const TablePage = () => {
               secondSquareLabel={mC6?.pos2 || ""}
               rettLeftLabel={mC6?.date || ""}
               rettRightLabel={mC6?.city || ""}
+              rettTimeLabel={mC6?.time || ""}
               results={mC6?.results || null}
             />
           </div>
@@ -363,6 +384,7 @@ const TablePage = () => {
               secondSquareLabel={mD5?.pos2 || ""}
               rettLeftLabel={mD5?.date || ""}
               rettRightLabel={mD5?.city || ""}
+              rettTimeLabel={mD5?.time || ""}
               results={mD5?.results || null}
             />
           </div>
@@ -374,6 +396,7 @@ const TablePage = () => {
               secondSquareLabel={mD6?.pos2 || ""}
               rettLeftLabel={mD6?.date || ""}
               rettRightLabel={mD6?.city || ""}
+              rettTimeLabel={mD6?.time || ""}
               results={mD6?.results || null}
             />
           </div>
@@ -389,6 +412,7 @@ const TablePage = () => {
               secondSquareLabel={mC1?.pos2 || ""}
               rettLeftLabel={mC1?.date || ""}
               rettRightLabel={mC1?.city || ""}
+              rettTimeLabel={mC1?.time || ""}
               results={mC1?.results || null}
             />
           </div>
@@ -400,6 +424,7 @@ const TablePage = () => {
               secondSquareLabel={mC2?.pos2 || ""}
               rettLeftLabel={mC2?.date || ""}
               rettRightLabel={mC2?.city || ""}
+              rettTimeLabel={mC2?.time || ""}
               results={mC2?.results || null}
             />
           </div>
@@ -411,6 +436,7 @@ const TablePage = () => {
               secondSquareLabel={mC3?.pos2 || ""}
               rettLeftLabel={mC3?.date || ""}
               rettRightLabel={mC3?.city || ""}
+              rettTimeLabel={mC3?.time || ""}
               results={mC3?.results || null}
             />
           </div>
@@ -422,6 +448,7 @@ const TablePage = () => {
               secondSquareLabel={mC4?.pos2 || ""}
               rettLeftLabel={mC4?.date || ""}
               rettRightLabel={mC4?.city || ""}
+              rettTimeLabel={mC4?.time || ""}
               results={mC4?.results || null}
             />
           </div>
@@ -433,6 +460,7 @@ const TablePage = () => {
               secondSquareLabel={mD1?.pos2 || ""}
               rettLeftLabel={mD1?.date || ""}
               rettRightLabel={mD1?.city || ""}
+              rettTimeLabel={mD1?.time || ""}
               results={mD1?.results || null}
             />
           </div>
@@ -444,6 +472,7 @@ const TablePage = () => {
               secondSquareLabel={mD2?.pos2 || ""}
               rettLeftLabel={mD2?.date || ""}
               rettRightLabel={mD2?.city || ""}
+              rettTimeLabel={mD2?.time || ""}
               results={mD2?.results || null}
             />
           </div>
@@ -455,6 +484,7 @@ const TablePage = () => {
               secondSquareLabel={mD3?.pos2 || ""}
               rettLeftLabel={mD3?.date || ""}
               rettRightLabel={mD3?.city || ""}
+              rettTimeLabel={mD3?.time || ""}
               results={mD3?.results || null}
             />
           </div>
@@ -466,6 +496,7 @@ const TablePage = () => {
               secondSquareLabel={mD4?.pos2 || ""}
               rettLeftLabel={mD4?.date || ""}
               rettRightLabel={mD4?.city || ""}
+              rettTimeLabel={mD4?.time || ""}
               results={mD4?.results || null}
             />
           </div>

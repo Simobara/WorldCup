@@ -156,7 +156,7 @@ export const getMergedHighlights = () => {
       groupFinal.round32,
       titleLabels,
       citiesOsp,
-      "bg-orange-950"
+      "bg-orange-500"
     ),
     "group_"
   );
@@ -176,7 +176,7 @@ export const getMergedHighlights = () => {
       groupFinal.quarterFinals,
       titleLabels,
       citiesOsp,
-      "bg-orange-950"
+      "bg-orange-700"
     ),
     "group_"
   );
