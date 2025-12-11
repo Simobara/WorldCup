@@ -1,8 +1,6 @@
 // src/components/1standingsComp/containerCitta.jsx
 
-const ContainerCitta = ({ color = "bg-sky-900", label = "" }) => {
-  const shortLabel = label.slice(0, 3).toUpperCase(); // solo 3 lettere per mobile
-
+const ContainerCitta = ({ color = "bg-sky-900", label = "", abbr = "" }) => {
   return (
     <div
       className={`
@@ -10,19 +8,20 @@ const ContainerCitta = ({ color = "bg-sky-900", label = "" }) => {
         ${color}
         border-2 border-black
         shadow-lg
-        flex items-center justify-end   
-        pr-3 md:pr-10                           
+        flex md:items-end items-start
+        md:justify-end justify-start
+        pr-0 md:pr-10                           
       `}
     >
       {label && (
         <>
-          {/* ✅ MOBILE: solo 3 lettere */}
-          <span className="block md:hidden text-sm font-black uppercase text-black text-right">
-            {shortLabel}
+          {/* ✅ MOBILE: usa l’abbreviazione */}
+          <span className="block md:hidden text-[9px] font-black uppercase text-black md:text-right pl-[5px]">
+            {abbr}
           </span>
 
           {/* ✅ DESKTOP: nome completo */}
-          <span className="hidden md:block text-lg font-black uppercase text-black text-right">
+          <span className="hidden md:block text-lg font-black uppercase text-black md:text-right">
             {label}
           </span>
         </>
