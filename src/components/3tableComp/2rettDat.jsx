@@ -5,7 +5,7 @@ const RettDat = ({ leftLabel, rightLabel, color = "bg-pink-700" }) => {
       className={`relative z-0
         md:h-16 sm:h-16 h-12
         md:w-32 sm:w-32 w-32
-        md:mt-0 mt-4
+        md:-mt-2 mt-4
         ${color} rounded-[16px] shadow-xl overflow-hidden`}
     >
       {/* ✅ DATA + CITY – stessa linea */}

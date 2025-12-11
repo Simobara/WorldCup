@@ -6,7 +6,7 @@ round32: {
             'GIU/28', 
         ],
         matches: [
-            { numero: 1,  city: 'Los Angeles',    time: '',  pos1:'2A' ,team1: '',          pos2:'2B',          team2: '',         goto:'73',      fg:'A3', pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'LAngeles',    time: '',  pos1:'2A' ,team1: '',          pos2:'2B',          team2: '',         goto:'73',      fg:'A3', pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
         ],
     },
     giornata_2:{
@@ -25,8 +25,8 @@ round32: {
         ],
         matches: [
             { numero: 1,  city: 'Dallas',         time: '',  pos1:'2E', team1: '',          pos2:'2I',            team2: '',          goto:'75',    fg:'C2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 2,  city: 'New Jersey',     time: '',  pos1:'1I', team1: '',          pos2:'3C/D/F/G/H',    team2: '',          goto:'79',    fg:'A2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 3,  city: 'Mexico City',    time: '',  pos1:'1A', team1: '',          pos2:'3G/E/F/H/I',    team2: '',          goto:'75',    fg:'C3',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 2,  city: 'NJersey',     time: '',  pos1:'1I', team1: '',          pos2:'3C/D/F/G/H',    team2: '',          goto:'79',    fg:'A2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 3,  city: 'CDMX',    time: '',  pos1:'1A', team1: '',          pos2:'3G/E/F/H/I',    team2: '',          goto:'75',    fg:'C3',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
         ],
     },
     giornata_4:{
@@ -36,7 +36,7 @@ round32: {
         matches: [
             { numero: 1,  city: 'Atlanta',        time: '',  pos1:'1L', team1: '',          pos2:'3E/H/I/J/K',    team2: '',          goto:'80',    fg:'C4',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
             { numero: 2,  city: 'Seattle',        time: '',  pos1:'1G', team1: '',          pos2:'3A/E/H/I/J',    team2: '',          goto:'82',    fg:'B4',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 3,  city: 'San Francisco',  time: '',  pos1:'1D', team1: '',          pos2:'3B/E/F/I/J',    team2: '',          goto:'81',    fg:'B3',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 3,  city: 'SFrancisco',  time: '',  pos1:'1D', team1: '',          pos2:'3B/E/F/I/J',    team2: '',          goto:'81',    fg:'B3',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -45,7 +45,7 @@ round32: {
             'LUG/02',
         ],
         matches: [
-            { numero: 1, city: 'Los Angeles',    time: '',  pos1:'1H', team1: '',          pos2:'2J',            team2: '',          goto:'84',     fg:'B2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1, city: 'LAngeles',    time: '',  pos1:'1H', team1: '',          pos2:'2J',            team2: '',          goto:'84',     fg:'B2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
             { numero: 2, city: 'Toronto',        time: '',  pos1:'2K', team1: '',          pos2:'2L',            team2: '',          goto:'83',     fg:'B1',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
             { numero: 3, city: 'Vancouver',      time: '',  pos1:'1B', team1: '',          pos2:'3E/F/G/I/J',    team2: '',          goto:'85',     fg:'D3',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
@@ -58,7 +58,7 @@ round32: {
         matches: [
             { numero: 1, city: 'Dallas',         time: '',  pos1:'2D', team1: '',          pos2:'2G',            team2: '',          goto:'88',     fg:'D2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
             { numero: 2, city: 'Miami',          time: '',  pos1:'1J', team1: '',          pos2:'2H',            team2: '',          goto:'86',     fg:'D1',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 3, city: 'Kansas City',    time: '',  pos1:'1K', team1: '',          pos2:'3D/E/I/J/L',    team2: '',          goto:'87',     fg:'D4',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 3, city: 'Kansas',    time: '',  pos1:'1K', team1: '',          pos2:'3D/E/I/J/L',    team2: '',          goto:'87',     fg:'D4',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -70,8 +70,8 @@ round16: {
             'LUG/04'
         ],
         matches: [
-            { numero: 89, city: 'Philadelphia',   time: '',  pos1:'74', team1: '',          pos2:'77',            team2: '',          goto:'89',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 90, city: 'Houston',        time: '',  pos1:'73', team1: '',          pos2:'75',            team2: '',          goto:'90',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 89, city: 'Philadelphia',   time: '',  pos1:'74', team1: '',          pos2:'77',            team2: '',          goto:'89',      fg:'A5',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 90, city: 'Houston',        time: '',  pos1:'73', team1: '',          pos2:'75',            team2: '',          goto:'90',      fg:'A6',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -80,8 +80,8 @@ round16: {
             'LUG/05'
         ],
         matches: [
-            { numero: 91, city: 'New Jersey',     time: '',  pos1:'76', team1: '',          pos2:'78',            team2: '',          goto:'91',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 92, city: 'Mexico City',    time: '',  pos1:'79', team1: '',          pos2:'80',            team2: '',          goto:'92',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 91, city: 'NJersey',     time: '',  pos1:'76', team1: '',          pos2:'78',            team2: '',          goto:'91',      fg:'C5',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 92, city: 'CDMX',    time: '',  pos1:'79', team1: '',          pos2:'80',            team2: '',          goto:'92',      fg:'C6',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
         ],
     },
     giornata_3: {
@@ -89,8 +89,8 @@ round16: {
             'LUG/06'
         ],
         matches: [
-            { numero: 93, city: 'Dallas',         time: '',  pos1:'83', team1: '',          pos2:'84',            team2: '',          goto:'93',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 94, city: 'Seattle',        time: '',  pos1:'81', team1: '',          pos2:'82',            team2: '',          goto:'94',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 93, city: 'Dallas',         time: '',  pos1:'83', team1: '',          pos2:'84',            team2: '',          goto:'93',      fg:'B5',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 94, city: 'Seattle',        time: '',  pos1:'81', team1: '',          pos2:'82',            team2: '',          goto:'94',      fg:'B6',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -99,8 +99,8 @@ round16: {
             'LUG/07'
         ],
         matches: [
-            { numero: 95, city: 'Atlanta',        time: '',  pos1:'86', team1: '',          pos2:'88',            team2: '',          goto:'95',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 96, city: 'Vancouver',      time: '',  pos1:'85', team1: '',          pos2:'87',            team2: '',          goto:'96',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 95, city: 'Atlanta',        time: '',  pos1:'86', team1: '',          pos2:'88',            team2: '',          goto:'95',      fg:'D5',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 96, city: 'Vancouver',      time: '',  pos1:'85', team1: '',          pos2:'87',            team2: '',          goto:'96',      fg:'D6',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -112,7 +112,7 @@ quarterFinals: {
             'LUG/09',
         ],
         matches: [
-            { numero: 1,  city: 'Boston',          time: '',  pos1:'89', team1: '',          pos2:'90',            team2: '',          goto:'97',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'Boston',          time: '',  pos1:'89', team1: '',          pos2:'90',            team2: '',          goto:'97',      fg:'A7',     pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -121,7 +121,7 @@ quarterFinals: {
             'LUG/10',
         ],
         matches: [
-            { numero: 1,  city: 'Los Angeles',     time: '',  pos1:'93', team1: '',          pos2:'94',            team2: '',          goto:'98',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'LAngeles',     time: '',  pos1:'93', team1: '',          pos2:'94',            team2: '',          goto:'98',      fg:'B7',     pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -130,8 +130,8 @@ quarterFinals: {
             'LUG/11',
         ],
         matches: [
-            { numero: 1,  city: 'Miami',            time: '',  pos1:'91', team1: '',          pos2:'92',            team2: '',          goto:'99',      pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
-            { numero: 2,  city: 'Kansas City',      time: '',  pos1:'95', team1: '',          pos2:'96',            team2: '',          goto:'100',     pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'Miami',            time: '',  pos1:'91', team1: '',          pos2:'92',            team2: '',          goto:'99',      fg:'C7',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 2,  city: 'Kansas',      time: '',  pos1:'95', team1: '',          pos2:'96',            team2: '',          goto:'100',     fg:'D7',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -143,7 +143,7 @@ semifinals: {
             'LUG/14',
         ],
         matches: [
-            { numero: 1,  city: 'Dallas',            time: '',  pos1:'97', team1: '',          pos2:'98',            team2: '',          goto:'',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'Dallas',            time: '',  pos1:'97', team1: '',          pos2:'98',            team2: '',          goto:'',        fg:'AB1',   pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -152,7 +152,7 @@ semifinals: {
             'LUG/15',
         ],
         matches: [
-            { numero: 1,  city: 'Atlanta',           time: '',  pos1:'99', team1: '',          pos2:'100',            team2: '',          goto:'',   pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'Atlanta',           time: '',  pos1:'99', team1: '',          pos2:'100',            team2: '',          goto:'',       fg:'CD1',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -164,7 +164,7 @@ final34: {
             'LUG/18',
         ],
         matches: [
-            { numero: 1,  city: 'Miami',              time: '',  pos1:'FIN', team1: '',          pos2:'3/4',            team2: '',          pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'Miami',              time: '',  pos1:'FIN', team1: '',          pos2:'3/4',            team2: '',          fg:'F2',    pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
@@ -175,7 +175,7 @@ final: {
             'LUG/19',
         ],
         matches: [
-            { numero: 1,  city: 'New Jersey',          time: '',  pos1:'WIN', team1: '',          pos2:'',            team2: '',          pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
+            { numero: 1,  city: 'NJersey',          time: '',  pos1:'WIN', team1: '',          pos2:'',              team2: '',          fg:'F1',  pron:' ', results: { ris: ' ', TS: ' ', R: ' ' } },
 
         ],
     },
