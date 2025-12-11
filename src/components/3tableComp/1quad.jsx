@@ -4,30 +4,30 @@ const Quadrato = ({
   flag,
   phase = "round32",
   advanced = false,
-  isPronTeam = false,   // 🆕
+  isPronTeam = false, // 🆕
 }) => {
   const bgByPhase = {
     round32: "bg-sky-800",
     round16: "bg-emerald-700",
     quarter: "bg-cyan-900",
     semi: "bg-lime-700",
-    final: "bg-yellow-400",
+    final: "bg-yellow-500",
   };
 
   const bgColor = bgByPhase[phase] || "bg-sky-800";
 
   // 🟦🟪 BORDO NUOVO
   const borderColor = isPronTeam
-    ? "border-fuchsia-600"  // PRON
-    : "border-sky-700";      // TEAM REALI
+    ? "border-fuchsia-600" // PRON
+    : "border-sky-700"; // TEAM REALI
 
   // 🟡 Regola grayscale
   const isRound32 = phase === "round32";
   const contentFilterClass = isRound32
     ? ""
     : advanced
-    ? ""
-    : "filter grayscale";
+      ? ""
+      : "filter grayscale";
 
   return (
     <div

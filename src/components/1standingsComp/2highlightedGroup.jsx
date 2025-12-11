@@ -206,7 +206,7 @@ export const getMergedHighlights = () => {
       groupFinal.final,
       titleLabels,
       citiesOsp,
-      "bg-yellow-400"
+      "bg-transparent"
     ),
     "group_"
   );

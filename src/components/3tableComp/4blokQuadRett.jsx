@@ -24,7 +24,7 @@ const BlokQuadRett = ({
   results = null,
 }) => {
   return (
-    <div className={`relative z-[10] ${className} shadow-xl shadow-black/40`}>
+    <div className={`relative z-[10] ${className} shadow-2xl shadow-black/40`}>
       {/* QUADRATI SOPRA */}
       <div className="flex gap-0 relative z-10 ">
         <Quadrato

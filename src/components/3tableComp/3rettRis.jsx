@@ -21,7 +21,7 @@ const RettRis = ({ results }) => {
   const rScore = parseScore(R); // rigori
 
   return (
-    <div className="relative w-32 h-20 bg-transparent md:bg-gray-700 rounded-[16px] overflow-hidden">
+    <div className="relative w-32 h-20 bg-transparent md:bg-transparent rounded-[16px] overflow-hidden">
       {/* Contenuto principale (parte alta) */}
       <div className="absolute top-0 left-0 w-full h-[40%] flex items-center justify-center">
         {/* se vuoi, ci metti testo extra oppure lasci vuoto */}
