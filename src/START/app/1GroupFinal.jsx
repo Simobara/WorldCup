@@ -39,7 +39,7 @@ const groupFinal26 = {
       matches: [
         { numero:  1, city: 'Atlanta',    time: '01:00', pos1:'1L',           pos2:'3E/H/I/J/K',   team1:'', team2:'',    goto:'80', fg:'C4', pron:'ING-FRA', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'Seattle',    time: '04:00', pos1:'1G',           pos2:'3A/E/H/I/J',   team1:'', team2:'',    goto:'82', fg:'B4', pron:'BEL-CAV', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'SFrancisco', time: '04:00', pos1:'1D',           pos2:'3B/E/F/I/J',   team1:'', team2:'',    goto:'81', fg:'B3', pron:'USA-CAN', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'SanFrancisco', time: '04:00', pos1:'1D',           pos2:'3B/E/F/I/J',   team1:'', team2:'',    goto:'81', fg:'B3', pron:'USA-CAN', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 

@@ -38,7 +38,7 @@ group_B: {
         ],
         matches: [
             { numero: 1, city: 'Toronto',       time: '20:00',     team1: 'Canada',         team2: 'Italia',          pron:' ', results:' ' },
-            { numero: 2, city: 'SFrancisco',    time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',           pron:' ', results:' ' },
+            { numero: 2, city: 'SanFrancisco',    time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',           pron:' ', results:' ' },
         ],
     },
     giornata_2: {
@@ -107,7 +107,7 @@ group_D: {
             'GIU/19',
         ],
         matches: [
-            { numero: 3, city: 'SFrancisco',     time: '13:00',     team1: 'PlayC',         team2: 'Paraguay',   pron:' ', results:' ' },
+            { numero: 3, city: 'SanFrancisco',     time: '13:00',     team1: 'PlayC',         team2: 'Paraguay',   pron:' ', results:' ' },
             { numero: 4, city: 'Seattle',        time: '04:00',     team1: 'Usa',           team2: 'Australia',  pron:' ', results:' ' },
         ],
     },
@@ -117,7 +117,7 @@ group_D: {
         ],
         matches: [
             { numero: 5, city: 'LAngeles',       time: '11:00',     team1: 'PlayC',          team2: 'Usa',        pron:' ', results:' ' },
-            { numero: 6, city: 'SFrancisco',     time: '11:00',     team1: 'Paraguay',       team2: 'Australia',  pron:' ', results:' ' },
+            { numero: 6, city: 'SanFrancisco',     time: '11:00',     team1: 'Paraguay',       team2: 'Australia',  pron:' ', results:' ' },
         ],
     },
 },
@@ -278,7 +278,7 @@ group_J: {
             'GIU/16',
         ],
         matches: [
-            { numero: 1, city: 'SFrancisco',        time: '13:00', team1: 'Autria',             team2: 'Jordania',          pron:' ', results:' ' },
+            { numero: 1, city: 'SanFrancisco',        time: '13:00', team1: 'Autria',             team2: 'Jordania',          pron:' ', results:' ' },
             { numero: 2, city: 'Kansas',            time: '08:00', team1: 'Argentina',          team2: 'Algeria',           pron:' ', results:' ' },
         ],
     },
@@ -288,7 +288,7 @@ group_J: {
         ],
         matches: [
             { numero: 3, city: 'Dallas',            time: '00:00', team1: 'Argentina',          team2: 'Autria',            pron:' ', results:' ' },
-            { numero: 4, city: 'SFrancisco',        time: '12:00', team1: 'Jordania',           team2: 'Algeria',           pron:' ', results:' ' },
+            { numero: 4, city: 'SanFrancisco',        time: '12:00', team1: 'Jordania',           team2: 'Algeria',           pron:' ', results:' ' },
         ],
     },
     giornata_3: {

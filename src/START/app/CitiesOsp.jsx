@@ -6,10 +6,10 @@ const ROSE = "bg-rose-300";
 
 export const citiesOsp = [
   // 🔵 SKY – PRIME 4
-  { name: "Vancouver",    abbr: "VACOUV", color: SKY },
+  { name: "Vancouver",    abbr: "VANCOU", color: SKY },
   { name: "Seattle",      abbr: "SEATTLE", color: SKY },
-  { name: "San Francisco",   abbr: "S FRANC", color: SKY },
-  { name: "Los Angeles",     abbr: "LOS ANG", color: SKY },
+  { name: "SanFrancisco", abbr: "SAN FRANC", color: SKY },
+  { name: "LAngeles",     abbr: "LOS ANG", color: SKY },
 
   // 🟢 GREEN – SUCCESSIVE 6
   { name: "Guadalajara",  abbr: "GUADAL", color: GREEN },
@@ -25,5 +25,5 @@ export const citiesOsp = [
   { name: "Toronto",      abbr: "TORON", color: ROSE },
   { name: "Boston",       abbr: "BOSTON", color: ROSE },
   { name: "Philadelphia", abbr: "PHILAD", color: ROSE },
-  { name: "New York",      abbr: "NW YORK", color: ROSE },
+  { name: "New York",     abbr: "NEW YORK", color: ROSE },
 ];
