@@ -1,10 +1,10 @@
 import { citiesOsp } from "../../START/app/CitiesOsp";
-import { getMergedHighlights } from "./2highlightedGroup";
 import { createDateLabels } from "./1createDate";
+import { getMergedHighlights } from "./2highlightedGroup";
 import ContainerCitta from "./5containerCitta";
-import Grid from "./8grid";
-import RettGroup from "./7rettGroup";
 import RettangoloVerticale from "./6rettVert";
+import RettGroup from "./7rettGroup";
+import Grid from "./8grid";
 
 const StandingsBlock = () => {
   const titleLabels = createDateLabels();
@@ -17,15 +17,17 @@ const StandingsBlock = () => {
         {/* ✅ LOGO MOBILE */}
         <img
           src="/assts/LogoStandingsMobile.png"
-          alt="Logo standings mobile"
+          alt=""
           className="block md:hidden h-24 w-auto object-contain z-10"
+          loading="eager"
         />
 
         {/* ✅ LOGO DESKTOP */}
         <img
           src="/assts/LogoStandings.png"
-          alt="Logo standings"
+          alt=""
           className="hidden md:block h-28 w-auto object-contain"
+          loading="eager"
         />
       </div>
 

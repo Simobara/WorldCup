@@ -6,10 +6,9 @@ round32: {
             'GIU/28', 
         ],
         matches: [
-            { numero: 1,  city: 'LAngeles',    time: '04:00',  pos1:'2A', team1:'', pos2:'2B', team2:'', goto:'73', fg:'A3',  pron:' ', results:{ ris:'2-2', TS:'2-2', R:'5-6' } },
+            { numero: 1,  city: 'LAngeles',    time: '04:00',  pos1:'2A', team1:'Mexico', pos2:'2B',          team2:'Brasil', goto:'73', fg:'A3',  pron:' ', results:{ ris:' ', TS:' ', R:' ' } },
         ],
     },
-
     giornata_2:{
         dates: [
             'GIU/29', 
@@ -20,7 +19,6 @@ round32: {
             { numero: 3,  city: 'Monterrey',    time: '03:00',  pos1:'1F', team1:'', pos2:'2C',           team2:'', goto:'75', fg:'A4', pron:' ', results:{ ris:' ', TS:' ', R:' ' } },
         ],
     },
-
     giornata_3:{
         dates: [
             'GIU/30',
@@ -42,7 +40,6 @@ round32: {
             { numero: 3,  city: 'SFrancisco',    time: '04:00',  pos1:'1D', team1:'', pos2:'3B/E/F/I/J',    team2:'', goto:'81', fg:'B3', pron:' ', results:{ ris:' ', TS:' ', R:' ' } },
         ],
     },
-
     giornata_5:{
         dates: [
             'LUG/02',
@@ -53,7 +50,6 @@ round32: {
             { numero: 3, city: 'Vancouver',      time: '04:00',  pos1:'1B', team1:'', pos2:'3E/F/G/I/J',    team2:'', goto:'85', fg:'D3', pron:' ', results:{ ris:' ', TS:' ', R:' ' } },
         ],
     },
-
     giornata_6:{
         dates: [
             'LUG/03',
