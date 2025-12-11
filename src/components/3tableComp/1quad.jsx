@@ -8,9 +8,9 @@ const Quadrato = ({
 }) => {
   const bgByPhase = {
     round32: "bg-sky-800",
-    round16: "bg-emerald-700",
-    quarter: "bg-cyan-900",
-    semi: "bg-lime-700",
+    round16: "bg-teal-700",
+    quarter: "bg-emerald-400",
+    semi: "bg-lime-500",
     final: "bg-yellow-500",
   };
 
@@ -18,8 +18,8 @@ const Quadrato = ({
 
   // 🟦🟪 BORDO NUOVO
   const borderColor = isPronTeam
-    ? "border-fuchsia-600" // PRON
-    : "border-white"; // TEAM REALI
+    ? "border-fuchsia-600 " // PRON
+    : "border-white "; // TEAM REALI
 
   // 🟡 Regola grayscale
   const isRound32 = phase === "round32";
@@ -35,17 +35,17 @@ const Quadrato = ({
         relative w-16 md:h-16 h-12 
         ${bgColor} border-x-2 border-y-4 ${borderColor}
         rounded-[14px] shadow-xl flex items-center justify-center 
-        overflow-hidden z-60
+         overflow-hidden z-40
       `}
     >
       {label && (
         <span
           className="
             absolute
-            md:top-0 -top-1
+            md:top-0 -top-[3px] bottom-8
             left-1/2 -translate-x-1/2 
             text-yellow-500 font-extrabold bg-black
-            md:text-[0.50rem] text-[0.55rem] px-1
+            md:text-[0.50rem] text-[0.55rem] px-6 z-50
           "
         >
           {label}
