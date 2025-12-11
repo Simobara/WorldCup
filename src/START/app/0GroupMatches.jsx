@@ -67,7 +67,7 @@ group_C: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'NJersey',       time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:' ', results:' ' },
+            { numero: 1, city: 'NewYork',       time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:' ', results:' ' },
             { numero: 2, city: 'Boston',        time: '07:00',      team1: 'Haiti',         team2: 'Scozia',            pron:' ', results:' ' },
         ],
     },
@@ -147,7 +147,7 @@ group_E: {
         ],
         matches: [
             { numero: 5, city: 'Philadelphia',      time: '02:00',  team1: 'Curacao',         team2: "CAvorio",             pron:' ', results:' ' },
-            { numero: 6, city: 'NJersey',           time: '02:00',  team1: 'Ecuador',         team2: 'Germania',            pron:' ', results:' ' },
+            { numero: 6, city: 'NewYork',           time: '02:00',  team1: 'Ecuador',         team2: 'Germania',            pron:' ', results:' ' },
         ],
     },
 },
@@ -248,7 +248,7 @@ group_I: {
             'GIU/16',
         ],
         matches: [
-            { numero: 1, city: 'NJersey',          time: '01:00', team1: 'Francia',            team2: 'Senegal',            pron:' ', results:' ' },
+            { numero: 1, city: 'NewYork',          time: '01:00', team1: 'Francia',            team2: 'Senegal',            pron:' ', results:' ' },
             { numero: 2, city: 'Boston',           time: '04:00', team1: 'Play2',              team2: 'Norvegia',           pron:' ', results:' ' },
         ],
     },
@@ -258,7 +258,7 @@ group_I: {
         ],
         matches: [
             { numero: 3, city: 'Philadelphia',     time: '03:00', team1: 'Francia',            team2: 'Play2',              pron:' ', results:' ' },
-            { numero: 4, city: 'NJersey',          time: '06:00', team1: 'Norvegia',           team2: 'Senegal',            pron:' ', results:' ' },
+            { numero: 4, city: 'NewYork',          time: '06:00', team1: 'Norvegia',           team2: 'Senegal',            pron:' ', results:' ' },
         ],
     },
     giornata_3: {

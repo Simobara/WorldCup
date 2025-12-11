@@ -25,5 +25,5 @@ export const citiesOsp = [
   { name: "Toronto",        color: ROSE },
   { name: "Boston",         color: ROSE },
   { name: "Philadelphia",   color: ROSE },
-  { name: "NJersey",        color: ROSE },
+  { name: "NewYork",        color: ROSE },
 ];

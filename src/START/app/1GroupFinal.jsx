@@ -27,7 +27,7 @@ const groupFinal26 = {
       ],
       matches: [
         { numero:  1, city: 'Dallas',     time: '02:00', pos1:'2E',           pos2:'2I',           team1:'', team2:'',    goto:'75', fg:'C2', pron:'CUR-SEN', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  2, city: 'NJersey',    time: '01:00', pos1:'1I',           pos2:'3C/D/F/G/H',   team1:'', team2:'',    goto:'79', fg:'A2', pron:'NOR-SCO', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  2, city: 'NewYork',    time: '01:00', pos1:'1I',           pos2:'3C/D/F/G/H',   team1:'', team2:'',    goto:'79', fg:'A2', pron:'NOR-SCO', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  3, city: 'CDMX',       time: '03:00', pos1:'1A',           pos2:'3G/E/F/H/I',   team1:'', team2:'',    goto:'75', fg:'C3', pron:'MEX-ECU ', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
@@ -83,7 +83,7 @@ const groupFinal26 = {
         'LUG/05',
       ],
       matches: [
-        { numero: 91, city: 'NJersey',      time: '01:00', pos1:'76',          pos2:'78',          team1:'', team2:'',    goto:'91', fg:'C5', pron:'MOR-SEN', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero: 91, city: 'NewYork',      time: '01:00', pos1:'76',          pos2:'78',          team1:'', team2:'',    goto:'91', fg:'C5', pron:'MOR-SEN', results:{ ris:' ', TS:' ', R:' ' } },
         { numero: 92, city: 'CDMX',         time: '03:00', pos1:'79',          pos2:'80',          team1:'', team2:'',    goto:'92', fg:'C6', pron:'MEX-ING', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
