@@ -6,7 +6,7 @@ const groupFinal26 = {
         'GIU/28',
       ],
       matches: [
-        { numero:  1, city: 'LAngeles',   time: '04:00', pos1:'2A',           pos2:'2B',           team1:'SPA', team2:'BRA',    goto:'73', fg:'A3', pron:'KOR-ITA', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  1, city: 'LAngeles',   time: '04:00', pos1:'2A',           pos2:'2B',           team1:'', team2:'',    goto:'73', fg:'A3', pron:'KOR-ITA', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -17,7 +17,7 @@ const groupFinal26 = {
       matches: [
         { numero:  1, city: 'Houston',    time: '02:00', pos1:'1C',           pos2:'2F',           team1:'', team2:'',    goto:'76', fg:'C1', pron:'MOR-JAP', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'Boston',     time: '01:00', pos1:'1E',           pos2:'3A/B/C/D/F',   team1:'', team2:'',    goto:'74', fg:'A1', pron:'GER-SAF', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'Monterrey',  time: '03:00', pos1:'1F',           pos2:'2C',           team1:'NDL', team2:'TUR',    goto:'75', fg:'A4', pron:'NDL-BRA', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'Monterrey',  time: '03:00', pos1:'1F',           pos2:'2C',           team1:'', team2:'',    goto:'75', fg:'A4', pron:'NDL-BRA', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -74,7 +74,7 @@ const groupFinal26 = {
       ],
       matches: [
         { numero: 89, city: 'Philadelphia', time: '01:00', pos1:'74',          pos2:'77',          team1:'', team2:'',    goto:'89', fg:'A5', pron:'GER-NOR', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero: 90, city: 'Houston',      time: '02:00', pos1:'73',          pos2:'75',          team1:'SPA', team2:'NDL',    goto:'90', fg:'A6', pron:'ITA-BRA', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero: 90, city: 'Houston',      time: '02:00', pos1:'73',          pos2:'75',          team1:'', team2:'',    goto:'90', fg:'A6', pron:'ITA-BRA', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
