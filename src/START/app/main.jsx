@@ -182,14 +182,14 @@ export const squadreMond26 = {
 export const squadreMond = Object.values(squadreMond26).flat();
 
 // -------------------------------------------------------------------------------------- -------------------------------------------
-export const SqEndGruppo1 =  6; //taglio prima linea
-export const SqEndGruppo2 = 12; //taglio seconda linea
-export const ItalInChampio = 4;
-export const ItalInEurLeag = 2;
-export const TotaleGiornate=38;
-export const EyeSymbol = '👁️'
-export const PinSymbol = '📍'
-export const ChjSymbol = '☑️'
-export const ChkSymbol = '✅'
-export const DelSymbol = '🔄'
+// export const SqEndGruppo1 =  6; //taglio prima linea
+// export const SqEndGruppo2 = 12; //taglio seconda linea
+// export const ItalInChampio = 4;
+// export const ItalInEurLeag = 2;
+// export const TotaleGiornate=38;
+// export const EyeSymbol = '👁️'
+// export const PinSymbol = '📍'
+// export const ChjSymbol = '☑️'
+// export const ChkSymbol = '✅'
+// export const DelSymbol = '🔄'
 // -------------------------------------------------------------------------------------- -------------------------------------------

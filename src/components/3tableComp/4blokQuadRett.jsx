@@ -4,12 +4,16 @@ import RettDat from "./2rettDat";
 import RettRis from "./3rettRis";
 
 const BlokQuadRett = ({
-  firstSquareLabel = " ", // es. '1A', '2B'
+  firstSquareLabel = " ",
   secondSquareLabel = " ",
-  firstTeamName = "", // es. 'Messico'
+  firstTeamName = "",
   secondTeamName = "",
-  firstTeamFlag = null, // es. FlagMessico
+  firstTeamFlag = null,
   secondTeamFlag = null,
+  // 🔹 nuove props logiche
+  firstAdvanced = false,
+  secondAdvanced = false,
+  phase = "round32",
   rettLeftLabel = "A",
   rettRightLabel = "B",
   rettTimeLabel = "",
@@ -25,15 +29,19 @@ const BlokQuadRett = ({
           label={firstSquareLabel}
           teamName={firstTeamName}
           flag={firstTeamFlag}
+          advanced={firstAdvanced}
+          phase={phase}
         />
         <Quadrato
           label={secondSquareLabel}
           teamName={secondTeamName}
           flag={secondTeamFlag}
+          advanced={secondAdvanced}
+          phase={phase}
         />
       </div>
 
-      {/* RETTANGOLO DATA */}
+      {/* RETTANGOLO DATA/CITTÀ */}
       <div className="absolute left-1/2 -translate-x-1/2 -mt-20 z-0 flex flex-col items-center">
         <RettDat
           leftLabel={rettLeftLabel}
