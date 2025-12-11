@@ -1,5 +1,21 @@
 import BlokQuadRett from "../components/3tableComp/4blokQuadRett";
 import { groupFinal } from "../START/app/1GroupFinal";
+import { squadreMond } from "../START/app/main";
+
+// 🔹 flatten delle squadre (A, B, C, ... → un solo array)
+const tutteLeSquadre = Object.values(squadreMond).flat();
+
+// 🔹 mappa: codice (id) → flag
+// es: { MEX: FlagMessico, GER: FlagGermania, ... }
+const flagByTeamCode = Object.fromEntries(
+  tutteLeSquadre.map((t) => [t.id, t.flag])
+);
+
+// 🔹 helper per ottenere la bandiera da "MEX", "GER", ecc.
+const getFlag = (code) => {
+  if (!code) return null;
+  return flagByTeamCode[code] || null;
+};
 
 const TablePage = () => {
   const { round32, round16, quarterFinals, semifinals, final34, final } =
@@ -98,6 +114,10 @@ const TablePage = () => {
               rettColor="bg-green-600"
               firstSquareLabel={mA1?.pos1 || ""}
               secondSquareLabel={mA1?.pos2 || ""}
+              firstTeamName={mA1?.team1 || ""}
+              secondTeamName={mA1?.team2 || ""}
+              firstTeamFlag={getFlag(mA1?.team1)}
+              secondTeamFlag={getFlag(mA1?.team2)}
               rettLeftLabel={mA1?.date || ""}
               rettRightLabel={mA1?.city || ""}
               rettTimeLabel={mA1?.time || ""}
@@ -112,6 +132,10 @@ const TablePage = () => {
                 rettColor="bg-green-600"
                 firstSquareLabel={mA2?.pos1 || ""}
                 secondSquareLabel={mA2?.pos2 || ""}
+                firstTeamName={mA2?.team1 || ""}
+                secondTeamName={mA2?.team2 || ""}
+                firstTeamFlag={getFlag(mA2?.team1)}
+                secondTeamFlag={getFlag(mA2?.team2)}
                 rettLeftLabel={mA2?.date || ""}
                 rettRightLabel={mA2?.city || ""}
                 rettTimeLabel={mA2?.time || ""}
@@ -125,6 +149,10 @@ const TablePage = () => {
                 rettColor="bg-green-600"
                 firstSquareLabel={mA3?.pos1 || ""}
                 secondSquareLabel={mA3?.pos2 || ""}
+                firstTeamName={mA3?.team1 || ""}
+                secondTeamName={mA3?.team2 || ""}
+                firstTeamFlag={getFlag(mA3?.team1)}
+                secondTeamFlag={getFlag(mA3?.team2)}
                 rettLeftLabel={mA3?.date || ""}
                 rettRightLabel={mA3?.city || ""}
                 rettTimeLabel={mA3?.time || ""}
@@ -138,6 +166,10 @@ const TablePage = () => {
                 rettColor="bg-green-600"
                 firstSquareLabel={mA4?.pos1 || ""}
                 secondSquareLabel={mA4?.pos2 || ""}
+                firstTeamName={mA4?.team1 || ""}
+                secondTeamName={mA4?.team2 || ""}
+                firstTeamFlag={getFlag(mA4?.team1)}
+                secondTeamFlag={getFlag(mA4?.team2)}
                 rettLeftLabel={mA4?.date || ""}
                 rettRightLabel={mA4?.city || ""}
                 rettTimeLabel={mA4?.time || ""}
@@ -151,6 +183,10 @@ const TablePage = () => {
                 rettColor="bg-pink-600"
                 firstSquareLabel={mB1?.pos1 || ""}
                 secondSquareLabel={mB1?.pos2 || ""}
+                firstTeamName={mB1?.team1 || ""}
+                secondTeamName={mB1?.team2 || ""}
+                firstTeamFlag={getFlag(mB1?.team1)}
+                secondTeamFlag={getFlag(mB1?.team2)}
                 rettLeftLabel={mB1?.date || ""}
                 rettRightLabel={mB1?.city || ""}
                 rettTimeLabel={mB1?.time || ""}
@@ -164,6 +200,10 @@ const TablePage = () => {
                 rettColor="bg-pink-600"
                 firstSquareLabel={mB2?.pos1 || ""}
                 secondSquareLabel={mB2?.pos2 || ""}
+                firstTeamName={mB2?.team1 || ""}
+                secondTeamName={mB2?.team2 || ""}
+                firstTeamFlag={getFlag(mB2?.team1)}
+                secondTeamFlag={getFlag(mB2?.team2)}
                 rettLeftLabel={mB2?.date || ""}
                 rettRightLabel={mB2?.city || ""}
                 rettTimeLabel={mB2?.time || ""}
@@ -177,6 +217,10 @@ const TablePage = () => {
                 rettColor="bg-pink-600"
                 firstSquareLabel={mB3?.pos1 || ""}
                 secondSquareLabel={mB3?.pos2 || ""}
+                firstTeamName={mB3?.team1 || ""}
+                secondTeamName={mB3?.team2 || ""}
+                firstTeamFlag={getFlag(mB3?.team1)}
+                secondTeamFlag={getFlag(mB3?.team2)}
                 rettLeftLabel={mB3?.date || ""}
                 rettRightLabel={mB3?.city || ""}
                 rettTimeLabel={mB3?.time || ""}
@@ -190,6 +234,10 @@ const TablePage = () => {
                 rettColor="bg-pink-600"
                 firstSquareLabel={mB4?.pos1 || ""}
                 secondSquareLabel={mB4?.pos2 || ""}
+                firstTeamName={mB4?.team1 || ""}
+                secondTeamName={mB4?.team2 || ""}
+                firstTeamFlag={getFlag(mB4?.team1)}
+                secondTeamFlag={getFlag(mB4?.team2)}
                 rettLeftLabel={mB4?.date || ""}
                 rettRightLabel={mB4?.city || ""}
                 rettTimeLabel={mB4?.time || ""}
@@ -198,7 +246,6 @@ const TablePage = () => {
             </div>
           </div>
         </div>
-
         {/* ✅ COLONNA 16 A */}
         <div className="relative flex-1 h-full flex bg-orange flex-col items-center md:pt-20 pt-12">
           <div className="md:mt-8 mt-8 ml-2">
@@ -207,42 +254,61 @@ const TablePage = () => {
               rettColor="bg-green-600"
               firstSquareLabel={mA5?.pos1 || ""}
               secondSquareLabel={mA5?.pos2 || ""}
+              firstTeamName={mA5?.team1 || ""}
+              secondTeamName={mA5?.team2 || ""}
+              firstTeamFlag={getFlag(mA5?.team1)}
+              secondTeamFlag={getFlag(mA5?.team2)}
               rettLeftLabel={mA5?.date || ""}
               rettRightLabel={mA5?.city || ""}
               rettTimeLabel={mA5?.time || ""}
               results={mA5?.results || null}
             />
           </div>
+
           <div className="md:mt-44 mt-32 ml-2">
             {/* A6 */}
             <BlokQuadRett
               rettColor="bg-green-600"
               firstSquareLabel={mA6?.pos1 || ""}
               secondSquareLabel={mA6?.pos2 || ""}
+              firstTeamName={mA6?.team1 || ""}
+              secondTeamName={mA6?.team2 || ""}
+              firstTeamFlag={getFlag(mA6?.team1)}
+              secondTeamFlag={getFlag(mA6?.team2)}
               rettLeftLabel={mA6?.date || ""}
               rettRightLabel={mA6?.city || ""}
               rettTimeLabel={mA6?.time || ""}
               results={mA6?.results || null}
             />
           </div>
+
           <div className="md:mt-48 mt-40 ml-2">
             {/* B5 */}
             <BlokQuadRett
               rettColor="bg-pink-600"
               firstSquareLabel={mB5?.pos1 || ""}
               secondSquareLabel={mB5?.pos2 || ""}
+              firstTeamName={mB5?.team1 || ""}
+              secondTeamName={mB5?.team2 || ""}
+              firstTeamFlag={getFlag(mB5?.team1)}
+              secondTeamFlag={getFlag(mB5?.team2)}
               rettLeftLabel={mB5?.date || ""}
               rettRightLabel={mB5?.city || ""}
               rettTimeLabel={mB5?.time || ""}
               results={mB5?.results || null}
             />
           </div>
+
           <div className="md:mt-44 mt-32 ml-2">
             {/* B6 */}
             <BlokQuadRett
               rettColor="bg-pink-600"
               firstSquareLabel={mB6?.pos1 || ""}
               secondSquareLabel={mB6?.pos2 || ""}
+              firstTeamName={mB6?.team1 || ""}
+              secondTeamName={mB6?.team2 || ""}
+              firstTeamFlag={getFlag(mB6?.team1)}
+              secondTeamFlag={getFlag(mB6?.team2)}
               rettLeftLabel={mB6?.date || ""}
               rettRightLabel={mB6?.city || ""}
               rettTimeLabel={mB6?.time || ""}
@@ -250,16 +316,17 @@ const TablePage = () => {
             />
           </div>
         </div>
-
-        {/* ✅ COLONNA QUARTI A */}
         {/* ✅ COLONNA QUARTI A */}
         <div className="relative flex-1 h-full bg-blue flex flex-col items-start md:pt-20 pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
-            {/* A7 */}
             <BlokQuadRett
               rettColor="bg-green-600"
               firstSquareLabel={mA7?.pos1 || ""}
               secondSquareLabel={mA7?.pos2 || ""}
+              firstTeamName={mA7?.team1 || ""}
+              secondTeamName={mA7?.team2 || ""}
+              firstTeamFlag={getFlag(mA7?.team1)}
+              secondTeamFlag={getFlag(mA7?.team2)}
               rettLeftLabel={mA7?.date || ""}
               rettRightLabel={mA7?.city || ""}
               rettTimeLabel={mA7?.time || ""}
@@ -273,6 +340,10 @@ const TablePage = () => {
               rettColor="bg-pink-600"
               firstSquareLabel={mB7?.pos1 || ""}
               secondSquareLabel={mB7?.pos2 || ""}
+              firstTeamName={mB7?.team1 || ""}
+              secondTeamName={mB7?.team2 || ""}
+              firstTeamFlag={getFlag(mB7?.team1)}
+              secondTeamFlag={getFlag(mB7?.team2)}
               rettLeftLabel={mB7?.date || ""}
               rettRightLabel={mB7?.city || ""}
               rettTimeLabel={mB7?.time || ""}
@@ -280,7 +351,6 @@ const TablePage = () => {
             />
           </div>
         </div>
-
         {/* ✅ COLONNA SEMIFINALI FINALE ------------------------------------------------------------------------ */}
         <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
           {/* ✅ FINALE F1 */}
@@ -289,32 +359,42 @@ const TablePage = () => {
               rettColor="bg-yellow-500"
               firstSquareLabel={mF1?.pos1 || ""}
               secondSquareLabel={mF1?.pos2 || ""}
+              firstTeamName={mF1?.team1 || ""} // squadra 1 finale
+              secondTeamName={mF1?.team2 || ""} // squadra 2 finale
+              firstTeamFlag={getFlag(mF1?.team1)}
+              secondTeamFlag={getFlag(mF1?.team2)}
               rettLeftLabel={mF1?.date || ""}
               rettRightLabel={mF1?.city || ""}
               rettTimeLabel={mF1?.time || ""}
               results={mF1?.results || null}
             />
           </div>
-
           {/* ✅ SEMIFINALE A → AB1 */}
           <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[22rem] md:-ml-16 -ml-12 z-10">
             <BlokQuadRett
               rettColor="bg-gradient-to-l from-green-600 to-pink-600"
               firstSquareLabel={mAB1?.pos1 || ""}
               secondSquareLabel={mAB1?.pos2 || ""}
+              firstTeamName={mAB1?.team1 || ""} // squadra 1 AB1
+              secondTeamName={mAB1?.team2 || ""} // squadra 2 AB1
+              firstTeamFlag={getFlag(mAB1?.team1)}
+              secondTeamFlag={getFlag(mAB1?.team2)}
               rettLeftLabel={mAB1?.date || ""}
               rettRightLabel={mAB1?.city || ""}
               rettTimeLabel={mAB1?.time || ""}
               results={mAB1?.results || null}
             />
           </div>
-
           {/* ✅ SEMIFINALE B → CD1 */}
           <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[22rem] md:-mr-16 -mr-12 z-10">
             <BlokQuadRett
               rettColor="bg-gradient-to-r from-orange-500 to-fuchsia-600"
               firstSquareLabel={mCD1?.pos1 || ""}
               secondSquareLabel={mCD1?.pos2 || ""}
+              firstTeamName={mCD1?.team1 || ""} // squadra 1 CD1
+              secondTeamName={mCD1?.team2 || ""} // squadra 2 CD1
+              firstTeamFlag={getFlag(mCD1?.team1)}
+              secondTeamFlag={getFlag(mCD1?.team2)}
               rettLeftLabel={mCD1?.date || ""}
               rettRightLabel={mCD1?.city || ""}
               rettTimeLabel={mCD1?.time || ""}
@@ -322,8 +402,6 @@ const TablePage = () => {
             />
           </div>
         </div>
-
-        {/* ✅ COLONNA SEMIFINALI FINALE ------------------------------------------------------------------------ */}
         {/* ✅ COLONNA QUARTI B */}
         <div className="relative flex-1 h-full bg-blue flex flex-col items-end md:pt-20 pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -mr-8">
@@ -332,19 +410,26 @@ const TablePage = () => {
               rettColor="bg-orange-500"
               firstSquareLabel={mC7?.pos1 || ""}
               secondSquareLabel={mC7?.pos2 || ""}
+              firstTeamName={mC7?.team1 || ""}
+              secondTeamName={mC7?.team2 || ""}
+              firstTeamFlag={getFlag(mC7?.team1)}
+              secondTeamFlag={getFlag(mC7?.team2)}
               rettLeftLabel={mC7?.date || ""}
               rettRightLabel={mC7?.city || ""}
               rettTimeLabel={mC7?.time || ""}
               results={mC7?.results || null}
             />
           </div>
-
           <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -mr-8">
             {/* D7 */}
             <BlokQuadRett
               rettColor="bg-fuchsia-600"
               firstSquareLabel={mD7?.pos1 || ""}
               secondSquareLabel={mD7?.pos2 || ""}
+              firstTeamName={mD7?.team1 || ""}
+              secondTeamName={mD7?.team2 || ""}
+              firstTeamFlag={getFlag(mD7?.team1)}
+              secondTeamFlag={getFlag(mD7?.team2)}
               rettLeftLabel={mD7?.date || ""}
               rettRightLabel={mD7?.city || ""}
               rettTimeLabel={mD7?.time || ""}
@@ -352,7 +437,6 @@ const TablePage = () => {
             />
           </div>
         </div>
-
         {/* ✅ COLONNA 16 B */}
         <div className="relative flex-1 h-full bg-orange flex flex-col items-center md:pt-20 pt-12">
           <div className="md:mt-8 mt-8 mr-2">
@@ -361,6 +445,10 @@ const TablePage = () => {
               rettColor="bg-orange-500"
               firstSquareLabel={mC5?.pos1 || ""}
               secondSquareLabel={mC5?.pos2 || ""}
+              firstTeamName={mC5?.team1 || ""}
+              secondTeamName={mC5?.team2 || ""}
+              firstTeamFlag={getFlag(mC5?.team1)}
+              secondTeamFlag={getFlag(mC5?.team2)}
               rettLeftLabel={mC5?.date || ""}
               rettRightLabel={mC5?.city || ""}
               rettTimeLabel={mC5?.time || ""}
@@ -373,6 +461,10 @@ const TablePage = () => {
               rettColor="bg-orange-500"
               firstSquareLabel={mC6?.pos1 || ""}
               secondSquareLabel={mC6?.pos2 || ""}
+              firstTeamName={mC6?.team1 || ""}
+              secondTeamName={mC6?.team2 || ""}
+              firstTeamFlag={getFlag(mC6?.team1)}
+              secondTeamFlag={getFlag(mC6?.team2)}
               rettLeftLabel={mC6?.date || ""}
               rettRightLabel={mC6?.city || ""}
               rettTimeLabel={mC6?.time || ""}
@@ -385,6 +477,10 @@ const TablePage = () => {
               rettColor="bg-fuchsia-600"
               firstSquareLabel={mD5?.pos1 || ""}
               secondSquareLabel={mD5?.pos2 || ""}
+              firstTeamName={mD5?.team1 || ""}
+              secondTeamName={mD5?.team2 || ""}
+              firstTeamFlag={getFlag(mD5?.team1)}
+              secondTeamFlag={getFlag(mD5?.team2)}
               rettLeftLabel={mD5?.date || ""}
               rettRightLabel={mD5?.city || ""}
               rettTimeLabel={mD5?.time || ""}
@@ -397,6 +493,10 @@ const TablePage = () => {
               rettColor="bg-fuchsia-600"
               firstSquareLabel={mD6?.pos1 || ""}
               secondSquareLabel={mD6?.pos2 || ""}
+              firstTeamName={mD6?.team1 || ""}
+              secondTeamName={mD6?.team2 || ""}
+              firstTeamFlag={getFlag(mD6?.team1)}
+              secondTeamFlag={getFlag(mD6?.team2)}
               rettLeftLabel={mD6?.date || ""}
               rettRightLabel={mD6?.city || ""}
               rettTimeLabel={mD6?.time || ""}
@@ -404,7 +504,6 @@ const TablePage = () => {
             />
           </div>
         </div>
-
         {/* ✅ COLONNA 32 B */}
         <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
           <div className="md:-mt-8 -mt-4">
@@ -413,90 +512,129 @@ const TablePage = () => {
               rettColor="bg-orange-500"
               firstSquareLabel={mC1?.pos1 || ""}
               secondSquareLabel={mC1?.pos2 || ""}
+              firstTeamName={mC1?.team1 || ""}
+              secondTeamName={mC1?.team2 || ""}
+              firstTeamFlag={getFlag(mC1?.team1)}
+              secondTeamFlag={getFlag(mC1?.team2)}
               rettLeftLabel={mC1?.date || ""}
               rettRightLabel={mC1?.city || ""}
               rettTimeLabel={mC1?.time || ""}
               results={mC1?.results || null}
             />
           </div>
+
           <div className="md:mt-10 mt-8">
             {/* C2 */}
             <BlokQuadRett
               rettColor="bg-orange-500"
               firstSquareLabel={mC2?.pos1 || ""}
               secondSquareLabel={mC2?.pos2 || ""}
+              firstTeamName={mC2?.team1 || ""}
+              secondTeamName={mC2?.team2 || ""}
+              firstTeamFlag={getFlag(mC2?.team1)}
+              secondTeamFlag={getFlag(mC2?.team2)}
               rettLeftLabel={mC2?.date || ""}
               rettRightLabel={mC2?.city || ""}
               rettTimeLabel={mC2?.time || ""}
               results={mC2?.results || null}
             />
           </div>
+
           <div className="md:mt-20 mt-16">
             {/* C3 */}
             <BlokQuadRett
               rettColor="bg-orange-500"
               firstSquareLabel={mC3?.pos1 || ""}
               secondSquareLabel={mC3?.pos2 || ""}
+              firstTeamName={mC3?.team1 || ""}
+              secondTeamName={mC3?.team2 || ""}
+              firstTeamFlag={getFlag(mC3?.team1)}
+              secondTeamFlag={getFlag(mC3?.team2)}
               rettLeftLabel={mC3?.date || ""}
               rettRightLabel={mC3?.city || ""}
               rettTimeLabel={mC3?.time || ""}
               results={mC3?.results || null}
             />
           </div>
+
           <div className="md:mt-10 mt-8">
             {/* C4 */}
             <BlokQuadRett
               rettColor="bg-orange-500"
               firstSquareLabel={mC4?.pos1 || ""}
               secondSquareLabel={mC4?.pos2 || ""}
+              firstTeamName={mC4?.team1 || ""}
+              secondTeamName={mC4?.team2 || ""}
+              firstTeamFlag={getFlag(mC4?.team1)}
+              secondTeamFlag={getFlag(mC4?.team2)}
               rettLeftLabel={mC4?.date || ""}
               rettRightLabel={mC4?.city || ""}
               rettTimeLabel={mC4?.time || ""}
               results={mC4?.results || null}
             />
           </div>
+
           <div className="md:mt-20 mt-16">
             {/* D1 */}
             <BlokQuadRett
               rettColor="bg-fuchsia-600"
               firstSquareLabel={mD1?.pos1 || ""}
               secondSquareLabel={mD1?.pos2 || ""}
+              firstTeamName={mD1?.team1 || ""}
+              secondTeamName={mD1?.team2 || ""}
+              firstTeamFlag={getFlag(mD1?.team1)}
+              secondTeamFlag={getFlag(mD1?.team2)}
               rettLeftLabel={mD1?.date || ""}
               rettRightLabel={mD1?.city || ""}
               rettTimeLabel={mD1?.time || ""}
               results={mD1?.results || null}
             />
           </div>
+
           <div className="md:mt-10 mt-8">
             {/* D2 */}
             <BlokQuadRett
               rettColor="bg-fuchsia-600"
               firstSquareLabel={mD2?.pos1 || ""}
               secondSquareLabel={mD2?.pos2 || ""}
+              firstTeamName={mD2?.team1 || ""}
+              secondTeamName={mD2?.team2 || ""}
+              firstTeamFlag={getFlag(mD2?.team1)}
+              secondTeamFlag={getFlag(mD2?.team2)}
               rettLeftLabel={mD2?.date || ""}
               rettRightLabel={mD2?.city || ""}
               rettTimeLabel={mD2?.time || ""}
               results={mD2?.results || null}
             />
           </div>
+
           <div className="md:mt-20 mt-16">
             {/* D3 */}
             <BlokQuadRett
               rettColor="bg-fuchsia-600"
               firstSquareLabel={mD3?.pos1 || ""}
               secondSquareLabel={mD3?.pos2 || ""}
+              firstTeamName={mD3?.team1 || ""}
+              secondTeamName={mD3?.team2 || ""}
+              firstTeamFlag={getFlag(mD3?.team1)}
+              secondTeamFlag={getFlag(mD3?.team2)}
               rettLeftLabel={mD3?.date || ""}
               rettRightLabel={mD3?.city || ""}
               rettTimeLabel={mD3?.time || ""}
               results={mD3?.results || null}
             />
           </div>
+
           <div className="md:mt-10 mt-8">
             {/* D4 */}
             <BlokQuadRett
               rettColor="bg-fuchsia-600"
               firstSquareLabel={mD4?.pos1 || ""}
               secondSquareLabel={mD4?.pos2 || ""}
+              firstTeamName={mD4?.team1 || ""}
+              secondTeamName={mD4?.team2 || ""}
+              firstTeamFlag={getFlag(mD4?.team1)}
+              secondTeamFlag={getFlag(mD4?.team2)}
               rettLeftLabel={mD4?.date || ""}
               rettRightLabel={mD4?.city || ""}
               rettTimeLabel={mD4?.time || ""}

@@ -1,5 +1,5 @@
 const groupMatches26 = {
-// Gruppo A – Messico Sudafrica Korea PlayUefaD--------------------------------------------------------------------------------------------------A
+// Gruppo A – Mexico Sudafrica Korea PlayUefaD--------------------------------------------------------------------------------------------------A
 group_A: {    
     giornata_1:{
         dates: [

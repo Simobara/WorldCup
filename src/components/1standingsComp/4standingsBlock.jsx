@@ -14,21 +14,39 @@ const StandingsBlock = () => {
     <div className="md:top-[12rem] top-[9rem] md:left-0 -left-2 relative">
       {/* ✅ LOGO */}
       <div className="absolute md:-left-4 -left-16 -top-28 md:-top-28 w-52 md:w-72 flex justify-center z-50">
-        {/* ✅ LOGO MOBILE */}
-        <img
-          src="/assts/LogoStandingsMobile.png"
-          alt=""
-          className="block md:hidden h-24 w-auto object-contain z-10"
-          loading="eager"
-        />
+        <div className="relative">
+          {/* 🔵 Bottone centrato PERFETTAMENTE sopra l’immagine */}
+          <button
+            onClick={() => console.log("Apro la label!")}
+            className="
+        absolute 
+        top-2 left-1/2
+        -translate-x-24 translate-y-2
+        bg-white text-black font-bold
+        px-1 py-0
+        text-xs
+        z-50
+      "
+          >
+            k
+          </button>
 
-        {/* ✅ LOGO DESKTOP */}
-        <img
-          src="/assts/LogoStandings.png"
-          alt=""
-          className="hidden md:block h-28 w-auto object-contain"
-          loading="eager"
-        />
+          {/* ✅ LOGO MOBILE */}
+          <img
+            src="/assts/LogoStandingsMobile.png"
+            alt=""
+            className="block md:hidden h-24 w-auto object-contain z-10"
+            loading="eager"
+          />
+
+          {/* ✅ LOGO DESKTOP */}
+          <img
+            src="/assts/LogoStandings.png"
+            alt=" "
+            className="hidden md:block h-28 w-auto object-contain z-10"
+            loading="eager"
+          />
+        </div>
       </div>
 
       {/* ✅ COLONNA 16 CITTÀ */}
