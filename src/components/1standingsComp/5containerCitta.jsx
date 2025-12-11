@@ -16,7 +16,7 @@ const ContainerCitta = ({ color = "bg-sky-900", label = "", abbr = "" }) => {
       {label && (
         <>
           {/* ✅ MOBILE: usa l’abbreviazione */}
-          <span className="block md:hidden text-[9px] font-black uppercase text-black md:text-right pl-[5px]">
+          <span className="block md:hidden text-[9px] font-black uppercase text-black md:text-right pl-[6px]">
             {abbr}
           </span>
 
