@@ -34,11 +34,11 @@ const RettRis = ({ results }) => {
           {/* BLOCCO SINISTRO → RIS + TS per TEAM1 */}
           <div className="flex items-center gap-1 text-black">
             {/* RIS team1 (grande) */}
-            <span className="text-xl font-bold text-white">
+            <span className="text-xl font-bold text-orange-900">
               {risScore.home || "-"}
             </span>
             {/* TS team1 (piccolo) */}
-            <span className="text-sm font-bold text-sky-300">
+            <span className="text-sm font-bold text-sky-400">
               {tsScore.home || ""}
             </span>
           </div>
@@ -57,11 +57,11 @@ const RettRis = ({ results }) => {
           {/* BLOCCO DESTRO → TS + RIS per TEAM2 */}
           <div className="flex items-center gap-1 ">
             {/* TS team2 (piccolo) */}
-            <span className="text-sm font-bold text-sky-300">
+            <span className="text-sm font-bold text-sky-400">
               {tsScore.away || ""}
             </span>
             {/* RIS team2 (grande) */}
-            <span className="text-xl font-bold text-white">
+            <span className="text-xl font-bold text-orange-900">
               {risScore.away || "-"}
             </span>
           </div>

@@ -8,7 +8,7 @@ export const citiesOsp = [
   // 🔵 SKY – PRIME 4
   { name: "Vancouver",    abbr: "VANCOUV", color: SKY },
   { name: "Seattle",      abbr: "SEATTLE", color: SKY },
-  { name: "SanFrancisco", abbr: "SAN FRANC", color: SKY },
+  { name: "SanFrancisco", abbr: "SAN FRANCISCO", color: SKY },
   { name: "LAngeles",     abbr: "LOS ANGEL", color: SKY },
 
   // 🟢 GREEN – SUCCESSIVE 6
