@@ -14,7 +14,7 @@ export const citiesOsp = [
   // 🟢 GREEN – SUCCESSIVE 6
   { name: "Guadalajara",  abbr: "GUADALAJ", color: GREEN },
   { name: "CDMX",         abbr: "CDMX", color: GREEN },
-  { name: "Monterrey",    abbr: "MONTER", color: GREEN },
+  { name: "Monterrey",    abbr: "MONTERREY", color: GREEN },
   { name: "Houston",      abbr: "HOUSTON", color: GREEN },
   { name: "Dallas",       abbr: "DALLAS", color: GREEN },
   { name: "Kansas",       abbr: "KANSAS", color: GREEN },
