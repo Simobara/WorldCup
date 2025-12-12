@@ -1,6 +1,14 @@
 import { flagsMond } from "../../START/app/main";
 import Quadrato from "../3tableComp/1quad";
 
+function toCode3(team) {
+  const s = String(team?.id ?? team?.name ?? "")
+    .trim()
+    .toUpperCase();
+  if (!s) return "";
+  return s.replace(/\s+/g, "").slice(0, 3);
+}
+
 export default function GridMatchesPage() {
   const groups = "ABCDEFGHIJKL".split("");
 
@@ -56,13 +64,16 @@ export default function GridMatchesPage() {
                         const team1 = teams[row * 2];
                         const team2 = teams[row * 2 + 1];
 
+                        const redBottom = row === 1 || row === 3;
+
                         return (
                           <Row7
-                            key={row}
+                            key={`${letter}-${row}`}
+                            bottomBorder={redBottom}
                             day=""
                             city=""
-                            team1={team1?.name ?? ""}
-                            team2={team2?.name ?? ""}
+                            team1={toCode3(team1)}
+                            team2={toCode3(team2)}
                             result=""
                             flag1={
                               team1 ? (
@@ -122,66 +133,96 @@ export default function GridMatchesPage() {
 }
 
 function Header7() {
-  const headers = ["DATA", "CITTÀ", "SQ1", "", "RIS", "", "SQ2"];
+  const headers = ["DATA", "CITTÀ", "SQUADRA 1", "", "RIS", "", "SQUADRA 2"];
 
   return (
     <>
-      {headers.map((t, idx) => (
-        <div
-          key={idx}
-          className="bg-slate-900 border border-black/40
-                     flex items-center justify-center
-                     text-[9px] font-extrabold text-white"
-        >
-          {t}
-        </div>
-      ))}
+      {headers.map((t, idx) => {
+        if (t === "") return null;
+
+        const isSquadra = t === "SQUADRA 1" || t === "SQUADRA 2";
+
+        return (
+          <div
+            key={`h-${idx}`}
+            className={`bg-slate-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-white`}
+            style={{ gridColumn: `span ${isSquadra ? 2 : 1}` }}
+          >
+            {t}
+          </div>
+        );
+      })}
     </>
   );
 }
 
-function Row7({ day, city, team1, team2, flag1, flag2, result }) {
+function Row7({
+  day,
+  city,
+  team1,
+  team2,
+  flag1,
+  flag2,
+  result,
+  bottomBorder = false,
+}) {
+  const bottom = bottomBorder ? "border-b-4 border-b-slate-900" : "border-b";
+  const common = `border-t border-l border-r ${bottom}`;
+
   return (
     <>
-      {/* GIORNO */}
-      <CellText value={day} />
+      {/* DATA */}
+      <div
+        className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
+      >
+        <span className="text-[10px] font-bold">{day || "\u00A0"}</span>
+      </div>
 
       {/* CITTÀ */}
-      <CellText value={city} />
+      <div
+        className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
+      >
+        <span className="text-[10px] font-bold">{city || "\u00A0"}</span>
+      </div>
 
-      {/* SQUADRA SX */}
-      <CellText value={team1} />
+      {/* SQUADRA 1 */}
+      <div
+        className={`${common} border-slate-900 bg-slate-900 text-slate-400 flex items-center justify-center`}
+      >
+        <span className="text-[10px] font-bold">{team1 || "\u00A0"}</span>
+      </div>
 
-      {/* FLAG SX */}
-      <CellFlag>{flag1}</CellFlag>
+      {/* FLAG 1 */}
+      <div
+        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center`}
+      >
+        <div className="scale-[0.55] md:scale-[0.65] origin-center">
+          {flag1 ?? <span>&nbsp;</span>}
+        </div>
+      </div>
 
       {/* RIS */}
-      <CellText value={result} bold />
-
-      {/* FLAG DX */}
-      <CellFlag>{flag2}</CellFlag>
-
-      {/* SQUADRA DX */}
-      <CellText value={team2} />
-    </>
-  );
-}
-
-function CellText({ value, bold = false }) {
-  return (
-    <div className="bg-slate-400 border border-black/30 flex items-center justify-center">
-      <span className={`text-[10px] ${bold ? "font-extrabold" : "font-bold"}`}>
-        {value || "\u00A0"}
-      </span>
-    </div>
-  );
-}
-function CellFlag({ children }) {
-  return (
-    <div className="bg-gray-500 border border-black/30 flex items-center justify-center">
-      <div className="scale-[0.55] md:scale-[0.65]">
-        {children ?? <span>&nbsp;</span>}
+      <div
+        className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
+      >
+        <span className="text-[10px] font-extrabold">{result || "\u00A0"}</span>
       </div>
-    </div>
+
+      {/* FLAG 2 */}
+      <div
+        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center`}
+      >
+        <div className="scale-[0.55] md:scale-[0.65] origin-center">
+          {flag2 ?? <span>&nbsp;</span>}
+        </div>
+      </div>
+
+      {/* SQUADRA 2 */}
+      <div
+        className={`${common} border-slate-900 bg-slate-900 text-slate-400 flex items-center justify-center`}
+      >
+        <span className="text-[10px] font-bold">{team2 || "\u00A0"}</span>
+      </div>
+    </>
   );
 }

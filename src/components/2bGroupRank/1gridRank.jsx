@@ -306,7 +306,9 @@ function Row7({ code, teamEl, pt, w, x, p, gol, showZero }) {
       </div>
 
       <div className="bg-slate-900 border border-black/30 flex items-center justify-center">
-        <div className="scale-[0.55] md:scale-[0.9]">{teamEl}</div>
+        <div className="scale-[0.55] md:scale-[0.65] origin-center">
+          {teamEl}
+        </div>
       </div>
 
       {/* PUNTI → 0 ammesso */}
