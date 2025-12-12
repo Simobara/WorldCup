@@ -6,7 +6,7 @@ const groupFinal26 = {
         'GIU/28',
       ],
       matches: [
-        { numero:  1, city: 'LAngeles',   time: '04:00', pos1:'2A',           pos2:'2B',           team1:'', team2:'',    goto:'73', fg:'A3', pron:'KOR-ITA', results:{ ris:'2-2', TS:'1-1', R:'0-4' } },
+        { numero:  1, city: 'LAngeles',   time: '04:00', pos1:'2A',           pos2:'2B',           team1:'', team2:'',    goto:'73', fg:'A3', pron:'KOR-ITA', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -16,7 +16,7 @@ const groupFinal26 = {
       ],
       matches: [
         { numero:  1, city: 'Houston',    time: '02:00', pos1:'1C',           pos2:'2F',           team1:'', team2:'',    goto:'76', fg:'C1', pron:'MOR-JAP', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  2, city: 'Boston',     time: '01:00', pos1:'1E',           pos2:'3A/B/C/D/F',   team1:'', team2:'',    goto:'74', fg:'A1', pron:'GER-SAF', results:{ ris:'3-3', TS:'4-5', R:' ' } },
+        { numero:  2, city: 'Boston',     time: '01:00', pos1:'1E',           pos2:'3A/B/C/D/F',   team1:'', team2:'',    goto:'74', fg:'A1', pron:'GER-SAF', results:{ ris:'',  TS:'',  R:' ' } },
         { numero:  3, city: 'Monterrey',  time: '03:00', pos1:'1F',           pos2:'2C',           team1:'', team2:'',    goto:'75', fg:'A4', pron:'NDL-BRA', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
@@ -28,7 +28,7 @@ const groupFinal26 = {
       matches: [
         { numero:  1, city: 'Dallas',     time: '02:00', pos1:'2E',           pos2:'2I',           team1:'', team2:'',    goto:'75', fg:'C2', pron:'CUR-SEN', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'NewYork',    time: '01:00', pos1:'1I',           pos2:'3C/D/F/G/H',   team1:'', team2:'',    goto:'79', fg:'A2', pron:'NOR-SCO', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'CDMX',       time: '03:00', pos1:'1A',           pos2:'3G/E/F/H/I',   team1:'', team2:'',    goto:'75', fg:'C3', pron:'MEX-ECU ', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'CDMX',       time: '03:00', pos1:'1A',           pos2:'3G/E/F/H/I',   team1:'', team2:'',    goto:'75', fg:'C3', pron:'MEX-ECU ',results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -37,9 +37,9 @@ const groupFinal26 = {
         'LUG/01',
       ],
       matches: [
-        { numero:  1, city: 'Atlanta',    time: '01:00', pos1:'1L',           pos2:'3E/H/I/J/K',   team1:'', team2:'',    goto:'80', fg:'C4', pron:'ING-FRA', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  2, city: 'Seattle',    time: '04:00', pos1:'1G',           pos2:'3A/E/H/I/J',   team1:'', team2:'',    goto:'82', fg:'B4', pron:'BEL-CAV', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'SanFrancisco', time: '04:00', pos1:'1D',           pos2:'3B/E/F/I/J',   team1:'', team2:'',    goto:'81', fg:'B3', pron:'USA-CAN', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  1, city: 'Atlanta',     time: '01:00', pos1:'1L',           pos2:'3E/H/I/J/K',   team1:'', team2:'',    goto:'80', fg:'C4', pron:'ING-FRA', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  2, city: 'Seattle',     time: '04:00', pos1:'1G',           pos2:'3A/E/H/I/J',   team1:'', team2:'',    goto:'82', fg:'B4', pron:'BEL-CAV', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'SanFrancisco',time: '04:00', pos1:'1D',           pos2:'3B/E/F/I/J',   team1:'', team2:'',    goto:'81', fg:'B3', pron:'USA-CAN', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -147,7 +147,7 @@ const groupFinal26 = {
         'LUG/14',
       ],
       matches: [
-        { numero:  1, city: 'Dallas',      time: '00:00', pos1:'97',           pos2:'98',          team1:' ',    team2:' ',    goto:'',   fg:'AB1', pron:'ITA-URU ', results:{ ris:'2-2', TS:'1-1 ', R:' ' } },
+        { numero:  1, city: 'Dallas',      time: '00:00', pos1:'97',           pos2:'98',          team1:' ',    team2:' ',    goto:'',   fg:'AB1', pron:'ITA-URU ', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -168,7 +168,7 @@ const groupFinal26 = {
         'LUG/18',
       ],
       matches: [
-        { numero:  1, city: 'Miami',       time: '23:00', pos1:'FINAL',            pos2:'3/4',         team1:'',    team2:'',    fg:'F2',  pron:'', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  1, city: 'Miami',       time: '23:00', pos1:'FINAL',            pos2:'3/4',                team1:'',    team2:'',    fg:'F2',  pron:'', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
   },

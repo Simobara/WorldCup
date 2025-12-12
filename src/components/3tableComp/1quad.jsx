@@ -42,10 +42,10 @@ const Quadrato = ({
         <span
           className="
             absolute
-            md:top-0 -top-[3px] bottom-8
+            md:-top-[3px] -top-[3px]
             left-1/2 -translate-x-1/2 
-            text-yellow-500 font-extrabold bg-black
-            md:text-[0.50rem] text-[0.55rem] px-6 z-50
+            text-yellow-500 font-extrabold bg-black/70
+            md:text-[0.60rem] text-[0.55rem] px-6 z-50
           "
         >
           {label}
