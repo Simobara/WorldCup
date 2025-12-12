@@ -1,10 +1,10 @@
 import { useState } from "react";
 import BlokQuadRett from "../components/3tableComp/4blokQuadRett";
 import { groupFinal } from "../START/app/1GroupFinal";
-import { squadreMond } from "../START/app/main";
+import { flagsMond } from "../START/app/main";
 
 // 🔹 flatten delle squadre (A, B, C, ... → un solo array)
-const tutteLeSquadre = Object.values(squadreMond).flat();
+const tutteLeSquadre = Object.values(flagsMond).flat();
 
 // 🔹 mappa: codice (id) → flag
 // es: { MEX: FlagMessico, GER: FlagGermania, ... }

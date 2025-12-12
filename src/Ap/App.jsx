@@ -7,9 +7,9 @@ import {
 
 import TopInfo from "../Ap/TopInfo";
 import StandingsPage from "../Body/1standingsPage";
-import GroupStagePage from "../Body/2groupStagePage";
+import GroupMatchesPage from "../Body/2aGroupMatchesPage";
+import GroupRankPage from "../Body/2bGroupRankPage";
 import TablePage from "../Body/3tablePage";
-
 
 const App = () => {
   return (
@@ -18,12 +18,11 @@ const App = () => {
         <TopInfo />
         <div className="h-full w-full flex">
           <Routes>
-            <Route
-              path="/"
-              element={<Navigate to="/standingsPage" replace />}
+            <Route path="/" element={<Navigate to="/standingsPage" replace />}
             />
             <Route path="/standingsPage" element={<StandingsPage />} />
-            <Route path="/groupStagePage" element={<GroupStagePage />} />
+            <Route path="/groupRankPage" element={<GroupRankPage />} />
+            <Route path="/groupMatchesPage" element={<GroupMatchesPage />} />
             <Route path="/tablePage" element={<TablePage />} />
           </Routes>
         </div>

@@ -28,13 +28,23 @@ const TopInfo = () => {
       </div>
       {/* ✅ GROUP STAGE */}
       <div
-        onClick={() => navigate("/groupStagePage")}
+        onClick={() => navigate("/groupMatchesPage")}
         className={`
           text-gray-900 font-normal rounded-lg text-md px-2 py-1 cursor-pointer transition
-          ${isActive("/groupStagePage") ? "bg-gray-300 text-white" : "hover:bg-sky-700 hover:text-white"}
+          ${isActive("/groupMatchesPage") ? "bg-gray-300 text-white" : "hover:bg-sky-700 hover:text-white"}
         `}
       >
-        🧩
+        ⏱️
+      </div>
+      {/* ✅ GROUP STAGE */}
+      <div
+        onClick={() => navigate("/groupRankPage")}
+        className={`
+          text-gray-900 font-normal rounded-lg text-md px-2 py-1 cursor-pointer transition
+          ${isActive("/groupRankPage") ? "bg-gray-300 text-white" : "hover:bg-sky-700 hover:text-white"}
+        `}
+      >
+        📊
       </div>
       {/* ✅ TABLE */}
       <div
@@ -44,7 +54,7 @@ const TopInfo = () => {
           ${isActive("/tablePage") ? "bg-gray-300 text-white" : "hover:bg-sky-700 hover:text-white"}
         `}
       >
-        📊
+        📈
       </div>
     </div>
   );

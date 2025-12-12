@@ -6,7 +6,7 @@ group_A: {
             'GIU/11',
         ],
         matches: [
-            { numero: 1, city: 'CDMX',          time: '19:00',      team1: 'Mexico',        team2: 'SAfrica',       pron:' ', results:' ' },
+            { numero: 1, city: 'CDMX',          time: '19:00',      team1: 'Mexico',        team2: 'SAfrica',       pron:' ', results:'2-0' },
             { numero: 2, city: 'Guadalajara',   time: '02:00',      team1: 'Korea',         team2: 'PlayD',         pron:' ', results:' ' },
         ],
     },
@@ -16,7 +16,7 @@ group_A: {
         ],
         matches: [
             { numero: 3, city: 'Atlanta',       time: '16:00',      team1: 'PlayD',         team2: 'SAfrica',       pron:' ', results:' ' }, 
-            { numero: 4, city: 'Guadalajara',   time: '01:00',      team1: 'Mexico',        team2: 'Korea',         pron:' ', results:' ' },
+            { numero: 4, city: 'Guadalajara',   time: '01:00',      team1: 'Mexico',        team2: 'Korea',         pron:' ', results:'1-1' },
         ],
     },
     giornata_3:{
@@ -37,8 +37,8 @@ group_B: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'Toronto',       time: '20:00',     team1: 'Canada',         team2: 'Italia',          pron:' ', results:' ' },
-            { numero: 2, city: 'SanFrancisco',    time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',           pron:' ', results:' ' },
+            { numero: 1, city: 'Toronto',       time: '20:00',     team1: 'Canada',         team2: 'Italia',          pron:' ', results:'2-1 ' },
+            { numero: 2, city: 'SanFrancisco',  time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',           pron:' ', results:'0-3 ' },
         ],
     },
     giornata_2: {
@@ -356,7 +356,7 @@ group_L: {
             'GIU/27',
         ],
         matches: [
-            { numero: 5, city: '',                  time: '03:00', team1: 'Panama',             team2: 'Inghilterra',       pron:' ', results:' ' },
+            { numero: 5, city: 'NewYork',           time: '03:00', team1: 'Panama',             team2: 'Inghilterra',       pron:' ', results:' ' },
             { numero: 6, city: 'Philadelphia',      time: '03:00', team1: 'Croazia',            team2: 'Ghana',             pron:' ', results:' ' },
         ],
     },

@@ -97,7 +97,7 @@ import FlagPanama from '/gironi/L/Pan.png';
 //  - Squadre Playoff / FIFA NON incluse (come richiesto)
 // ===================================================================
 
-export const squadreMond26 = {
+export const flagsMond26 = {
   A: [
     { id: 'MEX', name: 'Mexico', group: 'A', flag: FlagMexico },
     { id: 'SAF', name: 'Sudafrica', group: 'A', flag: FlagSudafrica },
@@ -119,22 +119,22 @@ export const squadreMond26 = {
   ],
 
   D: [
-    { id: 'AUS', name: 'Australia', group: 'D', flag: FlagAustralia },
-    { id: 'PAR', name: 'Paraguay', group: 'D', flag: FlagParaguay },
     { id: 'USA', name: 'StatiUniti', group: 'D', flag: FlagUsa },
+    { id: 'PAR', name: 'Paraguay', group: 'D', flag: FlagParaguay },
+    { id: 'AUS', name: 'Australia', group: 'D', flag: FlagAustralia },
   ],
 
   E: [
-    { id: 'CAV', name: "CostaAvorio", group: 'E', flag: FlagCostaAvorio },
-    { id: 'CUR', name: 'Curaçao', group: 'E', flag: FlagCuracao },
-    { id: 'ECU', name: 'Ecuador', group: 'E', flag: FlagEcuador },
     { id: 'GER', name: 'Germania', group: 'E', flag: FlagGermania },
+    { id: 'CUR', name: 'Curaçao', group: 'E', flag: FlagCuracao },
+    { id: 'CAV', name: "CostaAvorio", group: 'E', flag: FlagCostaAvorio },
+    { id: 'ECU', name: 'Ecuador', group: 'E', flag: FlagEcuador },
   ],
 
   F: [
-    { id: 'JAP', name: 'Giappone', group: 'F', flag: FlagJapan },
     { id: 'NDL', name: 'Netherland', group: 'F', flag: FlagOlanda },
     { id: 'TUR', name: 'Turchia', group: 'F', flag: FlagTurchia },
+    { id: 'JAP', name: 'Giappone', group: 'F', flag: FlagJapan },
   ],
 
   G: [
@@ -145,41 +145,42 @@ export const squadreMond26 = {
   ],
 
   H: [
+    { id: 'SPA', name: 'Spagna', group: 'H', flag: FlagSpagna },
     { id: 'SAR', name: 'Arabia Saudita', group: 'H', flag: FlagArabiaSaudita },
     { id: 'CVR', name: 'Capo Verde', group: 'H', flag: FlagCapoVerde },
-    { id: 'SPA', name: 'Spagna', group: 'H', flag: FlagSpagna },
     { id: 'URU', name: 'Uruguay', group: 'H', flag: FlagUruguay },
   ],
 
   I: [
     { id: 'FRA', name: 'Francia', group: 'I', flag: FlagFrancia },
-    { id: 'NOR', name: 'Norvegia', group: 'I', flag: FlagNorvegia },
     { id: 'SEN', name: 'Senegal', group: 'I', flag: FlagSenegal },
+    { id: 'NOR', name: 'Norvegia', group: 'I', flag: FlagNorvegia },
   ],
 
   J: [
-    { id: 'ALG', name: 'Algeria', group: 'J', flag: FlagAlgeria },
     { id: 'ARG', name: 'Argentina', group: 'J', flag: FlagArgentina },
+    { id: 'ALG', name: 'Algeria', group: 'J', flag: FlagAlgeria },
     { id: 'AUT', name: 'Austria', group: 'J', flag: FlagAustria },
-    { id: 'JOR', name: 'Giordania', group: 'J', flag: FlagJordania },
+    { id: 'JOR', name: 'Jordania', group: 'J', flag: FlagJordania },
   ],
 
   K: [
-    { id: 'COL', name: 'Colombia', group: 'K', flag: FlagColombia },
     { id: 'POR', name: 'Portogallo', group: 'K', flag: FlagPortogallo },
+    { id: 'COL', name: 'Colombia', group: 'K', flag: FlagColombia },
     { id: 'UZB', name: 'Uzbekistan', group: 'K', flag: FlagUzbekistan },
   ],
 
   L: [
+    { id: 'ING', name: 'Inghilterra', group: 'L', flag: FlagInghilterra },
     { id: 'CRO', name: 'Croazia', group: 'L', flag: FlagCroazia },
     { id: 'GHA', name: 'Ghana', group: 'L', flag: FlagGhana },
-    { id: 'ING', name: 'Inghilterra', group: 'L', flag: FlagInghilterra },
     { id: 'PAN', name: 'Panama', group: 'L', flag: FlagPanama },
   ],
 };
 
 // Opzionale: array piatto di tutte le squadre (se ti serve per map, dropdown, ecc.)
-export const squadreMond = Object.values(squadreMond26).flat();
+
+export const flagsMond = Object.values(flagsMond26).flat();
 
 // -------------------------------------------------------------------------------------- -------------------------------------------
 // export const SqEndGruppo1 =  6; //taglio prima linea
