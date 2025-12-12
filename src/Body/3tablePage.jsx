@@ -272,7 +272,7 @@ const TablePage = () => {
         className="
         flex h-full
           
-        md:w-[1700px] w-[1400px]    
+        md:w-[1500px] w-[1400px]    
         mx-0
         md:-px-2 px-0
       "

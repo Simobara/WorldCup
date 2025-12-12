@@ -180,7 +180,7 @@ const groupFinal26 = {
         'LUG/19',
       ],
       matches: [
-        { numero:  1, city: 'NewYork',     time: '00:00', pos1:'FINAL',             pos2:'WINNER',            team1:'',    team2:'',    fg:'F1',  pron:'', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  1, city: 'NewYork',     time: '00:00', pos1:'FINAL',             pos2:'WC',            team1:'',    team2:'',    fg:'F1',  pron:'', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
   },

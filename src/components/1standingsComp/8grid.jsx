@@ -46,13 +46,13 @@ const Grid = ({
           noVertical: false,
         };
 
+        const isHeaderRow = rowIndex === 0 && columnLabels.length > 0;
+
         const borderClass = (() => {
-          // 🔹 PRIMA RIGA (date): niente linee verticali
-          if (rowIndex === 0) {
+          if (isHeaderRow) {
             return "border-t-[0.5px] border-b-[0.5px] border-gray-600/20";
           }
 
-          // 🔹 resto della griglia
           if (config.noHorizontal && config.noVertical) return "";
           if (config.noHorizontal)
             return "border-l-[0.5px] border-r-[0.5px] border-gray-600/20";
@@ -64,7 +64,7 @@ const Grid = ({
         const hasLabel = !!label;
 
         // weekend SOLO sulla prima riga (date)
-        const isWeekendCell = rowIndex === 0 && hasLabel && label.isWeekend;
+        const isWeekendCell = isHeaderRow && hasLabel && label.isWeekend;
 
         // chiave cella
         const cellKey = `${rowIndex}-${colIndex}`;
@@ -94,12 +94,11 @@ const Grid = ({
           colIndex === 7 || // primo blocco (dopo 6 caselle, es. giorno 17)
           colIndex === 13; // secondo blocco (6 caselle dopo, es. giorno 22)
 
-        const dividerClass =
-          rowIndex === -1
-            ? ""
-            : isDividerAfterSix
-              ? "border-l-8 border-l-gray-700"
-              : "";
+        const dividerClass = isHeaderRow
+          ? ""
+          : isDividerAfterSix
+            ? "border-l-8 border-l-gray-700"
+            : "";
 
         // 🔹 DIVISORI ORIZZONTALI – muri stile verticali
         const isHorizontalDivider =
