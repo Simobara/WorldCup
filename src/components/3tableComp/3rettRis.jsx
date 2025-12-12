@@ -21,7 +21,7 @@ const RettRis = ({ results }) => {
   const rScore = parseScore(R); // rigori
 
   return (
-    <div className="relative w-32 h-20 bg-transparent md:bg-transparent rounded-[16px] overflow-hidden">
+    <div className="relative w-32 h-[4.7rem] md:bg-transparent bg-transparent rounded-[16px] overflow-hidden">
       {/* Contenuto principale (parte alta) */}
       <div className="absolute top-0 left-0 w-full h-[40%] flex items-center justify-center">
         {/* se vuoi, ci metti testo extra oppure lasci vuoto */}
@@ -34,34 +34,34 @@ const RettRis = ({ results }) => {
           {/* BLOCCO SINISTRO → RIS + TS per TEAM1 */}
           <div className="flex items-center gap-1 text-black">
             {/* RIS team1 (grande) */}
-            <span className="text-xl font-bold text-orange-900">
+            <span className="text-lg font-bold text-gray-300">
               {risScore.home || "-"}
             </span>
             {/* TS team1 (piccolo) */}
-            <span className="text-sm font-bold text-sky-400">
+            <span className="text-sm font-bold text-cyan-800">
               {tsScore.home || ""}
             </span>
           </div>
 
           {/* BLOCCO CENTRALE → RIGORI team1 - team2 */}
-          <div className="flex items-center gap-1 ">
-            <span className="text-sm font-bold text-gray-500">
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-bold text-black">
               {rScore.home || ""}
             </span>
             <span className="text-sm font-bold">-</span>
-            <span className="text-sm font-bold text-gray-500">
+            <span className="text-sm font-bold text-black">
               {rScore.away || ""}
             </span>
           </div>
 
           {/* BLOCCO DESTRO → TS + RIS per TEAM2 */}
-          <div className="flex items-center gap-1 ">
+          <div className="flex items-center gap-1">
             {/* TS team2 (piccolo) */}
-            <span className="text-sm font-bold text-sky-400">
+            <span className="text-sm font-bold text-cyan-800">
               {tsScore.away || ""}
             </span>
             {/* RIS team2 (grande) */}
-            <span className="text-xl font-bold text-orange-900">
+            <span className="text-xl font-bold text-gray-300">
               {risScore.away || "-"}
             </span>
           </div>

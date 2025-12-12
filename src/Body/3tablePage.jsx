@@ -263,7 +263,7 @@ const TablePage = () => {
       
       overflow-x-auto overflow-y-hidden
       md:overflow-x-auto md:overflow-y-hidden
-      [background-image:linear-gradient(to_right,theme(colors.sky.950),theme(colors.sky.300),theme(colors.sky.950)),linear-gradient(to_bottom,theme(colors.sky.950),theme(colors.sky.300),theme(colors.sky.950))]
+      [background-image:linear-gradient(to_right,theme(colors.sky.800),theme(colors.sky.300),theme(colors.sky.950)),linear-gradient(to_bottom,theme(colors.sky.800),theme(colors.sky.300),theme(colors.sky.800))]
       bg-blend-multiply
       "
     >
