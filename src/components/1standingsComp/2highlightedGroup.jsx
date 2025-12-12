@@ -176,7 +176,7 @@ export const getMergedHighlights = () => {
       groupFinal.quarterFinals,
       titleLabels,
       citiesOsp,
-      "bg-orange-700"
+      "bg-orange-800"
     ),
     "group_"
   );

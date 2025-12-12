@@ -3,7 +3,7 @@ export const createDateLabels = () => {
   const start = new Date(2026, 5, 11); // 11 giugno 2026
   const end = new Date(2026, 6, 19); // 19 luglio 2026
 
-  const dayLettersEN = ["S", "M", "T", "W", "T", "F", "S"];
+  const dayLettersEN = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
   const monthShortIT = [
     "GEN",
     "FEB",
@@ -32,7 +32,7 @@ export const createDateLabels = () => {
       top: dayLettersEN[dayIndex],
       bottom: dayNum.toString(),
       isWeekend,
-      key, // 👈 chiave compatibile con groupMatches26
+      key,
     });
   }
 

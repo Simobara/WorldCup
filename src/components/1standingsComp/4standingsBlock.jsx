@@ -103,6 +103,31 @@ const StandingsBlock = () => {
             <RettGroup color="bg-yellow-400" colsSpan={2} label="FINALS" />
           </div>
 
+          {/* 🔹 MESE SOPRA LE DATE (GIU: 11→30, LUG: 1→19) */}
+          <div className="absolute left-0 top-8 w-[calc(39*32px)] h-5 pointer-events-none z-50">
+            {/* GIUGNO: col 0..19 (11→30) */}
+            <div
+              className="absolute top-0 left-0 flex items-start justify-start bg-slate-500"
+              style={{ width: 32 * 20 }}
+            >
+              <span className="text-[11px] font-extrabold text-gray-300 tracking-widest">
+                GIUGNO
+              </span>
+            </div>
+
+            {/* LUGLIO: col 20..38 (1→19) */}
+            <div
+              className="absolute top-0"
+              style={{ left: 32 * 20, width: 32 * 19 }}
+            >
+              <div className="h-full flex items-start justify-start bg-slate-300">
+                <span className="text-[11px] font-extrabold text-black/80 tracking-widest">
+                  LUGLIO
+                </span>
+              </div>
+            </div>
+          </div>
+
           {/* 🔹 PRIMA GRIGLIA: 39 colonne, titoli con pattern + date */}
           <Grid
             rows={1}

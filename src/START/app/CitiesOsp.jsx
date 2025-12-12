@@ -9,12 +9,12 @@ export const citiesOsp = [
   { name: "Vancouver",    abbr: "VANCOUV", color: SKY },
   { name: "Seattle",      abbr: "SEATTLE", color: SKY },
   { name: "SanFrancisco", abbr: "SAN FRANCISCO", color: SKY },
-  { name: "LAngeles",     abbr: "LOS ANGEL", color: SKY },
+  { name: "LAngeles",     abbr: "LOS ANGELES", color: SKY },
 
   // 🟢 GREEN – SUCCESSIVE 6
   { name: "Guadalajara",  abbr: "GUADALAJ", color: GREEN },
   { name: "CDMX",         abbr: "CDMX", color: GREEN },
-  { name: "Monterrey",    abbr: "MONTERREY", color: GREEN },
+  { name: "Monterrey",    abbr: "MONTEREY", color: GREEN },
   { name: "Houston",      abbr: "HOUSTON", color: GREEN },
   { name: "Dallas",       abbr: "DALLAS", color: GREEN },
   { name: "Kansas",       abbr: "KANSAS", color: GREEN },

@@ -22,7 +22,7 @@ const Grid = ({
   ];
 
   const pattern = patternOverride || defaultPattern;
-
+  const labelClassName = "";
   const columnConfig = pattern.flatMap(([count, color, noH, noV]) =>
     Array.from({ length: count }).map(() => ({
       color,
@@ -47,9 +47,17 @@ const Grid = ({
         };
 
         const borderClass = (() => {
+          // 🔹 PRIMA RIGA (date): niente linee verticali
+          if (rowIndex === 0) {
+            return "border-t-[0.5px] border-b-[0.5px] border-gray-600/20";
+          }
+
+          // 🔹 resto della griglia
           if (config.noHorizontal && config.noVertical) return "";
-          if (config.noHorizontal) return "border-l border-r border-black";
-          return "border border-black";
+          if (config.noHorizontal)
+            return "border-l-[0.5px] border-r-[0.5px] border-gray-600/20";
+
+          return "border-[0.5px] border-gray-600/20";
         })();
 
         const label = rowIndex === 0 ? columnLabels[colIndex] : null;
@@ -86,9 +94,12 @@ const Grid = ({
           colIndex === 7 || // primo blocco (dopo 6 caselle, es. giorno 17)
           colIndex === 13; // secondo blocco (6 caselle dopo, es. giorno 22)
 
-        const dividerClass = isDividerAfterSix
-          ? "border-l-8 border-l-gray-700"
-          : "";
+        const dividerClass =
+          rowIndex === -1
+            ? ""
+            : isDividerAfterSix
+              ? "border-l-8 border-l-gray-700"
+              : "";
 
         // 🔹 DIVISORI ORIZZONTALI – muri stile verticali
         const isHorizontalDivider =
@@ -109,18 +120,14 @@ const Grid = ({
           >
             {/* OVERLAY WEEKEND SOLO SOPRA, SOLO PRIMA RIGA, se non c'è highlight/force */}
             {isWeekendCell && !highlightColor && !forceColor && (
-              <div className="absolute top-0 left-0 w-full h-1/2 bg-sky-500/40 pointer-events-none z-10" />
+              <div className="absolute bottom-0 left-0 w-full h-full pointer-events-none z-10 bg-sky-200" />
             )}
 
             {/* LABEL DATA (prima riga) */}
             {hasLabel && typeof label === "object" ? (
-              <div className="relative z-20 flex flex-col justify-between items-center h-full py-1">
-                <span className="text-sm leading-none font-bold">
-                  {label.top}
-                </span>
-                <span className="text-lg leading-none font-extrabold">
-                  {label.bottom}
-                </span>
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center translate-y-2 leading-none">
+                <span className="text-sm font-bold">{label.top}</span>
+                <span className="text-lg font-extrabold">{label.bottom}</span>
               </div>
             ) : null}
 
