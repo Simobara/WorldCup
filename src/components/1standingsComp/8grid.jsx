@@ -41,7 +41,7 @@ const Grid = ({
         const rowIndex = Math.floor(i / cols);
 
         const config = columnConfig[colIndex] || {
-          color: "bg-gray-600",
+          color: "bg-gray-200",
           noHorizontal: false,
           noVertical: false,
         };

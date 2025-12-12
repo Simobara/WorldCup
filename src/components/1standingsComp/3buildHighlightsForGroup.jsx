@@ -4,7 +4,7 @@ export const buildHighlightsForGroup = (
   group,
   labels,
   cities,
-  color = "bg-gray-600"
+  color = "bg-gray-200"
 ) => {
   const highlighted = {};
 

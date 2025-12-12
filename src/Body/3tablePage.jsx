@@ -392,7 +392,7 @@ const TablePage = () => {
         md:translate-x-2 translate-x-4
         bg-transparent
         border-0 border-yellow-400
-        text-yellow-500 yellow-400 font-bold
+        text-yellow-500  font-bold
         text-xs md:text-sm
         px-0 py-0
         rounded-full z-50       

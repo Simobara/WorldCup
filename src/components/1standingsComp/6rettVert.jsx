@@ -1,7 +1,7 @@
 // src/components/1standingsComp/rettVert.jsx
 
 const RettangoloVerticale = ({
-  color = "bg-gray-300",
+  color = "bg-gray-200",
   top = "top-8",
   height = "h-[18rem]",
   label = "",
