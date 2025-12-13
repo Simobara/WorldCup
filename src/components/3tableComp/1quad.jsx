@@ -4,7 +4,7 @@ const Quadrato = ({
   flag,
   phase = "round32",
   advanced = false,
-  isPronTeam = false,
+  highlightType = "none",
 }) => {
   const bgByPhase = {
     round32: "bg-sky-800",
@@ -16,10 +16,17 @@ const Quadrato = ({
 
   const bgColor = bgByPhase[phase] || "bg-sky-800";
 
-  // 🟦🟪 BORDO NUOVO
-  const borderColor = isPronTeam
-    ? "border-fuchsia-600 " // PRON
-    : "border-white "; // TEAM REALI
+  // 🎨 COLORE BORDO CORRETTO
+  const borderColor =
+    highlightType === "win"
+      ? "border-sky-700"
+      : highlightType === "draw"
+        ? "border-green-500" // pareggio REALE
+        : highlightType === "pron-draw"
+          ? "border-lime-500" // pareggio PRONOSTICO
+          : highlightType === "pron"
+            ? "border-purple-500"
+            : "border-white";
 
   // 🟡 Regola grayscale
   const isRound32 = phase === "round32";

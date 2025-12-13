@@ -26,9 +26,9 @@ const groupFinal26 = {
         'GIU/30',
       ],
       matches: [
-        { numero:  1, city: 'Dallas',     time: '02:00', pos1:'2E',           pos2:'2I',           team1:'', team2:'',    goto:'75', fg:'C2', pron:'CUR-SEN', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  1, city: 'Dallas',     time: '02:00', pos1:'2E',           pos2:'2I',           team1:'', team2:'',    goto:'75', fg:'C2', pron:'ECU-SEN', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'NewYork',    time: '01:00', pos1:'1I',           pos2:'3C/D/F/G/H',   team1:'', team2:'',    goto:'79', fg:'A2', pron:'NOR-SCO', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'CDMX',       time: '03:00', pos1:'1A',           pos2:'3G/E/F/H/I',   team1:'', team2:'',    goto:'75', fg:'C3', pron:'MEX-ECU ',results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'CDMX',       time: '03:00', pos1:'1A',           pos2:'3G/E/F/H/I',   team1:'', team2:'',    goto:'75', fg:'C3', pron:'MEX-EGT ',results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 

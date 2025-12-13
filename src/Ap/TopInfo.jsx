@@ -21,7 +21,7 @@ const TopInfo = () => {
         onClick={() => navigate("/standingsPage")}
         className={`
           text-gray-900 font-normal rounded-lg text-md px-2 py-1 cursor-pointer transition
-          ${isActive("/standingsPage") ? "bg-gray-300 text-white" : "hover:bg-sky-700 hover:text-white"}
+          ${isActive("/standingsPage") ? "bg-gray-600 text-white" : "hover:bg-sky-700 hover:text-white"}
         `}
       >
         🗓️
@@ -31,7 +31,7 @@ const TopInfo = () => {
         onClick={() => navigate("/groupMatchesPage")}
         className={`
           text-gray-900 font-normal rounded-lg text-md px-2 py-1 cursor-pointer transition
-          ${isActive("/groupMatchesPage") ? "bg-gray-300 text-white" : "hover:bg-sky-700 hover:text-white"}
+          ${isActive("/groupMatchesPage") ? "bg-gray-600 text-white" : "hover:bg-sky-700 hover:text-white"}
         `}
       >
         ⏱️
@@ -41,7 +41,7 @@ const TopInfo = () => {
         onClick={() => navigate("/groupRankPage")}
         className={`
           text-gray-900 font-normal rounded-lg text-md px-2 py-1 cursor-pointer transition
-          ${isActive("/groupRankPage") ? "bg-gray-300 text-white" : "hover:bg-sky-700 hover:text-white"}
+          ${isActive("/groupRankPage") ? "bg-gray-600 text-white" : "hover:bg-sky-700 hover:text-white"}
         `}
       >
         📊
@@ -51,7 +51,7 @@ const TopInfo = () => {
         onClick={() => navigate("/tablePage")}
         className={`
           text-gray-900 font-normal rounded-lg text-md px-2 py-1 cursor-pointer transition
-          ${isActive("/tablePage") ? "bg-gray-300 text-white" : "hover:bg-sky-700 hover:text-white"}
+          ${isActive("/tablePage") ? "bg-gray-600 text-white" : "hover:bg-sky-700 hover:text-white"}
         `}
       >
         📈

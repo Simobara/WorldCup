@@ -4,6 +4,7 @@
 // =======================
 import FlagKorea from '/gironi/A/Kor.png';
 import FlagMexico from '/gironi/A/Mex.png';
+import PlayA from '/gironi/A/PlayA.png';
 import FlagSudafrica from '/gironi/A/SAf.png';
 
 // =======================
@@ -27,12 +28,13 @@ import FlagScozia from '/gironi/C/Sco.png';
 // =======================
 import FlagAustralia from '/gironi/D/Aus.png';
 import FlagParaguay from '/gironi/D/Par.png';
+import PlayD from '/gironi/D/PlayD.png';
 import FlagUsa from '/gironi/D/Usa.png';
 
 // =======================
 //        GRUPPO E
 // =======================
-import FlagCostaAvorio from '/gironi/E/CAv.png';
+import FlagCAvorio from '/gironi/E/CAv.png';
 import FlagCuracao from '/gironi/E/Cur.png';
 import FlagEcuador from '/gironi/E/Ecu.png';
 import FlagGermania from '/gironi/E/Ger.png';
@@ -42,6 +44,7 @@ import FlagGermania from '/gironi/E/Ger.png';
 // =======================
 import FlagJapan from '/gironi/F/Jap.png';
 import FlagOlanda from '/gironi/F/Ndl.png';
+import PlayF from '/gironi/F/PlayF.png';
 import FlagTurchia from '/gironi/F/Tur.png';
 
 // =======================
@@ -50,13 +53,13 @@ import FlagTurchia from '/gironi/F/Tur.png';
 import FlagBelgio from '/gironi/G/Bel.png';
 import FlagEgitto from '/gironi/G/Egt.png';
 import FlagIran from '/gironi/G/Irn.png';
-import FlagNuovaZelanda from '/gironi/G/NZl.png';
+import FlagNZelanda from '/gironi/G/NZl.png';
 
 // =======================
 //        GRUPPO H
 // =======================
-import FlagCapoVerde from '/gironi/H/CVr.png';
-import FlagArabiaSaudita from '/gironi/H/SAr.png';
+import FlagCpVerde from '/gironi/H/CpV.png';
+import FlagSArabia from '/gironi/H/SAr.png';
 import FlagSpagna from '/gironi/H/Spa.png';
 import FlagUruguay from '/gironi/H/Uru.png';
 
@@ -65,6 +68,7 @@ import FlagUruguay from '/gironi/H/Uru.png';
 // =======================
 import FlagFrancia from '/gironi/I/Fra.png';
 import FlagNorvegia from '/gironi/I/Nor.png';
+import PlayI from '/gironi/I/PlayI.png';
 import FlagSenegal from '/gironi/I/Sen.png';
 
 // =======================
@@ -79,6 +83,7 @@ import FlagJordania from '/gironi/J/Jor.png';
 //        GRUPPO K
 // =======================
 import FlagColombia from '/gironi/K/Col.png';
+import PlayK from '/gironi/K/PlayK.png';
 import FlagPortogallo from '/gironi/K/Por.png';
 import FlagUzbekistan from '/gironi/K/Uzb.png';
 
@@ -102,6 +107,7 @@ export const flagsMond26 = {
     { id: 'MEX', name: 'Mexico', group: 'A', flag: FlagMexico },
     { id: 'SAF', name: 'Sudafrica', group: 'A', flag: FlagSudafrica },
     { id: 'KOR', name: 'Korea', group: 'A', flag: FlagKorea },
+    { id: 'PLAYA', name: 'PlayA', group: 'A', flag: PlayA },
   ],
 
   B: [
@@ -122,32 +128,34 @@ export const flagsMond26 = {
     { id: 'USA', name: 'StatiUniti', group: 'D', flag: FlagUsa },
     { id: 'PAR', name: 'Paraguay', group: 'D', flag: FlagParaguay },
     { id: 'AUS', name: 'Australia', group: 'D', flag: FlagAustralia },
+    { id: 'PLAYD', name: 'PlayD', group: 'D', flag: PlayD},
   ],
 
   E: [
     { id: 'GER', name: 'Germania', group: 'E', flag: FlagGermania },
-    { id: 'CUR', name: 'Curaçao', group: 'E', flag: FlagCuracao },
-    { id: 'CAV', name: "CostaAvorio", group: 'E', flag: FlagCostaAvorio },
+    { id: 'CUR', name: 'Curacao', group: 'E', flag: FlagCuracao },
+    { id: 'CAV', name: "CAvorio", group: 'E', flag: FlagCAvorio },
     { id: 'ECU', name: 'Ecuador', group: 'E', flag: FlagEcuador },
   ],
 
   F: [
     { id: 'NDL', name: 'Netherland', group: 'F', flag: FlagOlanda },
     { id: 'TUR', name: 'Turchia', group: 'F', flag: FlagTurchia },
-    { id: 'JAP', name: 'Giappone', group: 'F', flag: FlagJapan },
+    { id: 'JAP', name: 'Japan', group: 'F', flag: FlagJapan },
+    { id: 'PLAYF', name: 'PlayF', group: 'F', flag: PlayF },
   ],
 
   G: [
     { id: 'BEL', name: 'Belgio', group: 'G', flag: FlagBelgio },
     { id: 'EGT', name: 'Egitto', group: 'G', flag: FlagEgitto },
     { id: 'IRN', name: 'Iran', group: 'G', flag: FlagIran },
-    { id: 'NZL', name: 'Nuova Zelanda', group: 'G', flag: FlagNuovaZelanda },
+    { id: 'NZL', name: 'NZelanda', group: 'G', flag: FlagNZelanda },
   ],
 
   H: [
     { id: 'SPA', name: 'Spagna', group: 'H', flag: FlagSpagna },
-    { id: 'SAR', name: 'Arabia Saudita', group: 'H', flag: FlagArabiaSaudita },
-    { id: 'CVR', name: 'Capo Verde', group: 'H', flag: FlagCapoVerde },
+    { id: 'SAR', name: 'SArabia', group: 'H', flag: FlagSArabia },
+    { id: 'CPV', name: 'CpVerde', group: 'H', flag: FlagCpVerde },
     { id: 'URU', name: 'Uruguay', group: 'H', flag: FlagUruguay },
   ],
 
@@ -155,6 +163,7 @@ export const flagsMond26 = {
     { id: 'FRA', name: 'Francia', group: 'I', flag: FlagFrancia },
     { id: 'SEN', name: 'Senegal', group: 'I', flag: FlagSenegal },
     { id: 'NOR', name: 'Norvegia', group: 'I', flag: FlagNorvegia },
+    { id: 'PLAYI', name: 'PlayI', group: 'I', flag: PlayI },
   ],
 
   J: [
@@ -168,6 +177,7 @@ export const flagsMond26 = {
     { id: 'POR', name: 'Portogallo', group: 'K', flag: FlagPortogallo },
     { id: 'COL', name: 'Colombia', group: 'K', flag: FlagColombia },
     { id: 'UZB', name: 'Uzbekistan', group: 'K', flag: FlagUzbekistan },
+    { id: 'PLAYK', name: 'PlayK', group: 'K', flag: PlayK },
   ],
 
   L: [

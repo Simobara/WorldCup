@@ -52,6 +52,54 @@ function buildNameResolver(allTeams) {
   return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
 }
 
+function computePronTableForGroup(matchesData, resolveName, groupTeamNames) {
+  const table = {};
+
+  // init
+  for (const name of groupTeamNames) {
+    table[name] = { pt: 0, w: 0, x: 0, p: 0 };
+  }
+
+  if (!matchesData) return table;
+
+  const giornate = Object.values(matchesData);
+
+  for (const g of giornate) {
+    for (const m of g?.matches ?? []) {
+      const pron = String(m.pron ?? "")
+        .trim()
+        .toUpperCase();
+      if (!pron) continue;
+
+      // ✅ RIGA DI ORIENTAMENTO: se c'è un risultato valido, NON contare il pron
+      const hasRes = !!parseResult(m.results);
+      if (hasRes) continue;
+
+      const t1 = resolveName(m.team1);
+      const t2 = resolveName(m.team2);
+
+      if (!groupTeamNames.has(t1) || !groupTeamNames.has(t2)) continue;
+
+      if (pron === "1") {
+        table[t1].pt += 3;
+        table[t1].w += 1;
+        table[t2].p += 1;
+      } else if (pron === "2") {
+        table[t2].pt += 3;
+        table[t2].w += 1;
+        table[t1].p += 1;
+      } else if (pron === "X") {
+        table[t1].pt += 1;
+        table[t2].pt += 1;
+        table[t1].x += 1;
+        table[t2].x += 1;
+      }
+    }
+  }
+
+  return table;
+}
+
 function computeTableForGroup(matchesData, resolveName, groupTeamNames) {
   const table = {};
 
@@ -127,6 +175,27 @@ function sortTeamsByTable(teams, tableByTeam, resolveName, groupHasResults) {
     return ak.localeCompare(bk);
   });
 }
+function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
+  return [...teams].sort((a, b) => {
+    const ak = resolveName(a.name);
+    const bk = resolveName(b.name);
+
+    const A = pronTableByTeam?.[ak] ?? { pt: 0, w: 0, x: 0, p: 0 };
+    const B = pronTableByTeam?.[bk] ?? { pt: 0, w: 0, x: 0, p: 0 };
+
+    // 1) punti pron (desc)
+    if (B.pt !== A.pt) return B.pt - A.pt;
+
+    // 2) vittorie pron (desc)
+    if (B.w !== A.w) return B.w - A.w;
+
+    // 3) pareggi pron (desc)
+    if (B.x !== A.x) return B.x - A.x;
+
+    // fallback stabile
+    return ak.localeCompare(bk);
+  });
+}
 
 export default function GridRankPage() {
   const groups = "ABCDEFGHIJKL".split("");
@@ -161,15 +230,18 @@ export default function GridRankPage() {
               groupTeamNames
             );
 
+            const pronTableByTeam = computePronTableForGroup(
+              matchesData,
+              resolveName,
+              groupTeamNames
+            );
+
             const groupHasResults = Object.values(tableByTeam).some(
               (t) => t.gf > 0 || t.gs > 0
             );
-            const sortedTeams = sortTeamsByTable(
-              teams,
-              tableByTeam,
-              resolveName,
-              groupHasResults
-            );
+            const sortedTeams = groupHasResults
+              ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
+              : sortTeamsByPron(teams, pronTableByTeam, resolveName);
 
             // const goalsByTeam = computeGoalsForGroup(matchesData, resolveName);
 
@@ -206,13 +278,16 @@ export default function GridRankPage() {
                       {Array.from({ length: 4 }).map((_, row) => {
                         const team = sortedTeams[row] ?? null;
 
-                        const resolvedTeamName = team
-                          ? resolveName(team.id || team.name)
-                          : null;
+                        // const resolvedTeamName = team
+                        //   ? resolveName(team.id || team.name)
+                        //   : null;
                         const teamKey = team ? resolveName(team.name) : null;
 
                         const stats = team ? tableByTeam[teamKey] : null;
-
+                        const pronStats = team
+                          ? pronTableByTeam[teamKey]
+                          : null;
+                        const pronPt = pronStats?.pt ?? 0;
                         // mostra i gol SOLO se esiste almeno un risultato reale
                         const golStr =
                           stats && (stats.gf > 0 || stats.gs > 0)
@@ -224,6 +299,7 @@ export default function GridRankPage() {
                             key={row}
                             code={team?.id ?? ""}
                             pt={stats?.pt ?? 0}
+                            pronPt={pronPt}
                             w={stats?.w ?? 0}
                             x={stats?.x ?? 0}
                             p={stats?.p ?? 0}
@@ -296,7 +372,7 @@ function Header7() {
   );
 }
 
-function Row7({ code, teamEl, pt, w, x, p, gol, showZero }) {
+function Row7({ code, teamEl, pt, pronPt = 0, w, x, p, gol, showZero }) {
   return (
     <>
       <div className="bg-slate-900 border border-black/30 flex items-center justify-center">
@@ -311,13 +387,20 @@ function Row7({ code, teamEl, pt, w, x, p, gol, showZero }) {
         </div>
       </div>
 
-      {/* PUNTI → 0 ammesso */}
-      <div className="bg-yellow-500/30 border border-black/30 flex items-center justify-center">
-        <span className="font-extrabold">
+      {/* PUNTI → reali (centrati) + pron (overlay viola) */}
+      <div className="relative bg-yellow-500/30 border border-black/30 flex items-center justify-center">
+        {/* punti REALI */}
+        <span className="font-extrabold text-black">
           {show(pt, { zeroAllowed: showZero })}
         </span>
-      </div>
 
+        {/* punti PRON (overlay, non sposta nulla) */}
+        {pronPt > 0 && (
+          <span className="absolute right-1 top-6 text-[12px] font-extrabold text-purple-600">
+            +{pronPt}
+          </span>
+        )}
+      </div>
       {/* W → mai 0 */}
       <div className="bg-slate-400 border border-black/30 flex items-center justify-center">
         <span className="font-extrabold">

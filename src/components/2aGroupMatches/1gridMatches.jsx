@@ -1,3 +1,4 @@
+import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
 import Quadrato from "../3tableComp/1quad";
 
@@ -9,6 +10,70 @@ function toCode3(team) {
   return s.replace(/\s+/g, "").slice(0, 3);
 }
 
+function norm(s) {
+  return String(s ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^\p{L}\p{N}]/gu, "");
+}
+
+function buildNameResolver(allTeams) {
+  const map = new Map();
+
+  for (const t of allTeams ?? []) {
+    map.set(norm(t.name), t.name);
+    map.set(norm(t.id), t.name);
+    map.set(norm(t.name.replaceAll(".", "")), t.name);
+  }
+
+  // alias manuali (adatta ai tuoi nomi reali in flagsMond)
+  map.set(norm("SAfrica"), "Sudafrica");
+  map.set(norm("PlayD"), ""); // placeholder: niente bandiera
+
+  return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
+}
+
+function getFlatMatchesForGroup(groupObj) {
+  if (!groupObj) return [];
+  const giornate = Object.values(groupObj);
+
+  const out = [];
+  for (const g of giornate) {
+    const day = g?.dates?.[0] ?? "";
+    for (const m of g?.matches ?? []) {
+      out.push({
+        day,
+        city: m.city ?? "",
+        team1: m.team1 ?? "",
+        team2: m.team2 ?? "",
+        pron: String(m.pron ?? "")
+          .trim()
+          .toUpperCase(), // "1" | "X" | "2" | ""
+        result: String(m.results ?? "").trim(), // "2-0" | ""
+      });
+    }
+  }
+  return out;
+}
+
+function getHighlightType({ res, pron, side }) {
+  const hasResult = res !== "";
+  let isDrawResult = false;
+
+  if (hasResult && res.includes("-")) {
+    const [a, b] = res.split("-").map((n) => Number(n.trim()));
+    isDrawResult = Number.isFinite(a) && Number.isFinite(b) && a === b;
+  }
+
+  // risultato reale: pareggio -> giallo su entrambi
+  if (hasResult) return isDrawResult ? "draw" : "none";
+
+  // nessun risultato: pron -> fucsia sulla squadra scelta
+  if (side === 1) return pron === "1" || pron === "X" ? "pron" : "none";
+  return pron === "2" || pron === "X" ? "pron" : "none";
+}
+
 export default function GridMatchesPage() {
   const groups = "ABCDEFGHIJKL".split("");
 
@@ -17,7 +82,7 @@ export default function GridMatchesPage() {
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
 
-  // 7 colonne:     G    CIT  SQ1  F1   RIS  F2  SQ2
+  // 7 colonne: DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
   const gridCols = "70px 60px 30px 45px 40px 45px 30px";
 
   return (
@@ -25,10 +90,25 @@ export default function GridMatchesPage() {
       <div className="flex justify-center items-start min-w-max">
         <div className="grid grid-cols-4 gap-4 w-max">
           {groups.map((letter) => {
-            const teams = (flagsMond ?? []).filter((t) => t.group === letter);
+            const resolveName = buildNameResolver(flagsMond);
 
-            // ogni riga = 2 squadre (match)
-            const rowsCount = 6;
+            const groupKey = `group_${letter}`;
+            const matchesFlat = getFlatMatchesForGroup(
+              groupMatches?.[groupKey]
+            );
+
+            // se vuoi sempre 6 righe fisse:
+            // const rowsCount = Math.max(6, matchesFlat.length);
+            const rowsCount = matchesFlat.length;
+
+            const findTeam = (rawName) => {
+              const name = resolveName(rawName);
+              if (!name) return null;
+              return (
+                (flagsMond ?? []).find((t) => resolveName(t.name) === name) ??
+                null
+              );
+            };
 
             return (
               <div
@@ -61,61 +141,80 @@ export default function GridMatchesPage() {
                       <Header7 />
 
                       {Array.from({ length: rowsCount }).map((_, row) => {
-                        const team1 = teams[row * 2];
-                        const team2 = teams[row * 2 + 1];
+                        const m = matchesFlat[row] ?? null;
+                        const t1 = m ? findTeam(m.team1) : null;
+                        const t2 = m ? findTeam(m.team2) : null;
 
+                        const res = (m?.result ?? "").trim();
+                        const pron = (m?.pron ?? "").trim().toUpperCase();
+                        const hasResult = res !== "" && res.includes("-");
+
+                        let highlightType1 = "none";
+                        let highlightType2 = "none";
+
+                        if (hasResult) {
+                          const [a, b] = res
+                            .split("-")
+                            .map((n) => Number(n.trim()));
+                          const valid =
+                            Number.isFinite(a) && Number.isFinite(b);
+
+                          if (valid) {
+                            if (a === b) {
+                              // pareggio -> entrambi verdi
+                              highlightType1 = "draw";
+                              highlightType2 = "draw";
+                            } else if (a > b) {
+                              // vince team1 -> sky
+                              highlightType1 = "win";
+                            } else {
+                              // vince team2 -> sky
+                              highlightType2 = "win";
+                            }
+                          }
+                        } else {
+                          // NESSUN RISULTATO → PRONOSTICO
+                          if (pron === "X") {
+                            // pareggio pronosticato → LIME su entrambi
+                            highlightType1 = "pron-draw";
+                            highlightType2 = "pron-draw";
+                          } else {
+                            if (pron === "1") highlightType1 = "pron";
+                            if (pron === "2") highlightType2 = "pron";
+                          }
+                        }
+
+                        // linea bassa più spessa sulle righe 2 e 4 (0-based: 1 e 3)
                         const redBottom = row === 1 || row === 3;
 
                         return (
                           <Row7
                             key={`${letter}-${row}`}
                             bottomBorder={redBottom}
-                            day=""
-                            city=""
-                            team1={toCode3(team1)}
-                            team2={toCode3(team2)}
-                            result=""
+                            day={m?.day ?? ""}
+                            city={m?.city ?? ""}
+                            team1={toCode3(t1)}
+                            team2={toCode3(t2)}
+                            result={hasResult ? res : ""}
                             flag1={
-                              team1 ? (
-                                <Quadrato
-                                  teamName={team1.name}
-                                  flag={team1.flag}
-                                  phase="round32"
-                                  advanced={false}
-                                  isPronTeam={false}
-                                  label={null}
-                                />
-                              ) : (
-                                <Quadrato
-                                  teamName=""
-                                  flag={null}
-                                  phase="round32"
-                                  advanced={false}
-                                  isPronTeam={false}
-                                  label={null}
-                                />
-                              )
+                              <Quadrato
+                                teamName={t1?.name ?? ""}
+                                flag={t1?.flag ?? null}
+                                phase="round32"
+                                advanced={false}
+                                label={null}
+                                highlightType={highlightType1} // "none" | "pron" | "draw"
+                              />
                             }
                             flag2={
-                              team2 ? (
-                                <Quadrato
-                                  teamName={team2.name}
-                                  flag={team2.flag}
-                                  phase="round32"
-                                  advanced={false}
-                                  isPronTeam={false}
-                                  label={null}
-                                />
-                              ) : (
-                                <Quadrato
-                                  teamName=""
-                                  flag={null}
-                                  phase="round32"
-                                  advanced={false}
-                                  isPronTeam={false}
-                                  label={null}
-                                />
-                              )
+                              <Quadrato
+                                teamName={t2?.name ?? ""}
+                                flag={t2?.flag ?? null}
+                                phase="round32"
+                                advanced={false}
+                                label={null}
+                                highlightType={highlightType2} // "none" | "pron" | "draw"
+                              />
                             }
                           />
                         );
@@ -139,13 +238,12 @@ function Header7() {
     <>
       {headers.map((t, idx) => {
         if (t === "") return null;
-
         const isSquadra = t === "SQUADRA 1" || t === "SQUADRA 2";
 
         return (
           <div
             key={`h-${idx}`}
-            className={`bg-slate-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-white`}
+            className="bg-slate-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-white"
             style={{ gridColumn: `span ${isSquadra ? 2 : 1}` }}
           >
             {t}
@@ -205,7 +303,7 @@ function Row7({
       <div
         className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
       >
-        <span className="text-[10px] font-extrabold">{result || "\u00A0"}</span>
+        <span className="text-[18px] font-extrabold">{result || "\u00A0"}</span>
       </div>
 
       {/* FLAG 2 */}
