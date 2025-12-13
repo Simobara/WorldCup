@@ -75,13 +75,34 @@ const Grid = ({
         let highlightTeams = null;
         let highlightGoto = null;
         let highlightTime = null;
+        let highlightTeam1 = null;
+        let highlightTeam2 = null;
 
         if (typeof rawHighlight === "string") {
           highlightColor = rawHighlight;
         } else if (rawHighlight && typeof rawHighlight === "object") {
           highlightColor = rawHighlight.color || null;
           highlightLabel = rawHighlight.label || null;
-          highlightTeams = rawHighlight.teams || null;
+
+          // POSIZIONI (stringa tipo "2A 2B")
+          highlightTeams =
+            typeof rawHighlight.teams === "string" &&
+            rawHighlight.teams.trim() !== ""
+              ? rawHighlight.teams.trim()
+              : null;
+          // TEAM (tipo "BRA", "ITA")
+          highlightTeam1 =
+            typeof rawHighlight.team1 === "string" &&
+            rawHighlight.team1.trim() !== ""
+              ? rawHighlight.team1.trim()
+              : null;
+
+          highlightTeam2 =
+            typeof rawHighlight.team2 === "string" &&
+            rawHighlight.team2.trim() !== ""
+              ? rawHighlight.team2.trim()
+              : null;
+
           highlightGoto = rawHighlight.goto || null;
           highlightTime = rawHighlight.time || null;
         }
@@ -139,20 +160,18 @@ const Grid = ({
               </div>
             )}
 
-            {highlightTeams &&
+            {/* POSIZIONI (pos1 / pos2) */}
+            {/* OVERLAY MATCH: KO = pos a sinistra (alto/basso) + team centrali assoluti */}
+            {(highlightTeams || highlightTeam1 || highlightTeam2) &&
               (() => {
-                // separa pos1 e pos2 (es: "1A 2B")
-                const [pos1, pos2] = highlightTeams.split(" ");
+                const [pos1, pos2] = String(highlightTeams || "").split(" ");
 
-                const getStyle = (p) => {
+                const getPosStyle = (p) => {
                   if (!p) return "text-white text-[12px] font-xs";
 
-                  // ✅ Caso 1: formato singolo valido → 1A, 2B, 3C
                   const singleMatch = p.match(/^([1-3])([A-Z])$/i);
-
                   if (singleMatch) {
                     const num = singleMatch[1];
-
                     if (num === "1")
                       return "text-red-700 text-[12px] font-bold";
                     if (num === "2")
@@ -161,29 +180,84 @@ const Grid = ({
                       return "text-gray-200 text-[6px] font-bold tracking-tight";
                   }
 
-                  // ✅ Caso 2: formato multiplo SOLO per 3 → es: 3A/B/C/D/F
                   const multiThreeMatch = p.match(/^3[A-Z](\/[A-Z])+$/i);
-
                   if (multiThreeMatch) {
                     return "text-gray-200 text-[6px] font-bold tracking-tight";
                   }
 
-                  // ✅ Tutto il resto resta neutro
                   return "text-white text-[12px] font-xs";
                 };
 
-                return (
-                  <div className="absolute inset-0 flex flex-col justify-center items-center z-30 leading-none">
-                    <span className={getStyle(pos1)}>{pos1}</span>
+                const teamStyle =
+                  "bg-transparent text-white text-[10px] md:text-[9px] font-normal tracking-wide";
 
-                    <span className={getStyle(pos2)}>{pos2}</span>
+                const hasPos = !!(pos1 && pos2);
+                const hasTeams = !!(highlightTeam1 && highlightTeam2);
+
+                // ✅ KO: pos a sinistra (alto/basso) + team centrali assoluti
+                if (hasPos && hasTeams) {
+                  return (
+                    <>
+                      {/* POS SINISTRA */}
+                      <div className="absolute inset-0 z-30 leading-[1.30] pointer-events-none">
+                        {/* pos1 alto */}
+                        <div className="absolute top-[0px] ">
+                          <span className={getPosStyle(pos1)}>{pos1}</span>
+                        </div>
+
+                        {/* pos2 basso */}
+                        <div className="absolute bottom-[4px] ">
+                          <span className={getPosStyle(pos2)}>{pos2}</span>
+                        </div>
+                      </div>
+
+                      {/* TEAM CENTRO ASSOLUTO */}
+                      <div className="absolute inset-0 z-40 flex flex-col items-center justify-center leading-[0.80] left-3 pointer-events-none">
+                        <span className={teamStyle}>{highlightTeam1}</span>
+                        <span className={teamStyle}>{highlightTeam2}</span>
+                      </div>
+                    </>
+                  );
+                }
+
+                // ✅ Gironi: solo team centrali
+                if (highlightTeam1 || highlightTeam2) {
+                  return (
+                    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center leading-[0.95] pointer-events-none">
+                      {highlightTeam1 && (
+                        <span className={teamStyle}>{highlightTeam1}</span>
+                      )}
+                      {highlightTeam2 && (
+                        <span className={teamStyle}>{highlightTeam2}</span>
+                      )}
+                    </div>
+                  );
+                }
+
+                // ✅ fallback: solo pos → centrali assoluti
+                return (
+                  <div className="absolute inset-0 z-30 flex flex-col items-center justify-center leading-[0.95] pointer-events-none">
+                    {pos1 && <span className={getPosStyle(pos1)}>{pos1}</span>}
+                    {pos2 && <span className={getPosStyle(pos2)}>{pos2}</span>}
                   </div>
                 );
               })()}
 
+            {/* TEAM (team1 / team2) - sotto alle posizioni
+            {highlightTeam1 && highlightTeam2 && (
+              <div className="absolute bottom-[2px] left-0 w-full z-40 flex flex-col items-center leading-none">
+                <span className="text-[9px] font-extrabold text-black/80">
+                  {highlightTeam1}
+                </span>
+                <span className="text-[9px] font-extrabold text-black/80">
+                  {highlightTeam2}
+                </span>
+              </div>
+            )} */}
+
             {/* ORARIO PARTITA (solo righe città, se presente) */}
             {highlightTime && (
-              <div className="absolute md:top-[28px] top-[20px] right-0 z-50 items-center justify-center">
+              <div className="absolute md:top-[38px] top-[20px] right-0 z-50 flex items-center justify-center">
                 <span className="text-[10px] md:text-[9px] font-semibold text-black leading-none">
                   {highlightTime}
                 </span>

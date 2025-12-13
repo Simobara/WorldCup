@@ -156,7 +156,8 @@ export const getMergedHighlights = () => {
       groupFinal.round32,
       titleLabels,
       citiesOsp,
-      "bg-orange-500"
+      "bg-orange-500",
+      true
     ),
     "group_"
   );
@@ -166,7 +167,8 @@ export const getMergedHighlights = () => {
       groupFinal.round16,
       titleLabels,
       citiesOsp,
-      "bg-cyan-800"
+      "bg-cyan-800",
+      true
     ),
     "group_"
   );
@@ -176,7 +178,8 @@ export const getMergedHighlights = () => {
       groupFinal.quarterFinals,
       titleLabels,
       citiesOsp,
-      "bg-orange-800"
+      "bg-orange-800",
+      true 
     ),
     "group_"
   );
@@ -186,7 +189,8 @@ export const getMergedHighlights = () => {
       groupFinal.semifinals,
       titleLabels,
       citiesOsp,
-      "bg-cyan-800"
+      "bg-cyan-800",
+      true 
     ),
     "group_"
   );
@@ -196,7 +200,8 @@ export const getMergedHighlights = () => {
       groupFinal.final34,
       titleLabels,
       citiesOsp,
-      "bg-yellow-400"
+      "bg-yellow-400",
+      true 
     ),
     "group_"
   );
@@ -206,7 +211,8 @@ export const getMergedHighlights = () => {
       groupFinal.final,
       titleLabels,
       citiesOsp,
-      "bg-yellow-400"
+      "bg-yellow-400",
+      true 
     ),
     "group_"
   );
