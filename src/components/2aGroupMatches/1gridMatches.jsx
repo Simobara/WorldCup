@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
 import Quadrato from "../3tableComp/1quad";
@@ -57,24 +59,25 @@ function getFlatMatchesForGroup(groupObj) {
   return out;
 }
 
-function getHighlightType({ res, pron, side }) {
-  const hasResult = res !== "";
-  let isDrawResult = false;
+// function getHighlightType({ res, pron, side }) {
+//   const hasResult = res !== "";
+//   let isDrawResult = false;
 
-  if (hasResult && res.includes("-")) {
-    const [a, b] = res.split("-").map((n) => Number(n.trim()));
-    isDrawResult = Number.isFinite(a) && Number.isFinite(b) && a === b;
-  }
+//   if (hasResult && res.includes("-")) {
+//     const [a, b] = res.split("-").map((n) => Number(n.trim()));
+//     isDrawResult = Number.isFinite(a) && Number.isFinite(b) && a === b;
+//   }
 
-  // risultato reale: pareggio -> giallo su entrambi
-  if (hasResult) return isDrawResult ? "draw" : "none";
+//   // risultato reale: pareggio -> giallo su entrambi
+//   if (hasResult) return isDrawResult ? "draw" : "none";
 
-  // nessun risultato: pron -> fucsia sulla squadra scelta
-  if (side === 1) return pron === "1" || pron === "X" ? "pron" : "none";
-  return pron === "2" || pron === "X" ? "pron" : "none";
-}
+//   // nessun risultato: pron -> fucsia sulla squadra scelta
+//   if (side === 1) return pron === "1" || pron === "X" ? "pron" : "none";
+//   return pron === "2" || pron === "X" ? "pron" : "none";
+// }
 
 export default function GridMatchesPage() {
+  const [showPronostics, setShowPronostics] = useState(true);
   const groups = "ABCDEFGHIJKL".split("");
 
   const GROUP_WIDTH_MOBILE = "w-40";
@@ -87,8 +90,23 @@ export default function GridMatchesPage() {
 
   return (
     <div className="min-h-screen px-4 pt-16 overflow-x-auto">
-      <div className="flex justify-center items-start min-w-max">
-        <div className="grid grid-cols-4 gap-4 w-max">
+      <div className="relative flex justify-center items-start min-w-max">
+        <button
+          onClick={() => setShowPronostics((v) => !v)}
+          className={`
+  absolute -top-7 left-1/2 translate-x-1 px-4
+  rounded-full font-extrabold text-sm
+  transition-all duration-300 z-50'
+      ${
+        showPronostics
+          ? "bg-cyan-950 text-slate-950 "
+          : "bg-cyan-950 text-slate-950"
+      }
+    `}
+        >
+          {showPronostics ? "." : ","}
+        </button>
+        <div className=" grid grid-cols-4 gap-4 w-max">
           {groups.map((letter) => {
             const resolveName = buildNameResolver(flagsMond);
 
@@ -113,7 +131,7 @@ export default function GridMatchesPage() {
             return (
               <div
                 key={letter}
-                className={`
+                className={` relative
                   ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
                   ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
                   bg-red-900 border border-slate-900 flex flex-col
@@ -172,10 +190,9 @@ export default function GridMatchesPage() {
                               highlightType2 = "win";
                             }
                           }
-                        } else {
-                          // NESSUN RISULTATO → PRONOSTICO
+                        } else if (showPronostics) {
+                          // NESSUN RISULTATO → PRONOSTICO (solo se attivo)
                           if (pron === "X") {
-                            // pareggio pronosticato → LIME su entrambi
                             highlightType1 = "pron-draw";
                             highlightType2 = "pron-draw";
                           } else {

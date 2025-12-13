@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
 import Quadrato from "../3tableComp/1quad";
@@ -198,6 +199,7 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
 }
 
 export default function GridRankPage() {
+  const [showPronostics, setShowPronostics] = useState(true);
   const groups = "ABCDEFGHIJKL".split("");
 
   const GROUP_WIDTH_MOBILE = "w-40";
@@ -209,7 +211,18 @@ export default function GridRankPage() {
 
   return (
     <div className="min-h-screen px-4 pt-16 overflow-x-auto">
-      <div className="flex justify-center items-start min-w-max">
+      <div className="relative flex justify-center items-start min-w-max">
+        <button
+          onClick={() => setShowPronostics((v) => !v)}
+          className={`
+      absolute -top-7 left-1/2 translate-x-14 px-4
+      rounded-full font-extrabold text-sm z-50
+      ${showPronostics ? " text-slate-950" : " text-slate-900"}
+    `}
+        >
+          {showPronostics ? "." : ","}
+        </button>
+
         <div className="grid grid-cols-4 gap-4 w-max">
           {groups.map((letter) => {
             // ✅ squadre del gruppo (array piatto -> filtro per group)
@@ -230,18 +243,22 @@ export default function GridRankPage() {
               groupTeamNames
             );
 
-            const pronTableByTeam = computePronTableForGroup(
-              matchesData,
-              resolveName,
-              groupTeamNames
-            );
-
             const groupHasResults = Object.values(tableByTeam).some(
               (t) => t.gf > 0 || t.gs > 0
             );
+            const pronTableByTeam = showPronostics
+              ? computePronTableForGroup(
+                  matchesData,
+                  resolveName,
+                  groupTeamNames
+                )
+              : null;
+
             const sortedTeams = groupHasResults
               ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
-              : sortTeamsByPron(teams, pronTableByTeam, resolveName);
+              : showPronostics
+                ? sortTeamsByPron(teams, pronTableByTeam, resolveName)
+                : teams; // se non mostri pron, lascia ordine flagsMond
 
             // const goalsByTeam = computeGoalsForGroup(matchesData, resolveName);
 
@@ -285,8 +302,9 @@ export default function GridRankPage() {
 
                         const stats = team ? tableByTeam[teamKey] : null;
                         const pronStats = team
-                          ? pronTableByTeam[teamKey]
+                          ? pronTableByTeam?.[teamKey]
                           : null;
+
                         const pronPt = pronStats?.pt ?? 0;
                         // mostra i gol SOLO se esiste almeno un risultato reale
                         const golStr =
@@ -299,7 +317,8 @@ export default function GridRankPage() {
                             key={row}
                             code={team?.id ?? ""}
                             pt={stats?.pt ?? 0}
-                            pronPt={pronPt}
+                            showPronostics={showPronostics}
+                            pronPt={showPronostics ? pronPt : 0}
                             w={stats?.w ?? 0}
                             x={stats?.x ?? 0}
                             p={stats?.p ?? 0}
@@ -372,7 +391,18 @@ function Header7() {
   );
 }
 
-function Row7({ code, teamEl, pt, pronPt = 0, w, x, p, gol, showZero }) {
+function Row7({
+  code,
+  teamEl,
+  pt,
+  pronPt = 0,
+  w,
+  x,
+  p,
+  gol,
+  showZero,
+  showPronostics,
+}) {
   return (
     <>
       <div className="bg-slate-900 border border-black/30 flex items-center justify-center">
@@ -395,7 +425,7 @@ function Row7({ code, teamEl, pt, pronPt = 0, w, x, p, gol, showZero }) {
         </span>
 
         {/* punti PRON (overlay, non sposta nulla) */}
-        {pronPt > 0 && (
+        {showPronostics && pronPt > 0 && (
           <span className="absolute right-1 top-6 text-[12px] font-extrabold text-purple-600">
             +{pronPt}
           </span>

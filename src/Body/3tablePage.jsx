@@ -22,7 +22,7 @@ const TablePage = () => {
   const { round32, round16, quarterFinals, semifinals, final34, final } =
     groupFinal;
 
-  const [showPron, setShowPron] = useState(false);
+  const [showPron, setShowPron] = useState(true);
 
   // 🔹 squadre REALI che compaiono in una fase (solo team1/team2)
   const collectRealTeamsFromStage = (stage) =>

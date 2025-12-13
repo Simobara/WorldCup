@@ -5,6 +5,7 @@ const Quadrato = ({
   phase = "round32",
   advanced = false,
   highlightType = "none",
+  isPronTeamTable = false,
 }) => {
   const bgByPhase = {
     round32: "bg-sky-800",
@@ -16,17 +17,26 @@ const Quadrato = ({
 
   const bgColor = bgByPhase[phase] || "bg-sky-800";
 
+  // 🟣 FORZA HIGHLIGHT PRON SE È UN PRONOSTICO
+  const effectiveHighlightType =
+    isPronTeamTable && highlightType === "none" ? "pron" : highlightType;
+
   // 🎨 COLORE BORDO CORRETTO
   const borderColor =
-    highlightType === "win"
+    effectiveHighlightType === "win"
       ? "border-sky-700"
-      : highlightType === "draw"
-        ? "border-green-500" // pareggio REALE
-        : highlightType === "pron-draw"
-          ? "border-lime-500" // pareggio PRONOSTICO
-          : highlightType === "pron"
+      : effectiveHighlightType === "draw"
+        ? "border-green-500"
+        : effectiveHighlightType === "pron-draw"
+          ? "border-lime-500"
+          : effectiveHighlightType === "pron"
             ? "border-purple-500"
             : "border-white";
+
+  // 🟣 bordo / ring extra per PRON (indipendente dal risultato)
+  const pronRing = isPronTeamTable
+    ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-black/60"
+    : "";
 
   // 🟡 Regola grayscale
   const isRound32 = phase === "round32";
@@ -39,11 +49,13 @@ const Quadrato = ({
   return (
     <div
       className={`
-        relative w-16 md:h-16 h-12 
-        ${bgColor} border-x-2 border-y-4 ${borderColor}
-        rounded-[14px] shadow-xl flex items-center justify-center 
-         overflow-hidden z-40
-      `}
+    relative w-16 md:h-16 h-12 
+    ${bgColor}
+    border-x-2 border-y-4 ${borderColor}
+    ${pronRing}
+    rounded-[14px] shadow-xl flex items-center justify-center 
+    overflow-hidden z-40
+  `}
     >
       {label && (
         <span

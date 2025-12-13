@@ -32,7 +32,7 @@ const BlokQuadRett = ({
           teamName={firstTeamName}
           flag={firstTeamFlag}
           advanced={firstAdvanced}
-          isPronTeam={firstIsPron} // 🆕 qui passo l’info
+          isPronTeamTable={firstIsPron} // 🆕 qui passo l’info
           phase={phase}
         />
         <Quadrato
@@ -40,7 +40,7 @@ const BlokQuadRett = ({
           teamName={secondTeamName}
           flag={secondTeamFlag}
           advanced={secondAdvanced}
-          isPronTeam={secondIsPron} // 🆕 qui passo l’info
+          isPronTeamTable={secondIsPron} // 🆕 qui passo l’info
           phase={phase}
         />
       </div>

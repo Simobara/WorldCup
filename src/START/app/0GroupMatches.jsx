@@ -56,7 +56,7 @@ group_B: {
         ],
         matches: [
             { numero: 5, city: 'Vancouver',     time: '20:00',     team1: 'Svizzera',        team2: 'Canada',          pron:'X', results:' ' },
-            { numero: 6, city: 'Seattle',       time: '20:00',     team1: 'Italia',          team2: 'Qatar',           pron:'1', results:' ' },
+            { numero: 6, city: 'Seattle',       time: '20:00',     team1: 'Italia',          team2: 'Qatar',           pron:'X', results:' ' },
         ],
     },
 },

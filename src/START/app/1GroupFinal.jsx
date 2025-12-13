@@ -6,7 +6,7 @@ const groupFinal26 = {
         'GIU/28',
       ],
       matches: [
-        { numero:  1, city: 'LAngeles',   time: '04:00', pos1:'2A',           pos2:'2B',           team1:'', team2:'',    goto:'73', fg:'A3', pron:'KOR-ITA', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  1, city: 'LAngeles',   time: '04:00', pos1:'2A',           pos2:'2B',           team1:'BRA', team2:'ITA',    goto:'73', fg:'A3', pron:'KOR-ITA', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
