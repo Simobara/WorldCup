@@ -39,7 +39,7 @@ const groupFinal26 = {
       matches: [
         { numero:  1, city: 'Atlanta',     time: '01:00', pos1:'1L',           pos2:'3E/H/I/J/K',   team1:'', team2:'',    goto:'80', fg:'C4', pron:'ING-FRA', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'Seattle',     time: '04:00', pos1:'1G',           pos2:'3A/E/H/I/J',   team1:'', team2:'',    goto:'82', fg:'B4', pron:'BEL-CAV', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'SanFrancisco',time: '04:00', pos1:'1D',           pos2:'3B/E/F/I/J',   team1:'', team2:'',    goto:'81', fg:'B3', pron:'USA-CAN', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'SanFrancisco',time: '04:00', pos1:'1D',           pos2:'3B/E/F/I/J',   team1:'', team2:'',    goto:'81', fg:'B3', pron:'USA-SWI', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -50,7 +50,7 @@ const groupFinal26 = {
       matches: [
         { numero:  1, city: 'LAngeles',   time: '04:00', pos1:'1H',           pos2:'2J',           team1:'', team2:'',    goto:'84', fg:'B2', pron:'URU-ALG', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'Toronto',    time: '01:00', pos1:'2K',           pos2:'2L',           team1:'', team2:'',    goto:'83', fg:'B1', pron:'COL-CRO', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'Vancouver',  time: '04:00', pos1:'1B',           pos2:'3E/F/G/I/J',   team1:'', team2:'',    goto:'85', fg:'D3', pron:'SWI-TUR', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'Vancouver',  time: '04:00', pos1:'1B',           pos2:'3E/F/G/I/J',   team1:'', team2:'',    goto:'85', fg:'D3', pron:'CAN-TUR', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -104,7 +104,7 @@ const groupFinal26 = {
       ],
       matches: [
         { numero: 95, city: 'Atlanta',      time: '01:00', pos1:'86',          pos2:'88',          team1:'',    team2:'',    goto:'95', fg:'D5', pron:'SPA-AUS', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero: 96, city: 'Vancouver',    time: '04:00', pos1:'85',          pos2:'87',          team1:'',    team2:'',    goto:'96', fg:'D6', pron:'POR-SWI', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero: 96, city: 'Vancouver',    time: '04:00', pos1:'85',          pos2:'87',          team1:'',    team2:'',    goto:'96', fg:'D6', pron:'CAN-POR', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
   },
