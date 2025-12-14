@@ -131,7 +131,7 @@ export default function GridMatchesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen md:px-4 px-1 md:pt-16 pt-1 overflow-x-auto">
+    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-4 overflow-x-auto">
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
