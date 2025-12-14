@@ -384,7 +384,7 @@ function Row7({
 
       {/* SQUADRA 1 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 text-slate-400 flex items-center justify-center`}
+        className={`${common} border-slate-900 bg-slate-900 text-white flex items-center justify-center`}
       >
         <span className="hidden md:block text-[10px] font-bold">
           {team1 || "\u00A0"}
@@ -418,7 +418,7 @@ function Row7({
 
       {/* SQUADRA 2 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 text-slate-400 flex items-center justify-center`}
+        className={`${common} border-slate-900 bg-slate-900 text-white flex items-center justify-center`}
       >
         <span className="hidden md:block text-[10px] font-bold">
           {team2 || "\u00A0"}

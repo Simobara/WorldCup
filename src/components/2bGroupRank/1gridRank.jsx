@@ -414,7 +414,7 @@ function Row7({
   return (
     <>
       <div className="bg-slate-900 border border-slate-900  flex items-center justify-center">
-        <span className="hidden md:block text-[10px] text-slate-400 font-extrabold">
+        <span className="hidden md:block text-[10px] text-white font-extrabold">
           {code}
         </span>
       </div>
@@ -425,19 +425,20 @@ function Row7({
         </div>
       </div>
       {/* PUNTI 1 */}
-      <div className="relative border bg-yellow-500/50  border-slate-900 border-r-yellow-500/50 flex items-center justify-center">
+      <div className="relative border bg-yellow-400/40 border-yellow-400/40 border-r-0 border-t-0 border-b-0 flex items-center justify-center">
         <span className="font-extrabold text-black">
           {show(pt, { zeroAllowed: showZero })}
         </span>
 
         {showPronostics && pronPt > 0 && (
-          <span className="absolute right-1 top-6 text-[12px] font-extrabold text-gray-600">
+          <span className="absolute right-1 top-6 text-[12px] font-extrabold text-purple-600">
             +{pronPt}
           </span>
         )}
       </div>
+
       {/* GOL 1 */}
-      <div className="bg-gray-400 border border-slate-900  border-l-gray-600 border-b-4 border-b-gray-600  text-slate-900 flex items-center justify-center">
+      <div className="bg-gray-400 border border-slate-900 border-l-0 border-b-4 border-t-0 border-b-gray-600 text-slate-900 flex items-center justify-center">
         <span className="text-[14px] md:text-[16px] font-extrabold">{gol}</span>
       </div>
       {/* W 1 */}
