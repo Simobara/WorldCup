@@ -74,23 +74,19 @@ function dayOnly(day) {
   const parts = s.split("/");
   return parts[parts.length - 1];
 }
-// function getHighlightType({ res, pron, side }) {
-//   const hasResult = res !== "";
-//   let isDrawResult = false;
+function splitDayDesk(day) {
+  const s = String(day ?? "")
+    .replaceAll("/", " ")
+    .trim();
+  if (!s) return { label: "", num: "" };
 
-//   if (hasResult && res.includes("-")) {
-//     const [a, b] = res.split("-").map((n) => Number(n.trim()));
-//     isDrawResult = Number.isFinite(a) && Number.isFinite(b) && a === b;
-//   }
+  const parts = s.split(/\s+/);
+  const label = parts[0] ?? "";
+  const num = parts.slice(1).join(" ");
 
-//   // risultato reale: pareggio -> giallo su entrambi
-//   if (hasResult) return isDrawResult ? "draw" : "none";
-
-//   // nessun risultato: pron -> fucsia sulla squadra scelta
-//   if (side === 1) return pron === "1" || pron === "X" ? "pron" : "none";
-//   return pron === "2" || pron === "X" ? "pron" : "none";
-// }
-
+  return { label, num };
+}
+// --------------------------------------------------------------------------
 export default function GridMatchesPage() {
   const [showPronostics, setShowPronostics] = useState(true);
 
@@ -104,12 +100,12 @@ export default function GridMatchesPage() {
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
 
   const GROUP_WIDTH_MOBILE = "w-[8rem]";
-  const GROUP_HEIGHT_MOBILE = "h-[10.5rem]";
+  const GROUP_HEIGHT_MOBILE = "h-[11.5rem]";
 
   const rowHDesktop = 45;
   const rowHMobile = 28;
   const headerHDesktop = "1rem";
-  const headerHMobile = "0px";
+  const headerHMobile = "1rem";
 
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
@@ -131,7 +127,7 @@ export default function GridMatchesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-8 overflow-x-auto">
+    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto">
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
@@ -185,7 +181,7 @@ export default function GridMatchesPage() {
                 <div className="flex-1 flex items-stretch">
                   {/* LETTERA */}
                   <div className="w-8 md:w-10 flex items-center justify-center">
-                    <span className="text-white font-extrabold text-xl md:text-3xl">
+                    <span className="text-gray-400 font-extrabold text-xl md:text-3xl">
                       {letter}
                     </span>
                   </div>
@@ -313,7 +309,7 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className="bg-slate-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400"
+            className="bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400"
             style={{ gridColumn: `span ${isSquadra ? 2 : 1}` }}
           >
             {typeof h === "string" ? (
@@ -357,15 +353,23 @@ function Row7({
           {dayOnly(day) || "\u00A0"}
         </span>
 
-        {/* DESKTOP → data completa */}
-        <span className="hidden md:block text-[9px] font-bold">
-          {day || "\u00A0"}
+        {/* DESKTOP → giorno (più piccolo, senza "/") */}
+        <span className="hidden md:flex items-center gap-1 font-bold leading-none">
+          {(() => {
+            const { label, num } = splitDayDesk(day);
+            return (
+              <>
+                <span className="text-[7px] tracking-wide">{label}</span>
+                <span className="text-[11px]">{num}</span>
+              </>
+            );
+          })()}
         </span>
       </div>
 
       {/* CITTÀ */}
       <div
-        className={`${common} border-slate-950  bg-slate-950 text-gray-500 flex items-center justify-center`}
+        className={`${common} border-slate-950  bg-slate-950 text-gray-500 flex items-center justify-start`}
       >
         {/* MOBILE → 3 lettere */}
         <span className="block md:hidden text-[8px] leading-none font-bold">

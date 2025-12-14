@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
 import Quadrato from "../3tableComp/1quad";
@@ -175,9 +175,15 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
     return ak.localeCompare(bk);
   });
 }
-
+// ---------------------------------------------------------------------------------
 export default function GridRankPage() {
   const [showPronostics, setShowPronostics] = useState(true);
+
+  // ✅ COLONNE: desktop e mobile (come richiesto)
+  const gridColsDesktop = "30px 60px 50px 40px 40px 40px 60px";
+  const gridColsMobile = "1px 40px 30px 10px 10px 10px 20px";
+
+  const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
 
   // ✅ come “Matches”: card strette in mobile, grandi in desktop
@@ -185,18 +191,37 @@ export default function GridRankPage() {
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
 
   const GROUP_WIDTH_MOBILE = "w-[8rem]";
-  const GROUP_HEIGHT_MOBILE = "h-[14rem]";
+  const GROUP_HEIGHT_MOBILE = "h-[10.5rem]";
 
-  // ✅ griglia interna RANK invariata
-  const gridCols = "1px 40px 20px 10px 10px 10px 20px";
+  const rowHDesktop = 45;
+  const rowHMobile = 28;
+  const headerHDesktop = "1rem";
+  const headerHMobile = "0px";
+
+  const [rowH, setRowH] = useState(rowHMobile);
+  const [headerH, setHeaderH] = useState(headerHMobile);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => {
+      const isDesktop = mq.matches;
+      setGridCols(isDesktop ? gridColsDesktop : gridColsMobile);
+      setRowH(isDesktop ? rowHDesktop : rowHMobile);
+      setHeaderH(isDesktop ? headerHDesktop : headerHMobile);
+    };
+
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   return (
-    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-8 overflow-x-auto">
+    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-4 overflow-x-auto">
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
           className={`
-            absolute -top-7 left-1/2 translate-x-3 px-4
+            absolute -top-6 left-1/2 translate-x-3 px-4
             rounded-full font-extrabold text-sm z-50
             ${showPronostics ? " text-slate-950" : " text-slate-950"}
           `}
@@ -246,8 +271,8 @@ export default function GridRankPage() {
                 className={`
                   ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
                   ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
-                  bg-red-900 border border-slate-900 flex flex-col
-                  rounded-tl-[48px] rounded-bl-[48px]
+                    bg-red-900 border border-slate-900 flex flex-col
+                  md:rounded-tl-[48px]  rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
                   overflow-hidden
                 `}
               >
@@ -259,12 +284,13 @@ export default function GridRankPage() {
                     </span>
                   </div>
 
-                  {/* GRIGLIA (INVARIATA) */}
+                  {/* GRIGLIA */}
                   <div className="flex-1 flex justify-end bg-slate-400">
                     <div
                       className="grid w-max h-full bg-slate-400"
                       style={{
-                        gridTemplateRows: "1rem repeat(4, 1fr)",
+                        gridTemplateRows: `${headerH} repeat(4, ${rowH}px)`,
+
                         gridTemplateColumns: gridCols,
                       }}
                     >
@@ -351,7 +377,7 @@ function Header7() {
           return (
             <div
               key="squadra"
-              className="col-span-2 bg-slate-900 border border-black/40 flex items-center justify-center text-[9px] font-extrabold text-white leading-none"
+              className="col-span-2 bg-red-900 border border-black/40 flex items-center justify-center text-[9px] font-extrabold text-white leading-none"
             >
               {t}
             </div>
