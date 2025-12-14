@@ -180,8 +180,9 @@ export default function GridRankPage() {
   const [showPronostics, setShowPronostics] = useState(true);
 
   // ✅ COLONNE: desktop e mobile (come richiesto)
-  const gridColsDesktop = "30px 60px 50px 40px 40px 40px 60px";
-  const gridColsMobile = "1px 40px 30px 10px 10px 10px 20px";
+  //const headers = ["SQUADRA", "", "PUNTI", "GOL", "W", "X", "P"];
+  const gridColsDesktop = "30px 60px 50px 60px 40px 40px 40px";
+  const gridColsMobile = "1px 40px 30px 20px 10px 10px 10px";
 
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
@@ -193,7 +194,7 @@ export default function GridRankPage() {
   const GROUP_WIDTH_MOBILE = "w-[8rem]";
   const GROUP_HEIGHT_MOBILE = "h-[10.5rem]";
 
-  const rowHDesktop = 45;
+  const rowHDesktop = 70;
   const rowHMobile = 28;
   const headerHDesktop = "1rem";
   const headerHMobile = "0px";
@@ -271,7 +272,7 @@ export default function GridRankPage() {
                 className={`
                   ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
                   ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
-                    bg-red-900 border border-slate-900 flex flex-col
+                    bg-red-900 border border-red-900 flex flex-col
                   md:rounded-tl-[48px]  rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
                   overflow-hidden
                 `}
@@ -279,7 +280,7 @@ export default function GridRankPage() {
                 <div className="flex-1 flex items-stretch">
                   {/* LETTERA */}
                   <div className="w-8 md:w-10 flex items-center justify-center">
-                    <span className="text-white font-extrabold text-xl md:text-3xl leading-none">
+                    <span className="text-gray-400 font-extrabold text-xl md:text-3xl leading-none">
                       {letter}
                     </span>
                   </div>
@@ -368,7 +369,7 @@ export default function GridRankPage() {
    =========================== */
 
 function Header7() {
-  const headers = ["SQUADRA", "", "PUNTI", "W", "X", "P", "GOL"];
+  const headers = ["SQUADRA", "", "PUNTI", "GOL", "W", "X", "P"];
 
   return (
     <>
@@ -377,7 +378,7 @@ function Header7() {
           return (
             <div
               key="squadra"
-              className="col-span-2 bg-red-900 border border-black/40 flex items-center justify-center text-[9px] font-extrabold text-white leading-none"
+              className="col-span-2 bg-red-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400 leading-none"
             >
               {t}
             </div>
@@ -388,7 +389,7 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className="bg-slate-900 border border-black/40 flex items-center justify-center text-[9px] font-bold text-white leading-none"
+            className="bg-red-900 border border-slate-900 flex items-center justify-center text-[9px] font-bold text-gray-400 leading-none"
           >
             {t}
           </div>
@@ -436,26 +437,26 @@ function Row7({
         )}
       </div>
 
-      <div className="bg-slate-400 border border-black/30 flex items-center justify-center">
+      <div className="bg-gray-400 border border-slate-900 text-slate-900 flex items-center justify-center">
+        <span className="text-[14px] md:text-[16px] font-extrabold">{gol}</span>
+      </div>
+
+      <div className="bg-slate-900 border border-slate-900 text-gray-400  flex items-center justify-center">
         <span className="font-extrabold">
           {show(w, { zeroAllowed: false })}
         </span>
       </div>
 
-      <div className="bg-slate-400 border border-black/30 flex items-center justify-center">
+      <div className="bg-slate-900 border border-slate-900 text-gray-400  flex items-center justify-center">
         <span className="font-extrabold">
           {show(x, { zeroAllowed: false })}
         </span>
       </div>
 
-      <div className="bg-slate-400 border border-black/30 flex items-center justify-center">
+      <div className="bg-slate-900 border border-slate-900 text-gray-400 flex items-center justify-center">
         <span className="font-extrabold">
           {show(p, { zeroAllowed: false })}
         </span>
-      </div>
-
-      <div className="bg-yellow-800/40 border border-black/30 flex items-center justify-center">
-        <span className="text-[14px] md:text-[16px] font-extrabold">{gol}</span>
       </div>
     </>
   );

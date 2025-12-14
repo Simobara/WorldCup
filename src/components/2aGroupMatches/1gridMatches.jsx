@@ -137,8 +137,8 @@ export default function GridMatchesPage() {
   transition-all duration-300 z-50'
       ${
         showPronostics
-          ? "bg-cyan-950 text-slate-950 "
-          : "bg-cyan-950 text-slate-950"
+          ? "bg-cyan-950 text-slate-900 "
+          : "bg-cyan-950 text-slate-900"
       }
     `}
         >
@@ -173,7 +173,7 @@ export default function GridMatchesPage() {
                 className={` relative
                   ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
                   ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
-                  bg-red-900 border border-slate-900 flex flex-col
+                  bg-red-900 border border-red-900 flex flex-col
                   md:rounded-tl-[48px]  rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
                   overflow-hidden
                 `}
@@ -339,14 +339,14 @@ function Row7({
   result,
   bottomBorder = false,
 }) {
-  const bottom = bottomBorder ? "border-b-4 border-b-slate-900" : "border-b";
+  const bottom = bottomBorder ? "border-b-4 border-b-gray-700" : "border-b";
   const common = `border-t border-l border-r ${bottom}`;
 
   return (
     <>
       {/* DATA */}
       <div
-        className={`${common} border-slate-950 bg-slate-950 text-gray-500 flex items-center justify-center`}
+        className={`${common} border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-center`}
       >
         {/* MOBILE → solo giorno */}
         <span className="block md:hidden text-[8px] leading-none font-bold">
@@ -369,7 +369,7 @@ function Row7({
 
       {/* CITTÀ */}
       <div
-        className={`${common} border-slate-950  bg-slate-950 text-gray-500 flex items-center justify-start`}
+        className={`${common} border-slate-900  bg-slate-900 text-gray-500 flex items-center justify-start`}
       >
         {/* MOBILE → 3 lettere */}
         <span className="block md:hidden text-[8px] leading-none font-bold">
