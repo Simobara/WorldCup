@@ -7,7 +7,7 @@ const TopInfo = () => {
   return (
     <div
       className="
-    absolute top-[40%] right-2 -translate-y-1/2
+    absolute top-[60%] right-0 -translate-y-1/2
     md:top-0 md:right-auto md:left-1/2 md:-translate-x-1/2 md:translate-y-0
     w-auto md:w-[100%] md:max-w-[420px]
     bg-gray-900 shadow-lg

@@ -1,5 +1,4 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
 import Quadrato from "../3tableComp/1quad";
@@ -59,6 +58,22 @@ function getFlatMatchesForGroup(groupObj) {
   return out;
 }
 
+function city3(city) {
+  const s = String(city ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^\p{L}]/gu, "");
+  if (!s) return "";
+  return s.slice(0, 3);
+}
+
+function dayOnly(day) {
+  const s = String(day ?? "").trim();
+  if (!s) return "";
+  // prende tutto dopo l’ultimo /
+  const parts = s.split("/");
+  return parts[parts.length - 1];
+}
 // function getHighlightType({ res, pron, side }) {
 //   const hasResult = res !== "";
 //   let isDrawResult = false;
@@ -78,23 +93,50 @@ function getFlatMatchesForGroup(groupObj) {
 
 export default function GridMatchesPage() {
   const [showPronostics, setShowPronostics] = useState(true);
+
+  const gridColsDesktop = "70px 60px 30px 45px 40px 45px 30px";
+  const gridColsMobile = "10px 50px 1px 30px 20px 30px 1px";
+
+  const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
 
-  const GROUP_WIDTH_MOBILE = "w-40";
-  const GROUP_HEIGHT_MOBILE = "h-40";
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
 
+  const GROUP_WIDTH_MOBILE = "w-[11rem]";
+  const GROUP_HEIGHT_MOBILE = "h-[9rem]";
+
+  const rowHDesktop = 45;
+  const rowHMobile = 24;
+  const headerHDesktop = "1rem";
+  const headerHMobile = "0px";
+
+  const [rowH, setRowH] = useState(rowHMobile);
+  const [headerH, setHeaderH] = useState(headerHMobile);
+
   // 7 colonne: DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
-  const gridCols = "70px 60px 30px 45px 40px 45px 30px";
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => {
+      const isDesktop = mq.matches;
+      setGridCols(isDesktop ? gridColsDesktop : gridColsMobile);
+      setRowH(isDesktop ? rowHDesktop : rowHMobile);
+      setHeaderH(isDesktop ? headerHDesktop : headerHMobile);
+    };
+
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   return (
-    <div className="min-h-screen px-4 pt-16 overflow-x-auto">
+    <div className="min-h-screen md:px-4 px-1 md:pt-16 pt-1 overflow-x-auto">
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
           className={`
-  absolute -top-7 left-1/2 translate-x-1 px-4
+  absolute -top-6 left-1/2 -translate-x-9 px-4
   rounded-full font-extrabold text-sm
   transition-all duration-300 z-50'
       ${
@@ -106,7 +148,7 @@ export default function GridMatchesPage() {
         >
           {showPronostics ? "." : ","}
         </button>
-        <div className=" grid grid-cols-4 gap-4 w-max">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-max">
           {groups.map((letter) => {
             const resolveName = buildNameResolver(flagsMond);
 
@@ -135,7 +177,7 @@ export default function GridMatchesPage() {
                   ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
                   ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
                   bg-red-900 border border-slate-900 flex flex-col
-                  rounded-tl-[48px] rounded-bl-[48px]
+                  md:rounded-tl-[48px]  rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
                   overflow-hidden
                 `}
               >
@@ -152,7 +194,7 @@ export default function GridMatchesPage() {
                     <div
                       className="grid w-max h-full bg-slate-400"
                       style={{
-                        gridTemplateRows: `1rem repeat(${rowsCount}, 45px)`,
+                        gridTemplateRows: `${headerH} repeat(${rowsCount}, ${rowH}px)`,
                         gridTemplateColumns: gridCols,
                       }}
                     >
@@ -249,13 +291,23 @@ export default function GridMatchesPage() {
 }
 
 function Header7() {
-  const headers = ["DATA", "CITTÀ", "SQUADRA 1", "", "RIS", "", "SQUADRA 2"];
+  const headers = [
+    { mobile: " ", desktop: "DATA" },
+    { mobile: " ", desktop: "CITTA'" },
+    { mobile: "SQ1", desktop: "SQUADRA 1" },
+    "",
+    "RIS",
+    "",
+    { mobile: "SQ2", desktop: "SQUADRA 2" },
+  ];
 
   return (
     <>
-      {headers.map((t, idx) => {
-        if (t === "") return null;
-        const isSquadra = t === "SQUADRA 1" || t === "SQUADRA 2";
+      {headers.map((h, idx) => {
+        if (h === "") return null;
+
+        const isSquadra =
+          typeof h === "object" && (h.mobile === "SQ1" || h.mobile === "SQ2");
 
         return (
           <div
@@ -263,7 +315,16 @@ function Header7() {
             className="bg-slate-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-white"
             style={{ gridColumn: `span ${isSquadra ? 2 : 1}` }}
           >
-            {t}
+            {typeof h === "string" ? (
+              h
+            ) : (
+              <>
+                {/* MOBILE */}
+                <span className="block md:hidden">{h.mobile}</span>
+                {/* DESKTOP */}
+                <span className="hidden md:block">{h.desktop}</span>
+              </>
+            )}
           </div>
         );
       })}
@@ -290,28 +351,46 @@ function Row7({
       <div
         className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
       >
-        <span className="text-[10px] font-bold">{day || "\u00A0"}</span>
+        {/* MOBILE → solo giorno */}
+        <span className="block md:hidden text-[8px] leading-none font-bold">
+          {dayOnly(day) || "\u00A0"}
+        </span>
+
+        {/* DESKTOP → data completa */}
+        <span className="hidden md:block text-[9px] font-bold">
+          {day || "\u00A0"}
+        </span>
       </div>
 
       {/* CITTÀ */}
       <div
         className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
       >
-        <span className="text-[10px] font-bold">{city || "\u00A0"}</span>
+        {/* MOBILE → nome completo, piccolo */}
+        <span className="block md:hidden text-[7px] leading-tight font-bold text-center">
+          {city || "\u00A0"}
+        </span>
+
+        {/* DESKTOP → nome completo */}
+        <span className="hidden md:block text-[9px] font-bold">
+          {city || "\u00A0"}
+        </span>
       </div>
 
       {/* SQUADRA 1 */}
       <div
         className={`${common} border-slate-900 bg-slate-900 text-slate-400 flex items-center justify-center`}
       >
-        <span className="text-[10px] font-bold">{team1 || "\u00A0"}</span>
+        <span className="hidden md:block text-[10px] font-bold">
+          {team1 || "\u00A0"}
+        </span>
       </div>
 
       {/* FLAG 1 */}
       <div
         className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center`}
       >
-        <div className="scale-[0.55] md:scale-[0.65] origin-center">
+        <div className="scale-[0.35] md:scale-[0.65] origin-center">
           {flag1 ?? <span>&nbsp;</span>}
         </div>
       </div>
@@ -327,7 +406,7 @@ function Row7({
       <div
         className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center`}
       >
-        <div className="scale-[0.55] md:scale-[0.65] origin-center">
+        <div className="scale-[0.35] md:scale-[0.65] origin-center">
           {flag2 ?? <span>&nbsp;</span>}
         </div>
       </div>
@@ -336,7 +415,9 @@ function Row7({
       <div
         className={`${common} border-slate-900 bg-slate-900 text-slate-400 flex items-center justify-center`}
       >
-        <span className="text-[10px] font-bold">{team2 || "\u00A0"}</span>
+        <span className="hidden md:block text-[10px] font-bold">
+          {team2 || "\u00A0"}
+        </span>
       </div>
     </>
   );

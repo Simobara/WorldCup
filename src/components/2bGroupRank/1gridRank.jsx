@@ -215,9 +215,9 @@ export default function GridRankPage() {
         <button
           onClick={() => setShowPronostics((v) => !v)}
           className={`
-      absolute -top-7 left-1/2 translate-x-14 px-4
+      absolute -top-6 left-1/2 translate-x-3 px-4
       rounded-full font-extrabold text-sm z-50
-      ${showPronostics ? " text-slate-950" : " text-slate-900"}
+      ${showPronostics ? " text-slate-950" : " text-slate-950"}
     `}
         >
           {showPronostics ? "." : ","}
