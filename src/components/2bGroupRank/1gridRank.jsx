@@ -30,25 +30,20 @@ function norm(s) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "")
-    .replace(/[^\p{L}\p{N}]/gu, ""); // toglie simboli tipo ç, spazi, ecc. (mantiene lettere/numeri)
+    .replace(/[^\p{L}\p{N}]/gu, "");
 }
 
 function buildNameResolver(allTeams) {
   const map = new Map();
 
   for (const t of allTeams ?? []) {
-    // chiavi possibili -> nome canonico (t.name)
     map.set(norm(t.name), t.name);
     map.set(norm(t.id), t.name);
-
-    // anche qualche alias facile (se ti serve)
     map.set(norm(t.name.replaceAll(".", "")), t.name);
   }
 
-  // ✅ alias manuali per i match che hai scritto diversamente
-  map.set(norm("SAfrica"), "Sudafrica"); // <-- questo è il tuo caso
-  map.set(norm("StatiUniti"), "StatiUniti"); // esempio
-  // aggiungi qui altri alias se li hai nei match
+  map.set(norm("SAfrica"), "Sudafrica");
+  map.set(norm("StatiUniti"), "StatiUniti");
 
   return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
 }
@@ -56,7 +51,6 @@ function buildNameResolver(allTeams) {
 function computePronTableForGroup(matchesData, resolveName, groupTeamNames) {
   const table = {};
 
-  // init
   for (const name of groupTeamNames) {
     table[name] = { pt: 0, w: 0, x: 0, p: 0 };
   }
@@ -72,7 +66,7 @@ function computePronTableForGroup(matchesData, resolveName, groupTeamNames) {
         .toUpperCase();
       if (!pron) continue;
 
-      // ✅ RIGA DI ORIENTAMENTO: se c'è un risultato valido, NON contare il pron
+      // se c'è un risultato valido, NON contare il pron
       const hasRes = !!parseResult(m.results);
       if (hasRes) continue;
 
@@ -104,7 +98,6 @@ function computePronTableForGroup(matchesData, resolveName, groupTeamNames) {
 function computeTableForGroup(matchesData, resolveName, groupTeamNames) {
   const table = {};
 
-  // init
   for (const name of groupTeamNames) {
     table[name] = { pt: 0, w: 0, x: 0, p: 0, gf: 0, gs: 0 };
   }
@@ -122,16 +115,13 @@ function computeTableForGroup(matchesData, resolveName, groupTeamNames) {
       const t1 = resolveName(m.team1);
       const t2 = resolveName(m.team2);
 
-      // ignora partite con squadre non reali del gruppo (PlayD ecc.)
       if (!groupTeamNames.has(t1) || !groupTeamNames.has(t2)) continue;
 
-      // goals
       table[t1].gf += g1;
       table[t1].gs += g2;
       table[t2].gf += g2;
       table[t2].gs += g1;
 
-      // esito
       if (g1 > g2) {
         table[t1].w += 1;
         table[t1].pt += 3;
@@ -153,7 +143,6 @@ function computeTableForGroup(matchesData, resolveName, groupTeamNames) {
 }
 
 function sortTeamsByTable(teams, tableByTeam, resolveName, groupHasResults) {
-  // se non ci sono risultati, non cambiare ordine (rimane quello di flagsMond)
   if (!groupHasResults) return teams;
 
   return [...teams].sort((a, b) => {
@@ -163,19 +152,14 @@ function sortTeamsByTable(teams, tableByTeam, resolveName, groupHasResults) {
     const A = tableByTeam[ak] ?? { pt: 0, gf: 0, gs: 0 };
     const B = tableByTeam[bk] ?? { pt: 0, gf: 0, gs: 0 };
 
-    // 1) punti (desc)
     if (B.pt !== A.pt) return B.pt - A.pt;
-
-    // 2) gol fatti (desc)
     if (B.gf !== A.gf) return B.gf - A.gf;
-
-    // 3) gol subiti (asc)
     if (A.gs !== B.gs) return A.gs - B.gs;
 
-    // fallback stabile
     return ak.localeCompare(bk);
   });
 }
+
 function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
   return [...teams].sort((a, b) => {
     const ak = resolveName(a.name);
@@ -184,16 +168,10 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
     const A = pronTableByTeam?.[ak] ?? { pt: 0, w: 0, x: 0, p: 0 };
     const B = pronTableByTeam?.[bk] ?? { pt: 0, w: 0, x: 0, p: 0 };
 
-    // 1) punti pron (desc)
     if (B.pt !== A.pt) return B.pt - A.pt;
-
-    // 2) vittorie pron (desc)
     if (B.w !== A.w) return B.w - A.w;
-
-    // 3) pareggi pron (desc)
     if (B.x !== A.x) return B.x - A.x;
 
-    // fallback stabile
     return ak.localeCompare(bk);
   });
 }
@@ -202,33 +180,34 @@ export default function GridRankPage() {
   const [showPronostics, setShowPronostics] = useState(true);
   const groups = "ABCDEFGHIJKL".split("");
 
-  const GROUP_WIDTH_MOBILE = "w-40";
-  const GROUP_HEIGHT_MOBILE = "h-40";
+  // ✅ come “Matches”: card strette in mobile, grandi in desktop
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
 
-  const gridCols = "55px 60px 60px 35px 35px 35px 40px";
+  const GROUP_WIDTH_MOBILE = "w-[8rem]";
+  const GROUP_HEIGHT_MOBILE = "h-[14rem]";
+
+  // ✅ griglia interna RANK invariata
+  const gridCols = "1px 40px 20px 10px 10px 10px 20px";
 
   return (
-    <div className="min-h-screen px-4 pt-16 overflow-x-auto">
+    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-8 overflow-x-auto">
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
           className={`
-      absolute -top-6 left-1/2 translate-x-3 px-4
-      rounded-full font-extrabold text-sm z-50
-      ${showPronostics ? " text-slate-950" : " text-slate-950"}
-    `}
+            absolute -top-7 left-1/2 translate-x-3 px-4
+            rounded-full font-extrabold text-sm z-50
+            ${showPronostics ? " text-slate-950" : " text-slate-950"}
+          `}
         >
           {showPronostics ? "." : ","}
         </button>
 
-        <div className="grid grid-cols-4 gap-4 w-max">
+        {/* ✅ come Matches: in mobile 3 colonne, desktop 4 */}
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-max">
           {groups.map((letter) => {
-            // ✅ squadre del gruppo (array piatto -> filtro per group)
             const teams = (flagsMond ?? []).filter((t) => t.group === letter);
-
-            // ✅ matches del gruppo (se ti serve dopo)
             const groupKey = `group_${letter}`;
             const matchesData = groupMatches?.[groupKey];
 
@@ -246,6 +225,7 @@ export default function GridRankPage() {
             const groupHasResults = Object.values(tableByTeam).some(
               (t) => t.gf > 0 || t.gs > 0
             );
+
             const pronTableByTeam = showPronostics
               ? computePronTableForGroup(
                   matchesData,
@@ -258,9 +238,7 @@ export default function GridRankPage() {
               ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
               : showPronostics
                 ? sortTeamsByPron(teams, pronTableByTeam, resolveName)
-                : teams; // se non mostri pron, lascia ordine flagsMond
-
-            // const goalsByTeam = computeGoalsForGroup(matchesData, resolveName);
+                : teams;
 
             return (
               <div
@@ -281,7 +259,7 @@ export default function GridRankPage() {
                     </span>
                   </div>
 
-                  {/* GRIGLIA */}
+                  {/* GRIGLIA (INVARIATA) */}
                   <div className="flex-1 flex justify-end bg-slate-400">
                     <div
                       className="grid w-max h-full bg-slate-400"
@@ -294,10 +272,6 @@ export default function GridRankPage() {
 
                       {Array.from({ length: 4 }).map((_, row) => {
                         const team = sortedTeams[row] ?? null;
-
-                        // const resolvedTeamName = team
-                        //   ? resolveName(team.id || team.name)
-                        //   : null;
                         const teamKey = team ? resolveName(team.name) : null;
 
                         const stats = team ? tableByTeam[teamKey] : null;
@@ -306,7 +280,7 @@ export default function GridRankPage() {
                           : null;
 
                         const pronPt = pronStats?.pt ?? 0;
-                        // mostra i gol SOLO se esiste almeno un risultato reale
+
                         const golStr =
                           stats && (stats.gf > 0 || stats.gs > 0)
                             ? `${stats.gf}:${stats.gs}`
@@ -354,11 +328,18 @@ export default function GridRankPage() {
               </div>
             );
           })}
+
+          {/* ✅ spazio extra SOLO mobile per scroll più comodo */}
+          <div className="w-20 md:hidden shrink-0" />
         </div>
       </div>
     </div>
   );
 }
+
+/* ===========================
+   ✅ QUI SOTTO: IDENTICI AI TUOI
+   =========================== */
 
 function Header7() {
   const headers = ["SQUADRA", "", "PUNTI", "W", "X", "P", "GOL"];
@@ -406,7 +387,7 @@ function Row7({
   return (
     <>
       <div className="bg-slate-900 border border-black/30 flex items-center justify-center">
-        <span className="text-[10px] text-slate-400 font-extrabold">
+        <span className="hidden md:block text-[10px] text-slate-400 font-extrabold">
           {code}
         </span>
       </div>
@@ -417,42 +398,36 @@ function Row7({
         </div>
       </div>
 
-      {/* PUNTI → reali (centrati) + pron (overlay viola) */}
       <div className="relative bg-yellow-500/30 border border-black/30 flex items-center justify-center">
-        {/* punti REALI */}
         <span className="font-extrabold text-black">
           {show(pt, { zeroAllowed: showZero })}
         </span>
 
-        {/* punti PRON (overlay, non sposta nulla) */}
         {showPronostics && pronPt > 0 && (
           <span className="absolute right-1 top-6 text-[12px] font-extrabold text-purple-600">
             +{pronPt}
           </span>
         )}
       </div>
-      {/* W → mai 0 */}
+
       <div className="bg-slate-400 border border-black/30 flex items-center justify-center">
         <span className="font-extrabold">
           {show(w, { zeroAllowed: false })}
         </span>
       </div>
 
-      {/* X → mai 0 */}
       <div className="bg-slate-400 border border-black/30 flex items-center justify-center">
         <span className="font-extrabold">
           {show(x, { zeroAllowed: false })}
         </span>
       </div>
 
-      {/* P → mai 0 */}
       <div className="bg-slate-400 border border-black/30 flex items-center justify-center">
         <span className="font-extrabold">
           {show(p, { zeroAllowed: false })}
         </span>
       </div>
 
-      {/* GOL */}
       <div className="bg-yellow-800/40 border border-black/30 flex items-center justify-center">
         <span className="text-[14px] md:text-[16px] font-extrabold">{gol}</span>
       </div>

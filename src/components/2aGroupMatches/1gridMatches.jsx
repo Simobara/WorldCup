@@ -313,7 +313,7 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className="bg-slate-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-white"
+            className="bg-slate-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400"
             style={{ gridColumn: `span ${isSquadra ? 2 : 1}` }}
           >
             {typeof h === "string" ? (
@@ -350,7 +350,7 @@ function Row7({
     <>
       {/* DATA */}
       <div
-        className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
+        className={`${common} border-slate-950 bg-slate-950 text-gray-500 flex items-center justify-center`}
       >
         {/* MOBILE → solo giorno */}
         <span className="block md:hidden text-[8px] leading-none font-bold">
@@ -365,7 +365,7 @@ function Row7({
 
       {/* CITTÀ */}
       <div
-        className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
+        className={`${common} border-slate-950  bg-slate-950 text-gray-500 flex items-center justify-center`}
       >
         {/* MOBILE → 3 lettere */}
         <span className="block md:hidden text-[8px] leading-none font-bold">
