@@ -425,7 +425,7 @@ function Row7({
         </div>
       </div>
 
-      <div className="relative bg-yellow-500/30 border border-slate-900 flex items-center justify-center">
+      <div className="relative bg-yellow-500/50 border border-slate-900 border-r-yellow-500/50 flex items-center justify-center">
         <span className="font-extrabold text-black">
           {show(pt, { zeroAllowed: showZero })}
         </span>
@@ -437,7 +437,7 @@ function Row7({
         )}
       </div>
 
-      <div className="bg-gray-400 border border-slate-900 text-slate-900 flex items-center justify-center">
+      <div className="bg-gray-400 border border-slate-900 border-l-gray-400   text-slate-900 flex items-center justify-center">
         <span className="text-[14px] md:text-[16px] font-extrabold">{gol}</span>
       </div>
 
