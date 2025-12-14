@@ -67,7 +67,7 @@ group_C: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'NewYork',       time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:'2', results:' ' },
+            { numero: 1, city: 'NewYork',       time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:'2', results:'2-1 ' },
             { numero: 2, city: 'Boston',        time: '07:00',      team1: 'Haiti',         team2: 'Scozia',            pron:'2', results:' ' },
         ],
     },
@@ -219,7 +219,7 @@ group_H: {
         ],
         matches: [
             { numero: 1, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'CpVerde',           pron:'1', results:' ' },
-            { numero: 2, city: 'Miami',             time: '04:00', team1: 'SArabia ',           team2: 'Uruguay',           pron:'X', results:' ' },
+            { numero: 2, city: 'Miami',             time: '04:00', team1: 'SArabia ',           team2: 'Uruguay',           pron:'2', results:' ' },
         ],
     },
     giornata_2: {

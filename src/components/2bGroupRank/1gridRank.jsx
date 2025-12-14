@@ -182,7 +182,7 @@ export default function GridRankPage() {
   // ✅ COLONNE: desktop e mobile (come richiesto)
   //const headers = ["SQUADRA", "", "PUNTI", "GOL", "W", "X", "P"];
   const gridColsDesktop = "30px 60px 50px 60px 40px 40px 40px";
-  const gridColsMobile = "1px 40px 30px 20px 10px 10px 10px";
+  const gridColsMobile = "1px 30px 30px 25px 15px 15px 15px";
 
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
@@ -191,13 +191,14 @@ export default function GridRankPage() {
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
 
-  const GROUP_WIDTH_MOBILE = "w-[8rem]";
-  const GROUP_HEIGHT_MOBILE = "h-[10.5rem]";
+  const GROUP_WIDTH_MOBILE = "w-[9.5rem]";
+  const GROUP_HEIGHT_MOBILE = "h-[11.5rem]";
 
-  const rowHDesktop = 70;
-  const rowHMobile = 28;
   const headerHDesktop = "1rem";
-  const headerHMobile = "0px";
+  const rowHDesktop = 70;
+
+  const headerHMobile = "1rem";
+  const rowHMobile = 43;
 
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
@@ -217,7 +218,7 @@ export default function GridRankPage() {
   }, []);
 
   return (
-    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-4 overflow-x-auto">
+    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto">
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
@@ -369,29 +370,61 @@ export default function GridRankPage() {
    =========================== */
 
 function Header7() {
-  const headers = ["SQUADRA", "", "PUNTI", "GOL", "W", "X", "P"];
+  const headers = [
+    { mobile: "SQ", desktop: "SQUADRA" },
+    "", // colonna vuota (come prima)
+    { mobile: "PT", desktop: "PUNTI" },
+    { mobile: "G", desktop: "GOL" },
+    { mobile: "W", desktop: "W" },
+    { mobile: "X", desktop: "X" },
+    { mobile: "P", desktop: "P" },
+  ];
 
   return (
     <>
       {headers.map((t, idx) => {
+        if (t === "") return null;
+
+        // prima colonna (SQUADRA + FLAG) = span 2
         if (idx === 0) {
           return (
             <div
               key="squadra"
               className="col-span-2 bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400 leading-none"
             >
-              {t}
+              {typeof t === "string" ? (
+                t
+              ) : (
+                <>
+                  {/* MOBILE */}
+                  <span className="block md:hidden">{t.mobile}</span>
+                  {/* DESKTOP */}
+                  <span className="hidden md:block">{t.desktop}</span>
+                </>
+              )}
             </div>
           );
         }
+
+        // colonna vuota (flag)
         if (idx === 1) return null;
 
+        // tutte le altre colonne
         return (
           <div
             key={`h-${idx}`}
             className="bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-bold text-gray-400 leading-none"
           >
-            {t}
+            {typeof t === "string" ? (
+              t
+            ) : (
+              <>
+                {/* MOBILE */}
+                <span className="block md:hidden">{t.mobile}</span>
+                {/* DESKTOP */}
+                <span className="hidden md:block">{t.desktop}</span>
+              </>
+            )}
           </div>
         );
       })}
@@ -413,49 +446,61 @@ function Row7({
 }) {
   return (
     <>
-      <div className="bg-slate-900 border border-slate-900  flex items-center justify-center">
+      {/* CODICE */}
+      <div className="bg-slate-900 border border-slate-900 flex items-center justify-center">
         <span className="hidden md:block text-[10px] text-white font-extrabold">
           {code}
         </span>
       </div>
-      {/* SQUADRA 1 */}
-      <div className="bg-slate-900 border border-slate-900  flex items-center justify-center">
-        <div className="scale-[0.55] md:scale-[0.65] origin-center">
+
+      {/* SQUADRA (FLAG) */}
+      <div className="bg-slate-900 border border-slate-900 flex items-center justify-center">
+        <div className="md:scale-[0.65] scale-[0.45] origin-center">
           {teamEl}
         </div>
       </div>
-      {/* PUNTI 1 */}
-      <div className="relative border bg-yellow-400/40 border-yellow-400/40 border-r-0 border-t-0 border-b-0 flex items-center justify-center">
-        <span className="font-extrabold text-black">
-          {show(pt, { zeroAllowed: showZero })}
-        </span>
 
-        {showPronostics && pronPt > 0 && (
-          <span className="absolute right-1 top-6 text-[12px] font-extrabold text-purple-600">
-            +{pronPt}
+      {/* PUNTI: numero a SINISTRA, +pron a DESTRA */}
+      <div className="relative border bg-yellow-400/40 border-yellow-400/40 border-r-0 border-t-0 border-b-0">
+        <div className="h-full w-full flex items-center justify-between px-1">
+          <span className="font-extrabold text-black text-left">
+            {show(pt, { zeroAllowed: showZero })}
           </span>
-        )}
+
+          {showPronostics && pronPt > 0 ? (
+            <span className="text-[9px] font-extrabold text-purple-600 text-right">
+              +{pronPt}
+            </span>
+          ) : (
+            <span className="text-[12px] opacity-0">+0</span>
+          )}
+        </div>
       </div>
 
-      {/* GOL 1 */}
+      {/* GOL: testo CENTRATO */}
       <div className="bg-gray-400 border border-slate-900 border-l-0 border-b-4 border-t-0 border-b-gray-600 text-slate-900 flex items-center justify-center">
-        <span className="text-[14px] md:text-[16px] font-extrabold">{gol}</span>
+        <span className="text-[14px] md:text-[16px] font-extrabold text-center">
+          {gol}
+        </span>
       </div>
-      {/* W 1 */}
-      <div className="bg-slate-900 border border-slate-900 border-b-4  border-b-gray-600 text-gray-400  flex items-center justify-center">
-        <span className="font-extrabold">
+
+      {/* W: CENTRO */}
+      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
+        <span className="font-extrabold text-center">
           {show(w, { zeroAllowed: false })}
         </span>
       </div>
-      {/* X 1 */}
-      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600   text-gray-400  flex items-center justify-center">
-        <span className="font-extrabold">
+
+      {/* X: CENTRO */}
+      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
+        <span className="font-extrabold text-center">
           {show(x, { zeroAllowed: false })}
         </span>
       </div>
-      {/* P 1 */}
-      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600  text-gray-400 flex items-center justify-center">
-        <span className="font-extrabold">
+
+      {/* P: CENTRO */}
+      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
+        <span className="font-extrabold text-center">
           {show(p, { zeroAllowed: false })}
         </span>
       </div>

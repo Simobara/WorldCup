@@ -102,10 +102,11 @@ export default function GridMatchesPage() {
   const GROUP_WIDTH_MOBILE = "w-[8rem]";
   const GROUP_HEIGHT_MOBILE = "h-[11.5rem]";
 
-  const rowHDesktop = 45;
-  const rowHMobile = 28;
   const headerHDesktop = "1rem";
+  const rowHDesktop = 45;
+  
   const headerHMobile = "1rem";
+  const rowHMobile = 28;
 
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
@@ -289,8 +290,8 @@ export default function GridMatchesPage() {
 
 function Header7() {
   const headers = [
-    { mobile: " ", desktop: "DATA" },
-    { mobile: " ", desktop: "CITTA'" },
+    { mobile: "D ", desktop: "DATA" },
+    { mobile: "CIT ", desktop: "CITTA'" },
     { mobile: "SQ1", desktop: "SQUADRA 1" },
     "",
     "RIS",
