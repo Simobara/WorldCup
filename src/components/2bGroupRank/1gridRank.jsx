@@ -413,47 +413,47 @@ function Row7({
 }) {
   return (
     <>
-      <div className="bg-slate-900 border border-slate-900 flex items-center justify-center">
+      <div className="bg-slate-900 border border-slate-900  flex items-center justify-center">
         <span className="hidden md:block text-[10px] text-slate-400 font-extrabold">
           {code}
         </span>
       </div>
-
-      <div className="bg-slate-900 border border-slate-900 flex items-center justify-center">
+      {/* SQUADRA 1 */}
+      <div className="bg-slate-900 border border-slate-900  flex items-center justify-center">
         <div className="scale-[0.55] md:scale-[0.65] origin-center">
           {teamEl}
         </div>
       </div>
-
-      <div className="relative bg-yellow-500/50 border border-slate-900 border-r-yellow-500/50 flex items-center justify-center">
+      {/* PUNTI 1 */}
+      <div className="relative border bg-yellow-500/50  border-slate-900 border-r-yellow-500/50 flex items-center justify-center">
         <span className="font-extrabold text-black">
           {show(pt, { zeroAllowed: showZero })}
         </span>
 
         {showPronostics && pronPt > 0 && (
-          <span className="absolute right-1 top-6 text-[12px] font-extrabold text-purple-600">
+          <span className="absolute right-1 top-6 text-[12px] font-extrabold text-gray-600">
             +{pronPt}
           </span>
         )}
       </div>
-
-      <div className="bg-gray-400 border border-slate-900 border-l-gray-400   text-slate-900 flex items-center justify-center">
+      {/* GOL 1 */}
+      <div className="bg-gray-400 border border-slate-900  border-l-gray-600 border-b-4 border-b-gray-600  text-slate-900 flex items-center justify-center">
         <span className="text-[14px] md:text-[16px] font-extrabold">{gol}</span>
       </div>
-
-      <div className="bg-slate-900 border border-slate-900 text-gray-400  flex items-center justify-center">
+      {/* W 1 */}
+      <div className="bg-slate-900 border border-slate-900 border-b-4  border-b-gray-600 text-gray-400  flex items-center justify-center">
         <span className="font-extrabold">
           {show(w, { zeroAllowed: false })}
         </span>
       </div>
-
-      <div className="bg-slate-900 border border-slate-900 text-gray-400  flex items-center justify-center">
+      {/* X 1 */}
+      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600   text-gray-400  flex items-center justify-center">
         <span className="font-extrabold">
           {show(x, { zeroAllowed: false })}
         </span>
       </div>
-
-      <div className="bg-slate-900 border border-slate-900 text-gray-400 flex items-center justify-center">
+      {/* P 1 */}
+      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600  text-gray-400 flex items-center justify-center">
         <span className="font-extrabold">
           {show(p, { zeroAllowed: false })}
         </span>
