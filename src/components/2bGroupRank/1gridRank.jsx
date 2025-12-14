@@ -378,7 +378,7 @@ function Header7() {
           return (
             <div
               key="squadra"
-              className="col-span-2 bg-red-900 border border-slate-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400 leading-none"
+              className="col-span-2 bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400 leading-none"
             >
               {t}
             </div>
@@ -389,7 +389,7 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className="bg-red-900 border border-slate-900 flex items-center justify-center text-[9px] font-bold text-gray-400 leading-none"
+            className="bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-bold text-gray-400 leading-none"
           >
             {t}
           </div>
@@ -413,19 +413,19 @@ function Row7({
 }) {
   return (
     <>
-      <div className="bg-slate-900 border border-black/30 flex items-center justify-center">
+      <div className="bg-slate-900 border border-slate-900 flex items-center justify-center">
         <span className="hidden md:block text-[10px] text-slate-400 font-extrabold">
           {code}
         </span>
       </div>
 
-      <div className="bg-slate-900 border border-black/30 flex items-center justify-center">
+      <div className="bg-slate-900 border border-slate-900 flex items-center justify-center">
         <div className="scale-[0.55] md:scale-[0.65] origin-center">
           {teamEl}
         </div>
       </div>
 
-      <div className="relative bg-yellow-500/30 border border-black/30 flex items-center justify-center">
+      <div className="relative bg-yellow-500/30 border border-slate-900 flex items-center justify-center">
         <span className="font-extrabold text-black">
           {show(pt, { zeroAllowed: showZero })}
         </span>
