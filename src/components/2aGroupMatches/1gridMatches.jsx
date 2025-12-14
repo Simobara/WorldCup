@@ -95,7 +95,7 @@ export default function GridMatchesPage() {
   const [showPronostics, setShowPronostics] = useState(true);
 
   const gridColsDesktop = "70px 60px 30px 45px 40px 45px 30px";
-  const gridColsMobile = "10px 50px 1px 30px 20px 30px 1px";
+  const gridColsMobile = "10px 20px 1px 30px 20px 30px 1px";
 
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
@@ -103,11 +103,11 @@ export default function GridMatchesPage() {
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
 
-  const GROUP_WIDTH_MOBILE = "w-[11rem]";
-  const GROUP_HEIGHT_MOBILE = "h-[9rem]";
+  const GROUP_WIDTH_MOBILE = "w-[8rem]";
+  const GROUP_HEIGHT_MOBILE = "h-[10.5rem]";
 
   const rowHDesktop = 45;
-  const rowHMobile = 24;
+  const rowHMobile = 28;
   const headerHDesktop = "1rem";
   const headerHMobile = "0px";
 
@@ -148,7 +148,8 @@ export default function GridMatchesPage() {
         >
           {showPronostics ? "." : ","}
         </button>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-max">
+        {/* // RIGHE COLONNE TABELLA */}
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-max">
           {groups.map((letter) => {
             const resolveName = buildNameResolver(flagsMond);
 
@@ -366,9 +367,9 @@ function Row7({
       <div
         className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
       >
-        {/* MOBILE → nome completo, piccolo */}
-        <span className="block md:hidden text-[7px] leading-tight font-bold text-center">
-          {city || "\u00A0"}
+        {/* MOBILE → 3 lettere */}
+        <span className="block md:hidden text-[8px] leading-none font-bold">
+          {city3(city) || "\u00A0"}
         </span>
 
         {/* DESKTOP → nome completo */}
@@ -390,7 +391,7 @@ function Row7({
       <div
         className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center`}
       >
-        <div className="scale-[0.35] md:scale-[0.65] origin-center">
+        <div className="scale-[0.45] md:scale-[0.65] origin-center">
           {flag1 ?? <span>&nbsp;</span>}
         </div>
       </div>
@@ -406,7 +407,7 @@ function Row7({
       <div
         className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center`}
       >
-        <div className="scale-[0.35] md:scale-[0.65] origin-center">
+        <div className="scale-[0.45] md:scale-[0.65] origin-center">
           {flag2 ?? <span>&nbsp;</span>}
         </div>
       </div>
