@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BlokQuadRett from "../components/3tableComp/4blokQuadRett";
 import { groupFinal } from "../START/app/1GroupFinal";
 import { flagsMond } from "../START/app/main";
@@ -22,7 +22,24 @@ const TablePage = () => {
   const { round32, round16, quarterFinals, semifinals, final34, final } =
     groupFinal;
 
-  const [showPron, setShowPron] = useState(true);
+  const STORAGE_KEY = "tablePage_showPron";
+
+  const [showPron, setShowPron] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : true; // default true come ora
+    } catch {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(showPron));
+    } catch {
+      // ignore
+    }
+  }, [showPron]);
 
   // 🔹 squadre REALI che compaiono in una fase (solo team1/team2)
   const collectRealTeamsFromStage = (stage) =>
