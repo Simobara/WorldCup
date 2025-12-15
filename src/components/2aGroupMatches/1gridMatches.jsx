@@ -133,13 +133,13 @@ export default function GridMatchesPage() {
         <button
           onClick={() => setShowPronostics((v) => !v)}
           className={`
-  absolute -top-6 left-1/2 -translate-x-9 px-4
+  absolute -top-5 left-1/2 -translate-x-8 px-4
   rounded-full font-extrabold text-sm
   transition-all duration-300 z-50'
       ${
         showPronostics
-          ? "bg-cyan-950 text-slate-900 "
-          : "bg-cyan-950 text-slate-900"
+          ? "bg-slate-900 text-sky-900 "
+          : "bg-slate-900 text-sky-900"
       }
     `}
         >

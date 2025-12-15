@@ -61,7 +61,7 @@ const groupFinal26 = {
       matches: [
         { numero:  1, city: 'Dallas',     time: '02:00', pos1:'2D',           pos2:'2G',           team1:'', team2:'',    goto:'88', fg:'D2', pron:'AUS-NZL', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'Miami',      time: '01:00', pos1:'1J',           pos2:'2H',           team1:'', team2:'',    goto:'86', fg:'D1', pron:'ARG-SPA', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'Kansas',     time: '02:00', pos1:'1K',           pos2:'3D/E/I/J/L',   team1:'', team2:'',    goto:'87', fg:'D4', pron:'POR-SAR', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'Kansas',     time: '02:00', pos1:'1K',           pos2:'3E/H/I/J/K',   team1:'', team2:'',    goto:'87', fg:'D4', pron:'POR-SAR', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
   },

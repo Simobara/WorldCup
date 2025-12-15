@@ -1,4 +1,8 @@
 const groupMatches26 = {
+
+    //todo -    mobile messaggi il motivo per cui fanno certi risultati 
+    //todo -            se clicco si apre modale 
+    //todo -    desktop  con hover mouse
 // Gruppo A – Mexico Sudafrica Korea PlayUefaD--------------------------------------------------------------------------------------------------A
 group_A: {    
     giornata_1:{

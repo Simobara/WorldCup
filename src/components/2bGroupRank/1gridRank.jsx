@@ -223,10 +223,15 @@ export default function GridRankPage() {
         <button
           onClick={() => setShowPronostics((v) => !v)}
           className={`
-            absolute -top-6 left-1/2 translate-x-3 px-4
-            rounded-full font-extrabold text-sm z-50
-            ${showPronostics ? " text-slate-950" : " text-slate-950"}
-          `}
+  absolute -top-5 left-1/2 translate-x-6 px-4
+  rounded-full font-extrabold text-sm
+  transition-all duration-300 z-50'
+      ${
+        showPronostics
+          ? "bg-slate-900 text-sky-900 "
+          : "bg-slate-900 text-sky-900"
+      }
+    `}
         >
           {showPronostics ? "." : ","}
         </button>
