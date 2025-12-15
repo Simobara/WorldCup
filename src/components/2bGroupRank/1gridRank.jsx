@@ -177,7 +177,16 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
 }
 // ---------------------------------------------------------------------------------
 export default function GridRankPage() {
-  const [showPronostics, setShowPronostics] = useState(true);
+  const STORAGE_KEY = "gridRank_showPronostics";
+
+  const [showPronostics, setShowPronostics] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
 
   // ✅ COLONNE: desktop e mobile (come richiesto)
   //const headers = ["SQUADRA", "", "PUNTI", "GOL", "W", "X", "P"];
@@ -216,6 +225,14 @@ export default function GridRankPage() {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(showPronostics));
+    } catch {
+      // se localStorage non disponibile, ignora
+    }
+  }, [showPronostics]);
 
   return (
     <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto">

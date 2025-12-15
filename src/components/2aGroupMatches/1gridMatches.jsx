@@ -88,7 +88,16 @@ function splitDayDesk(day) {
 }
 // --------------------------------------------------------------------------
 export default function GridMatchesPage() {
-  const [showPronostics, setShowPronostics] = useState(true);
+  const STORAGE_KEY = "gridMatches_showPronostics";
+
+  const [showPronostics, setShowPronostics] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
 
   const gridColsDesktop = "70px 60px 30px 45px 40px 45px 30px";
   const gridColsMobile = "10px 20px 1px 35px 30px 35px 1px";
@@ -126,6 +135,14 @@ export default function GridMatchesPage() {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(showPronostics));
+    } catch {
+      // ignore
+    }
+  }, [showPronostics]);
 
   return (
     <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto">
