@@ -35,9 +35,9 @@ const RettDat = ({
   return (
     <div
       className={`relative z-0
-        md:h-16 sm:h-16 h-14
-        md:w-32 sm:w-32 w-32
-        md:-mt-2 mt-4
+        md:h-16 h-14
+        md:w-32 w-32
+        md:-mt-2 mt-2
         ${color} rounded-[16px] shadow-xl overflow-hidden`}
     >
       {/* DATA + ORA + CITY – stessa linea */}

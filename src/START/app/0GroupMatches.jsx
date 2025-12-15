@@ -71,7 +71,7 @@ group_C: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'NewYork',       time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:'', results:' ' },
+            { numero: 1, city: 'NewYork',       time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:'', results:'2-1 ' },
             { numero: 2, city: 'Boston',        time: '07:00',      team1: 'Haiti',         team2: 'Scozia',            pron:'2', results:' ' },
         ],
     },

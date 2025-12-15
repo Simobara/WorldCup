@@ -50,7 +50,7 @@ const StandingsBlock = () => {
       </div>
 
       {/* ✅ COLONNA 16 CITTÀ */}
-      <div className="absolute -top-4 md:top-0 md:left-14 left-6 flex flex-col lg:w-30 w-14">
+      <div className="absolute -top-4 md:-top-0 md:left-14 left-6 flex flex-col lg:w-30 w-14">
         {citiesOsp.map((city, i) => (
           <ContainerCitta
             key={i}

@@ -11,7 +11,7 @@ const routes = [
 const EASE_ELASTIC = "cubic-bezier(0.34, 1.56, 0.64, 1)";
 const EXPAND_MS = 220;
 const SNAP_MS = 520;
-const NAV_OFFSET = 120;
+const NAV_OFFSET = 10;
 
 export default function TopInfo() {
   const navigate = useNavigate();
@@ -139,12 +139,12 @@ export default function TopInfo() {
     <div
       ref={containerRef}
       className="
-        absolute top-[60%] right-0 -translate-y-1/2
+        absolute top-[54%] right-0 -translate-y-1/2
         md:top-0 md:right-auto md:left-1/2 md:-translate-x-1/2 md:translate-y-0
         w-auto md:w-[100%] md:max-w-[420px]
-        bg-gray-400 shadow-lg
+        bg-slate-900  border-gray-400 shadow-lg
 
-        border-l-4 border-t-4 border-b-4 border-gray-800
+        border-l-4 border-t-none border-b-4 border-white-800
         rounded-tl-xl rounded-bl-xl
         rounded-tr-none rounded-br-none
 
@@ -153,7 +153,7 @@ export default function TopInfo() {
         md:rounded-bl-xl md:rounded-br-xl
 
         md:px-4 px-0  md:py-0 py-0 
-        flex flex-col md:flex-row items-center justify-center md:gap-2 gap-0
+        flex flex-col md:flex-row items-center justify-center md:gap-2 gap-2
         z-[999]
         outline-none focus:outline-none focus-visible:outline-none active:outline-none
         
@@ -161,7 +161,7 @@ export default function TopInfo() {
     >
       {/* SLIDER UNICO (più piccolo in mobile) */}
       <div
-        className="absolute bg-gray-800 rounded-md pointer-events-none h-8 md:h-12"
+        className="absolute bg-red-900 rounded-md pointer-events-none h-8 md:h-12"
         style={{
           left: slider.left,
           top: slider.top,
