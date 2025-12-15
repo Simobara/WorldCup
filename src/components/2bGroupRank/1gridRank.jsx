@@ -462,45 +462,43 @@ function Row7({
 
       {/* PUNTI: numero a SINISTRA, +pron a DESTRA */}
       <div className="relative border bg-yellow-400/40 border-yellow-400/40 border-r-0 border-t-0 border-b-0">
-        <div className="h-full w-full flex items-center justify-between px-1">
-          <span className="font-extrabold text-black text-left">
+        <div className="h-full w-full flex items-center justify-between md:pl-4 pl-1">
+          <span className="font-extrabold text-black md:text-[20px] text-[14px] text-left">
             {show(pt, { zeroAllowed: showZero })}
           </span>
 
           {showPronostics && pronPt > 0 ? (
-            <span className="text-[9px] font-extrabold text-purple-600 text-right">
+            <span className="text-[12px] md:text-[15px] font-extrabold text-purple-600  md:pr-0 pr-1">
               +{pronPt}
             </span>
           ) : (
-            <span className="text-[12px] opacity-0">+0</span>
+            <span className="text-[12px] md:text-[15px] opacity-0">+0</span>
           )}
         </div>
       </div>
 
       {/* GOL: testo CENTRATO */}
-      <div className="bg-gray-400 border border-slate-900 border-l-0 border-b-4 border-t-0 border-b-gray-600 text-slate-900 flex items-center justify-center">
-        <span className="text-[14px] md:text-[16px] font-extrabold text-center">
-          {gol}
-        </span>
+      <div className="bg-gray-400 border border-slate-900 border-l-0 border-b-4 border-t-0 border-b-gray-600 text-slate-900 flex items-center justify-center md:pl-1 pl-0">
+        <span className="text-[12px] md:text-[15px] font-extrabold">{gol}</span>
       </div>
 
       {/* W: CENTRO */}
       <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
-        <span className="font-extrabold text-center">
+        <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(w, { zeroAllowed: false })}
         </span>
       </div>
 
       {/* X: CENTRO */}
       <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
-        <span className="font-extrabold text-center">
+        <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(x, { zeroAllowed: false })}
         </span>
       </div>
 
       {/* P: CENTRO */}
       <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
-        <span className="font-extrabold text-center">
+        <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(p, { zeroAllowed: false })}
         </span>
       </div>

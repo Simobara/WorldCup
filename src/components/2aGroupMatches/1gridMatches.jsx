@@ -91,7 +91,7 @@ export default function GridMatchesPage() {
   const [showPronostics, setShowPronostics] = useState(true);
 
   const gridColsDesktop = "70px 60px 30px 45px 40px 45px 30px";
-  const gridColsMobile = "10px 20px 1px 30px 20px 30px 1px";
+  const gridColsMobile = "10px 20px 1px 35px 30px 35px 1px";
 
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
@@ -99,12 +99,12 @@ export default function GridMatchesPage() {
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
 
-  const GROUP_WIDTH_MOBILE = "w-[8rem]";
+  const GROUP_WIDTH_MOBILE = "w-[9.5rem]";
   const GROUP_HEIGHT_MOBILE = "h-[11.5rem]";
 
   const headerHDesktop = "1rem";
   const rowHDesktop = 45;
-  
+
   const headerHMobile = "1rem";
   const rowHMobile = 28;
 
@@ -405,7 +405,9 @@ function Row7({
       <div
         className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
       >
-        <span className="text-[18px] font-extrabold">{result || "\u00A0"}</span>
+        <span className="md:text-[15px] text-[12px] font-extrabold">
+          {result || "\u00A0"}
+        </span>
       </div>
 
       {/* FLAG 2 */}

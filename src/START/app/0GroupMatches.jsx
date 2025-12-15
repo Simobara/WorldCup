@@ -67,7 +67,7 @@ group_C: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'NewYork',       time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:'2', results:'2-1 ' },
+            { numero: 1, city: 'NewYork',       time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:'', results:' ' },
             { numero: 2, city: 'Boston',        time: '07:00',      team1: 'Haiti',         team2: 'Scozia',            pron:'2', results:' ' },
         ],
     },
@@ -77,7 +77,7 @@ group_C: {
         ],
         matches: [
             { numero: 3, city: 'Boston',        time: '04:00',      team1: 'Scozia',        team2: 'Marocco',           pron:'2', results:' ' },            
-            { numero: 4, city: 'Philadelphia',  time: '07:00',      team1: 'Brasile',       team2: 'Haiti',             pron:'X', results:' ' },
+            { numero: 4, city: 'Philadelphia',  time: '07:00',      team1: 'Brasile',       team2: 'Haiti',             pron:' ', results:' ' },
         ],
     },
     giornata_3: {
@@ -85,8 +85,8 @@ group_C: {
             'GIU/24',
         ],
         matches: [
-            { numero: 5, city: 'Atlanta',       time: '04:00',      team1: 'Marocco',         team2: 'Haiti',            pron:'1', results:' ' },
-            { numero: 6, city: 'Miami',         time: '04:00',      team1: 'Scozia',          team2: 'Brasile',          pron:'2', results:' ' },
+            { numero: 5, city: 'Atlanta',       time: '04:00',      team1: 'Marocco',         team2: 'Haiti',            pron:'X', results:' ' },
+            { numero: 6, city: 'Miami',         time: '04:00',      team1: 'Scozia',          team2: 'Brasile',          pron:' ', results:' ' },
         ],
     },
 },
