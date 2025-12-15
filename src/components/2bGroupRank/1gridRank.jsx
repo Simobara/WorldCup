@@ -222,18 +222,30 @@ export default function GridRankPage() {
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
+          // border-4 border-white
+          // z-[1000]
           className={`
-  absolute -top-5 left-1/2 translate-x-6 px-4
-  rounded-full font-extrabold text-sm
-  transition-all duration-300 z-50'
-      ${
-        showPronostics
-          ? "bg-slate-900 text-sky-900 "
-          : "bg-slate-900 text-sky-900"
-      }
+            absolute 
+            
+            md:w-8 
+          md:h-8
+          
+          md:-top-5 top-[30.5rem]
+          md:right-[44rem] -right-2 
+          
+          md:py-0 py-2
+          md:px-1 px-0
+          
+          rounded-full font-extrabold text-sm 
+          transition-all duration-300           
+          ${
+            showPronostics
+              ? "bg-slate-900 text-sky-950 "
+              : "bg-slate-900 text-sky-950"
+          }
     `}
         >
-          {showPronostics ? "." : ","}
+          {showPronostics ? "," : "."}
         </button>
 
         {/* ✅ come Matches: in mobile 3 colonne, desktop 4 */}

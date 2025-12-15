@@ -9,8 +9,8 @@ const routes = [
 ];
 
 const EASE_ELASTIC = "cubic-bezier(0.34, 1.56, 0.64, 1)";
-const EXPAND_MS = 220;
-const SNAP_MS = 520;
+const EXPAND_MS = 200;
+const SNAP_MS = 200;
 const NAV_OFFSET = 10;
 
 export default function TopInfo() {

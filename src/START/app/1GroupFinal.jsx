@@ -17,7 +17,7 @@ const groupFinal26 = {
       matches: [
         { numero:  1, city: 'Houston',    time: '02:00', pos1:'1C',           pos2:'2F',           team1:'', team2:'',    goto:'76', fg:'C1', pron:'MOR-JAP', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'Boston',     time: '01:00', pos1:'1E',           pos2:'3A/B/C/D/F',   team1:'', team2:'',    goto:'74', fg:'A1', pron:'GER-SAF', results:{ ris:'',  TS:'',  R:' ' } },
-        { numero:  3, city: 'Monterrey',  time: '03:00', pos1:'1F',           pos2:'2C',           team1:'', team2:'',    goto:'75', fg:'A4', pron:'NDL-BRA', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'Monterrey',  time: '03:00', pos1:'1F',           pos2:'2C',           team1:'', team2:'',    goto:'75', fg:'A4', pron:'TUR-BRA', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -49,8 +49,8 @@ const groupFinal26 = {
       ],
       matches: [
         { numero:  1, city: 'LAngeles',   time: '04:00', pos1:'1H',           pos2:'2J',           team1:'', team2:'',    goto:'84', fg:'B2', pron:'URU-ALG', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  2, city: 'Toronto',    time: '01:00', pos1:'2K',           pos2:'2L',           team1:'', team2:'',    goto:'83', fg:'B1', pron:'COL-CRO', results:{ ris:' ', TS:' ', R:' ' } },
-        { numero:  3, city: 'Vancouver',  time: '04:00', pos1:'1B',           pos2:'3E/F/G/I/J',   team1:'', team2:'',    goto:'85', fg:'D3', pron:'CAN-TUR', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  2, city: 'Toronto',    time: '01:00', pos1:'2K',           pos2:'2L',           team1:'', team2:'',    goto:'83', fg:'B1', pron:'COL-PAN', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero:  3, city: 'Vancouver',  time: '04:00', pos1:'1B',           pos2:'3E/F/G/I/J',   team1:'', team2:'',    goto:'85', fg:'D3', pron:'CAN-NDL', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
 
@@ -93,7 +93,7 @@ const groupFinal26 = {
         'LUG/06',
       ],
       matches: [
-        { numero: 93, city: 'Dallas',       time: '02:00', pos1:'83',          pos2:'84',          team1:'',    team2:'',    goto:'93', fg:'B5', pron:'COL-URU', results:{ ris:' ', TS:' ', R:' ' } },
+        { numero: 93, city: 'Dallas',       time: '02:00', pos1:'83',          pos2:'84',          team1:'',    team2:'',    goto:'93', fg:'B5', pron:'PAN-URU', results:{ ris:' ', TS:' ', R:' ' } },
         { numero: 94, city: 'Seattle',      time: '04:00', pos1:'81',          pos2:'82',          team1:'',    team2:'',    goto:'94', fg:'B6', pron:'USA-CAV', results:{ ris:' ', TS:' ', R:' ' } },
       ],
     },
