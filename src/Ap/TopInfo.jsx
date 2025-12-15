@@ -152,11 +152,11 @@ export default function TopInfo() {
         md:rounded-tl-none md:rounded-tr-none
         md:rounded-bl-xl md:rounded-br-xl
 
-        md:px-6 px-0  md:py-2 py-0 
+        md:px-4 px-0  md:py-0 py-0 
         flex flex-col md:flex-row items-center justify-center md:gap-2 gap-0
         z-[999]
         outline-none focus:outline-none focus-visible:outline-none active:outline-none
-        md:relative
+        
       "
     >
       {/* SLIDER UNICO (più piccolo in mobile) */}
