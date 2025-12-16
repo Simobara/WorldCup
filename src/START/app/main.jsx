@@ -128,7 +128,7 @@ export const flagsMond26 = {
     { id: 'USA', name: 'StatiUniti', group: 'D', flag: FlagUsa },
     { id: 'PAR', name: 'Paraguay', group: 'D', flag: FlagParaguay },
     { id: 'AUS', name: 'Australia', group: 'D', flag: FlagAustralia },
-    { id: 'PLAYD', name: 'PlayD', group: 'D', flag: PlayD},
+    { id: 'PLAYD', name: 'PlayD', group: 'D', flag: PlayD },
   ],
 
   E: [
