@@ -2,17 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Favicon (fix: image/png) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assts/LogoWC1.png" />
 
-    <!-- Preload images (fix: as="image") -->
+    <!-- Preload (hero / primary) -->
+    <link rel="preload" href="/assts/LogoWC1.png" as="image" fetchpriority="high" />
+
+    <!-- Preload other images -->
     <link rel="preload" href="/assts/LogoStandings.png" as="image" />
     <link rel="preload" href="/assts/LogoStandingsMobile.png" as="image" />
     <link rel="preload" href="/assts/LogoWC.png" as="image" />
-    <link rel="preload" href="/assts/LogoWC1.png" as="image" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- ✅ SEO -->
     <title>WC – World Cup Results</title>
@@ -43,26 +44,24 @@
     />
     <meta name="twitter:image" content="https://mondiali.vercel.app/assts/LogoWC1.png" />
 
+    <!-- Structured data (SEO) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "WC – World Cup Results",
+        "alternateName": "WC",
+        "url": "https://mondiali.vercel.app/",
+        "creator": {
+          "@type": "Person",
+          "name": "Simo Bara",
+          "url": "https://simobaraofficial.vercel.app"
+        }
+      }
+    </script>
+
     <!-- App entry (React) -->
-<script type="module" src="/src/index.jsx" defer></script>
-
-<!-- Structured data (SEO) -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "WC – World Cup Results",
-  "alternateName": "WC",
-  "url": "https://mondiali.vercel.app/",
-  "creator": {
-    "@type": "Person",
-    "name": "Simo Bara",
-    "url": "https://simobaraofficial.vercel.app"
-  }
-}
-</script>
-
-    <!-- <link rel="stylesheet" href="/assets/index.css" /> -->
+    <script type="module" src="/src/index.jsx"></script>
   </head>
 
   <body>
