@@ -7,13 +7,13 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assts/LogoWC1.png" />
 
-    <!-- Preload (hero / primary) -->
-    <link rel="preload" href="/assts/LogoWC1.png" as="image" fetchpriority="high" />
-
-    <!-- Preload other images -->
-    <link rel="preload" href="/assts/LogoStandings.png" as="image" />
-    <link rel="preload" href="/assts/LogoStandingsMobile.png" as="image" />
-    <link rel="preload" href="/assts/LogoWC.png" as="image" />
+    <!-- Preload SOLO hero image (usata subito) -->
+    <link
+      rel="preload"
+      href="/assts/LogoWC1.png"
+      as="image"
+      fetchpriority="high"
+    />
 
     <!-- ✅ SEO -->
     <title>WC – World Cup Results</title>
@@ -24,7 +24,7 @@
     <meta name="robots" content="index,follow" />
     <link rel="canonical" href="https://mondiali.vercel.app/" />
 
-    <!-- ✅ Open Graph (WhatsApp/Telegram/Facebook preview) -->
+    <!-- ✅ Open Graph -->
     <meta property="og:title" content="WC – World Cup Results" />
     <meta
       property="og:description"
@@ -32,7 +32,10 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://mondiali.vercel.app/" />
-    <meta property="og:image" content="https://mondiali.vercel.app/assts/LogoWC1.png" />
+    <meta
+      property="og:image"
+      content="https://mondiali.vercel.app/assts/LogoWC1.png"
+    />
     <meta property="og:image:alt" content="WC logo" />
 
     <!-- ✅ Twitter Card -->
@@ -42,9 +45,12 @@
       name="twitter:description"
       content="Risultati e combinazioni dei gironi. Prova risultati e guarda chi passa."
     />
-    <meta name="twitter:image" content="https://mondiali.vercel.app/assts/LogoWC1.png" />
+    <meta
+      name="twitter:image"
+      content="https://mondiali.vercel.app/assts/LogoWC1.png"
+    />
 
-    <!-- Structured data (SEO) -->
+    <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -60,7 +66,7 @@
       }
     </script>
 
-    <!-- App entry (React) -->
+    <!-- React entry -->
     <script type="module" src="/src/index.jsx"></script>
   </head>
 
