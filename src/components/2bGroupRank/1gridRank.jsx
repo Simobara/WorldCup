@@ -512,7 +512,7 @@ function Row7({
       </div>
 
       {/* GOL: testo CENTRATO */}
-      <div className="bg-gray-400 border border-slate-900 border-l-0 border-b-4 border-t-0 border-b-gray-600 text-slate-900 flex items-center justify-center md:pl-1 pl-0">
+      <div className="bg-slate-600 border border-slate-900 border-l-0 border-b-4 border-t-0 border-b-gray-600 text-slate-900 flex items-center justify-center md:pl-1 pl-0">
         <span className="text-[12px] md:text-[15px] font-extrabold">{gol}</span>
       </div>
 

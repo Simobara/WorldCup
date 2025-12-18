@@ -145,37 +145,52 @@ export default function GridMatchesPage() {
   }, [showPronostics]);
 
   return (
-    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto">
+    <section
+      aria-labelledby="wc-matches-title"
+      className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto"
+    >
+      {/* Titolo SEO/accessibilità (non cambia UI) */}
+      <h1 id="wc-matches-title" className="sr-only">
+        WC – Match schedule and results by group (A–L)
+      </h1>
+
+      {/* Testo descrittivo indicizzabile (facoltativo ma utile) */}
+      <p className="sr-only">
+        Interactive grid showing match day, host city, teams, flags and results.
+        Toggle pronostics to highlight predictions when results are not
+        available.
+      </p>
+
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
-          // border-4 border-white
-          // z-[900]
+          aria-pressed={showPronostics}
+          aria-label={
+            showPronostics
+              ? "Hide pronostics highlights"
+              : "Show pronostics highlights"
+          }
           className={`
             absolute 
-            
-          md:w-8 
-          md:h-8
-
-          md:-top-5 top-[27.5rem]
-          md:right-[44rem] -right-4 
-          
-          md:py-0 py-2
-          md:px-1 px-2
-          
-          rounded-full font-extrabold text-sm 
-          transition-all duration-300 
-          ${
-            showPronostics
-              ? "bg-slate-900 text-sky-950 "
-              : "bg-slate-900 text-sky-950"
-          }
-    `}
+            md:w-8 md:h-8
+            md:-top-5 top-[27.5rem]
+            md:right-[44rem] -right-4 
+            md:py-0 py-2
+            md:px-1 px-2
+            rounded-full font-extrabold text-sm 
+            transition-all duration-300 
+            bg-slate-900 text-sky-950
+          `}
         >
           {showPronostics ? "," : "."}
         </button>
-        {/* // RIGHE COLONNE TABELLA */}
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-max">
+
+        {/* Contenitore della “tabella” */}
+        <div
+          className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-max"
+          role="region"
+          aria-label="World Cup groups match grid"
+        >
           {groups.map((letter) => {
             const resolveName = buildNameResolver(flagsMond);
 
@@ -183,9 +198,6 @@ export default function GridMatchesPage() {
             const matchesFlat = getFlatMatchesForGroup(
               groupMatches?.[groupKey]
             );
-
-            // se vuoi sempre 6 righe fisse:
-            // const rowsCount = Math.max(6, matchesFlat.length);
             const rowsCount = matchesFlat.length;
 
             const findTeam = (rawName) => {
@@ -198,8 +210,9 @@ export default function GridMatchesPage() {
             };
 
             return (
-              <div
+              <section
                 key={letter}
+                aria-labelledby={`group-${letter}-title`}
                 className={` relative
                   ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
                   ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
@@ -208,9 +221,17 @@ export default function GridMatchesPage() {
                   overflow-hidden
                 `}
               >
+                {/* Titolo gruppo (non cambia UI) */}
+                <h2 id={`group-${letter}-title`} className="sr-only">
+                  Group {letter} – Matches and results
+                </h2>
+
                 <div className="flex-1 flex items-stretch">
-                  {/* LETTERA */}
-                  <div className="w-8 md:w-10 flex items-center justify-center">
+                  {/* LETTERA (decorativa) */}
+                  <div
+                    className="w-8 md:w-10 flex items-center justify-center"
+                    aria-hidden="true"
+                  >
                     <span className="text-gray-400 font-extrabold text-xl md:text-3xl">
                       {letter}
                     </span>
@@ -220,6 +241,8 @@ export default function GridMatchesPage() {
                   <div className="flex-1 flex justify-end bg-slate-400">
                     <div
                       className="grid w-max h-full bg-slate-400"
+                      role="table"
+                      aria-label={`Group ${letter} match table`}
                       style={{
                         gridTemplateRows: `${headerH} repeat(${rowsCount}, ${rowH}px)`,
                         gridTemplateColumns: gridCols,
@@ -308,12 +331,12 @@ export default function GridMatchesPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
             );
           })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

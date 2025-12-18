@@ -5,52 +5,50 @@ import ContainerCitta from "./5containerCitta";
 import RettangoloVerticale from "./6rettVert";
 import RettGroup from "./7rettGroup";
 import Grid from "./8grid";
-
 const StandingsBlock = () => {
   const titleLabels = createDateLabels();
   const mergedHighlights = getMergedHighlights();
 
   return (
-    <div className="md:top-[12rem] top-[9rem] md:left-0 -left-2 relative">
+    <section
+      aria-labelledby="wc-standings-title"
+      className="md:top-[12rem] top-[9rem] md:left-0 -left-2 relative"
+    >
+      {/* 🔹 SEO HEADING (visibile o no, ma indicizzabile) */}
+      <h2
+        id="wc-standings-title"
+        className="sr-only"
+      >
+        World Cup Match Schedule and Standings
+      </h2>
+
       {/* ✅ LOGO */}
       <div className="absolute md:-left-4 -left-16 -top-28 md:-top-28 w-52 md:w-72 flex justify-center z-50">
         <div className="relative">
-          {/* 🔵 Bottone centrato PERFETTAMENTE sopra l’immagine
-          <button
-            onClick={() => console.log("Apro la label!")}
-            className="
-        absolute 
-        top-2 left-1/2
-        -translate-x-24 translate-y-2
-        bg-white text-black font-bold
-        px-1 py-0
-        text-xs
-        z-50
-      "
-          >
-            k
-          </button> */}
-
-          {/* ✅ LOGO MOBILE */}
+          {/* LOGO MOBILE */}
           <img
             src="/assts/LogoStandingsMobile.png"
-            alt=""
+            alt="World Cup standings mobile logo"
             className="block md:hidden h-24 w-auto object-contain z-10"
             loading="eager"
           />
 
-          {/* ✅ LOGO DESKTOP */}
+          {/* LOGO DESKTOP */}
           <img
             src="/assts/LogoStandings.png"
-            alt=" "
+            alt="World Cup standings logo"
             className="hidden md:block h-28 w-auto object-contain z-10"
             loading="eager"
           />
         </div>
       </div>
 
-      {/* ✅ COLONNA 16 CITTÀ */}
-      <div className="absolute -top-4 md:-top-0 md:left-14 left-6 flex flex-col lg:w-30 w-14">
+      {/* ✅ COLONNA CITTÀ OSPITANTI */}
+      <div
+        className="absolute -top-4 md:-top-0 md:left-14 left-6 flex flex-col lg:w-30 w-14"
+        role="list"
+        aria-label="Host cities"
+      >
         {citiesOsp.map((city, i) => (
           <ContainerCitta
             key={i}
@@ -61,93 +59,55 @@ const StandingsBlock = () => {
         ))}
       </div>
 
-      {/* ✅ RETTANGOLI VERTICALI CON TESTO */}
+      {/* ✅ REGIONI */}
       <RettangoloVerticale
-        top="md:top-[0rem] -top-[1rem] "
+        top="md:top-[0rem] -top-[1rem]"
         height="md:h-[12rem] h-[10rem]"
         color="bg-sky-400"
-        label="WESTERN REGION"
+        label="Western Region"
       />
       <RettangoloVerticale
         top="md:top-[12rem] top-[9rem]"
         height="md:h-[18rem] h-[15rem]"
         color="bg-green-300"
-        label="CENTRAL REGION"
+        label="Central Region"
       />
       <RettangoloVerticale
         top="md:top-[30rem] top-[24rem]"
         height="md:h-[18rem] h-[15rem]"
         color="bg-rose-300"
-        label="EASTERN REGION"
+        label="Eastern Region"
       />
 
-      {/* ------------------------------------------------------------------ */}
-      {/* ✅ GRIGLIA A DESTRA */}
-      <div className="absolute md:left-[15rem] left-[5rem] -top-28 w-[calc(100vw-5rem)] md:w-[calc(100vw-15rem)] overflow-x-auto overflow-y-visible">
-        {/* Contenuto reale della griglia: più largo del contenitore → scroll orizzontale */}
+      {/* ✅ GRIGLIA PARTITE */}
+      <div
+        className="absolute md:left-[15rem] left-[5rem] -top-28 w-[calc(100vw-5rem)] md:w-[calc(100vw-15rem)] overflow-x-auto overflow-y-visible"
+        role="region"
+        aria-label="World Cup match schedule grid"
+      >
         <div className="relative inline-block min-w-max pt-8">
-          {/* 🔹 BARRA COLORATA SOPRA LA GRIGLIA */}
-          <div className="absolute top-0 left-0 flex z-50">
-            <RettGroup
-              color="bg-white"
-              colsSpan={17}
-              label="GROUP STAGE MATCHES"
-            />
-            <RettGroup color="bg-orange-400" colsSpan={6} label="ROUND OF 32" />
-            <RettGroup color="bg-sky-300" colsSpan={4} label="ROUND OF 16" />
+          {/* HEADER GRUPPI */}
+          <div className="absolute top-0 left-0 flex z-50" aria-hidden="true">
+            <RettGroup color="bg-white" colsSpan={17} label="Group Stage Matches" />
+            <RettGroup color="bg-orange-400" colsSpan={6} label="Round of 32" />
+            <RettGroup color="bg-sky-300" colsSpan={4} label="Round of 16" />
             <RettGroup color="bg-gray-800" colsSpan={1} label="" />
-            <RettGroup color="bg-orange-400" colsSpan={3} label="QUARTER" />
+            <RettGroup color="bg-orange-400" colsSpan={3} label="Quarter Finals" />
             <RettGroup color="bg-gray-800" colsSpan={2} label="" />
-            <RettGroup color="bg-sky-300" colsSpan={2} label="SEMIFIN" />
+            <RettGroup color="bg-sky-300" colsSpan={2} label="Semi Finals" />
             <RettGroup color="bg-gray-800" colsSpan={2} label="" />
-            <RettGroup color="bg-yellow-400" colsSpan={2} label="FINALS" />
+            <RettGroup color="bg-yellow-400" colsSpan={2} label="Finals" />
           </div>
 
-          {/* 🔹 MESE SOPRA LE DATE (GIU: 11→30, LUG: 1→19) */}
-          <div className="absolute left-0 top-8 w-[calc(39*32px)] h-5 pointer-events-none z-50">
-            {/* GIUGNO: col 0..19 (11→30) */}
-            <div
-              className="absolute top-0 left-0 flex items-start justify-start bg-slate-500"
-              style={{ width: 32 * 20 }}
-            >
-              <span className="text-[11px] font-extrabold text-gray-300 tracking-widest">
-                GIUGNO
-              </span>
-            </div>
-
-            {/* LUGLIO: col 20..38 (1→19) */}
-            <div
-              className="absolute top-0"
-              style={{ left: 32 * 20, width: 32 * 19 }}
-            >
-              <div className="h-full flex items-start justify-start bg-slate-300">
-                <span className="text-[11px] font-extrabold text-black/80 tracking-widest">
-                  LUGLIO
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* 🔹 PRIMA GRIGLIA: 39 colonne, titoli con pattern + date */}
+          {/* GRIGLIA DATE */}
           <Grid
             rows={1}
             cols={39}
             cellHeightClass="md:h-20 h-16"
-            patternOverride={[
-              [17, "bg-white", false, false],
-              [6, "bg-orange-400", false, false],
-              [4, "bg-sky-300", false, false],
-              [1, "bg-gray-800", false, false],
-              [3, "bg-orange-400", false, false],
-              [2, "bg-gray-800", false, false],
-              [2, "bg-sky-300", false, false],
-              [2, "bg-gray-800", false, false],
-              [2, "bg-yellow-400", false, false],
-            ]}
             columnLabels={titleLabels}
           />
 
-          {/* 🔹 SECONDA GRIGLIA: 16 righe squadre / città */}
+          {/* GRIGLIA SQUADRE */}
           <Grid
             rows={citiesOsp.length}
             cols={39}
@@ -156,7 +116,7 @@ const StandingsBlock = () => {
           />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
