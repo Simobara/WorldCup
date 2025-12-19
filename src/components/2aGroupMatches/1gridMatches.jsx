@@ -173,15 +173,15 @@ export default function GridMatchesPage() {
           className={`
             absolute 
             md:w-8 md:h-8
-            md:-top-5 top-[19rem]
+            md:-top-5 top-[18.5rem]
             md:right-[44rem] -right-10 
             md:py-0 py-2
             md:px-1 px-2
-            md:z-0 z-[999]
             rounded-full font-extrabold text-sm 
             transition-all duration-300 
             bg-slate-900 text-white sky-900 `}
-        >
+            >
+            {/* md:z-0 z-[999] */}
           {showPronostics ? "," : "."}
         </button>
 
