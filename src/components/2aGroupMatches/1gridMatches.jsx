@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
+import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
 
 function toCode3(team) {
@@ -98,12 +99,16 @@ export default function GridMatchesPage() {
       return false;
     }
   });
+  const [hoverGroup, setHoverGroup] = useState(null); // "A".."L" oppure null
+  const [hoverPos, setHoverPos] = useState({ x: 0, y: 0, side: "right" });
+  const hideTimerRef = useRef(null);
 
   const gridColsDesktop = "70px 60px 30px 45px 40px 45px 30px";
   const gridColsMobile = "10px 20px 1px 35px 30px 35px 1px";
 
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
+  const LEFT_SIDE_GROUPS = new Set(["D", "H", "L"]);
 
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
@@ -299,6 +304,11 @@ export default function GridMatchesPage() {
                         return (
                           <Row7
                             key={`${letter}-${row}`}
+                            rowIndex={row}
+                            groupLetter={letter}
+                            setHoverGroup={setHoverGroup}
+                            hideTimerRef={hideTimerRef}
+                            setHoverPos={setHoverPos}
                             bottomBorder={redBottom}
                             day={m?.day ?? ""}
                             city={m?.city ?? ""}
@@ -335,6 +345,44 @@ export default function GridMatchesPage() {
             );
           })}
         </div>
+        {/* ===== OVERLAY RANKING + BACKDROP (DESKTOP ONLY) ===== */}
+        {hoverGroup && (
+          <>
+            {/* BACKDROP SCURO (solo visivo) */}
+            <div
+              className="
+    hidden md:block
+    fixed inset-0
+    z-[9998]
+    bg-black/50
+    pointer-events-none
+  "
+            />
+
+            {/* BOX CLASSIFICA */}
+            <div
+              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-white/95 shadow-2xl w-[22rem]"
+              style={{
+                top: `${hoverPos.y}px`,
+                left:
+                  hoverPos.side === "right"
+                    ? `${hoverPos.x + 262}px` // ⬅️ più a destra (prima era +12)
+                    : `${hoverPos.x - 32 - 352}px`, // ⬅️ simmetrico a sinistra
+              }}
+              onMouseEnter={() => {
+                if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+              }}
+              onMouseLeave={() => {
+                hideTimerRef.current = setTimeout(
+                  () => setHoverGroup(null),
+                  150
+                );
+              }}
+            >
+              <GridRankPage onlyGroup={hoverGroup} />
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
@@ -383,6 +431,11 @@ function Header7() {
 }
 
 function Row7({
+  rowIndex,
+  groupLetter,
+  setHoverGroup,
+  setHoverPos,
+  hideTimerRef,
   day,
   city,
   team1,
@@ -399,14 +452,14 @@ function Row7({
     <>
       {/* DATA */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-center`}
+        className={`${common} relative border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-center`}
       >
-        {/* MOBILE → solo giorno */}
+        {/* MOBILE */}
         <span className="block md:hidden text-[8px] leading-none font-bold">
           {dayOnly(day) || "\u00A0"}
         </span>
 
-        {/* DESKTOP → giorno (più piccolo, senza "/") */}
+        {/* DESKTOP */}
         <span className="hidden md:flex items-center gap-1 font-bold leading-none">
           {(() => {
             const { label, num } = splitDayDesk(day);
@@ -418,6 +471,49 @@ function Row7({
             );
           })()}
         </span>
+
+        {/* 🔘 BOTTONE ogni 2 incontri (2°, 4°, 6°) */}
+        {(rowIndex + 1) % 2 === 0 && (
+          <div
+            onMouseEnter={(e) => {
+              if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+
+              const rect = e.currentTarget.getBoundingClientRect();
+              const leftSide =
+                groupLetter === "D" ||
+                groupLetter === "H" ||
+                groupLetter === "L";
+
+              setHoverPos({
+                side: leftSide ? "left" : "right",
+                x: leftSide ? rect.left : rect.right,
+                y: rect.top,
+              });
+
+              setHoverGroup(groupLetter);
+            }}
+            onMouseLeave={() => {
+              if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+              setHoverGroup(null);
+            }}
+            className="
+    absolute
+    -top-12
+    left-0
+    
+    w-4 h-24
+    bg-slate-700 border-none
+
+
+    flex items-center justify-center
+    text-[12px] leading-none
+     pointer-events-auto z-10
+  "
+            aria-label="show ranking"
+          >
+            📊
+          </div>
+        )}
       </div>
 
       {/* CITTÀ */}

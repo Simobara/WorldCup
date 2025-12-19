@@ -176,7 +176,8 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
   });
 }
 // ---------------------------------------------------------------------------------
-export default function GridRankPage() {
+export default function GridRankPage({ onlyGroup = null }) {
+  const isTooltip = !!onlyGroup;
   const STORAGE_KEY = "gridRank_showPronostics";
 
   const [showPronostics, setShowPronostics] = useState(() => {
@@ -235,17 +236,30 @@ export default function GridRankPage() {
   }, [showPronostics]);
 
   return (
-    <div className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto">
-      <div className="relative flex justify-center items-start min-w-max">
-        <button
-          onClick={() => setShowPronostics((v) => !v)}
-          aria-pressed={showPronostics}
-          aria-label={
-            showPronostics
-              ? "Hide pronostics highlights"
-              : "Show pronostics highlights"
-          }
-          className={`
+    <div
+      className={
+        isTooltip
+          ? "p-0 overflow-visible"
+          : "min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto"
+      }
+    >
+      <div
+        className={
+          isTooltip
+            ? "relative"
+            : "relative flex justify-center items-start min-w-max"
+        }
+      >
+        {!isTooltip && (
+          <button
+            onClick={() => setShowPronostics((v) => !v)}
+            aria-pressed={showPronostics}
+            aria-label={
+              showPronostics
+                ? "Hide pronostics highlights"
+                : "Show pronostics highlights"
+            }
+            className={`
             absolute 
             md:w-8 md:h-8
             md:-top-5 top-[18.5rem]
@@ -255,136 +269,138 @@ export default function GridRankPage() {
             rounded-full font-extrabold text-sm 
             transition-all duration-300 
             bg-slate-900 text-white sky-900 `}
-            >
-          {/* md:z-0 z-[999] */}
-          {showPronostics ? "," : "."}
-        </button>
-
+          >
+            {/* md:z-0 z-[999] */}
+            {showPronostics ? "," : "."}
+          </button>
+        )}
         {/* ✅ come Matches: in mobile 3 colonne, desktop 4 */}
         <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-max">
-          {groups.map((letter) => {
-            const teams = (flagsMond ?? []).filter((t) => t.group === letter);
-            const groupKey = `group_${letter}`;
-            const matchesData = groupMatches?.[groupKey];
+          {groups
+            .filter((l) => !onlyGroup || l === onlyGroup)
+            .map((letter) => {
+              const teams = (flagsMond ?? []).filter((t) => t.group === letter);
+              const groupKey = `group_${letter}`;
+              const matchesData = groupMatches?.[groupKey];
 
-            const resolveName = buildNameResolver(flagsMond);
-            const groupTeamNames = new Set(
-              teams.map((t) => resolveName(t.name))
-            );
+              const resolveName = buildNameResolver(flagsMond);
+              const groupTeamNames = new Set(
+                teams.map((t) => resolveName(t.name))
+              );
 
-            const tableByTeam = computeTableForGroup(
-              matchesData,
-              resolveName,
-              groupTeamNames
-            );
+              const tableByTeam = computeTableForGroup(
+                matchesData,
+                resolveName,
+                groupTeamNames
+              );
 
-            const groupHasResults = Object.values(tableByTeam).some(
-              (t) => t.gf > 0 || t.gs > 0
-            );
+              const groupHasResults = Object.values(tableByTeam).some(
+                (t) => t.gf > 0 || t.gs > 0
+              );
 
-            const pronTableByTeam = showPronostics
-              ? computePronTableForGroup(
-                  matchesData,
-                  resolveName,
-                  groupTeamNames
-                )
-              : null;
+              const pronTableByTeam = showPronostics
+                ? computePronTableForGroup(
+                    matchesData,
+                    resolveName,
+                    groupTeamNames
+                  )
+                : null;
 
-            const sortedTeams = groupHasResults
-              ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
-              : showPronostics
-                ? sortTeamsByPron(teams, pronTableByTeam, resolveName)
-                : teams;
+              const sortedTeams = groupHasResults
+                ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
+                : showPronostics
+                  ? sortTeamsByPron(teams, pronTableByTeam, resolveName)
+                  : teams;
 
-            return (
-              <div
-                key={letter}
-                className={`
+              return (
+                <div
+                  key={letter}
+                  className={`
                   ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
                   ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
                     bg-red-900 border border-red-900 flex flex-col
                   md:rounded-tl-[48px]  rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
                   overflow-hidden
                 `}
-              >
-                <div className="flex-1 flex items-stretch">
-                  {/* LETTERA */}
-                  <div className="w-8 md:w-10 flex items-center justify-center">
-                    <span className="text-gray-400 font-extrabold text-xl md:text-3xl">
-                      {letter}
-                    </span>
-                  </div>
+                >
+                  <div className="flex-1 flex items-stretch">
+                    {/* LETTERA */}
+                    <div className="w-8 md:w-10 flex items-center justify-center">
+                      <span className="text-gray-400 font-extrabold text-xl md:text-3xl">
+                        {letter}
+                      </span>
+                    </div>
 
-                  {/* GRIGLIA */}
-                  <div className="flex-1 flex justify-end bg-slate-400">
-                    <div
-                      className="grid w-max h-full bg-slate-400"
-                      style={{
-                        gridTemplateRows: `${headerH} repeat(4, ${rowH}px)`,
+                    {/* GRIGLIA */}
+                    <div className="flex-1 flex justify-end bg-slate-400">
+                      <div
+                        className="grid w-max h-full bg-slate-400"
+                        style={{
+                          gridTemplateRows: `${headerH} repeat(4, ${rowH}px)`,
 
-                        gridTemplateColumns: gridCols,
-                      }}
-                    >
-                      <Header7 />
+                          gridTemplateColumns: gridCols,
+                        }}
+                      >
+                        <Header7 />
 
-                      {Array.from({ length: 4 }).map((_, row) => {
-                        const team = sortedTeams[row] ?? null;
-                        const teamKey = team ? resolveName(team.name) : null;
+                        {Array.from({ length: 4 }).map((_, row) => {
+                          const team = sortedTeams[row] ?? null;
+                          const teamKey = team ? resolveName(team.name) : null;
 
-                        const stats = team ? tableByTeam[teamKey] : null;
-                        const pronStats = team
-                          ? pronTableByTeam?.[teamKey]
-                          : null;
+                          const stats = team ? tableByTeam[teamKey] : null;
+                          const pronStats = team
+                            ? pronTableByTeam?.[teamKey]
+                            : null;
 
-                        const pronPt = pronStats?.pt ?? 0;
+                          const pronPt = pronStats?.pt ?? 0;
 
-                        const golStr =
-                          stats && (stats.gf > 0 || stats.gs > 0)
-                            ? `${stats.gf}:${stats.gs}`
-                            : "";
+                          const golStr =
+                            stats && (stats.gf > 0 || stats.gs > 0)
+                              ? `${stats.gf}:${stats.gs}`
+                              : "";
 
-                        return (
-                          <Row7
-                            key={row}
-                            code={team?.id ?? ""}
-                            pt={stats?.pt ?? 0}
-                            showPronostics={showPronostics}
-                            pronPt={showPronostics ? pronPt : 0}
-                            w={stats?.w ?? 0}
-                            x={stats?.x ?? 0}
-                            p={stats?.p ?? 0}
-                            gol={golStr}
-                            showZero={groupHasResults}
-                            teamEl={
-                              team ? (
-                                <Quadrato
-                                  teamName={team.name}
-                                  flag={team.flag}
-                                  phase="round32"
-                                  advanced={false}
-                                  isPronTeam={false}
-                                  label={null}
-                                />
-                              ) : (
-                                <Quadrato
-                                  teamName=""
-                                  flag={null}
-                                  phase="round32"
-                                  advanced={false}
-                                  isPronTeam={false}
-                                  label={null}
-                                />
-                              )
-                            }
-                          />
-                        );
-                      })}
+                          return (
+                            <Row7
+                              key={row}
+                              code={team?.id ?? ""}
+                              pt={stats?.pt ?? 0}
+                              showPronostics={showPronostics}
+                              pronPt={showPronostics ? pronPt : 0}
+                              w={stats?.w ?? 0}
+                              x={stats?.x ?? 0}
+                              p={stats?.p ?? 0}
+                              gol={golStr}
+                              showZero={groupHasResults}
+                              teamEl={
+                                team ? (
+                                  <Quadrato
+                                    teamName={team.name}
+                                    flag={team.flag}
+                                    phase="round32"
+                                    advanced={false}
+                                    isPronTeam={false}
+                                    label={null}
+                                  />
+                                ) : (
+                                  <Quadrato
+                                    teamName=""
+                                    flag={null}
+                                    phase="round32"
+                                    advanced={false}
+                                    isPronTeam={false}
+                                    label={null}
+                                  />
+                                )
+                              }
+                            />
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
           {/* ✅ spazio extra SOLO mobile per scroll più comodo */}
           <div className="w-20 md:hidden shrink-0" />
