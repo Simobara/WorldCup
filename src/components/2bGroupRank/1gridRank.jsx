@@ -248,7 +248,7 @@ export default function GridRankPage() {
           className={`
             absolute 
             md:w-8 md:h-8
-            md:-top-5 top-[20rem]
+            md:-top-5 top-[19rem]
             md:right-[44rem] -right-10 
             md:py-0 py-2
             md:px-1 px-2
