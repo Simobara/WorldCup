@@ -30,7 +30,7 @@ function buildNameResolver(allTeams) {
 
   // alias manuali (adatta ai tuoi nomi reali in flagsMond)
   map.set(norm("SAfrica"), "Sudafrica");
-  map.set(norm("PlayD"), ""); // placeholder: niente bandiera
+  map.set(norm("Play"), ""); // placeholder: niente bandiera
 
   return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
 }
@@ -180,8 +180,8 @@ export default function GridMatchesPage() {
             rounded-full font-extrabold text-sm 
             transition-all duration-300 
             bg-slate-900 text-white sky-900 `}
-            >
-            {/* md:z-0 z-[999] */}
+        >
+          {/* md:z-0 z-[999] */}
           {showPronostics ? "," : "."}
         </button>
 
