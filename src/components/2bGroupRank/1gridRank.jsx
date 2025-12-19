@@ -239,28 +239,23 @@ export default function GridRankPage() {
       <div className="relative flex justify-center items-start min-w-max">
         <button
           onClick={() => setShowPronostics((v) => !v)}
-          // border-4 border-white
-          // z-[1000]
+          aria-pressed={showPronostics}
+          aria-label={
+            showPronostics
+              ? "Hide pronostics highlights"
+              : "Show pronostics highlights"
+          }
           className={`
             absolute 
-            
-            md:w-8 
-          md:h-8
-          
-          md:-top-5 top-[30.5rem]
-          md:right-[44rem] -right-2 
-          
-          md:py-0 py-2
-          md:px-1 px-0
-          
-          rounded-full font-extrabold text-sm 
-          transition-all duration-300           
-          ${
-            showPronostics
-              ? "bg-slate-900 text-sky-950 "
-              : "bg-slate-900 text-sky-950"
-          }
-    `}
+            md:w-8 md:h-8
+            md:-top-5 top-[20rem]
+            md:right-[44rem] -right-10 
+            md:py-0 py-2
+            md:px-1 px-2
+            md:z-0 z-[999]
+            rounded-full font-extrabold text-sm 
+            transition-all duration-300 
+            bg-slate-900 text-white sky-900 `}
         >
           {showPronostics ? "," : "."}
         </button>
