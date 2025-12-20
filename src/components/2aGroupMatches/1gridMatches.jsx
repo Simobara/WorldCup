@@ -347,6 +347,9 @@ export default function GridMatchesPage() {
                             setMobileTop={setMobileTop}
                             LEFT_SIDE_GROUPS_MOBILE={LEFT_SIDE_GROUPS_MOBILE}
                             CENTRAL_GROUPS_MOBILE={CENTRAL_GROUPS_MOBILE}
+                            mobileRankOpen={mobileRankOpen}
+                            mobileGroup={mobileGroup}
+                            mobileCutoff={mobileCutoff}
                             //------------------------------
                             bottomBorder={redBottom}
                             day={m?.day ?? ""}
@@ -400,7 +403,7 @@ export default function GridMatchesPage() {
             {/* DRAWER — DEBUG VISIVO (solo mobile) */}
             <div
               className={`
-    md:hidden fixed z-[9999]
+    md:hidden fixed z-[10001]
     md:w-0 w-[40vw]
     max-h-[80vh] overflow-auto
     rounded-2xl
@@ -518,6 +521,9 @@ function Row7({
   setMobileTop,
   LEFT_SIDE_GROUPS_MOBILE,
   CENTRAL_GROUPS_MOBILE,
+  mobileRankOpen,
+  mobileGroup,
+  mobileCutoff,
   //-----
   day,
   city,
@@ -583,42 +589,67 @@ function Row7({
                 setHoverCutoff(null);
               }, 0);
             }}
-            className="
+            className={`
               absolute
               md:-top-12 -top-7
               md:left-0 left-0
-              
+
               md:w-4 w-3
               md:h-24 h-14
               md:bg-slate-700 bg-transparent
-              md:z-0 z-10
+
+              md:z-0 ${mobileRankOpen ? "z-[10000]" : "z-10"}
 
               md:border-none borde border-whit
 
               flex items-center justify-center
               text-[12px] leading-none
               pointer-events-auto
-              "
+            `}
             aria-label="show ranking"
             onClick={(e) => {
               if (window.matchMedia("(min-width: 768px)").matches) return;
+
+              e.stopPropagation(); // IMPORTANTISSIMO: evita che il backdrop chiuda nello stesso tap
 
               const groupEl = e.currentTarget.closest(".group-card");
               const rect =
                 groupEl?.getBoundingClientRect?.() ??
                 e.currentTarget.getBoundingClientRect();
-              const top = rect.top; // posizione assoluta pagina
+
+              const top = rect.top;
 
               const isLeft =
                 LEFT_SIDE_GROUPS_MOBILE.has(groupLetter) ||
                 CENTRAL_GROUPS_MOBILE.has(groupLetter);
 
-              setMobileSide(isLeft ? "left" : "right");
-              setMobileGroup(groupLetter);
-              setMobileCutoff(rowIndex + 1);
-              setMobileTop(top);
+              const next = {
+                group: groupLetter,
+                cutoff: rowIndex + 1,
+                side: isLeft ? "left" : "right",
+                top,
+              };
 
-              setMobileRankOpen(true);
+              // Se sto cliccando ESATTAMENTE la stessa classifica già aperta → chiudi
+              // Se clicco un'altra classifica → aggiorna e resta aperto (chiude+riapre “logicamente”)
+              setMobileRankOpen((open) => {
+                const same =
+                  open &&
+                  mobileGroup === next.group &&
+                  mobileCutoff === next.cutoff;
+
+                if (same) {
+                  setMobileGroup(null);
+                  setMobileCutoff(null);
+                  return false;
+                }
+
+                setMobileSide(next.side);
+                setMobileGroup(next.group);
+                setMobileCutoff(next.cutoff);
+                setMobileTop(next.top);
+                return true;
+              });
             }}
           >
             📊
