@@ -110,7 +110,18 @@ export default function GridMatchesPage() {
 
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
-  const LEFT_SIDE_GROUPS = new Set(["D", "H", "L"]);
+  // DESKTOP: come ora
+  const LEFT_SIDE_GROUPS = new Set(["D", "H", "L"]); // :contentReference[oaicite:1]{index=1}
+
+  // MOBILE: nuova regola
+  const LEFT_SIDE_GROUPS_MOBILE = new Set(["C", "F", "I", "L"]);
+  const CENTRAL_GROUPS_MOBILE = new Set(["B", "E", "H", "K"]);
+
+  const [mobileRankOpen, setMobileRankOpen] = useState(false);
+  const [mobileGroup, setMobileGroup] = useState(null); // "A".."L"
+  const [mobileCutoff, setMobileCutoff] = useState(null); // 2/4/6
+  const [mobileSide, setMobileSide] = useState("right"); // "left" | "right"
+  const [mobileTop, setMobileTop] = useState(0);
 
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
@@ -154,7 +165,7 @@ export default function GridMatchesPage() {
   // FIX D/H/L: calcolo left/top clampati in viewport (niente offset hardcoded)
   const BOX_W = 23 * 16; // w-[23rem]
   const GAP_RIGHT = -30; // gruppi A–C, E–G, I–K
-  const GAP_LEFT = 0; // gruppi D / H / L
+  const GAP_LEFT = -30; // gruppi D / H / L
 
   const desiredLeft =
     hoverPos.side === "right"
@@ -327,6 +338,15 @@ export default function GridMatchesPage() {
                             hideTimerRef={hideTimerRef}
                             setHoverPos={setHoverPos}
                             setHoverCutoff={setHoverCutoff}
+                            LEFT_SIDE_GROUPS={LEFT_SIDE_GROUPS}
+                            //------------------------------
+                            setMobileRankOpen={setMobileRankOpen}
+                            setMobileGroup={setMobileGroup}
+                            setMobileCutoff={setMobileCutoff}
+                            setMobileSide={setMobileSide}
+                            setMobileTop={setMobileTop}
+                            LEFT_SIDE_GROUPS_MOBILE={LEFT_SIDE_GROUPS_MOBILE}
+                            //------------------------------
                             bottomBorder={redBottom}
                             day={m?.day ?? ""}
                             city={m?.city ?? ""}
@@ -363,6 +383,44 @@ export default function GridMatchesPage() {
             );
           })}
         </div>
+        {/* ===== MOBILE DRAWER RANKING (MOBILE ONLY) ===== */}
+        {mobileRankOpen && mobileGroup && (
+          <>
+            {/* BACKDROP — mobile only */}
+            <div
+              className="md:hidden fixed inset-0 z-[9998] bg-black/40"
+              onClick={() => {
+                setMobileRankOpen(false);
+                setMobileGroup(null);
+                setMobileCutoff(null);
+              }}
+            />
+
+            {/* DRAWER — DEBUG VISIVO (solo mobile) */}
+            <div
+              className={`
+    md:hidden fixed z-[9999]
+    md:w-0 w-[40vw]
+    max-h-[80vh] overflow-auto
+    rounded-2xl
+    bg-purple-400
+    p-2
+    ${
+      mobileSide === "left"
+        ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
+          ? "left-[3rem] -translate-x-[3rem]"
+          : "left-[3rem]"
+        : "right-[6rem]"
+    }
+  `}
+              style={{ top: mobileTop }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GridRankPage onlyGroup={mobileGroup} maxMatches={mobileCutoff} />
+            </div>
+          </>
+        )}
+
         {/* ===== OVERLAY RANKING + BACKDROP (DESKTOP ONLY) ===== */}
         {hoverGroup && (
           <>
@@ -389,7 +447,7 @@ export default function GridMatchesPage() {
                 hideTimerRef.current = setTimeout(() => {
                   setHoverGroup(null);
                   setHoverCutoff(null);
-                }, 150);
+                }, 0);
               }}
             >
               <GridRankPage onlyGroup={hoverGroup} maxMatches={hoverCutoff} />
@@ -450,6 +508,15 @@ function Row7({
   setHoverPos,
   setHoverCutoff,
   hideTimerRef,
+  LEFT_SIDE_GROUPS,
+  //-----
+  setMobileRankOpen,
+  setMobileGroup,
+  setMobileCutoff,
+  setMobileSide,
+  setMobileTop,
+  LEFT_SIDE_GROUPS_MOBILE,
+  //-----
   day,
   city,
   team1,
@@ -496,10 +563,7 @@ function Row7({
               const rect =
                 groupEl?.getBoundingClientRect?.() ??
                 e.currentTarget.getBoundingClientRect();
-              const leftSide =
-                groupLetter === "D" ||
-                groupLetter === "H" ||
-                groupLetter === "L";
+              const leftSide = LEFT_SIDE_GROUPS.has(groupLetter);
 
               setHoverPos({
                 side: leftSide ? "left" : "right",
@@ -515,22 +579,47 @@ function Row7({
               hideTimerRef.current = setTimeout(() => {
                 setHoverGroup(null);
                 setHoverCutoff(null);
-              }, 150);
+              }, 0);
             }}
             className="
-    absolute
-    -top-12
-    left-0
-    
-    w-4 h-24
-    bg-slate-700 border-none
+              absolute
+              md:-top-12 -top-7
+              md:left-0 left-0
+              
+              md:w-4 w-3
+              md:h-24 h-14
+              md:bg-slate-700 bg-transparent
+              md:z-0 z-10
 
+              md:border-none borde border-whit
 
-    flex items-center justify-center
-    text-[12px] leading-none
-     pointer-events-auto z-10
-  "
+              flex items-center justify-center
+              text-[12px] leading-none
+              pointer-events-auto
+              "
             aria-label="show ranking"
+            onClick={(e) => {
+              if (window.matchMedia("(min-width: 768px)").matches) return;
+
+              const groupEl = e.currentTarget.closest(".group-card");
+              const rect =
+                groupEl?.getBoundingClientRect?.() ??
+                e.currentTarget.getBoundingClientRect();
+              const top = rect.top; // posizione assoluta pagina
+
+              const isLeft =
+                LEFT_SIDE_GROUPS_MOBILE.has(groupLetter) ||
+                CENTRAL_GROUPS_MOBILE.has(groupLetter);
+              const side = isLeft ? "left" : "right";
+              
+
+              setMobileSide(side);
+              setMobileGroup(groupLetter);
+              setMobileCutoff(rowIndex + 1);
+              setMobileTop(top);
+
+              setMobileRankOpen(true);
+            }}
           >
             📊
           </div>
