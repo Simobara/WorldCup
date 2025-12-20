@@ -101,6 +101,8 @@ export default function GridMatchesPage() {
   });
   const [hoverGroup, setHoverGroup] = useState(null); // "A".."L" oppure null
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0, side: "right" });
+  const [hoverCutoff, setHoverCutoff] = useState(null); // numero match da considerare (2,4,6)
+
   const hideTimerRef = useRef(null);
 
   const gridColsDesktop = "70px 60px 30px 45px 40px 45px 30px";
@@ -148,6 +150,21 @@ export default function GridMatchesPage() {
       // ignore
     }
   }, [showPronostics]);
+
+  // FIX D/H/L: calcolo left/top clampati in viewport (niente offset hardcoded)
+  const BOX_W = 23 * 16; // w-[23rem]
+  const GAP_RIGHT = -30; // gruppi A–C, E–G, I–K
+  const GAP_LEFT = 0; // gruppi D / H / L
+
+  const desiredLeft =
+    hoverPos.side === "right"
+      ? hoverPos.x + GAP_RIGHT
+      : hoverPos.x - BOX_W - GAP_LEFT;
+  const left = Math.max(
+    8,
+    Math.min(desiredLeft, window.innerWidth - BOX_W - 8)
+  );
+  const top = Math.max(8, Math.min(hoverPos.y, window.innerHeight - 8));
 
   return (
     <section
@@ -218,7 +235,7 @@ export default function GridMatchesPage() {
               <section
                 key={letter}
                 aria-labelledby={`group-${letter}-title`}
-                className={` relative
+                className={` group-card relative
                   ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
                   ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
                   bg-red-900 border border-red-900 flex flex-col
@@ -309,6 +326,7 @@ export default function GridMatchesPage() {
                             setHoverGroup={setHoverGroup}
                             hideTimerRef={hideTimerRef}
                             setHoverPos={setHoverPos}
+                            setHoverCutoff={setHoverCutoff}
                             bottomBorder={redBottom}
                             day={m?.day ?? ""}
                             city={m?.city ?? ""}
@@ -361,25 +379,20 @@ export default function GridMatchesPage() {
 
             {/* BOX CLASSIFICA */}
             <div
-              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-white/95 shadow-2xl w-[22rem]"
-              style={{
-                top: `${hoverPos.y}px`,
-                left:
-                  hoverPos.side === "right"
-                    ? `${hoverPos.x + 262}px` // ⬅️ più a destra (prima era +12)
-                    : `${hoverPos.x - 32 - 352}px`, // ⬅️ simmetrico a sinistra
-              }}
+              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-white/95 shadow-2xl w-[23rem]"
+              style={{ top: `${top}px`, left: `${left}px` }}
               onMouseEnter={() => {
                 if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
               }}
               onMouseLeave={() => {
-                hideTimerRef.current = setTimeout(
-                  () => setHoverGroup(null),
-                  150
-                );
+                if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+                hideTimerRef.current = setTimeout(() => {
+                  setHoverGroup(null);
+                  setHoverCutoff(null);
+                }, 150);
               }}
             >
-              <GridRankPage onlyGroup={hoverGroup} />
+              <GridRankPage onlyGroup={hoverGroup} maxMatches={hoverCutoff} />
             </div>
           </>
         )}
@@ -435,6 +448,7 @@ function Row7({
   groupLetter,
   setHoverGroup,
   setHoverPos,
+  setHoverCutoff,
   hideTimerRef,
   day,
   city,
@@ -478,7 +492,10 @@ function Row7({
             onMouseEnter={(e) => {
               if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
 
-              const rect = e.currentTarget.getBoundingClientRect();
+              const groupEl = e.currentTarget.closest(".group-card");
+              const rect =
+                groupEl?.getBoundingClientRect?.() ??
+                e.currentTarget.getBoundingClientRect();
               const leftSide =
                 groupLetter === "D" ||
                 groupLetter === "H" ||
@@ -491,10 +508,14 @@ function Row7({
               });
 
               setHoverGroup(groupLetter);
+              setHoverCutoff(rowIndex + 1); // rowIndex è 0-based → sulle righe 1/3/5 diventa 2/4/6
             }}
             onMouseLeave={() => {
               if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-              setHoverGroup(null);
+              hideTimerRef.current = setTimeout(() => {
+                setHoverGroup(null);
+                setHoverCutoff(null);
+              }, 150);
             }}
             className="
     absolute

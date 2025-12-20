@@ -48,7 +48,12 @@ function buildNameResolver(allTeams) {
   return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
 }
 
-function computePronTableForGroup(matchesData, resolveName, groupTeamNames) {
+function computePronTableForGroup(
+  matchesData,
+  resolveName,
+  groupTeamNames,
+  maxMatches = null
+) {
   const table = {};
 
   for (const name of groupTeamNames) {
@@ -58,9 +63,11 @@ function computePronTableForGroup(matchesData, resolveName, groupTeamNames) {
   if (!matchesData) return table;
 
   const giornate = Object.values(matchesData);
-
+  let seen = 0;
   for (const g of giornate) {
     for (const m of g?.matches ?? []) {
+      if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
+      seen++;
       const pron = String(m.pron ?? "")
         .trim()
         .toUpperCase();
@@ -95,7 +102,12 @@ function computePronTableForGroup(matchesData, resolveName, groupTeamNames) {
   return table;
 }
 
-function computeTableForGroup(matchesData, resolveName, groupTeamNames) {
+function computeTableForGroup(
+  matchesData,
+  resolveName,
+  groupTeamNames,
+  maxMatches = null
+) {
   const table = {};
 
   for (const name of groupTeamNames) {
@@ -105,9 +117,13 @@ function computeTableForGroup(matchesData, resolveName, groupTeamNames) {
   if (!matchesData) return table;
 
   const giornate = Object.values(matchesData);
+  let seen = 0;
 
   for (const g of giornate) {
     for (const m of g?.matches ?? []) {
+      if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
+      seen++;
+
       const parsed = parseResult(m.results);
       if (!parsed) continue;
 
@@ -176,7 +192,7 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
   });
 }
 // ---------------------------------------------------------------------------------
-export default function GridRankPage({ onlyGroup = null }) {
+export default function GridRankPage({ onlyGroup, maxMatches = null }) {
   const isTooltip = !!onlyGroup;
   const STORAGE_KEY = "gridRank_showPronostics";
 
@@ -291,7 +307,8 @@ export default function GridRankPage({ onlyGroup = null }) {
               const tableByTeam = computeTableForGroup(
                 matchesData,
                 resolveName,
-                groupTeamNames
+                groupTeamNames,
+                maxMatches
               );
 
               const groupHasResults = Object.values(tableByTeam).some(
@@ -302,7 +319,8 @@ export default function GridRankPage({ onlyGroup = null }) {
                 ? computePronTableForGroup(
                     matchesData,
                     resolveName,
-                    groupTeamNames
+                    groupTeamNames,
+                    maxMatches
                   )
                 : null;
 

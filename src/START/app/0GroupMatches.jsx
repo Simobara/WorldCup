@@ -41,8 +41,8 @@ group_B: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'Toronto',       time: '20:00',     team1: 'Canada',         team2: 'Italia',          pron:'2', results:' ' },
-            { numero: 2, city: 'SanFrancisco',  time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',           pron:'1', results:' ' },
+            { numero: 1, city: 'Toronto',       time: '20:00',     team1: 'Canada',         team2: 'Italia',          pron:'2', results:'0-1 ' },
+            { numero: 2, city: 'SanFrancisco',  time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',           pron:'1', results:'2-0 ' },
         ],
     },
     giornata_2: {
@@ -50,8 +50,8 @@ group_B: {
             'GIU/18',
         ],
         matches: [
-            { numero: 3, city: 'LAngeles',      time: '20:00',     team1: 'Svizzera',        team2: 'Italia',          pron:'X', results:' ' },
-            { numero: 4, city: 'Vancouver',     time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', results:' ' },
+            { numero: 3, city: 'LAngeles',      time: '20:00',     team1: 'Svizzera',        team2: 'Italia',          pron:'X', results:'2-2 ' },
+            { numero: 4, city: 'Vancouver',     time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', results:'3-0 ' },
         ],
     },
     giornata_3: {
@@ -59,8 +59,8 @@ group_B: {
             'GIU/24',
         ],
         matches: [
-            { numero: 5, city: 'Vancouver',     time: '20:00',     team1: 'Svizzera',        team2: 'Canada',          pron:'2', results:' ' },
-            { numero: 6, city: 'Seattle',       time: '20:00',     team1: 'Italia',          team2: 'Qatar',           pron:'X', results:' ' },
+            { numero: 5, city: 'Vancouver',     time: '20:00',     team1: 'Svizzera',        team2: 'Canada',          pron:'2', results:'1-4 ' },
+            { numero: 6, city: 'Seattle',       time: '20:00',     team1: 'Italia',          team2: 'Qatar',           pron:'X', results:'1-1 ' },
         ],
     },
 },
