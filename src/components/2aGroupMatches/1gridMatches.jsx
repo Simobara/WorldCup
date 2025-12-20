@@ -346,6 +346,7 @@ export default function GridMatchesPage() {
                             setMobileSide={setMobileSide}
                             setMobileTop={setMobileTop}
                             LEFT_SIDE_GROUPS_MOBILE={LEFT_SIDE_GROUPS_MOBILE}
+                            CENTRAL_GROUPS_MOBILE={CENTRAL_GROUPS_MOBILE}
                             //------------------------------
                             bottomBorder={redBottom}
                             day={m?.day ?? ""}
@@ -516,6 +517,7 @@ function Row7({
   setMobileSide,
   setMobileTop,
   LEFT_SIDE_GROUPS_MOBILE,
+  CENTRAL_GROUPS_MOBILE,
   //-----
   day,
   city,
@@ -610,10 +612,8 @@ function Row7({
               const isLeft =
                 LEFT_SIDE_GROUPS_MOBILE.has(groupLetter) ||
                 CENTRAL_GROUPS_MOBILE.has(groupLetter);
-              const side = isLeft ? "left" : "right";
-              
 
-              setMobileSide(side);
+              setMobileSide(isLeft ? "left" : "right");
               setMobileGroup(groupLetter);
               setMobileCutoff(rowIndex + 1);
               setMobileTop(top);
