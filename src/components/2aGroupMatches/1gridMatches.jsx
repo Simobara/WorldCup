@@ -393,7 +393,7 @@ export default function GridMatchesPage() {
           <>
             {/* BACKDROP — mobile only */}
             <div
-              className="md:hidden fixed inset-0 z-[9998] bg-black/50"
+              className="md:hidden fixed inset-0 z-[9998] bg-black/60"
               onClick={() => {
                 setMobileRankOpen(false);
                 setMobileGroup(null);
