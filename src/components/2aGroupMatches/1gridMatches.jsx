@@ -408,7 +408,7 @@ export default function GridMatchesPage() {
     md:w-0 w-[40vw]
     max-h-[80vh] overflow-auto
     rounded-2xl
-    bg-purple-500
+    bg-purple-500 md:m-0 m-2
     md:mr-0 m-1
     ${
       // md:p-0 p-1
@@ -601,7 +601,7 @@ function Row7({
               md:w-4 w-3
               md:h-24 h-14
               md:bg-slate-700 bg-transparent
-              md:p-0 p-2
+              md:p-0 p-4
 
               md:z-0 ${mobileRankOpen ? "z-[10000]" : "z-10"}
 
