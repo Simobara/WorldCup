@@ -116,6 +116,7 @@ export default function GridMatchesPage() {
   // MOBILE: nuova regola
   const LEFT_SIDE_GROUPS_MOBILE = new Set(["C", "F", "I", "L"]);
   const CENTRAL_GROUPS_MOBILE = new Set(["B", "E", "H", "K"]);
+  const SHIFT_RIGHT_MOBILE_GROUPS = new Set(["A", "D", "G", "J"]);
 
   const [mobileRankOpen, setMobileRankOpen] = useState(false);
   const [mobileGroup, setMobileGroup] = useState(null); // "A".."L"
@@ -407,14 +408,17 @@ export default function GridMatchesPage() {
     md:w-0 w-[40vw]
     max-h-[80vh] overflow-auto
     rounded-2xl
-    bg-purple-400
-    md:m-0 m-2
+    bg-purple-500
+    md:p-0 p-1
+    md:mr-0 mr-2
     ${
       mobileSide === "left"
         ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
-          ? "left-[3rem] -translate-x-[3rem]"
+          ? "left-[2.5rem] -translate-x-[3rem]"
           : "left-[4rem]"
-        : "right-[6rem]"
+        : SHIFT_RIGHT_MOBILE_GROUPS.has(mobileGroup)
+          ? "right-[5rem]" // più a destra (tweak qui)
+          : "right-[6rem]"
     }
   `}
               style={{ top: mobileTop }}
