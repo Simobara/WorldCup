@@ -393,7 +393,7 @@ export default function GridMatchesPage() {
           <>
             {/* BACKDROP — mobile only */}
             <div
-              className="md:hidden fixed inset-0 z-[9998] bg-black/40"
+              className="md:hidden fixed inset-0 z-[9998] bg-black/50"
               onClick={() => {
                 setMobileRankOpen(false);
                 setMobileGroup(null);
@@ -408,8 +408,8 @@ export default function GridMatchesPage() {
     md:w-0 w-[40vw]
     max-h-[80vh] overflow-auto
     rounded-2xl
-    bg-purple-500 md:m-0 m-2
-    md:mr-0 m-1
+    bg-purple-500 
+    md:m-0 m-1
     ${
       // md:p-0 p-1
       mobileSide === "left"
