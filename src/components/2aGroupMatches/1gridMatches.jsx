@@ -597,7 +597,7 @@ function Row7({
               md:w-4 w-3
               md:h-24 h-14
               md:bg-slate-700 bg-transparent
-              md:p-0 p-4
+              md:p-0 p-2
 
               md:z-0 ${mobileRankOpen ? "z-[10000]" : "z-10"}
 
