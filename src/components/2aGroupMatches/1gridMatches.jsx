@@ -414,10 +414,10 @@ export default function GridMatchesPage() {
       // md:p-0 p-1
       mobileSide === "left"
         ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
-          ? "left-[2.5rem] -translate-x-[3rem]"
+          ? "left-0"
           : "left-[4rem]"
         : SHIFT_RIGHT_MOBILE_GROUPS.has(mobileGroup)
-          ? "right-[5rem]" // più a destra (tweak qui)
+          ? "right-[4.5rem]" // più a destra (tweak qui)
           : "right-[6rem]"
     }
   `}
