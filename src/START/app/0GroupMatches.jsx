@@ -55,8 +55,8 @@ group_B: {
             'GIU/24',
         ],
         matches: [
-            { numero: 5, city: 'Vancouver',         time: '20:00',     team1: 'Svizzera',        team2: 'Canada',           pron:'2', results:'1-4' },
-            { numero: 6, city: 'Seattle',           time: '20:00',     team1: 'Italia',          team2: 'Qatar',            pron:'X', results:'1-1' },
+            { numero: 5, city: 'Vancouver',         time: '20:00',     team1: 'Svizzera',        team2: 'Canada',           pron:'2', results:'' },
+            { numero: 6, city: 'Seattle',           time: '20:00',     team1: 'Italia',          team2: 'Qatar',            pron:'X', results:'' },
         ],
     },
 },

@@ -597,10 +597,11 @@ function Row7({
               md:w-4 w-3
               md:h-24 h-14
               md:bg-slate-700 bg-transparent
+              md:p-0 p-4
 
               md:z-0 ${mobileRankOpen ? "z-[10000]" : "z-10"}
 
-              md:border-none border border-white
+              md:border-none bordr border-whit
 
               flex items-center justify-center
               text-[12px] leading-none
