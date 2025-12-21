@@ -409,9 +409,9 @@ export default function GridMatchesPage() {
     max-h-[80vh] overflow-auto
     rounded-2xl
     bg-purple-500
-    md:p-0 p-1
-    md:mr-0 mr-2
+    md:mr-0 m-1
     ${
+      // md:p-0 p-1
       mobileSide === "left"
         ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
           ? "left-[2.5rem] -translate-x-[3rem]"
