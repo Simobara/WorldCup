@@ -408,12 +408,12 @@ export default function GridMatchesPage() {
     max-h-[80vh] overflow-auto
     rounded-2xl
     bg-purple-400
-    p-2
+    p-1
     ${
       mobileSide === "left"
         ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
           ? "left-[3rem] -translate-x-[3rem]"
-          : "left-[3rem]"
+          : "left-[4rem]"
         : "right-[6rem]"
     }
   `}
@@ -600,7 +600,7 @@ function Row7({
 
               md:z-0 ${mobileRankOpen ? "z-[10000]" : "z-10"}
 
-              md:border-none borde border-whit
+              md:border-none border border-white
 
               flex items-center justify-center
               text-[12px] leading-none
