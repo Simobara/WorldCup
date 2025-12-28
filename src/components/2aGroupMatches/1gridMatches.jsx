@@ -105,7 +105,7 @@ export default function GridMatchesPage() {
 
   const hideTimerRef = useRef(null);
 
-  const gridColsDesktop = "70px 60px 30px 45px 40px 45px 30px";
+  const gridColsDesktop = "90px 40px 30px 45px 40px 45px 30px";
   const gridColsMobile = "10px 20px 1px 35px 30px 35px 1px";
 
   const [gridCols, setGridCols] = useState(gridColsMobile);
@@ -165,8 +165,8 @@ export default function GridMatchesPage() {
 
   // FIX D/H/L: calcolo left/top clampati in viewport (niente offset hardcoded)
   const BOX_W = 23 * 16; // w-[23rem]
-  const GAP_RIGHT = -30; // gruppi A–C, E–G, I–K
-  const GAP_LEFT = -30; // gruppi D / H / L
+  const GAP_RIGHT = 0; // gruppi A–C, E–G, I–K
+  const GAP_LEFT = 0; // gruppi D / H / L
 
   const desiredLeft =
     hoverPos.side === "right"
@@ -340,6 +340,9 @@ export default function GridMatchesPage() {
                             setHoverPos={setHoverPos}
                             setHoverCutoff={setHoverCutoff}
                             LEFT_SIDE_GROUPS={LEFT_SIDE_GROUPS}
+                            hoverGroup={hoverGroup}
+                            hoverPos={hoverPos}
+                            hoverCutoff={hoverCutoff}
                             //------------------------------
                             setMobileRankOpen={setMobileRankOpen}
                             setMobileGroup={setMobileGroup}
@@ -445,7 +448,7 @@ export default function GridMatchesPage() {
 
             {/* BOX CLASSIFICA */}
             <div
-              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-white/95 shadow-2xl w-[23rem]"
+              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-purple-500 shadow-2xl w-[23rem]"
               style={{ top: `${top}px`, left: `${left}px` }}
               onMouseEnter={() => {
                 if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
@@ -489,7 +492,7 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className="bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400"
+            className="relative bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400 z-[100]"
             style={{ gridColumn: `span ${isSquadra ? 2 : 1}` }}
           >
             {typeof h === "string" ? (
@@ -517,6 +520,9 @@ function Row7({
   setHoverCutoff,
   hideTimerRef,
   LEFT_SIDE_GROUPS,
+  hoverGroup,
+  hoverPos,
+  hoverCutoff,
   //-----
   setMobileRankOpen,
   setMobileGroup,
@@ -541,11 +547,31 @@ function Row7({
   const bottom = bottomBorder ? "border-b-4 border-b-gray-700" : "border-b";
   const common = `border-t border-l border-r ${bottom}`;
 
+  // ✅ evidenzia la COPPIA (2 righe) legata al cutoff 2/4/6
+  const isActivePair =
+    hoverGroup === groupLetter &&
+    typeof hoverCutoff === "number" &&
+    rowIndex >= hoverCutoff - 2 &&
+    rowIndex <= hoverCutoff - 1;
+
+  // ✅ evidenzia SOLO la riga dove sta il bottone (2ª della coppia)
+  const isActiveButtonRow =
+    hoverGroup === groupLetter && hoverCutoff === rowIndex + 1;
+
+  const isActivePairMobile =
+    mobileRankOpen &&
+    mobileGroup === groupLetter &&
+    typeof mobileCutoff === "number" &&
+    rowIndex >= mobileCutoff - 2 &&
+    rowIndex <= mobileCutoff - 1;
   return (
     <>
       {/* DATA */}
       <div
-        className={`${common} relative border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-center`}
+        className={`${common} relative border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-center
+      ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
+      ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+      `}
       >
         {/* MOBILE */}
         <span className="block md:hidden text-[8px] leading-none font-bold">
@@ -598,12 +624,28 @@ function Row7({
               md:-top-12 -top-7
               md:left-0 left-0
 
-              md:w-4 w-3
-              md:h-24 h-14
-              md:bg-slate-700 bg-transparent
+              md:w-6 w-3
+              md:h-[6rem] h-14
+              ${isActiveButtonRow ? "md:bg-slate-500" : "md:bg-slate-700"}
+
+
               md:p-0 p-4
 
-              md:z-0 ${mobileRankOpen ? "z-[10000]" : "z-10"}
+             ${(() => {
+               const isLeft = LEFT_SIDE_GROUPS.has(groupLetter); // D/H/L
+               const isThisGroupOpen = hoverGroup === groupLetter; // box aperto per quel gruppo
+
+               // PC: nei gruppi D/H/L alza TUTTE le 📊 quando il box è aperto
+               if (isLeft && isThisGroupOpen) return "md:z-[10010]";
+
+               // PC: negli altri gruppi alza solo la 📊 specifica hoverata
+               return isThisGroupOpen && hoverCutoff === rowIndex + 1
+                 ? "md:z-[10010]"
+                 : "md:z-0";
+             })()}
+
+            ${mobileRankOpen ? "z-[10000]" : "z-10"}
+        
 
               md:border-none bordr border-whit
 
@@ -664,7 +706,10 @@ function Row7({
 
       {/* CITTÀ */}
       <div
-        className={`${common} border-slate-900  bg-slate-900 text-gray-500 flex items-center justify-start`}
+        className={`${common} border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-start
+          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+        `}
       >
         {/* MOBILE → 3 lettere */}
         <span className="block md:hidden text-[8px] leading-none font-bold">
@@ -679,16 +724,22 @@ function Row7({
 
       {/* SQUADRA 1 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 text-white flex items-center justify-center`}
+        className={`${common} border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-start
+          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+        `}
       >
-        <span className="hidden md:block text-[10px] font-bold">
+        <span className="hidden md:block text-[9px] font-bold text-white pl-2">
           {team1 || "\u00A0"}
         </span>
       </div>
 
       {/* FLAG 1 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center`}
+        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center
+          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+        `}
       >
         <div className="scale-[0.45] md:scale-[0.65] origin-center">
           {flag1 ?? <span>&nbsp;</span>}
@@ -697,7 +748,10 @@ function Row7({
 
       {/* RIS */}
       <div
-        className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center`}
+        className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center
+          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-black"}
+          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+        `}
       >
         <span className="md:text-[15px] text-[12px] font-extrabold">
           {result || "\u00A0"}
@@ -706,7 +760,10 @@ function Row7({
 
       {/* FLAG 2 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center`}
+        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center
+          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+        `}
       >
         <div className="scale-[0.45] md:scale-[0.65] origin-center">
           {flag2 ?? <span>&nbsp;</span>}
@@ -715,9 +772,12 @@ function Row7({
 
       {/* SQUADRA 2 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 text-white flex items-center justify-center`}
+        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center 
+          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+        `}
       >
-        <span className="hidden md:block text-[10px] font-bold">
+        <span className="hidden md:block text-[10px] font-bold text-white pr-2">
           {team2 || "\u00A0"}
         </span>
       </div>
