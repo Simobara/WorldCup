@@ -345,7 +345,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
                 >
                   <div className="flex-1 flex items-stretch">
                     {/* LETTERA */}
-                    <div className="w-8 md:w-10 flex items-center justify-center">
+                    <div className="w-8 md:w-10 flex items-center justify-center ">
                       <span className="text-gray-400 font-extrabold text-xl md:text-3xl">
                         {letter}
                       </span>

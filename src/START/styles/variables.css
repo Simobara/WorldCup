@@ -1,70 +1,228 @@
 /* ============================================================ */
 :root {
   /* QUADRATO ================================================= */
-  --quad-bg-round32:  #075985; /* bg-sky-800 */
-  --quad-bg-round16:  #0f766e; /* bg-teal-700 */
-  --quad-bg-quarter:  #34d399; /* bg-emerald-400 */
-  --quad-bg-semi:     #84cc16; /* bg-lime-500 */
-  --quad-bg-final:    #facc15; /* bg-yellow-500 */
+  --quad-bg-round32:      #075985; /* bg-sky-800 */
+  --quad-bg-round16:      #0f766e; /* bg-teal-700 */
+  --quad-bg-quarter:      #34d399; /* bg-emerald-400 */
+  --quad-bg-semi:         #84cc16; /* bg-lime-500 */
+  --quad-bg-final:        #facc15; /* bg-yellow-500 */
 
   /* QUADRATO – BORDI ========================================= */
-  --quad-border-win:       #be185d; /* border-rose-700 */
-  --quad-border-draw:      #facc15; /* border-yellow-400 */
-  --quad-border-pron:      #a855f7; /* border-purple-500 */
-  --quad-border-pron-draw: #22c55e; /* border-green-500 */
-  --quad-border-default:   #ffffff; /* border-white */
+  --quad-border-win:      #be185d; /* border-rose-700 */
+  --quad-border-draw:     #facc15; /* border-yellow-400 */
+  --quad-border-pron:     #a855f7; /* border-purple-500 */
+  --quad-border-pron-draw:#22c55e; /* border-green-500 */
+  --quad-border-default:  #ffffff; /* border-white */
 
   /* RETTRIS – COLORI TESTO =================================== */
-  --rettris-ris:   #102C57; /* custom (tuo) */
-  --rettris-ts:    #0e7490; /* text-cyan-700 */
-  --rettris-pen:   #000000; /* text-black */
+  --rettris-ris:          #102C57; /* custom (tuo) */
+  --rettris-ts:           #0e7490; /* text-cyan-700 */
+  --rettris-pen:          #000000; /* text-black */
 
   /* ROW7 (GridRank) ========================================== */
-  --row7-bg-cell:        #0f172a; /* bg-slate-900 */
-  --row7-border-cell:    #0f172a; /* border-slate-900 */
-  --row7-text-code:      #ffffff; /* text-white */
+  --row7-bg-cell:         #0f172a; /* bg-slate-900 */
+  --row7-border-cell:     #0f172a; /* border-slate-900 */
+  --row7-text-code:       #ffffff; /* text-white */
 
-  /* ✅ PT (come screenshot: bg scuro + testo giallo) */
-  --row7-pt-bg:          #0f172a; /* bg-slate-900 */
-  --row7-pt-border:      #0f172a; /* border-slate-900 */
-  --row7-pt-text:        rgba(250, 204, 21, 0.85); /* text-yellow-400 (più leggibile) */
-  --row7-pt-pron-text:   #9333ea; /* text-purple-600 */
+  /* ✅ PT  */
+  --row7-pt-bg:           #0f172a; /* bg-slate-900 */
+  --row7-pt-border:       #0f172a; /* border-slate-900 */
+  --row7-pt-text:         #3889B7;
+                           /* rgba(250, 204, 21, 0.70); text-yellow-400 (un pelo più soft) */
 
-  /* ✅ GOL (come screenshot: bg scuro + testo giallo) */
-  --row7-gol-bg:         #0f172a; /* bg-slate-900 */
-  --row7-gol-text:       rgba(250, 204, 21, 0.70); /* text-yellow-400 (un pelo più soft) */
+  --row7-pt-pron-text:    #9333ea; /* text-purple-600 */
 
-  /* Linee sotto W/X/P (e se vuoi anche PT/GOL) */
-  --row7-bottom-border:  #4b5563; /* border-b-gray-600 */
-  --row7-wxp-text:       #9ca3af; /* text-gray-400 */
+  /* ✅ GOL */
+  --row7-gol-bg:          #0f172a; /* bg-slate-900 */
+  --row7-gol-text:        #1A5578;
+                           /* rgba(250, 204, 21, 0.70); text-yellow-400 (un pelo più soft) */
+
+  /* Linee sotto W/X/P */
+  --row7-bottom-border:   #4b5563; /* border-b-gray-600 */
+  --row7-wxp-text:        #9ca3af; /* text-gray-400 */
 
   /* HEADER7 (GridRank) ======================================= */
-  --header7-bg:      #7f1d1d; /* bg-red-900 */
-  --header7-border:  #7f1d1d; /* border-red-900 */
-  --header7-text:    #9ca3af; /* text-gray-400 */
+  --header7-bg:           #541313; /* bg-red-900 */
+  --header7-border:       #541313; /* border-red-900 */
+  --header7-text:         #9ca3af; /* text-gray-400 */
 
   /* GROUP CARD (container) =================================== */
-  --group-bg:      #7f1d1d; /* bg-red-900 */
-  --group-border:  #7f1d1d; /* border-red-900 */
+  --group-bg:             #541313; /* bg-red-900 */
+  --group-border:         #541313; /* border-red-900 */
 
   /* GRID MATCHES ============================================= */
-  --mhead-bg:       #7f1d1d; /* bg-red-900 */
-  --mhead-border:   #7f1d1d; /* border-red-900 */
-  --mhead-text:     #6b7280; /* text-gray-500 */
+  --mhead-bg:             #541313; /* bg-red-900 */
+  --mhead-border:         #541313; /* border-red-900 */
+  --mhead-text:           #9ca3af; /* text-gray-400 */
 
-  --mcell-bg:       #0f172a; /* bg-slate-900 */
-  --mcell-border:   #0f172a; /* border-slate-900 */
-  --mcell-text:     #6b7280; /* text-gray-500 */
-  --mcell-sq-text:  #ffffff; /* text-white */
+  --mcell-bg:             #0f172a; /* bg-slate-900 */
+  --mcell-border:         #0f172a; /* border-slate-900 */
+  --mcell-text:           #9ca3af; /* text-gray-400 */
+  --mcell-sq-text:        #ffffff; /* text-white */
 
-  --mris-bg:        #94a3b8; /* bg-slate-400 */
-  --mris-border:    #94a3b8; /* border-slate-400 */
-  --mris-text:      #000000; /* text-black */
+  --mris-bg:              #94a3b8; /* bg-slate-400 */
+  --mris-border:          #94a3b8; /* border-slate-400 */
+  --mris-text:            #000000; /* text-black */
 
-  --mactive-md-bg:  #075985; /* md:bg-sky-800 */
-  --mactive-m-bg:   #0c4a6e; /* !bg-sky-900 */
-  --mactive-text:   #ffffff; /* text-white */
+  --mactive-md-bg:        #075985; /* md:bg-sky-800 */
+  --mactive-m-bg:         #0c4a6e; /* "!bg-sky-900 */
+  --mactive-text:         #ffffff; /* text-white */
 
-  --mbtn-bg:        #334155; /* md:bg-slate-700 */
-  --mbtn-bg-active: #0284c7; /* md:bg-sky-600 */
+  --mbtn-bg:              #334155; /* md:bg-slate-700 */
+  --mbtn-bg-active:       #334155; /* md:bg-sky-600 */
+  /* GRID MATCHES – DRAWER (mobile) ============================ */
+  --mdrawer-bg:           #075985; /* bg-sky-800 */
+
+
+  /* HIGHLIGHTS (Gruppi) ======================================= */
+  --hl-group-stage: #FFFFFF; /* green-600 */
+  --hl-group-sep: #0f172a;/* border-slate-900 */
+  --hl-group-a: #16a34a; /* green-600 */
+  --hl-group-b: #be185d; /* rose-700 */
+  --hl-group-c: #f59e0b; /* amber-500 (meglio di giallo puro) */
+  --hl-group-d: #2563eb; /* blue-600 */
+  --hl-group-e: #f97316; /* orange-500 */
+  --hl-group-f: #15803d; /* green-700 */
+  --hl-group-g: #a855f7; /* purple-500 (il tuo purple-300 era troppo chiaro) */
+  --hl-group-h: #14b8a6; /* teal-500 */
+  --hl-group-i: #6d28d9; /* violet-700 */
+  --hl-group-j: #fb7185; /* rose-400 */
+  --hl-group-k: #f43f5e; /* rose-500 */
+  --hl-group-l: #9d174d; /* pink/rose scuro */
+
+/* HIGHLIGHTS (Knockout) ===================================== */
+  --hl-round32:  var(--quad-bg-round32);
+  --hl-round16:  var(--quad-bg-round16);
+  --hl-quarter:  var(--quad-bg-quarter);
+  --hl-semi:     var(--quad-bg-semi);
+  --hl-final:    var(--quad-bg-final);
+
+
+ 
+ 
+ /* ============================================================
+     BASE PALETTE (una volta sola)
+  ============================================================ */
+  --c-white: #ffffff;
+  --c-black: #000000;
+
+  --c-slate-900: #0f172a;
+  --c-slate-400: #94a3b8;
+  --c-slate-700: #334155;
+
+  --c-gray-600:  #4b5563;
+  --c-gray-400:  #9ca3af;
+
+  --c-red-900:   #541313;
+
+  --c-sky-800:   #075985;
+  --c-sky-900:   #0c4a6e;
+  --c-teal-700:  #0f766e;
+  --c-emerald-400:#34d399;
+  --c-lime-500:  #84cc16;
+  --c-yellow-500:#facc15;
+  --c-yellow-400:#facc15; /* se vuoi differenziare, cambia qui */
+
+  --c-rose-700:  #be185d;
+  --c-purple-500:#a855f7;
+  --c-green-500: #22c55e;
+
+  /* ============================================================
+     QUADRATO (usa alias, niente hex ripetuti)
+  ============================================================ */
+  --quad-bg-round32:      var(--c-sky-800);
+  --quad-bg-round16:      var(--c-teal-700);
+  --quad-bg-quarter:      var(--c-emerald-400);
+  --quad-bg-semi:         var(--c-lime-500);
+  --quad-bg-final:        var(--c-yellow-500);
+
+  --quad-border-win:      var(--c-rose-700);
+  --quad-border-draw:     var(--c-yellow-400);
+  --quad-border-pron:     var(--c-purple-500);
+  --quad-border-pron-draw:var(--c-green-500);
+  --quad-border-default:  var(--c-white);
+
+  /* ============================================================
+     RETTRIS
+  ============================================================ */
+  --rettris-ris:          #102C57;
+  --rettris-ts:           #0e7490;
+  --rettris-pen:          var(--c-black);
+
+  /* ============================================================
+     ROW7 (GridRank)
+  ============================================================ */
+  --row7-bg-cell:         var(--c-slate-900);
+  --row7-border-cell:     var(--c-slate-900);
+  --row7-text-code:       var(--c-white);
+
+  --row7-pt-bg:           var(--c-slate-900);
+  --row7-pt-border:       var(--c-slate-900);
+  --row7-pt-text:         #3889B7;
+  --row7-pt-pron-text:    #9333ea;
+
+  --row7-gol-bg:          var(--c-slate-900);
+  --row7-gol-text:        #1A5578;
+
+  --row7-bottom-border:   var(--c-gray-600);
+  --row7-wxp-text:        var(--c-gray-400);
+
+  /* ============================================================
+     HEADER / GROUP CARD (stesso colore → alias)
+  ============================================================ */
+  --header7-bg:           var(--c-red-900);
+  --header7-border:       var(--c-red-900);
+  --header7-text:         var(--c-gray-400);
+
+  --group-bg:             var(--c-red-900);
+  --group-border:         var(--c-red-900);
+
+  /* ============================================================
+     GRID MATCHES
+  ============================================================ */
+  --mhead-bg:             var(--c-red-900);
+  --mhead-border:         var(--c-red-900);
+  --mhead-text:           var(--c-gray-400);
+
+  --mcell-bg:             var(--c-slate-900);
+  --mcell-border:         var(--c-slate-900);
+  --mcell-text:           var(--c-gray-400);
+  --mcell-sq-text:        var(--c-white);
+
+  --mris-bg:              var(--c-slate-400);
+  --mris-border:          var(--c-slate-400);
+  --mris-text:            var(--c-black);
+
+  --mactive-md-bg:        var(--c-sky-800);
+  --mactive-m-bg:         var(--c-sky-900);
+  --mactive-text:         var(--c-white);
+
+  --mbtn-bg:              var(--c-slate-700);
+  --mbtn-bg-active:       var(--c-slate-700);
+  --mdrawer-bg:           var(--c-sky-800);
+
+  /* ============================================================
+     HIGHLIGHTS (Gruppi / KO)
+  ============================================================ */
+  --hl-group-stage:       var(--c-white);
+  --hl-group-sep:         var(--c-slate-900);
+
+  --hl-group-a: #16a34a;
+  --hl-group-b: #be185d;
+  --hl-group-c: #f59e0b;
+  --hl-group-d: #2563eb;
+  --hl-group-e: #f97316;
+  --hl-group-f: #15803d;
+  --hl-group-g: #a855f7;
+  --hl-group-h: #14b8a6;
+  --hl-group-i: #6d28d9;
+  --hl-group-j: #fb7185;
+  --hl-group-k: #f43f5e;
+  --hl-group-l: #9d174d;
+
+  --hl-round32:  var(--quad-bg-round32);
+  --hl-round16:  var(--quad-bg-round16);
+  --hl-quarter:  var(--quad-bg-quarter);
+  --hl-semi:     var(--quad-bg-semi);
+  --hl-final:    var(--quad-bg-final);
 }

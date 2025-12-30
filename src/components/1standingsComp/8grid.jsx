@@ -110,6 +110,11 @@ const Grid = ({
         // ordine di priorità: highlight > forceColor > pattern base
         const finalColor = highlightColor || forceColor || config.color;
 
+        // ✅ weekend: forza bg slate-900 solo nella riga header
+        const weekendBg = isWeekendCell ? "bg-slate-900" : null;
+
+        const cellBg = weekendBg || finalColor;
+
         // DIVISORI VERTICALI (6 e 12) – muro sky-700
         const isDividerAfterSix =
           colIndex === 7 || // primo blocco (dopo 6 caselle, es. giorno 17)
@@ -135,17 +140,21 @@ const Grid = ({
         return (
           <div
             key={i}
-            className={`relative overflow-hidden ${cellHeightClass} ${finalColor} ${borderClass} ${dividerClass} ${horizontalDividerClass}`}
+            className={`relative overflow-hidden ${cellHeightClass} ${cellBg} ${borderClass} ${dividerClass} ${horizontalDividerClass}`}
             style={{ width: "32px" }}
           >
             {/* OVERLAY WEEKEND SOLO SOPRA, SOLO PRIMA RIGA, se non c'è highlight/force */}
-            {isWeekendCell && !highlightColor && !forceColor && (
-              <div className="absolute bottom-0 left-0 w-full h-full pointer-events-none z-10 bg-sky-200" />
-            )}
+            {/* {isWeekendCell && !highlightColor && !forceColor && (
+              <div className="absolute bottom-0 left-0 w-full h-full pointer-events-none z-10 bg-slate-800/50" />
+            )} */}
 
             {/* LABEL DATA (prima riga) */}
             {hasLabel && typeof label === "object" ? (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center translate-y-2 leading-none">
+              <div
+                className={`absolute inset-0 z-20 flex flex-col items-center justify-center translate-y-2 leading-none ${
+                  isWeekendCell ? "text-sky-800" : ""
+                }`}
+              >
                 <span className="text-sm font-bold">{label.top}</span>
                 <span className="text-lg font-extrabold">{label.bottom}</span>
               </div>

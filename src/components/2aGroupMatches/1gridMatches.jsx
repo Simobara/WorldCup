@@ -281,9 +281,9 @@ export default function GridMatchesPage() {
                   >
                   <span
                     className={`
-                      font-extrabold text-xl md:text-3xl
-                      text-slate-500
-                      ${hoverGroup === letter ? "md:text-slate-500" : ""}
+                      font-extrabold text-xl md:text-3xl 
+                      ${CssMatchGrid.HeadText}
+                      ${hoverGroup === letter ? "md:text-gray-400" : ""}
                     `}
                   >
                     {letter}
@@ -430,7 +430,7 @@ export default function GridMatchesPage() {
                 md:w-0 w-[40vw]
                 max-h-[80vh] overflow-auto
                 rounded-2xl
-                bg-sky-500 
+                ${CssMatchGrid.DrawerBg}
                 md:m-0 m-1
                 ${
                   // md:p-0 p-1
@@ -494,9 +494,7 @@ function Header7() {
     { mobile: "D ", desktop: "DATA" },
     { mobile: "CIT ", desktop: "CITTA'" },
     { mobile: "SQ1", desktop: "SQUADRA 1" },
-    "",
-    "RIS",
-    "",
+    { mobile: "RIS", desktop: "RIS"},
     { mobile: "SQ2", desktop: "SQUADRA 2" },
   ];
   return (
@@ -623,11 +621,6 @@ function Row7({
           ${activeMob}
         `}
       >
-        {/* MOBILE */}
-        <span className="block md:hidden text-[8px] leading-none font-bold">
-          {dayOnly(day) || "\u00A0"}
-        </span>
-
         {/* DESKTOP */}
         <span className="hidden md:flex items-center gap-1 font-bold leading-none">
           {(() => {
@@ -640,6 +633,11 @@ function Row7({
             );
           })()}
         </span>
+        {/* MOBILE */}
+        <span className="block md:hidden text-[8px] leading-none font-bold">
+          {dayOnly(day) || "\u00A0"}
+        </span>
+
 
         {/* 🔘 BOTTONE ogni 2 incontri (2°, 4°, 6°) */}
         {(rowIndex + 1) % 2 === 0 && (
@@ -676,8 +674,7 @@ function Row7({
 
               md:w-6 w-3
               md:h-[6rem] h-14
-              ${isActiveButtonRow ? "md:bg-sky-600" : "md:bg-slate-700"}
-
+              ${isActiveButtonRow ? "md:bg-sky-600" : "md:bg-slate-900"}
 
               md:p-0 p-4
 

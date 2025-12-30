@@ -1,240 +1,108 @@
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { groupFinal } from "../../START/app/1GroupFinal";
 import { citiesOsp } from "../../START/app/CitiesOsp";
+import { CssHighlights } from "../../START/styles/0CssGsTs";
 import { createDateLabels } from "./1createDate";
 import { buildHighlightsForGroup } from "./3buildHighlightsForGroup";
-// 🔹 Aggiunge automaticamente la lettera del gruppo (A, B, ...) senza perdere teams
+
+/**
+ * ✅ Normalizza output di buildHighlightsForGroup:
+ * - se value è una stringa => { color: string, label }
+ * - se value è un oggetto => { ...value, label }
+ */
 const withAutoGroupLabel = (highlights, groupKey) => {
-  const label = groupKey.replace("group_", ""); // "group_A" → "A", "group_" → ""
+  const label = groupKey.replace("group_", ""); // "group_A" -> "A", "group_" -> ""
 
   return Object.fromEntries(
     Object.entries(highlights).map(([key, value]) => {
-      // value può essere:
-      // - stringa (vecchio caso)
-      // - oggetto { color, teams }
-
       if (typeof value === "string") {
         return [key, { color: value, label }];
       }
-
-      return [
-        key,
-        {
-          ...value, // mantiene color, teams, ecc.
-          label, // aggiunge lettera gruppo ("A", "B"... o "" per knockout)
-        },
-      ];
+      return [key, { ...value, label }];
     })
   );
 };
 
+// 🎨 Mappa colori (usa classi basate su variables.css)
+const GROUP_BG = {
+  group_A: CssHighlights.GroupA,
+  group_B: CssHighlights.GroupB,
+  group_C: CssHighlights.GroupC,
+  group_D: CssHighlights.GroupD,
+  group_E: CssHighlights.GroupE,
+  group_F: CssHighlights.GroupF,
+  group_G: CssHighlights.GroupG,
+  group_H: CssHighlights.GroupH,
+  group_I: CssHighlights.GroupI,
+  group_J: CssHighlights.GroupJ,
+  group_K: CssHighlights.GroupK,
+  group_L: CssHighlights.GroupL,
+};
+
+const KO_BG = {
+  round32: CssHighlights.Round32,
+  round16: CssHighlights.Round16,
+  quarterFinals: CssHighlights.Quarter,
+  semifinals: CssHighlights.Semi,
+  final34: CssHighlights.Final,
+  final: CssHighlights.Final,
+};
+
+// Ordini (così non ti scordi nulla)
+const GROUP_KEYS = [
+  "group_A",
+  "group_B",
+  "group_C",
+  "group_D",
+  "group_E",
+  "group_F",
+  "group_G",
+  "group_H",
+  "group_I",
+  "group_J",
+  "group_K",
+  "group_L",
+];
+
+const KO_KEYS = [
+  "round32",
+  "round16",
+  "quarterFinals",
+  "semifinals",
+  "final34",
+  "final",
+];
+
 export const getMergedHighlights = () => {
   const titleLabels = createDateLabels();
 
-  const highlightedCellsGroupA = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_A,
-      titleLabels,
-      citiesOsp,
-      "bg-green-500"
-    ),
-    "group_A"
-  );
+  const buildGroup = (groupKey) =>
+    withAutoGroupLabel(
+      buildHighlightsForGroup(
+        groupMatches[groupKey],
+        titleLabels,
+        citiesOsp,
+        GROUP_BG[groupKey]
+      ),
+      groupKey
+    );
 
-  const highlightedCellsGroupB = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_B,
-      titleLabels,
-      citiesOsp,
-      "bg-pink-700"
-    ),
-    "group_B"
-  );
+  const buildKO = (koKey) =>
+    withAutoGroupLabel(
+      buildHighlightsForGroup(
+        groupFinal[koKey],
+        titleLabels,
+        citiesOsp,
+        KO_BG[koKey],
+        true
+      ),
+      "group_" // knockout => label vuota
+    );
 
-  const highlightedCellsGroupC = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_C,
-      titleLabels,
-      citiesOsp,
-      "bg-yellow-500"
-    ),
-    "group_C"
+  // ✅ merge finale
+  return Object.assign(
+    {},
+    ...GROUP_KEYS.map(buildGroup),
+    ...KO_KEYS.map(buildKO)
   );
-
-  const highlightedCellsGroupD = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_D,
-      titleLabels,
-      citiesOsp,
-      "bg-blue-500"
-    ),
-    "group_D"
-  );
-
-  const highlightedCellsGroupE = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_E,
-      titleLabels,
-      citiesOsp,
-      "bg-orange-500"
-    ),
-    "group_E"
-  );
-
-  const highlightedCellsGroupF = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_F,
-      titleLabels,
-      citiesOsp,
-      "bg-green-700"
-    ),
-    "group_F"
-  );
-
-  const highlightedCellsGroupG = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_G,
-      titleLabels,
-      citiesOsp,
-      "bg-purple-300"
-    ),
-    "group_G"
-  );
-
-  const highlightedCellsGroupH = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_H,
-      titleLabels,
-      citiesOsp,
-      "bg-teal-400"
-    ),
-    "group_H"
-  );
-
-  const highlightedCellsGroupI = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_I,
-      titleLabels,
-      citiesOsp,
-      "bg-purple-800"
-    ),
-    "group_I"
-  );
-
-  const highlightedCellsGroupJ = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_J,
-      titleLabels,
-      citiesOsp,
-      "bg-rose-300"
-    ),
-    "group_J"
-  );
-
-  const highlightedCellsGroupK = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_K,
-      titleLabels,
-      citiesOsp,
-      "bg-rose-500"
-    ),
-    "group_K"
-  );
-
-  const highlightedCellsGroupL = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupMatches.group_L,
-      titleLabels,
-      citiesOsp,
-      "bg-pink-900"
-    ),
-    "group_L"
-  );
-  //-----------------------------------------------------|
-  const highlightedCellsRoundOf32 = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupFinal.round32,
-      titleLabels,
-      citiesOsp,
-      "bg-orange-500",
-      true
-    ),
-    "group_"
-  );
-
-  const highlightedCellsRoundOf16 = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupFinal.round16,
-      titleLabels,
-      citiesOsp,
-      "bg-cyan-800",
-      true
-    ),
-    "group_"
-  );
-
-  const highlightedCellsQuarterFinals = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupFinal.quarterFinals,
-      titleLabels,
-      citiesOsp,
-      "bg-orange-800",
-      true 
-    ),
-    "group_"
-  );
-
-  const highlightedCellsSemifinals = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupFinal.semifinals,
-      titleLabels,
-      citiesOsp,
-      "bg-cyan-800",
-      true 
-    ),
-    "group_"
-  );
-
-  const highlightedCellsFinal34 = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupFinal.final34,
-      titleLabels,
-      citiesOsp,
-      "bg-yellow-400",
-      true 
-    ),
-    "group_"
-  );
-
-  const highlightedCellsFinal = withAutoGroupLabel(
-    buildHighlightsForGroup(
-      groupFinal.final,
-      titleLabels,
-      citiesOsp,
-      "bg-yellow-400",
-      true 
-    ),
-    "group_"
-  );
-
-  return {
-    ...highlightedCellsGroupA,
-    ...highlightedCellsGroupB,
-    ...highlightedCellsGroupC,
-    ...highlightedCellsGroupD,
-    ...highlightedCellsGroupE,
-    ...highlightedCellsGroupF,
-    ...highlightedCellsGroupG,
-    ...highlightedCellsGroupH,
-    ...highlightedCellsGroupI,
-    ...highlightedCellsGroupJ,
-    ...highlightedCellsGroupK,
-    ...highlightedCellsGroupL,
-    ...highlightedCellsRoundOf32,
-    ...highlightedCellsRoundOf16,
-    ...highlightedCellsQuarterFinals,
-    ...highlightedCellsSemifinals,
-    ...highlightedCellsFinal34,
-    ...highlightedCellsFinal,
-  };
 };

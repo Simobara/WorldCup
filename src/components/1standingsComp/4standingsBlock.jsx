@@ -1,4 +1,5 @@
 import { citiesOsp } from "../../START/app/CitiesOsp";
+import { CssHighlights } from "../../START/styles/0CssGsTs";
 import { createDateLabels } from "./1createDate";
 import { getMergedHighlights } from "./2highlightedGroup";
 import ContainerCitta from "./5containerCitta";
@@ -77,19 +78,26 @@ const StandingsBlock = () => {
       />
 
       {/* ✅ GRIGLIA PARTITE */}
-      <div className="absolute md:left-[15rem] left-[5rem] -top-28 w-[calc(100vw-5rem)] md:w-[calc(100vw-15rem)] overflow-x-auto overflow-y-visible" role="region" aria-label="World Cup match schedule grid" >
+      <div
+        className="absolute md:left-[15rem] left-[5rem] -top-28 w-[calc(100vw-5rem)] md:w-[calc(100vw-15rem)] overflow-x-auto overflow-y-visible"
+        role="region"
+        aria-label="World Cup match schedule grid"
+      >
         <div className="relative inline-block min-w-max pt-8">
           {/* HEADER GRUPPI */}
           <div className="absolute top-0 left-0 flex z-50" aria-hidden="true">
-            <RettGroup color="bg-white"       colsSpan={17}label="Group Stage Matches" />
-            <RettGroup color="bg-orange-400"  colsSpan={6} label="Round of 32" />
-            <RettGroup color="bg-sky-300"     colsSpan={4} label="Round of 16" />
-            <RettGroup color="bg-gray-800"    colsSpan={1} label="" />
-            <RettGroup color="bg-orange-400"  colsSpan={3} label="Quarter Finals" />
-            <RettGroup color="bg-gray-800"    colsSpan={2} label="" />
-            <RettGroup color="bg-sky-300"     colsSpan={2} label="Semi Finals" />
-            <RettGroup color="bg-gray-800"    colsSpan={2} label="" />
-            <RettGroup color="bg-yellow-400"  colsSpan={2} label="Finals" />
+            <RettGroup color={CssHighlights.GroupStage} colsSpan={17} label="Group Stage Matches" />
+            <RettGroup color={CssHighlights.Round32} colsSpan={6} label="Round of 32" />
+            <RettGroup color={CssHighlights.Round16} colsSpan={4} label="Round of 16" />
+            {/* separatore */}
+            <RettGroup color={CssHighlights.GroupSep} colsSpan={1} label="" />
+            <RettGroup color={CssHighlights.Quarter} colsSpan={3} label="Quarter Finals" />
+            {/* separatore */}
+            <RettGroup color={CssHighlights.GroupSep} colsSpan={2} label="" />
+            <RettGroup color={CssHighlights.Semi} colsSpan={2} label="Semi Finals"/>
+            {/* separatore */}
+            <RettGroup color={CssHighlights.GroupSep} colsSpan={2} label="" />
+            <RettGroup color={CssHighlights.Final} colsSpan={2} label="Finals" />
           </div>
           {/* GRIGLIA DATE */}
           <Grid rows={1} cols={39} cellHeightClass="md:h-20 h-16" columnLabels={titleLabels} />

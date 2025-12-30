@@ -69,4 +69,49 @@ export const CssMatchGrid = {
   // Button 📊
   BtnBg:        "md:bg-[var(--mbtn-bg)]",
   BtnBgActive:  "md:bg-[var(--mbtn-bg-active)]",
+  // ✅ Drawer mobile
+  DrawerBg:     "bg-[var(--mdrawer-bg)]",
+};
+
+export const CssHighlights = {
+  // Gruppi
+  GroupStage: "bg-[var(--hl-group-stage)]",
+  GroupSep: "bg-[var(--hl-group-sep)]",
+  GroupA: "bg-[var(--hl-group-a)]",
+  GroupB: "bg-[var(--hl-group-b)]",
+  GroupC: "bg-[var(--hl-group-c)]",
+  GroupD: "bg-[var(--hl-group-d)]",
+  GroupE: "bg-[var(--hl-group-e)]",
+  GroupF: "bg-[var(--hl-group-f)]",
+  GroupG: "bg-[var(--hl-group-g)]",
+  GroupH: "bg-[var(--hl-group-h)]",
+  GroupI: "bg-[var(--hl-group-i)]",
+  GroupJ: "bg-[var(--hl-group-j)]",
+  GroupK: "bg-[var(--hl-group-k)]",
+  GroupL: "bg-[var(--hl-group-l)]",
+
+  // Knockout
+  Round32: "bg-[var(--hl-round32)]",
+  Round16: "bg-[var(--hl-round16)]",
+  Quarter: "bg-[var(--hl-quarter)]",
+  Semi:    "bg-[var(--hl-semi)]",
+  Final:   "bg-[var(--hl-final)]",
+};
+
+const RETT_COLORS = {
+  A: "blue-600",
+  B: "rose-600",
+  C: "amber-600",
+  D: "violet-300",
+  Final: "yellow-500",
+};
+
+export const Rett = {
+  A: `bg-${RETT_COLORS.A}`,
+  B: `bg-${RETT_COLORS.B}`,
+  C: `bg-${RETT_COLORS.C}`,
+  D: `bg-${RETT_COLORS.D}`,
+  Final: `bg-${RETT_COLORS.Final}`,
+  SemiAB: `bg-gradient-to-l from-${RETT_COLORS.A} to-${RETT_COLORS.B}`,
+  SemiCD: `bg-gradient-to-r from-${RETT_COLORS.C} to-${RETT_COLORS.D}`,
 };

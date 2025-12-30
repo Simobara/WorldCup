@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import BlokQuadRett from "../components/3tableComp/4blokQuadRett";
+import BlokQuadRettSemi from "../components/3tableComp/5blokQuadRettSemi";
 import { groupFinal } from "../START/app/1GroupFinal";
 import { flagsMond } from "../START/app/main";
+import { Rett } from "../START/styles/0CssGsTs";
 
 // 🔹 flatten delle squadre (A, B, C, ... → un solo array)
 const tutteLeSquadre = Object.values(flagsMond).flat();
 
 // 🔹 mappa: codice (id) → flag
-// es: { MEX: FlagMessico, GER: FlagGermania, ... }
-const flagByTeamCode = Object.fromEntries(
-  tutteLeSquadre.map((t) => [t.id, t.flag])
-);
+const flagByTeamCode = Object.fromEntries(tutteLeSquadre.map((t) => [t.id, t.flag]));
 
 // 🔹 helper per ottenere la bandiera da "MEX", "GER", ecc.
 const getFlag = (code) => {
@@ -19,15 +18,14 @@ const getFlag = (code) => {
 };
 
 const TablePage = () => {
-  const { round32, round16, quarterFinals, semifinals, final34, final } =
-    groupFinal;
+  const { round32, round16, quarterFinals, semifinals, final34, final } = groupFinal;
 
   const STORAGE_KEY = "tablePage_showPron";
 
   const [showPron, setShowPron] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : true; // default true come ora
+      return saved ? JSON.parse(saved) : true;
     } catch {
       return true;
     }
@@ -46,10 +44,7 @@ const TablePage = () => {
     new Set(
       Object.values(stage)
         .flatMap((giornata) =>
-          giornata.matches.flatMap((m) => [
-            (m.team1 || "").trim(),
-            (m.team2 || "").trim(),
-          ])
+          giornata.matches.flatMap((m) => [(m.team1 || "").trim(), (m.team2 || "").trim()])
         )
         .filter(Boolean)
     );
@@ -82,8 +77,6 @@ const TablePage = () => {
   const pronTeamsInFinalStages = new Set([...collectPronTeamsFromStage(final)]);
 
   // helper: la squadra avanza alla fase successiva?
-  // isPron = true → usiamo i set dei PRON
-  // isPron = false → usiamo i set REALI (team1/team2)
   const didTeamAdvance = (teamCode, phase, isPron = false) => {
     if (!teamCode) return false;
 
@@ -94,32 +87,25 @@ const TablePage = () => {
 
     switch (phase) {
       case "round32":
-        // se gli ottavi (mondo reale o pron) sono VUOTI → non sappiamo chi passa ⇒ tutti colorati
         if (r16.size === 0) return true;
         return r16.has(teamCode);
-
       case "round16":
         if (qf.size === 0) return true;
         return qf.has(teamCode);
-
       case "quarter":
         if (sf.size === 0) return true;
         return sf.has(teamCode);
-
       case "semi":
         if (fin.size === 0) return true;
         return fin.has(teamCode);
-
       case "final":
-        // finale sempre top → mai grayscale
         return true;
-
       default:
         return false;
     }
   };
 
-  // helper: aggiunge la data ai match di uno "stage" (round32, round16, ecc.)
+  // helper: aggiunge la data ai match di uno "stage"
   const collectMatchesWithDate = (stage) =>
     Object.values(stage).flatMap((giornata) =>
       giornata.matches.map((match) => ({
@@ -138,9 +124,8 @@ const TablePage = () => {
     ...collectMatchesWithDate(final),
   ];
 
-  // cerca per fg: A1..A7, B1..B7, C5, C7, AB1, F1, ecc.
-  const getMatchByFg = (fgCode) =>
-    allMatches.find((m) => m.fg === fgCode) || null;
+  // cerca per fg
+  const getMatchByFg = (fgCode) => allMatches.find((m) => m.fg === fgCode) || null;
 
   // 🔹 A
   const mA1 = getMatchByFg("A1");
@@ -166,7 +151,7 @@ const TablePage = () => {
   const mD3 = getMatchByFg("D3");
   const mD4 = getMatchByFg("D4");
 
-  // 🔹 OTTAVI (round16)
+  // 🔹 OTTAVI
   const mA5 = getMatchByFg("A5");
   const mA6 = getMatchByFg("A6");
   const mB5 = getMatchByFg("B5");
@@ -189,62 +174,39 @@ const TablePage = () => {
 
   // 🔹 FINALI
   const mF1 = getMatchByFg("F1");
-  const mF2 = getMatchByFg("F2"); // (la 3°/4° se ti serve)
+  const mF2 = getMatchByFg("F2"); // se ti serve
 
-  // 🔹 prende i codici squadra da team1/team2--------------------------------|
-  // altrimenti li estrae da pron: "ITA-URU"
-  const getDisplayTeamCodes = (match) => {
-    const t1 = (match.team1 || "").trim();
-    const t2 = (match.team2 || "").trim();
+  // ✅ team visualizzati (reali, oppure PRON se showPron e reali vuoti)
+  const getDisplayTeamsFromMatch = (match) => {
+    if (!match) return { code1: "", code2: "", isPron1: false, isPron2: false };
 
-    // se team1/team2 sono valorizzati → hanno la precedenza
-    if (t1 || t2) {
-      return { code1: t1, code2: t2 };
+    const logicalTeam1 = (match.team1 || "").trim();
+    const logicalTeam2 = (match.team2 || "").trim();
+
+    if (logicalTeam1 || logicalTeam2) {
+      return { code1: logicalTeam1, code2: logicalTeam2, isPron1: false, isPron2: false };
     }
 
-    // altrimenti prova a leggere da pron: "ITA-URU"
-    const pron = (match.pron || "").trim();
-    if (!pron) {
-      return { code1: "", code2: "" };
+    if (showPron) {
+      const pron = (match.pron || "").trim();
+      if (pron) {
+        const [p1, p2] = pron.split("-").map((s) => s.trim());
+        return { code1: p1 || "", code2: p2 || "", isPron1: !!p1, isPron2: !!p2 };
+      }
     }
 
-    const [p1, p2] = pron.split("-").map((s) => s.trim());
-    return { code1: p1 || "", code2: p2 || "" };
+    return { code1: "", code2: "", isPron1: false, isPron2: false };
   };
+
+  // 🔹 offset orizzontale semifinale rispetto al centro (speculare)
+  const SEMI_OFFSET_DESKTOP = "10rem";
+  const SEMI_OFFSET_MOBILE = "8rem";
 
   const renderMatchBlock = (match, rettColor, phase) => {
     if (!match) return null;
 
-    const logicalTeam1 = (match.team1 || "").trim();
-    const logicalTeam2 = (match.team2 || "").trim();
-    const hasExplicitTeams = !!(logicalTeam1 || logicalTeam2);
-
-    let displayCode1 = "";
-    let displayCode2 = "";
-    let isPron1 = false;
-    let isPron2 = false;
-
-    if (hasExplicitTeams) {
-      // ✅ TEAM REALI hanno la precedenza
-      displayCode1 = logicalTeam1;
-      displayCode2 = logicalTeam2;
-      isPron1 = false;
-      isPron2 = false;
-    } else if (showPron) {
-      // ✅ Nessun team reale, ma vogliamo vedere i PRON
-      const pron = (match.pron || "").trim(); // es. "KOR-ITA"
-      if (pron) {
-        const parts = pron.split("-").map((s) => s.trim());
-        displayCode1 = parts[0] || "";
-        displayCode2 = parts[1] || "";
-        isPron1 = !!displayCode1;
-        isPron2 = !!displayCode2;
-      }
-    }
-
-    // codici usati per la logica
-    const advanceCode1 = displayCode1;
-    const advanceCode2 = displayCode2;
+    const { code1: displayCode1, code2: displayCode2, isPron1, isPron2 } =
+      getDisplayTeamsFromMatch(match);
 
     return (
       <BlokQuadRett
@@ -257,12 +219,8 @@ const TablePage = () => {
         secondIsPron={isPron2}
         firstTeamFlag={displayCode1 ? getFlag(displayCode1) : null}
         secondTeamFlag={displayCode2 ? getFlag(displayCode2) : null}
-        firstAdvanced={
-          advanceCode1 ? didTeamAdvance(advanceCode1, phase, isPron1) : false
-        }
-        secondAdvanced={
-          advanceCode2 ? didTeamAdvance(advanceCode2, phase, isPron2) : false
-        }
+        firstAdvanced={displayCode1 ? didTeamAdvance(displayCode1, phase, isPron1) : false}
+        secondAdvanced={displayCode2 ? didTeamAdvance(displayCode2, phase, isPron2) : false}
         phase={phase}
         rettLeftLabel={match.date || ""}
         rettRightLabel={match.city || ""}
@@ -275,242 +233,185 @@ const TablePage = () => {
   return (
     <div
       className="
-      w-full h-screen
-      relative
-      
-      overflow-x-auto overflow-y-hidden
-      md:overflow-x-auto md:overflow-y-hidden
-      [background-image:linear-gradient(to_right,theme(colors.slate.400),theme(colors.sky.300),theme(colors.sky.900)),linear-gradient(to_bottom,theme(colors.slate.900),theme(colors.sky.300),theme(colors.sky.900))]
-      bg-blend-multiply
+        w-full h-screen
+        relative
+        overflow-x-auto overflow-y-hidden
+        md:overflow-x-auto md:overflow-y-hidden
+        [background-image:linear-gradient(to_right,theme(colors.slate.400),theme(colors.sky.300),theme(colors.sky.900)),linear-gradient(to_bottom,theme(colors.slate.900),theme(colors.sky.300),theme(colors.sky.900))]
+        bg-blend-multiply
       "
     >
-      {/* Contenitore largo orizzontale: le 7 colonne una di fianco all'altra */}
       <div
         className="
-        flex h-full
-          
-        md:w-[1500px] w-[1300px]    
-        mx-0
-        md:-px-2 px-0
-      "
+          flex h-full
+          md:w-[1500px] w-[1300px]
+          mx-0
+          md:-px-2 px-0
+        "
       >
         {/* ✅ COLONNA 32 A */}
         <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
-          <div className="md:-mt-8 -mt-4">
-            {/* A1 */}
-            {renderMatchBlock(mA1, "bg-green-600", "round32")}
-          </div>
+          <div className="md:-mt-8 -mt-4">{renderMatchBlock(mA1, Rett.A, "round32")}</div>
 
           <div>
-            <div className="md:mt-10 mt-8">
-              {/* A2 */}
-              {renderMatchBlock(mA2, "bg-green-600", "round32")}
-            </div>
+            <div className="md:mt-10 mt-8">{renderMatchBlock(mA2, Rett.A, "round32")}</div>
+            <div className="md:mt-20 mt-16">{renderMatchBlock(mA3, Rett.A, "round32")}</div>
+            <div className="md:mt-10 mt-8">{renderMatchBlock(mA4, Rett.A, "round32")}</div>
 
-            <div className="md:mt-20 mt-16">
-              {/* A3 */}
-              {renderMatchBlock(mA3, "bg-green-600", "round32")}
-            </div>
-
-            <div className="md:mt-10 mt-8">
-              {/* A4 */}
-              {renderMatchBlock(mA4, "bg-green-600", "round32")}
-            </div>
-
-            <div className="md:mt-20 mt-16">
-              {/* B1 */}
-              {renderMatchBlock(mB1, "bg-pink-600", "round32")}
-            </div>
-
-            <div className="md:mt-10 mt-8">
-              {/* B2 */}
-              {renderMatchBlock(mB2, "bg-pink-600", "round32")}
-            </div>
-
-            <div className="md:mt-20 mt-16">
-              {/* B3 */}
-              {renderMatchBlock(mB3, "bg-pink-600", "round32")}
-            </div>
-
-            <div className="md:mt-10 mt-8">
-              {/* B4 */}
-              {renderMatchBlock(mB4, "bg-pink-600", "round32")}
-            </div>
+            <div className="md:mt-20 mt-16">{renderMatchBlock(mB1, Rett.B, "round32")}</div>
+            <div className="md:mt-10 mt-8">{renderMatchBlock(mB2, Rett.B, "round32")}</div>
+            <div className="md:mt-20 mt-16">{renderMatchBlock(mB3, Rett.B, "round32")}</div>
+            <div className="md:mt-10 mt-8">{renderMatchBlock(mB4, Rett.B, "round32")}</div>
           </div>
         </div>
 
         {/* ✅ COLONNA 16 A */}
         <div className="relative flex-1 h-full flex bg-orange flex-col items-center md:pt-20 pt-12">
-          <div className="md:mt-8 mt-8 ml-2">
-            {/* A5 */}
-            {renderMatchBlock(mA5, "bg-green-600", "round16")}
-          </div>
-
-          <div className="md:mt-44 mt-32 ml-2">
-            {/* A6 */}
-            {renderMatchBlock(mA6, "bg-green-600", "round16")}
-          </div>
-
-          <div className="md:mt-48 mt-40 ml-2">
-            {/* B5 */}
-            {renderMatchBlock(mB5, "bg-pink-600", "round16")}
-          </div>
-
-          <div className="md:mt-44 mt-32 ml-2">
-            {/* B6 */}
-            {renderMatchBlock(mB6, "bg-pink-600", "round16")}
-          </div>
+          <div className="md:mt-8 mt-8 ml-2">{renderMatchBlock(mA5, Rett.A, "round16")}</div>
+          <div className="md:mt-44 mt-32 ml-2">{renderMatchBlock(mA6, Rett.A, "round16")}</div>
+          <div className="md:mt-48 mt-40 ml-2">{renderMatchBlock(mB5, Rett.B, "round16")}</div>
+          <div className="md:mt-44 mt-32 ml-2">{renderMatchBlock(mB6, Rett.B, "round16")}</div>
         </div>
 
         {/* ✅ COLONNA QUARTI A */}
         <div className="relative flex-1 h-full bg-blue flex flex-col items-start md:pt-20 pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
-            {/* A7 */}
-            {renderMatchBlock(mA7, "bg-green-600", "quarter")}
+            {renderMatchBlock(mA7, Rett.A, "quarter")}
           </div>
-
           <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -ml-8">
-            {/* B7 */}
-            {renderMatchBlock(mB7, "bg-pink-600", "quarter")}
+            {renderMatchBlock(mB7, Rett.B, "quarter")}
           </div>
         </div>
-        {/* ✅ COLONNA SEMIFINALI FINALE */}
+
+        {/* ✅ COLONNA SEMIFINALI + FINALE */}
         <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
           {/* ✅ FINALE F1 */}
           <div className="relative md:-top-12 -top-28 flex items-center justify-center">
-            {/* 🏆 COPPA ENORME, VINCOLATA AL BLOCCO DELLA FINALE */}
-            {/* ✅ FINALE F1 */}
             <div className="relative md:-top-12 -top-30 flex items-center justify-center">
-              {/* 🏆 COPPA ENORME, VINCOLATA AL BLOCCO DELLA FINALE */}
-
               <img
                 src="/assts/WCOfficial.png"
                 alt="World Cup"
                 className="absolute 
-                      md:left-18 left-1/2 
-                      md:top-36 top-24 
-                      md:w-[400px] w-[360px]
-                      -translate-x-1/2 -translate-y-1/2
-                      max-w-none pointer-events-none
-                    "
+                  md:left-18 left-1/2 
+                  md:top-36 top-24 
+                  md:w-[400px] w-[360px]
+                  -translate-x-1/2 -translate-y-1/2
+                  max-w-none pointer-events-none"
               />
 
-              {/* blocco finale sopra la coppa */}
-              <div className="relative z-10">
-                {renderMatchBlock(mF1, "bg-yellow-500", "final")}
-              </div>
-              {/* 🔘 BOTTONE ALTO CENTRO */}
+              <div className="relative z-10">{renderMatchBlock(mF1, Rett.Final, "final")}</div>
+
               <button
                 onClick={() => setShowPron((prev) => !prev)}
                 className="
-        absolute
-        left-1/2 
-        md:-top-[1.5rem] -top-6
-        md:translate-x-2 translate-x-4
-        bg-transparent
-        border-0 border-yellow-400
-        text-yellow-500  font-bold
-        text-xs md:text-sm
-        px-0 py-0
-        rounded-full z-50       
-      "
+                  absolute left-1/2 
+                  md:-top-[1.5rem] -top-6
+                  md:translate-x-2 translate-x-4
+                  bg-transparent border-0 border-yellow-400
+                  text-yellow-500 font-bold
+                  text-xs md:text-sm
+                  px-0 py-0
+                  rounded-full z-50
+                "
               >
-                {showPron ? "" : ""}
-                ""
+                {showPron ? "" : ""} ""
               </button>
             </div>
           </div>
-          {/* ✅ SEMIFINALE A → AB1 */}
-          <div className="absolute left-1/2 -translate-x-full md:top-[28rem] top-[22rem] md:-ml-16 -ml-12 z-10">
-            {renderMatchBlock(
-              mAB1,
-              "bg-gradient-to-l from-green-600 to-pink-600",
-              "semi"
-            )}
-          </div>
-          {/* ✅ SEMIFINALE B → CD1 */}
-          <div className="absolute right-1/2 translate-x-full md:top-[28rem] top-[22rem] md:-mr-16 -mr-12 z-10">
-            {renderMatchBlock(
-              mCD1,
-              "bg-gradient-to-r from-orange-500 to-fuchsia-600",
-              "semi"
-            )}
-          </div>
+
+          {/* ✅ SEMIFINALE A → AB1 (verticale) */}
+          {(() => {
+            const { code1, code2, isPron1, isPron2 } = getDisplayTeamsFromMatch(mAB1);
+
+            return (
+              <div
+                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[20rem] z-10 "
+                style={{ transform: `translateX(calc(-50% - ${SEMI_OFFSET_DESKTOP}))` }}
+              >
+                <BlokQuadRettSemi
+                  rettColor={Rett.SemiAB}
+                  topSquareLabel={mAB1?.pos1 || ""}
+                  bottomSquareLabel={mAB1?.pos2 || ""}
+                  topTeamName={code1}
+                  bottomTeamName={code2}
+                  topTeamFlag={code1 ? getFlag(code1) : null}
+                  bottomTeamFlag={code2 ? getFlag(code2) : null}
+                  topIsPron={isPron1}
+                  bottomIsPron={isPron2}
+                  topAdvanced={code1 ? didTeamAdvance(code1, "semi", isPron1) : false}
+                  bottomAdvanced={code2 ? didTeamAdvance(code2, "semi", isPron2) : false}
+                  phase="semi"
+                  rettTopLabel={mAB1?.date || ""}
+                  rettBottomLabel={mAB1?.city || ""}
+                  rettTimeLabel={mAB1?.time || ""}
+                  results={mAB1?.results || null}
+                />
+              </div>
+            );
+          })()}
+
+          {/* ✅ SEMIFINALE B → CD1 (verticale) */}
+          {(() => {
+            const { code1, code2, isPron1, isPron2 } = getDisplayTeamsFromMatch(mCD1);
+
+            return (
+              <div
+                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[20rem] z-10"
+                style={{ transform: `translateX(calc(-50% + ${SEMI_OFFSET_DESKTOP}))` }}
+              >
+
+                <BlokQuadRettSemi
+                  rettColor={Rett.SemiCD}
+                  topSquareLabel={mCD1?.pos1 || ""}
+                  bottomSquareLabel={mCD1?.pos2 || ""}
+                  topTeamName={code1}
+                  bottomTeamName={code2}
+                  topTeamFlag={code1 ? getFlag(code1) : null}
+                  bottomTeamFlag={code2 ? getFlag(code2) : null}
+                  topIsPron={isPron1}
+                  bottomIsPron={isPron2}
+                  topAdvanced={code1 ? didTeamAdvance(code1, "semi", isPron1) : false}
+                  bottomAdvanced={code2 ? didTeamAdvance(code2, "semi", isPron2) : false}
+                  phase="semi"
+                  rettTopLabel={mCD1?.date || ""}
+                  rettBottomLabel={mCD1?.city || ""}
+                  rettTimeLabel={mCD1?.time || ""}
+                  results={mCD1?.results || null}
+                />
+              </div>
+            );
+          })()}
         </div>
-        {/* ✅ COLONNA SEMIFINALI FINALE ------------------------------------------------------------------------ */}
+
         {/* ✅ COLONNA QUARTI B */}
         <div className="relative flex-1 h-full bg-blue flex flex-col items-end md:pt-20 pt-12">
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -mr-8">
-            {/* C7 */}
-            {renderMatchBlock(mC7, "bg-orange-500", "quarter")}
+            {renderMatchBlock(mC7, Rett.C, "quarter")}
           </div>
           <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -mr-8">
-            {/* D7 */}
-            {renderMatchBlock(mD7, "bg-fuchsia-600", "quarter")}
+            {renderMatchBlock(mD7, Rett.D, "quarter")}
           </div>
         </div>
 
         {/* ✅ COLONNA 16 B */}
         <div className="relative flex-1 h-full bg-orange flex flex-col items-center md:pt-20 pt-12">
-          <div className="md:mt-8 mt-8 mr-2">
-            {/* C5 */}
-            {renderMatchBlock(mC5, "bg-orange-500", "round16")}
-          </div>
-          <div className="md:mt-44 mt-32 mr-2">
-            {/* C6 */}
-            {renderMatchBlock(mC6, "bg-orange-500", "round16")}
-          </div>
-          <div className="md:mt-48 mt-40 mr-2">
-            {/* D5 */}
-            {renderMatchBlock(mD5, "bg-fuchsia-600", "round16")}
-          </div>
-          <div className="md:mt-44 mt-32 mr-2">
-            {/* D6 */}
-            {renderMatchBlock(mD6, "bg-fuchsia-600", "round16")}
-          </div>
+          <div className="md:mt-8 mt-8 mr-2">{renderMatchBlock(mC5, Rett.C, "round16")}</div>
+          <div className="md:mt-44 mt-32 mr-2">{renderMatchBlock(mC6, Rett.C, "round16")}</div>
+          <div className="md:mt-48 mt-40 mr-2">{renderMatchBlock(mD5, Rett.D, "round16")}</div>
+          <div className="md:mt-44 mt-32 mr-2">{renderMatchBlock(mD6, Rett.D, "round16")}</div>
         </div>
 
         {/* ✅ COLONNA 32 B */}
         <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
-          <div className="md:-mt-8 -mt-4">
-            {/* C1 */}
-            {renderMatchBlock(mC1, "bg-orange-500", "round32")}
-          </div>
+          <div className="md:-mt-8 -mt-4">{renderMatchBlock(mC1, Rett.C, "round32")}</div>
+          <div className="md:mt-10 mt-8">{renderMatchBlock(mC2, Rett.C, "round32")}</div>
+          <div className="md:mt-20 mt-16">{renderMatchBlock(mC3, Rett.C, "round32")}</div>
+          <div className="md:mt-10 mt-8">{renderMatchBlock(mC4, Rett.C, "round32")}</div>
 
-          <div className="md:mt-10 mt-8">
-            {/* C2 */}
-            {renderMatchBlock(mC2, "bg-orange-500", "round32")}
-          </div>
-
-          <div className="md:mt-20 mt-16">
-            {/* C3 */}
-            {renderMatchBlock(mC3, "bg-orange-500", "round32")}
-          </div>
-
-          <div className="md:mt-10 mt-8">
-            {/* C4 */}
-            {renderMatchBlock(mC4, "bg-orange-500", "round32")}
-          </div>
-
-          <div className="md:mt-20 mt-16">
-            {/* D1 */}
-            {renderMatchBlock(mD1, "bg-fuchsia-600", "round32")}
-          </div>
-
-          <div className="md:mt-10 mt-8">
-            {/* D2 */}
-            {renderMatchBlock(mD2, "bg-fuchsia-600", "round32")}
-          </div>
-
-          <div className="md:mt-20 mt-16">
-            {/* D3 */}
-            {renderMatchBlock(mD3, "bg-fuchsia-600", "round32")}
-          </div>
-
-          <div className="md:mt-10 mt-8">
-            {/* D4 */}
-            {renderMatchBlock(mD4, "bg-fuchsia-600", "round32")}
-          </div>
+          <div className="md:mt-20 mt-16">{renderMatchBlock(mD1, Rett.D, "round32")}</div>
+          <div className="md:mt-10 mt-8">{renderMatchBlock(mD2, Rett.D, "round32")}</div>
+          <div className="md:mt-20 mt-16">{renderMatchBlock(mD3, Rett.D, "round32")}</div>
+          <div className="md:mt-10 mt-8">{renderMatchBlock(mD4, Rett.D, "round32")}</div>
         </div>
       </div>
     </div>
