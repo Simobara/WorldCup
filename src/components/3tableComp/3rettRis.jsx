@@ -1,3 +1,4 @@
+import { CssRettRis } from "../../START/styles/0CssGsTs";
 const RettRis = ({ results }) => {
   if (!results) {
     return null;
@@ -34,22 +35,22 @@ const RettRis = ({ results }) => {
           {/* BLOCCO SINISTRO → RIS + TS per TEAM1 */}
           <div className="flex items-center gap-1 text-black">
             {/* RIS team1 (grande) */}
-            <span className="text-lg font-bold text-gray-300">
+            <span className={`text-lg font-bold ${CssRettRis.Ris}`}>
               {risScore.home || "-"}
             </span>
             {/* TS team1 (piccolo) */}
-            <span className="text-sm font-bold text-cyan-800">
+            <span className={`text-sm font-bold ${CssRettRis.Ts}`}>
               {tsScore.home || ""}
             </span>
           </div>
 
           {/* BLOCCO CENTRALE → RIGORI team1 - team2 */}
           <div className="flex items-center gap-1">
-            <span className="text-sm font-bold text-black">
+            <span className={`text-sm font-bold ${CssRettRis.Pen}`}>
               {rScore.home || ""}
             </span>
             <span className="text-sm font-bold">-</span>
-            <span className="text-sm font-bold text-black">
+            <span className={`text-sm font-bold ${CssRettRis.Pen}`}>
               {rScore.away || ""}
             </span>
           </div>
@@ -57,11 +58,11 @@ const RettRis = ({ results }) => {
           {/* BLOCCO DESTRO → TS + RIS per TEAM2 */}
           <div className="flex items-center gap-1">
             {/* TS team2 (piccolo) */}
-            <span className="text-sm font-bold text-cyan-800">
+            <span className={`text-sm font-bold ${CssRettRis.Ts}`}>
               {tsScore.away || ""}
             </span>
             {/* RIS team2 (grande) */}
-            <span className="text-xl font-bold text-gray-300">
+            <span className={`text-lg font-bold ${CssRettRis.Ris}`}>
               {risScore.away || "-"}
             </span>
           </div>

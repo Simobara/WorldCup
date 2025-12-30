@@ -1,3 +1,5 @@
+import { CssQuad } from "../../START/styles/0CssGsTs";
+
 const Quadrato = ({
   label,
   teamName,
@@ -8,62 +10,31 @@ const Quadrato = ({
   isPronTeamTable = false,
 }) => {
   const bgByPhase = {
-    round32: "bg-sky-800",
-    round16: "bg-teal-700",
-    quarter: "bg-emerald-400",
-    semi: "bg-lime-500",
-    final: "bg-yellow-500",
+    round32: CssQuad.BgRound32,
+    round16: CssQuad.BgRound16,
+    quarter: CssQuad.BgQuarter,
+    semi: CssQuad.BgSemi,
+    final: CssQuad.BgFinal,
   };
 
-  const bgColor = bgByPhase[phase] || "bg-sky-800";
+  const bgColor = bgByPhase[phase] || CssQuad.BgRound32;
 
-  // 🟣 FORZA HIGHLIGHT PRON SE È UN PRONOSTICO
   const effectiveHighlightType =
     isPronTeamTable && highlightType === "none" ? "pron" : highlightType;
 
-  // 🎨 COLORE BORDO CORRETTO (NUOVA PALETTE)
-
-  // PARTITE CON RISULTATO
-  // win  → AMARANTO
-  // draw → GIALLO
-
-  // PARTITE SENZA RISULTATO (PRONOSTICO)
-  // pron       → VIOLA
-  // pron-draw  → VERDE
-
-  // Riassunto rapido
-  // 🟢 LIME → resta solo per:
-  // background classifica
-
-  // highlight righe mobile
-  // (non entra più nei bordi)
-
-  // 🟥 AMARANTO → vittoria con risultato
-  // 🟡 GIALLO → pareggio con risultato
-  // 🟣 VIOLA → pronostico vittoria
-  // 🟢 VERDE → pronostico pareggio
-  // Il bordo resta sempre visibile, anche:
-  // con bandiere in grayscale
-  // sopra background lime
-  // con risultato o solo pronostico
+  const borderByHighlight = {
+    win: CssQuad.BorderWin,
+    draw: CssQuad.BorderDraw,
+    pron: CssQuad.BorderPron,
+    "pron-draw": CssQuad.BorderPronDraw,
+    none: CssQuad.BorderDefault,
+  };
 
   const borderColor =
-    effectiveHighlightType === "win"
-      ? "border-rose-700" // AMARANTO (vittoria reale)
-      : effectiveHighlightType === "draw"
-        ? "border-yellow-400" // GIALLO (pareggio reale)
-        : effectiveHighlightType === "pron"
-          ? "border-purple-500" // VIOLA (pron vittoria)
-          : effectiveHighlightType === "pron-draw"
-            ? "border-green-500" // VERDE (pron pareggio)
-            : "border-white";
+    borderByHighlight[effectiveHighlightType] || CssQuad.BorderDefault;
 
-  // 🟣 bordo / ring extra per PRON (indipendente dal risultato)
-  const pronRing = isPronTeamTable
-    ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-black/60"
-    : "";
+  const pronRing = "";
 
-  // 🟡 Regola grayscale
   const isRound32 = phase === "round32";
   const contentFilterClass = isRound32
     ? ""
@@ -74,13 +45,13 @@ const Quadrato = ({
   return (
     <div
       className={`
-    relative w-16 md:h-16 h-12 
-    ${bgColor}
-    border-x-2 border-y-4 ${borderColor}
-    ${pronRing}
-    rounded-[14px] shadow-xl flex items-center justify-center 
-    overflow-hidden z-40
-  `}
+      relative w-16 md:h-16 h-12
+      ${bgColor}
+      border-x-2 border-y-4 ${borderColor}
+      ${pronRing}
+      rounded-[14px] shadow-xl flex items-center justify-center
+      overflow-hidden z-40
+    `}
     >
       {label && (
         <span

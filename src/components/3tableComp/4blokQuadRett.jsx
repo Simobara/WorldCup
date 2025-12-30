@@ -56,7 +56,7 @@ const BlokQuadRett = ({
       </div>
 
       {/* RISULTATI */}
-      <div className="absolute left-1/2 -translate-x-1/2 -mt-12 md:-mt-16 z-20 md:z-0 flex flex-col items-center">
+      <div className="absolute left-1/2 -translate-x-1/2 top-0 md:-top-[10px] z-[999] flex flex-col items-center">
         <RettRis results={results} />
       </div>
     </div>
