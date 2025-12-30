@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
+import { CssGroup, CssHeader7, CssRow7 } from "../../START/styles/0CssGsTs";
 import Quadrato from "../3tableComp/1quad";
 
 function v(val, showZero) {
@@ -334,12 +335,13 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
                 <div
                   key={letter}
                   className={`
-                  ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
-                  ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
-                    bg-red-900 border border-red-900 flex flex-col
-                  md:rounded-tl-[48px]  rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
-                  overflow-hidden
-                `}
+                    ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
+                    ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
+                    ${CssGroup.Bg} border ${CssGroup.Border} flex flex-col
+                    md:rounded-tl-[48px] rounded-tl-[28px]
+                    md:rounded-bl-[48px] rounded-bl-[28px]
+                    overflow-hidden
+                  `}
                 >
                   <div className="flex-1 flex items-stretch">
                     {/* LETTERA */}
@@ -451,18 +453,18 @@ function Header7() {
         // prima colonna (SQUADRA + FLAG) = span 2
         if (idx === 0) {
           return (
-            <div
-              key="squadra"
-              className="col-span-2 bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400 leading-none"
-            >
+          <div 
+            key="squadra"
+            className={` col-span-2 ${CssHeader7.Bg} border ${CssHeader7.Border} flex items-center justify-center text-[9px] font-extrabold ${CssHeader7.Text} leading-none `}
+          >
               {typeof t === "string" ? (
                 t
               ) : (
                 <>
-                  {/* MOBILE */}
-                  <span className="block md:hidden">{t.mobile}</span>
                   {/* DESKTOP */}
                   <span className="hidden md:block">{t.desktop}</span>
+                  {/* MOBILE */}
+                  <span className="block md:hidden">{t.mobile}</span>
                 </>
               )}
             </div>
@@ -476,16 +478,15 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className="bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-bold text-gray-400 leading-none"
-          >
+            className={` ${CssHeader7.Bg} border ${CssHeader7.Border} flex items-center justify-center text-[9px] font-bold ${CssHeader7.Text} leading-none `} >
             {typeof t === "string" ? (
               t
             ) : (
               <>
-                {/* MOBILE */}
-                <span className="block md:hidden">{t.mobile}</span>
                 {/* DESKTOP */}
                 <span className="hidden md:block">{t.desktop}</span>
+                {/* MOBILE */}
+                <span className="block md:hidden">{t.mobile}</span>
               </>
             )}
           </div>
@@ -510,28 +511,26 @@ function Row7({
   return (
     <>
       {/* CODICE */}
-      <div className="bg-slate-900 border border-slate-900 flex items-center justify-center">
-        <span className="hidden md:block text-[10px] text-white font-extrabold">
+      <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} flex items-center justify-center`} >
+        <span className={`hidden md:block text-[10px] ${CssRow7.CodeText} font-extrabold`} >
           {code}
         </span>
       </div>
 
       {/* SQUADRA (FLAG) */}
-      <div className="bg-slate-900 border border-slate-900 flex items-center justify-center">
-        <div className="md:scale-[0.65] scale-[0.45] origin-center">
-          {teamEl}
-        </div>
+      <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} flex items-center justify-center`}>
+        <div className="md:scale-[0.65] scale-[0.45] origin-center">{teamEl}</div>
       </div>
 
+
       {/* PUNTI: numero a SINISTRA, +pron a DESTRA */}
-      <div className="relative border bg-yellow-400/40 border-yellow-400/40 border-r-0 border-t-0 border-b-0">
+      <div className={`relative border ${CssRow7.PtBg} ${CssRow7.PtBorder} border-r-0 border-t-0 border-b-0`}>
         <div className="h-full w-full flex items-center justify-between md:pl-4 pl-1">
-          <span className="font-extrabold text-black md:text-[20px] text-[14px] text-left">
+          <span className={`font-extrabold ${CssRow7.PtText} md:text-[20px] text-[14px] text-left`}>
             {show(pt, { zeroAllowed: showZero })}
           </span>
-
           {showPronostics && pronPt > 0 ? (
-            <span className="text-[12px] md:text-[15px] font-extrabold text-purple-600  md:pr-0 pr-1">
+            <span className={`text-[12px] md:text-[15px] font-extrabold ${CssRow7.PtPronText} md:pr-0 pr-1`}>
               +{pronPt}
             </span>
           ) : (
@@ -540,27 +539,29 @@ function Row7({
         </div>
       </div>
 
+
       {/* GOL: testo CENTRATO */}
-      <div className="bg-slate-600 border border-slate-900 border-l-0 border-b-4 border-t-0 border-b-gray-600 text-slate-900 flex items-center justify-center md:pl-1 pl-0">
+      <div className={`${CssRow7.GolBg} border ${CssRow7.CellBorder} border-l-0 border-b-4 border-t-0 ${CssRow7.BottomLine} ${CssRow7.GolText} flex items-center justify-center md:pl-1 pl-0`}>
         <span className="text-[12px] md:text-[15px] font-extrabold">{gol}</span>
       </div>
 
+
       {/* W: CENTRO */}
-      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
+      <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} border-b-4 ${CssRow7.BottomLine} ${CssRow7.WxpText} flex items-center justify-center`}>
         <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(w, { zeroAllowed: false })}
         </span>
       </div>
 
-      {/* X: CENTRO */}
-      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
+        {/* X: CENTRO */}
+      <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} border-b-4 ${CssRow7.BottomLine} ${CssRow7.WxpText} flex items-center justify-center`}>
         <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(x, { zeroAllowed: false })}
         </span>
       </div>
 
-      {/* P: CENTRO */}
-      <div className="bg-slate-900 border border-slate-900 border-b-4 border-b-gray-600 text-gray-400 flex items-center justify-center">
+        {/* P: CENTRO */}
+      <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} border-b-4 ${CssRow7.BottomLine} ${CssRow7.WxpText} flex items-center justify-center`}>
         <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(p, { zeroAllowed: false })}
         </span>

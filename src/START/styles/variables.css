@@ -1,5 +1,4 @@
 /* ============================================================ */
-   
 :root {
   /* QUADRATO ================================================= */
   --quad-bg-round32:  #075985; /* bg-sky-800 */
@@ -8,20 +7,64 @@
   --quad-bg-semi:     #84cc16; /* bg-lime-500 */
   --quad-bg-final:    #facc15; /* bg-yellow-500 */
 
-
- /* QUADRATO – BORDI ========================================== */
-
+  /* QUADRATO – BORDI ========================================= */
   --quad-border-win:       #be185d; /* border-rose-700 */
   --quad-border-draw:      #facc15; /* border-yellow-400 */
   --quad-border-pron:      #a855f7; /* border-purple-500 */
   --quad-border-pron-draw: #22c55e; /* border-green-500 */
   --quad-border-default:   #ffffff; /* border-white */
 
-
   /* RETTRIS – COLORI TESTO =================================== */
-
-  --rettris-ris:   #343F50; /* text-slate-700 */
+  --rettris-ris:   #102C57; /* custom (tuo) */
   --rettris-ts:    #0e7490; /* text-cyan-700 */
   --rettris-pen:   #000000; /* text-black */
-  
+
+  /* ROW7 (GridRank) ========================================== */
+  --row7-bg-cell:        #0f172a; /* bg-slate-900 */
+  --row7-border-cell:    #0f172a; /* border-slate-900 */
+  --row7-text-code:      #ffffff; /* text-white */
+
+  /* ✅ PT (come screenshot: bg scuro + testo giallo) */
+  --row7-pt-bg:          #0f172a; /* bg-slate-900 */
+  --row7-pt-border:      #0f172a; /* border-slate-900 */
+  --row7-pt-text:        rgba(250, 204, 21, 0.85); /* text-yellow-400 (più leggibile) */
+  --row7-pt-pron-text:   #9333ea; /* text-purple-600 */
+
+  /* ✅ GOL (come screenshot: bg scuro + testo giallo) */
+  --row7-gol-bg:         #0f172a; /* bg-slate-900 */
+  --row7-gol-text:       rgba(250, 204, 21, 0.70); /* text-yellow-400 (un pelo più soft) */
+
+  /* Linee sotto W/X/P (e se vuoi anche PT/GOL) */
+  --row7-bottom-border:  #4b5563; /* border-b-gray-600 */
+  --row7-wxp-text:       #9ca3af; /* text-gray-400 */
+
+  /* HEADER7 (GridRank) ======================================= */
+  --header7-bg:      #7f1d1d; /* bg-red-900 */
+  --header7-border:  #7f1d1d; /* border-red-900 */
+  --header7-text:    #9ca3af; /* text-gray-400 */
+
+  /* GROUP CARD (container) =================================== */
+  --group-bg:      #7f1d1d; /* bg-red-900 */
+  --group-border:  #7f1d1d; /* border-red-900 */
+
+  /* GRID MATCHES ============================================= */
+  --mhead-bg:       #7f1d1d; /* bg-red-900 */
+  --mhead-border:   #7f1d1d; /* border-red-900 */
+  --mhead-text:     #6b7280; /* text-gray-500 */
+
+  --mcell-bg:       #0f172a; /* bg-slate-900 */
+  --mcell-border:   #0f172a; /* border-slate-900 */
+  --mcell-text:     #6b7280; /* text-gray-500 */
+  --mcell-sq-text:  #ffffff; /* text-white */
+
+  --mris-bg:        #94a3b8; /* bg-slate-400 */
+  --mris-border:    #94a3b8; /* border-slate-400 */
+  --mris-text:      #000000; /* text-black */
+
+  --mactive-md-bg:  #075985; /* md:bg-sky-800 */
+  --mactive-m-bg:   #0c4a6e; /* !bg-sky-900 */
+  --mactive-text:   #ffffff; /* text-white */
+
+  --mbtn-bg:        #334155; /* md:bg-slate-700 */
+  --mbtn-bg-active: #0284c7; /* md:bg-sky-600 */
 }

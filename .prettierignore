@@ -3,10 +3,15 @@ App.jsx
 
 citiesOsp.jsx
 
+# START
 0GroupMatches.jsx
 1GroupFinal.jsx
+# StandingComponent
 4standingsBlock.jsx
-
+# GridMatches
+1gridMatches.jsx
+# GridRank
+1gridRank.jsx
 
 variables.css
 0CssGsTs.jsx

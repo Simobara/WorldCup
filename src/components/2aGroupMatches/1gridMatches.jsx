@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
+import { CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
 
@@ -261,7 +262,8 @@ export default function GridMatchesPage() {
                   hoverGroup === letter ? "md:z-[10000]" : "md:z-0"
                 }
 
-                bg-red-900 border border-red-900 flex flex-col
+                 ${CssMatchGrid.HeadBg}
+                border ${CssMatchGrid.HeadBorder} flex flex-col
                 md:rounded-tl-[48px] rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
                 overflow-hidden
               `}
@@ -277,14 +279,15 @@ export default function GridMatchesPage() {
                     className="w-8 md:w-10 flex items-center justify-center"
                     aria-hidden="true"
                   >
-                    <span
-                      className={`
-                        font-extrabold text-xl md:text-3xl
-                        ${hoverGroup === letter ? "md:text-slate-800" : "text-slate-800"}
-                      `}
-                    >
-                      {letter}
-                    </span>
+                  <span
+                    className={`
+                      font-extrabold text-xl md:text-3xl
+                      text-slate-500
+                      ${hoverGroup === letter ? "md:text-slate-500" : ""}
+                    `}
+                  >
+                    {letter}
+                  </span>
                   </div>
 
                   {/* GRIGLIA */}
@@ -423,23 +426,23 @@ export default function GridMatchesPage() {
             {/* DRAWER — DEBUG VISIVO (solo mobile) */}
             <div
               className={`
-    md:hidden fixed z-[10001]
-    md:w-0 w-[40vw]
-    max-h-[80vh] overflow-auto
-    rounded-2xl
-    bg-sky-500 
-    md:m-0 m-1
-    ${
-      // md:p-0 p-1
-      mobileSide === "left"
-        ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
-          ? "left-0"
-          : "left-[2rem]"
-        : SHIFT_RIGHT_MOBILE_GROUPS.has(mobileGroup)
-          ? "right-[4.5rem]" // più a destra (tweak qui)
-          : "right-[6rem]"
-    }
-  `}
+                md:hidden fixed z-[10001]
+                md:w-0 w-[40vw]
+                max-h-[80vh] overflow-auto
+                rounded-2xl
+                bg-sky-500 
+                md:m-0 m-1
+                ${
+                  // md:p-0 p-1
+                  mobileSide === "left"
+                    ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
+                      ? "left-0"
+                      : "left-[2rem]"
+                    : SHIFT_RIGHT_MOBILE_GROUPS.has(mobileGroup)
+                      ? "right-[4.5rem]" // più a destra (tweak qui)
+                      : "right-[6rem]"
+                }
+              `}
               style={{ top: mobileTop }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -454,12 +457,12 @@ export default function GridMatchesPage() {
             {/* BACKDROP SCURO (solo visivo) */}
             <div
               className="
-    hidden md:block
-    fixed inset-0
-    z-[9998]
-    bg-slate-900/50
-    pointer-events-none
-  "
+                hidden md:block
+                fixed inset-0
+                z-[9998]
+                bg-slate-900/50
+                pointer-events-none
+              "
             />
 
             {/* BOX CLASSIFICA */}
@@ -496,7 +499,6 @@ function Header7() {
     "",
     { mobile: "SQ2", desktop: "SQUADRA 2" },
   ];
-
   return (
     <>
       {headers.map((h, idx) => {
@@ -508,17 +510,25 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className="relative bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-black z-[100]"
+            className={`
+              relative
+              ${CssMatchGrid.HeadBg}
+              border ${CssMatchGrid.HeadBorder}
+              flex items-center justify-center
+              text-[9px] font-extrabold
+              ${CssMatchGrid.HeadText}
+              z-[100]
+            `}
             style={{ gridColumn: `span ${isSquadra ? 2 : 1}` }}
           >
             {typeof h === "string" ? (
               h
             ) : (
               <>
-                {/* MOBILE */}
-                <span className="block md:hidden">{h.mobile}</span>
                 {/* DESKTOP */}
                 <span className="hidden md:block">{h.desktop}</span>
+                {/* MOBILE */}
+                <span className="block md:hidden">{h.mobile}</span>
               </>
             )}
           </div>
@@ -595,15 +605,23 @@ function Row7({
   const flagsGrayOnMobile = !mobileRankOpen || !isThisMobileGroupOpen;
 
   // (se vuoi anche quando drawer chiuso: puoi usare true fisso, vedi nota sotto)
+  const activeDesk = isActivePair ? `${CssMatchGrid.ActiveMdBg} ${CssMatchGrid.ActiveMdText}` : "";
+  const activeMob  = isActivePairMobile ? `${CssMatchGrid.ActiveMBg} ${CssMatchGrid.ActiveMText}` : "";
 
+
+  
   return (
     <>
       {/* DATA */}
       <div
-        className={`${common} relative border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-center
-      ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
-      ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
-      `}
+        className={`
+          ${common} relative
+          border-transparent
+          ${CssMatchGrid.CellBg} ${CssMatchGrid.CellText}
+          flex items-center justify-center
+          ${activeDesk}
+          ${activeMob}
+        `}
       >
         {/* MOBILE */}
         <span className="block md:hidden text-[8px] leading-none font-bold">
@@ -746,39 +764,49 @@ function Row7({
 
       {/* CITTÀ */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-start
-          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
+        className={`
+          ${common}
+          border-transparent
+          ${CssMatchGrid.CellBg} ${CssMatchGrid.CellText}
+          flex items-center justify-start
+          ${activeDesk}
+          ${activeMob}
         `}
       >
-        {/* MOBILE → 3 lettere */}
-        <span className="block md:hidden text-[8px] leading-none font-bold">
-          {city3(city) || "\u00A0"}
-        </span>
-
         {/* DESKTOP → nome completo */}
         <span className="hidden md:block text-[9px] font-bold">
           {city || "\u00A0"}
+        </span>
+        {/* MOBILE → 3 lettere */}
+        <span className="block md:hidden text-[8px] leading-none font-bold">
+          {city3(city) || "\u00A0"}
         </span>
       </div>
 
       {/* SQUADRA 1 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-start
-          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
+        className={`
+          ${common}
+          border-transparent
+          ${CssMatchGrid.CellBg} ${CssMatchGrid.CellText}
+          flex items-center justify-start
+          ${activeDesk}
+          ${activeMob}
         `}
       >
-        <span className="hidden md:block text-[9px] font-bold text-white pl-2">
-          {team1 || "\u00A0"}
-        </span>
+      <span className={`hidden md:block text-[9px] font-bold ${CssMatchGrid.CellSqText} pl-2`}>
+        {team1 || "\u00A0"}
+      </span>
       </div>
-
       {/* FLAG 1 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center
-          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
+        className={`
+          ${common}
+          border-transparent
+          ${CssMatchGrid.CellBg}
+          flex items-center justify-center
+          ${activeDesk}
+          ${activeMob}
         `}
       >
         <div
@@ -804,9 +832,13 @@ function Row7({
 
       {/* RIS */}
       <div
-        className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center
-          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-black"}
-          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
+        className={`
+          ${common}
+          border-transparent
+          ${CssMatchGrid.RisBg} ${CssMatchGrid.RisText}
+          flex items-center justify-center
+          ${activeDesk}
+          ${activeMob}
         `}
       >
         <span className="md:text-[15px] text-[12px] font-extrabold">
@@ -815,10 +847,14 @@ function Row7({
       </div>
 
       {/* FLAG 2 */}
-      <div
-        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center
-          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
+       <div
+        className={`
+          ${common}
+          border-transparent
+          ${CssMatchGrid.CellBg}
+          flex items-center justify-center
+          ${activeDesk}
+          ${activeMob}
         `}
       >
         <div
@@ -844,9 +880,13 @@ function Row7({
 
       {/* SQUADRA 2 */}
       <div
-        className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center 
-          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
+        className={`
+          ${common}
+          border-transparent
+          ${CssMatchGrid.CellBg} ${CssMatchGrid.CellText}
+          flex items-center justify-start
+          ${activeDesk}
+          ${activeMob}
         `}
       >
         <span className="hidden md:block text-[10px] font-bold text-white pr-2">

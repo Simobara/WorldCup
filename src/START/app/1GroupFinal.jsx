@@ -15,7 +15,7 @@ const groupFinal26 = {
         'GIU/29',
       ],
       matches: [
-        { numero:  1, city: 'Houston',    time: '02:00', pos1:'1C',           pos2:'2F',           team1:'', team2:'',    goto:'76', fg:'C1', pron:'MOR-JAP', results:{ ris:'2-1 ', TS:' ', R:' ' } },
+        { numero:  1, city: 'Houston',    time: '02:00', pos1:'1C',           pos2:'2F',           team1:'', team2:'',    goto:'76', fg:'C1', pron:'MOR-JAP', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  2, city: 'Boston',     time: '01:00', pos1:'1E',           pos2:'3A/B/C/D/F',   team1:'', team2:'',    goto:'74', fg:'A1', pron:'GER-SAF', results:{ ris:' ', TS:' ', R:' ' } },
         { numero:  3, city: 'Monterrey',  time: '03:00', pos1:'1F',           pos2:'2C',           team1:'', team2:'',    goto:'75', fg:'A4', pron:'TUR-BRA', results:{ ris:' ', TS:' ', R:' ' } },
       ],
