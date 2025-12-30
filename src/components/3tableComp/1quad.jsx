@@ -21,16 +21,41 @@ const Quadrato = ({
   const effectiveHighlightType =
     isPronTeamTable && highlightType === "none" ? "pron" : highlightType;
 
-  // 🎨 COLORE BORDO CORRETTO
+  // 🎨 COLORE BORDO CORRETTO (NUOVA PALETTE)
+
+  // PARTITE CON RISULTATO
+  // win  → AMARANTO
+  // draw → GIALLO
+
+  // PARTITE SENZA RISULTATO (PRONOSTICO)
+  // pron       → VIOLA
+  // pron-draw  → VERDE
+
+  // Riassunto rapido
+  // 🟢 LIME → resta solo per:
+  // background classifica
+
+  // highlight righe mobile
+  // (non entra più nei bordi)
+
+  // 🟥 AMARANTO → vittoria con risultato
+  // 🟡 GIALLO → pareggio con risultato
+  // 🟣 VIOLA → pronostico vittoria
+  // 🟢 VERDE → pronostico pareggio
+  // Il bordo resta sempre visibile, anche:
+  // con bandiere in grayscale
+  // sopra background lime
+  // con risultato o solo pronostico
+
   const borderColor =
     effectiveHighlightType === "win"
-      ? "border-sky-700"
+      ? "border-rose-700" // AMARANTO (vittoria reale)
       : effectiveHighlightType === "draw"
-        ? "border-green-500"
-        : effectiveHighlightType === "pron-draw"
-          ? "border-lime-500"
-          : effectiveHighlightType === "pron"
-            ? "border-purple-500"
+        ? "border-yellow-400" // GIALLO (pareggio reale)
+        : effectiveHighlightType === "pron"
+          ? "border-purple-500" // VIOLA (pron vittoria)
+          : effectiveHighlightType === "pron-draw"
+            ? "border-green-500" // VERDE (pron pareggio)
             : "border-white";
 
   // 🟣 bordo / ring extra per PRON (indipendente dal risultato)

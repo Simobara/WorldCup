@@ -247,13 +247,24 @@ export default function GridMatchesPage() {
               <section
                 key={letter}
                 aria-labelledby={`group-${letter}-title`}
-                className={` group-card relative
-                  ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
-                  ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
-                  bg-red-900 border border-red-900 flex flex-col
-                  md:rounded-tl-[48px]  rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
-                  overflow-hidden
-                `}
+                className={`group-card relative
+                ${GROUP_WIDTH_MOBILE} ${GROUP_HEIGHT_MOBILE}
+                ${GROUP_WIDTH_DESKTOP} ${GROUP_HEIGHT_DESKTOP}
+
+                ${
+                  // MOBILE: gruppo selezionato sopra il backdrop
+                  mobileRankOpen && mobileGroup === letter ? "z-[10000]" : "z-0"
+                }
+
+                ${
+                  // DESKTOP: SOLO il gruppo hoverato sopra il backdrop (così non si scurisce)
+                  hoverGroup === letter ? "md:z-[10000]" : "md:z-0"
+                }
+
+                bg-red-900 border border-red-900 flex flex-col
+                md:rounded-tl-[48px] rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
+                overflow-hidden
+              `}
               >
                 {/* Titolo gruppo (non cambia UI) */}
                 <h2 id={`group-${letter}-title`} className="sr-only">
@@ -266,7 +277,12 @@ export default function GridMatchesPage() {
                     className="w-8 md:w-10 flex items-center justify-center"
                     aria-hidden="true"
                   >
-                    <span className="text-gray-400 font-extrabold text-xl md:text-3xl">
+                    <span
+                      className={`
+                        font-extrabold text-xl md:text-3xl
+                        ${hoverGroup === letter ? "md:text-sky-600" : "text-slate-800"}
+                      `}
+                    >
                       {letter}
                     </span>
                   </div>
@@ -411,7 +427,7 @@ export default function GridMatchesPage() {
     md:w-0 w-[40vw]
     max-h-[80vh] overflow-auto
     rounded-2xl
-    bg-purple-500 
+    bg-sky-600 
     md:m-0 m-1
     ${
       // md:p-0 p-1
@@ -441,14 +457,14 @@ export default function GridMatchesPage() {
     hidden md:block
     fixed inset-0
     z-[9998]
-    bg-black/50
+    bg-slate-900/50
     pointer-events-none
   "
             />
 
             {/* BOX CLASSIFICA */}
             <div
-              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-purple-500 shadow-2xl w-[23rem]"
+              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-sky-600 shadow-2xl w-[23rem]"
               style={{ top: `${top}px`, left: `${left}px` }}
               onMouseEnter={() => {
                 if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
@@ -492,7 +508,7 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className="relative bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-gray-400 z-[100]"
+            className="relative bg-red-900 border border-red-900 flex items-center justify-center text-[9px] font-extrabold text-black z-[100]"
             style={{ gridColumn: `span ${isSquadra ? 2 : 1}` }}
           >
             {typeof h === "string" ? (
@@ -564,13 +580,29 @@ function Row7({
     typeof mobileCutoff === "number" &&
     rowIndex >= mobileCutoff - 2 &&
     rowIndex <= mobileCutoff - 1;
+  // ====================
+  // Z-INDEX LOGIC (MOBILE)
+  // ====================
+  const isAnyMobileOpen = mobileRankOpen;
+  const isThisMobileGroupOpen = mobileRankOpen && mobileGroup === groupLetter;
+  const isThisMobileButtonOpen =
+    isThisMobileGroupOpen && mobileCutoff === rowIndex + 1;
+
+  // DESKTOP: bandiere grigie sempre, tranne nel gruppo hoverato (quello con classifica aperta)
+  const flagsGrayOnDesktop = hoverGroup !== groupLetter; // hoverGroup null => true (tutte grigie)
+
+  // MOBILE: bandiere grigie sempre, tranne nel gruppo selezionato
+  const flagsGrayOnMobile = !mobileRankOpen || !isThisMobileGroupOpen;
+
+  // (se vuoi anche quando drawer chiuso: puoi usare true fisso, vedi nota sotto)
+
   return (
     <>
       {/* DATA */}
       <div
         className={`${common} relative border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-center
-      ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
-      ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+      ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
+      ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
       `}
       >
         {/* MOBILE */}
@@ -626,7 +658,7 @@ function Row7({
 
               md:w-6 w-3
               md:h-[6rem] h-14
-              ${isActiveButtonRow ? "md:bg-slate-500" : "md:bg-slate-700"}
+              ${isActiveButtonRow ? "md:bg-sky-700" : "md:bg-slate-700"}
 
 
               md:p-0 p-4
@@ -644,7 +676,15 @@ function Row7({
                  : "md:z-0";
              })()}
 
-            ${mobileRankOpen ? "z-[10000]" : "z-10"}
+            ${
+              !isAnyMobileOpen
+                ? "z-10"
+                : isThisMobileGroupOpen
+                  ? isThisMobileButtonOpen
+                    ? "z-[10000]"
+                    : "z-[9999]"
+                  : "z-10"
+            }
         
 
               md:border-none bordr border-whit
@@ -707,8 +747,8 @@ function Row7({
       {/* CITTÀ */}
       <div
         className={`${common} border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-start
-          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
         `}
       >
         {/* MOBILE → 3 lettere */}
@@ -725,8 +765,8 @@ function Row7({
       {/* SQUADRA 1 */}
       <div
         className={`${common} border-slate-900 bg-slate-900 text-gray-500 flex items-center justify-start
-          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
         `}
       >
         <span className="hidden md:block text-[9px] font-bold text-white pl-2">
@@ -737,11 +777,27 @@ function Row7({
       {/* FLAG 1 */}
       <div
         className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center
-          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
         `}
       >
-        <div className="scale-[0.45] md:scale-[0.65] origin-center">
+        <div
+          className={`
+          scale-[0.45] md:scale-[0.65] origin-center
+          ${
+            // DESKTOP
+            flagsGrayOnDesktop
+              ? "md:[&_img]:grayscale md:[&_svg]:grayscale"
+              : "md:[&_img]:grayscale-0 md:[&_svg]:grayscale-0"
+          }
+          ${
+            // MOBILE
+            flagsGrayOnMobile
+              ? "[&_img]:grayscale [&_svg]:grayscale"
+              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"
+          }
+        `}
+        >
           {flag1 ?? <span>&nbsp;</span>}
         </div>
       </div>
@@ -749,8 +805,8 @@ function Row7({
       {/* RIS */}
       <div
         className={`${common} border-slate-400 bg-slate-400 text-black flex items-center justify-center
-          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-black"}
-          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-black"}
+          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
         `}
       >
         <span className="md:text-[15px] text-[12px] font-extrabold">
@@ -761,11 +817,27 @@ function Row7({
       {/* FLAG 2 */}
       <div
         className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center
-          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
         `}
       >
-        <div className="scale-[0.45] md:scale-[0.65] origin-center">
+        <div
+          className={`
+          scale-[0.45] md:scale-[0.65] origin-center
+           ${
+             // DESKTOP
+             flagsGrayOnDesktop
+               ? "md:[&_img]:grayscale md:[&_svg]:grayscale"
+               : "md:[&_img]:grayscale-0 md:[&_svg]:grayscale-0"
+           }
+          ${
+            // MOBILE
+            flagsGrayOnMobile
+              ? "[&_img]:grayscale [&_svg]:grayscale"
+              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"
+          }
+        `}
+        >
           {flag2 ?? <span>&nbsp;</span>}
         </div>
       </div>
@@ -773,8 +845,8 @@ function Row7({
       {/* SQUADRA 2 */}
       <div
         className={`${common} border-slate-900 bg-slate-900 flex items-center justify-center 
-          ${isActivePair ? "md:bg-purple-600 md:text-white" : "md:text-gray-500"}
-          ${isActivePairMobile ? "!bg-purple-500 text-white" : ""}
+          ${isActivePair ? "md:bg-sky-800 md:text-white" : "md:text-gray-500"}
+          ${isActivePairMobile ? "!bg-sky-900 text-white " : ""}
         `}
       >
         <span className="hidden md:block text-[10px] font-bold text-white pr-2">
