@@ -12,13 +12,10 @@ const StandingsBlock = () => {
   return (
     <section
       aria-labelledby="wc-standings-title"
-      className="md:top-[12rem] top-[9rem] md:left-0 -left-2 relative"
+      className="md:top-[12rem] top-[7.5rem] md:left-0 -left-2 relative"
     >
       {/* 🔹 SEO HEADING (visibile o no, ma indicizzabile) */}
-      <h2
-        id="wc-standings-title"
-        className="sr-only"
-      >
+      <h2 id="wc-standings-title" className="sr-only">
         World Cup Match Schedule and Standings
       </h2>
 
@@ -88,11 +85,19 @@ const StandingsBlock = () => {
         <div className="relative inline-block min-w-max pt-8">
           {/* HEADER GRUPPI */}
           <div className="absolute top-0 left-0 flex z-50" aria-hidden="true">
-            <RettGroup color="bg-white" colsSpan={17} label="Group Stage Matches" />
+            <RettGroup
+              color="bg-white"
+              colsSpan={17}
+              label="Group Stage Matches"
+            />
             <RettGroup color="bg-orange-400" colsSpan={6} label="Round of 32" />
             <RettGroup color="bg-sky-300" colsSpan={4} label="Round of 16" />
             <RettGroup color="bg-gray-800" colsSpan={1} label="" />
-            <RettGroup color="bg-orange-400" colsSpan={3} label="Quarter Finals" />
+            <RettGroup
+              color="bg-orange-400"
+              colsSpan={3}
+              label="Quarter Finals"
+            />
             <RettGroup color="bg-gray-800" colsSpan={2} label="" />
             <RettGroup color="bg-sky-300" colsSpan={2} label="Semi Finals" />
             <RettGroup color="bg-gray-800" colsSpan={2} label="" />

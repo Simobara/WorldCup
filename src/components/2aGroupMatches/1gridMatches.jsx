@@ -280,7 +280,7 @@ export default function GridMatchesPage() {
                     <span
                       className={`
                         font-extrabold text-xl md:text-3xl
-                        ${hoverGroup === letter ? "md:text-sky-600" : "text-slate-800"}
+                        ${hoverGroup === letter ? "md:text-slate-800" : "text-slate-800"}
                       `}
                     >
                       {letter}
@@ -427,7 +427,7 @@ export default function GridMatchesPage() {
     md:w-0 w-[40vw]
     max-h-[80vh] overflow-auto
     rounded-2xl
-    bg-sky-600 
+    bg-sky-500 
     md:m-0 m-1
     ${
       // md:p-0 p-1
@@ -464,7 +464,7 @@ export default function GridMatchesPage() {
 
             {/* BOX CLASSIFICA */}
             <div
-              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-sky-600 shadow-2xl w-[23rem]"
+              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-sky-800 shadow-2xl w-[23rem]"
               style={{ top: `${top}px`, left: `${left}px` }}
               onMouseEnter={() => {
                 if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
@@ -658,7 +658,7 @@ function Row7({
 
               md:w-6 w-3
               md:h-[6rem] h-14
-              ${isActiveButtonRow ? "md:bg-sky-700" : "md:bg-slate-700"}
+              ${isActiveButtonRow ? "md:bg-sky-600" : "md:bg-slate-700"}
 
 
               md:p-0 p-4
