@@ -55,8 +55,8 @@ group_B: {
             'GIU/24',
         ],
         matches: [
-            { numero: 5, city: 'Vancouver',         time: '20:00',     team1: 'Svizzera',        team2: 'Canada',           pron:'2', results:'' },
-            { numero: 6, city: 'Seattle',           time: '20:00',     team1: 'Italia',          team2: 'Qatar',            pron:'X', results:'' },
+            { numero: 5, city: 'Vancouver',         time: '20:00',     team1: 'Svizzera',        team2: 'Canada',           pron:'2', results:'0-4' },
+            { numero: 6, city: 'Seattle',           time: '20:00',     team1: 'Italia',          team2: 'Qatar',            pron:'X', results:'0-0' },
         ],
     },
 },
@@ -67,8 +67,8 @@ group_C: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'NewYork',           time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:'X', results:' ' },
-            { numero: 2, city: 'Boston',            time: '07:00',      team1: 'Haiti',         team2: 'Scozia',            pron:'2', results:' ' },
+            { numero: 1, city: 'NewYork',           time: '04:00',      team1: 'Brasile',       team2: 'Marocco',           pron:'X', results:'2-2 ' },
+            { numero: 2, city: 'Boston',            time: '07:00',      team1: 'Haiti',         team2: 'Scozia',            pron:'2', results:'0-1 ' },
         ],
     },
     giornata_2: {
@@ -76,8 +76,8 @@ group_C: {
             'GIU/19',
         ],
         matches: [
-            { numero: 3, city: 'Boston',            time: '04:00',      team1: 'Scozia',        team2: 'Marocco',           pron:'2', results:' ' },            
-            { numero: 4, city: 'Philadelphia',      time: '07:00',      team1: 'Brasile',       team2: 'Haiti',             pron:'1', results:' ' },
+            { numero: 3, city: 'Boston',            time: '04:00',      team1: 'Scozia',        team2: 'Marocco',           pron:'2', results:'2-4 ' },            
+            { numero: 4, city: 'Philadelphia',      time: '07:00',      team1: 'Brasile',       team2: 'Haiti',             pron:'1', results:'3-1 ' },
         ],
     },
     giornata_3: {
@@ -85,8 +85,8 @@ group_C: {
             'GIU/24',
         ],
         matches: [
-            { numero: 5, city: 'Atlanta',           time: '04:00',      team1: 'Marocco',         team2: 'Haiti',           pron:'1', results:' ' },
-            { numero: 6, city: 'Miami',             time: '04:00',      team1: 'Scozia',          team2: 'Brasile',         pron:'2', results:' ' },
+            { numero: 5, city: 'Atlanta',           time: '04:00',      team1: 'Marocco',         team2: 'Haiti',           pron:'1', results:'4-1 ' },
+            { numero: 6, city: 'Miami',             time: '04:00',      team1: 'Scozia',          team2: 'Brasile',         pron:'2', results:'1-2 ' },
         ],
     },
 },
@@ -129,7 +129,7 @@ group_E: {
         ],
         matches: [
             { numero: 1, city: 'Houston',           time: '00:00',     team1: 'Germania',        team2: 'Curacao',           pron:'1', results:' ' },
-            { numero: 2, city: 'Philadelphia',      time: '02:00',     team1: "CAvorio",         team2: 'Ecuador',           pron:'X', results:' ' },
+            { numero: 2, city: 'Philadelphia',      time: '02:00',     team1: "CAvorio",         team2: 'Ecuador',           pron:'2', results:' ' },
       ],
     },
     giornata_2: {
@@ -138,7 +138,7 @@ group_E: {
         ],
         matches: [
             { numero: 3, city: 'Toronto',           time: '02:00',      team1: 'Germania',        team2: "CAvorio",          pron:'1', results:' ' },
-            { numero: 4, city: 'Kansas',            time: '07:00',      team1: 'Ecuador',         team2: 'Curacao',          pron:'2', results:' ' },
+            { numero: 4, city: 'Kansas',            time: '07:00',      team1: 'Ecuador',         team2: 'Curacao',          pron:'X', results:' ' },
         ],
     },
     giornata_3: {
@@ -146,12 +146,12 @@ group_E: {
             'GIU/25',
         ],
         matches: [
-            { numero: 5, city: 'Philadelphia',      time: '02:00',  team1: 'Curacao',         team2: "CAvorio",             pron:'2', results:' ' },
-            { numero: 6, city: 'NewYork',           time: '02:00',  team1: 'Ecuador',         team2: 'Germania',            pron:'1', results:' ' },
+            { numero: 5, city: 'Philadelphia',      time: '02:00',  team1: 'Curacao',         team2: "CAvorio",             pron:'1', results:' ' },
+            { numero: 6, city: 'NewYork',           time: '02:00',  team1: 'Ecuador',         team2: 'Germania',            pron:'X', results:' ' },
         ],
     },
 },
-// Gruppo F - Olanda Japan PlayUefaB Turchia-----------------------------------------------------------------------------------------------------F
+// Gruppo F - Olanda Japan PlayUefaB Tunisia------------------------------------------------------------------------------------------------------F
 group_F: {
     giornata_1: {
         dates: [
@@ -159,7 +159,7 @@ group_F: {
         ],
         matches: [
             { numero: 1, city: 'Dallas',            time: '03:00',  team1: 'Netherland',            team2: 'Japan',         pron:'2', results:' ' },
-            { numero: 2, city: 'Monterrey',         time: '10:00',  team1: 'PlayF',                 team2: 'Turchia',       pron:'2', results:' ' },
+            { numero: 2, city: 'Monterrey',         time: '10:00',  team1: 'PlayF',                 team2: 'Tunisia',       pron:'1', results:' ' },
         ],
     },
     giornata_2: {
@@ -167,8 +167,8 @@ group_F: {
             'GIU/20',
         ],
         matches: [
-            { numero: 3, city: 'Monterrey',         time: '12:00',  team1: 'Turchia',               team2: 'Japan',         pron:'1', results:' ' },
-            { numero: 4, city: 'Houston',           time: '00:00',  team1: 'Netherland',            team2: 'PlayF',         pron:'1', results:' ' },
+            { numero: 3, city: 'Monterrey',         time: '12:00',  team1: 'Tunisia',               team2: 'Japan',         pron:'2', results:' ' },
+            { numero: 4, city: 'Houston',           time: '00:00',  team1: 'Netherland',            team2: 'PlayF',         pron:'X', results:' ' },
         ],
     },
     giornata_3: {
@@ -176,8 +176,8 @@ group_F: {
             'GIU/25',
         ],
         matches: [
-            { numero: 5, city: 'Kansas',            time: '06:00',  team1: 'Turchia',               team2: 'Netherland',     pron:'X', results:' ' },
-            { numero: 6, city: 'Dallas',            time: '06:00',  team1: 'Japan',                 team2: 'PlayF',          pron:'1', results:' ' },
+            { numero: 5, city: 'Kansas',            time: '06:00',  team1: 'Tunisia',               team2: 'Netherland',     pron:'2', results:' ' },
+            { numero: 6, city: 'Dallas',            time: '06:00',  team1: 'Japan',                 team2: 'PlayF',          pron:'2', results:' ' },
         ],
     },
 },
@@ -188,8 +188,8 @@ group_G: {
             'GIU/15',
         ],
         matches: [
-            { numero: 1, city: 'Seattle',           time: '04:00',  team1: 'Belgio',            team2: 'Egitto',            pron:'1', results:' ' },
-            { numero: 2, city: 'LAngeles',          time: '10:00',  team1: 'Iran',              team2: 'NZelanda',          pron:'2', results:' ' },
+            { numero: 1, city: 'Seattle',           time: '04:00',  team1: 'Belgio',            team2: 'Egitto',            pron:'1', results:'1-0 ' },
+            { numero: 2, city: 'LAngeles',          time: '10:00',  team1: 'Iran',              team2: 'NZelanda',          pron:'2', results:'0-3 ' },
         ],
     },
     giornata_2: {
@@ -197,8 +197,8 @@ group_G: {
             'GIU/21',
         ],
         matches: [
-            { numero: 3, city: 'LAngeles',          time: '04:00',  team1: 'Belgio',            team2: 'Iran',              pron:'1', results:' ' },
-            { numero: 4, city: 'Vancouver',         time: '10:00',  team1: 'NZelanda',          team2: 'Egitto',            pron:'X', results:' ' },
+            { numero: 3, city: 'LAngeles',          time: '04:00',  team1: 'Belgio',            team2: 'Iran',              pron:'1', results:'2-0 ' },
+            { numero: 4, city: 'Vancouver',         time: '10:00',  team1: 'NZelanda',          team2: 'Egitto',            pron:'2', results:'1-2 ' },
         ],
     },
     giornata_3: {
@@ -206,8 +206,8 @@ group_G: {
             'GIU/26',
         ],
         matches: [
-            { numero: 5, city: 'Vancouver',         time: '12:00',  team1: 'NZelanda',          team2: 'Belgio',            pron:'2', results:' ' },
-            { numero: 6, city: 'Seattle',           time: '12:00',  team1: 'Egitto',            team2: 'Iran',              pron:'1', results:' ' },
+            { numero: 5, city: 'Vancouver',         time: '12:00',  team1: 'NZelanda',          team2: 'Belgio',            pron:'X', results:'1-1 ' },
+            { numero: 6, city: 'Seattle',           time: '12:00',  team1: 'Egitto',            team2: 'Iran',              pron:'X', results:'0-0 ' },
         ],
     },
 },
@@ -218,8 +218,8 @@ group_H: {
             'GIU/15',
         ],
         matches: [
-            { numero: 1, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'CpVerde',           pron:'1', results:' ' },
-            { numero: 2, city: 'Miami',             time: '04:00', team1: 'SArabia ',           team2: 'Uruguay',           pron:'X', results:' ' },
+            { numero: 1, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'CpVerde',           pron:'1', results:'4-0' },
+            { numero: 2, city: 'Miami',             time: '04:00', team1: 'SArabia ',           team2: 'Uruguay',           pron:'X', results:'1-1 ' },
         ],
     },
     giornata_2: {
@@ -227,8 +227,8 @@ group_H: {
             'GIU/21',
         ],
         matches: [
-            { numero: 3, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'SArabia',           pron:'X', results:' ' },
-            { numero: 4, city: 'Miami',             time: '04:00', team1: 'Uruguay',            team2: 'CpVerde',           pron:'1', results:' ' },
+            { numero: 3, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'SArabia',           pron:'X', results:'2-2 ' },
+            { numero: 4, city: 'Miami',             time: '04:00', team1: 'Uruguay',            team2: 'CpVerde',           pron:'1', results:'6-1 ' },
         ],
     },
     giornata_3: {
@@ -236,8 +236,8 @@ group_H: {
             'GIU/26',
         ],
         matches: [
-            { numero: 5, city: 'Houston',           time: '06:00', team1: 'CpVerde',             team2: 'SArabia',          pron:'2', results:' ' },
-            { numero: 6, city: 'Guadalajara',       time: '08:00', team1: 'Uruguay',             team2: 'Spagna',           pron:'X', results:' ' },
+            { numero: 5, city: 'Houston',           time: '06:00', team1: 'CpVerde',             team2: 'SArabia',          pron:'2', results:'0-2 ' },
+            { numero: 6, city: 'Guadalajara',       time: '08:00', team1: 'Uruguay',             team2: 'Spagna',           pron:'X', results:'3-3 ' },
         ],
     },
 },
@@ -348,7 +348,7 @@ group_L: {
         ],
         matches: [
             { numero: 3, city: 'Boston',            time: '02:00', team1: 'Inghilterra',        team2: 'Ghana',             pron:'1', results:' ' },
-            { numero: 4, city: 'Toronto',           time: '05:00', team1: 'Panama',             team2: 'Croazia',           pron:'1', results:' ' },
+            { numero: 4, city: 'Toronto',           time: '05:00', team1: 'Panama',             team2: 'Croazia',           pron:'X', results:' ' },
         ],
     },
     giornata_3: {
@@ -357,7 +357,7 @@ group_L: {
         ],
         matches: [
             { numero: 5, city: 'NewYork',           time: '03:00', team1: 'Panama',             team2: 'Inghilterra',       pron:'2', results:' ' },
-            { numero: 6, city: 'Philadelphia',      time: '03:00', team1: 'Croazia',            team2: 'Ghana',             pron:'1', results:' ' },
+            { numero: 6, city: 'Philadelphia',      time: '03:00', team1: 'Croazia',            team2: 'Ghana',             pron:'2', results:' ' },
         ],
     },
 },

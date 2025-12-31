@@ -45,7 +45,7 @@ import FlagGermania from '/gironi/E/Ger.png';
 import FlagJapan from '/gironi/F/Jap.png';
 import FlagOlanda from '/gironi/F/Ndl.png';
 import PlayF from '/gironi/F/PlayF.png';
-import FlagTurchia from '/gironi/F/Tur.png';
+import FlagTunisia from '/gironi/F/Tun.png';
 
 // =======================
 //        GRUPPO G
@@ -140,7 +140,7 @@ export const flagsMond26 = {
 
   F: [
     { id: 'NDL', name: 'Netherland', group: 'F', flag: FlagOlanda },
-    { id: 'TUR', name: 'Turchia', group: 'F', flag: FlagTurchia },
+    { id: 'TUN', name: 'Tunisia', group: 'F', flag: FlagTunisia },
     { id: 'JAP', name: 'Japan', group: 'F', flag: FlagJapan },
     { id: 'PLAYF', name: 'PlayF', group: 'F', flag: PlayF },
   ],
