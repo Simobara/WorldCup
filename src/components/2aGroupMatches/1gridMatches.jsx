@@ -371,7 +371,7 @@ export default function GridMatchesPage() {
                             rounded-2xl
                             bg-slate-900 text-white
                             shadow-2xl
-                            p-4
+                            p-0
                           "
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -391,13 +391,11 @@ export default function GridMatchesPage() {
                                     day && (
                                       <div key={i}>
                                         <div className="font-bold text-red-500">
-                                          {day.title}
+                                          {Array.isArray(day.title) ? day.title[0] : day.title}
                                         </div>
-                                        <ul className="list-disc pl-5">
-                                          {day.items?.map((t, j) => (
-                                            <li key={j}>{t}</li>
-                                          ))}
-                                        </ul>
+                                        <div className="pl-2">
+                                          {day.items}
+                                        </div>
                                       </div>
                                     )
                                 )}
@@ -407,7 +405,7 @@ export default function GridMatchesPage() {
                                     <div className="font-bold text-red-500">
                                       {data.notes.title}
                                     </div>
-                                    <div className="mt-1">
+                                    <div className="mt-0">
                                       {data.notes.text}
                                     </div>
                                   </div>
@@ -439,7 +437,7 @@ export default function GridMatchesPage() {
                         rounded-2xl
                         bg-slate-900 text-white
                         shadow-2xl
-                        p-4
+                        p-0
                         border border-white overscroll-contain
                       "
                       onMouseEnter={() => setHoverModal(letter)}
@@ -455,38 +453,38 @@ export default function GridMatchesPage() {
                         <div className="mt-0 space-y-0 text-sm text-white">
                           {/* Day 1 */}
                           <div>
-                            <div className="font-bold text-red-600">{groupData?.day1?.title}</div>
-                            <ul className="list-disc pl-5">
-                              {(groupData?.day1?.items ?? []).map((t, i) => (
-                                <li key={`d1-${i}`}>{t}</li>
-                              ))}
-                            </ul>
+                            <div className="font-bold text-red-600">
+                              {groupData?.day1?.title?.[0]}
+                            </div>
+                            <div className="pl-2">
+                              {groupData?.day1?.items}
+                            </div>
                           </div>
 
                           {/* Day 2 */}
                           <div>
-                            <div className="font-bold text-red-600">{groupData?.day2?.title}</div>
-                            <ul className="list-disc pl-5">
-                              {(groupData?.day2?.items ?? []).map((t, i) => (
-                                <li key={`d2-${i}`}>{t}</li>
-                              ))}
-                            </ul>
+                            <div className="font-bold text-red-600">
+                              {groupData?.day2?.title?.[0]}
+                            </div>
+                            <div className="pl-2">
+                              {groupData?.day2?.items}
+                            </div>
                           </div>
 
                           {/* Day 3 */}
                           <div>
-                            <div className="font-bold text-red-600">{groupData?.day3?.title}</div>
-                            <ul className="list-disc pl-5">
-                              {(groupData?.day3?.items ?? []).map((t, i) => (
-                                <li key={`d3-${i}`}>{t}</li>
-                              ))}
-                            </ul>
+                            <div className="font-bold text-red-600">
+                              {groupData?.day3?.title?.[0]}
+                            </div>
+                            <div className="pl-2">
+                              {groupData?.day3?.items}
+                            </div>
                           </div>
 
                           {/* Note varie */}
                           <div>
                             <div className="font-bold text-red-600">{groupData?.notes?.title}</div>
-                            <div className="mt-1 p-2 rounded-xl">
+                            <div className="mt-0 p-0 rounded-xl">
                               {groupData?.notes?.text ?? ""}
                             </div>
                           </div>
