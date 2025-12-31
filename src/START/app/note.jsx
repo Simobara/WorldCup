@@ -169,7 +169,7 @@ export const groupNotesMond26 = {
     },
     notes: {
       title: ["Note varie"],
-      text: "NOR 9PT, SEN 2' per gol scarto FRA 3 stessi punti",
+      text: "NOR 9PT, SEN 2'con gol scarto per incontrare MOR, FRA 3 stessi punti",
     },
   },
   //FATTO---------------------------------------------------------------------------

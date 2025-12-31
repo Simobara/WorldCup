@@ -248,8 +248,8 @@ group_I: {
             'GIU/16',
         ],
         matches: [
-            { numero: 1, city: 'NewYork',          time: '01:00', team1: 'Francia',            team2: 'Senegal',            pron:'X', ris: ' ' ,  results:' ' },
-            { numero: 2, city: 'Boston',           time: '04:00', team1: 'PlayI',              team2: 'Norvegia',           pron:'2', ris: ' ' ,  results:' ' },
+            { numero: 1, city: 'NewYork',          time: '01:00', team1: 'Francia',            team2: 'Senegal',            pron:'X', ris: ' ' ,  results:'1-1 ' },
+            { numero: 2, city: 'Boston',           time: '04:00', team1: 'PlayI',              team2: 'Norvegia',           pron:'2', ris: ' ' ,  results:'0-4' },
         ],
     },
     giornata_2: {
@@ -257,8 +257,8 @@ group_I: {
             'GIU/22',
         ],
         matches: [
-            { numero: 3, city: 'Philadelphia',     time: '03:00', team1: 'Francia',            team2: 'PlayI',              pron:'1', ris: ' ' ,  results:' ' },
-            { numero: 4, city: 'NewYork',          time: '06:00', team1: 'Norvegia',           team2: 'Senegal',            pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 3, city: 'Philadelphia',     time: '03:00', team1: 'Francia',            team2: 'PlayI',              pron:'1', ris: ' ' ,  results:'3-0 ' },
+            { numero: 4, city: 'NewYork',          time: '06:00', team1: 'Norvegia',           team2: 'Senegal',            pron:'1', ris: ' ' ,  results:'2-0 ' },
         ],
     },
     giornata_3: {
@@ -266,8 +266,8 @@ group_I: {
             'GIU/26',
         ],
         matches: [
-            { numero: 5, city: 'Boston',            time: '01:00', team1: 'Norvegia',           team2: 'Francia',           pron:'1', ris: ' ' ,  results:' ' },
-            { numero: 6, city: 'Toronto',           time: '01:00', team1: 'Senegal',            team2: 'PlayI',             pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 5, city: 'Boston',            time: '01:00', team1: 'Norvegia',           team2: 'Francia',           pron:'1', ris: ' ' ,  results:'2-1 ' },
+            { numero: 6, city: 'Toronto',           time: '01:00', team1: 'Senegal',            team2: 'PlayI',             pron:'1', ris: ' ' ,  results:'5-0 ' },
       ],
     },
 },
