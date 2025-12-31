@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
+import { groupNotesMond26 } from "../../START/app/note";
 import { CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
@@ -103,6 +104,12 @@ export default function GridMatchesPage() {
   const [hoverGroup, setHoverGroup] = useState(null); // "A".."L" oppure null
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0, side: "right" });
   const [hoverCutoff, setHoverCutoff] = useState(null); // numero match da considerare (2,4,6)
+  const [hoverModal, setHoverModal] = useState(null); 
+
+  const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
+  const [mobileNotesGroup, setMobileNotesGroup] = useState(null); // "A".."L"
+  const [mobileNotesTop, setMobileNotesTop] = useState(0);
+  const [mobileNotesSide, setMobileNotesSide] = useState("right");
 
   const hideTimerRef = useRef(null);
 
@@ -111,6 +118,9 @@ export default function GridMatchesPage() {
 
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
+
+  const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+
   // DESKTOP: come ora
   const LEFT_SIDE_GROUPS = new Set(["D", "H", "L"]); // :contentReference[oaicite:1]{index=1}
 
@@ -163,6 +173,12 @@ export default function GridMatchesPage() {
       // ignore
     }
   }, [showPronostics]);
+
+  useEffect(() => {
+  if (!showPronostics) {
+    setHoverModal(null);
+  }
+}, [showPronostics]);
 
   // FIX D/H/L: calcolo left/top clampati in viewport (niente offset hardcoded)
   const BOX_W = 23 * 16; // w-[23rem]
@@ -227,6 +243,7 @@ export default function GridMatchesPage() {
           aria-label="World Cup groups match grid"
         >
           {groups.map((letter) => {
+            const groupData = groupNotesMond26?.[letter];
             const resolveName = buildNameResolver(flagsMond);
 
             const groupKey = `group_${letter}`;
@@ -265,7 +282,7 @@ export default function GridMatchesPage() {
                  ${CssMatchGrid.HeadBg}
                 border ${CssMatchGrid.HeadBorder} flex flex-col
                 md:rounded-tl-[48px] rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
-                overflow-hidden
+                overflow-visible
               `}
               >
                 {/* Titolo gruppo (non cambia UI) */}
@@ -274,21 +291,212 @@ export default function GridMatchesPage() {
                 </h2>
 
                 <div className="flex-1 flex items-stretch">
-                  {/* LETTERA (decorativa) */}
-                  <div
-                    className="w-8 md:w-10 flex items-center justify-center"
-                    aria-hidden="true"
-                  >
-                  <span
-                    className={`
-                      font-extrabold text-xl md:text-3xl 
-                      ${CssMatchGrid.HeadText}
-                      ${hoverGroup === letter ? "md:text-gray-400" : ""}
-                    `}
-                  >
-                    {letter}
-                  </span>
+                 {/* LETTERA + MESSAGE */}
+                  <div className="relative w-8 md:w-10 flex items-center justify-center">
+
+                    {/* bottone messaggio SOLO se showPronostics */}
+                    {showPronostics && (
+                      
+                        <div
+                          className="flex"
+                          onMouseEnter={() => {
+                            if (!isDesktop) return;
+                            setHoverModal(letter);
+                          }}
+                          onMouseLeave={() => {
+                            if (!isDesktop) return;
+                            setHoverModal(null);
+                          }}
+                          onClick={(e) => {
+                            if (isDesktop) return;
+
+                            e.stopPropagation();
+
+                            setMobileRankOpen(false);
+                            setMobileGroup(null);
+                            setMobileCutoff(null);
+
+                            const groupEl = e.currentTarget.closest(".group-card");
+                            const rect = groupEl.getBoundingClientRect();
+
+                            const isLeft =
+                              LEFT_SIDE_GROUPS_MOBILE.has(letter) ||
+                              CENTRAL_GROUPS_MOBILE.has(letter);
+
+                            setMobileNotesGroup(letter);
+                            // setMobileNotesTop(rect.top);
+                            // setMobileNotesSide(isLeft ? "left" : "right");
+                            setMobileNotesOpen(true);
+                          }}
+                        >
+                      
+                        <div
+                          className="
+                            absolute md:top-24 top-14 left-1/2 -translate-x-1/2
+                            w-7 h-7 md:w-8 md:h-8
+                            rounded-full
+                            bg-slate-900 text-sky-300
+                            flex items-center justify-center
+                            text-[14px] md:text-[16px]
+                            cursor-pointer
+                            z-[50]
+                            hover:bg-slate-800
+                            transition
+                            shadow-lg
+                          "
+                        >
+                          💬
+                        </div>
+                      </div>
+                    )}
+                    {/* ===== MOBILE NOTES MODAL ===== */}
+                    {mobileNotesOpen && mobileNotesGroup && (
+                      <>
+                        {/* BACKDROP */}
+                        <div
+                          className="md:hidden fixed inset-0 z-[9998] bg-black/60"
+                          onClick={() => {
+                            setMobileNotesOpen(false);
+                            setMobileNotesGroup(null);
+                          }}
+                        />
+
+                        {/* MODALE */}
+                        <div
+                          className="
+                            md:hidden fixed z-[10001]
+                            top-4 left-1/2 -translate-x-1/2
+                            w-[92vw] max-w-[26rem]
+                            max-h-[80vh] overflow-auto
+                            rounded-2xl
+                            bg-slate-900 text-white
+                            shadow-2xl
+                            p-4
+                          "
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {/* CONTENUTO NOTE */}
+                          {(() => {
+                            const data = groupNotesMond26?.[mobileNotesGroup];
+                            if (!data) return null;
+
+                            return (
+                              <div className="space-y-3 text-sm">
+                                <div className="font-extrabold text-center">
+                                  Gruppo {mobileNotesGroup}
+                                </div>
+
+                                {[data.day1, data.day2, data.day3].map(
+                                  (day, i) =>
+                                    day && (
+                                      <div key={i}>
+                                        <div className="font-bold text-red-500">
+                                          {day.title}
+                                        </div>
+                                        <ul className="list-disc pl-5">
+                                          {day.items?.map((t, j) => (
+                                            <li key={j}>{t}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )
+                                )}
+
+                                {data.notes && (
+                                  <div>
+                                    <div className="font-bold text-red-500">
+                                      {data.notes.title}
+                                    </div>
+                                    <div className="mt-1">
+                                      {data.notes.text}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Lettera */}
+                    <span className="mt-0 text-gray-400 font-extrabold text-xl md:text-3xl leading-none">
+                      {letter}
+                    </span>
+
+                    {/* MODALE LOCALE: SOLO di quel gruppo */}
+                    {showPronostics && hoverModal === letter && (
+                     <div
+                      className="
+                        hidden md:block
+                        absolute top-4 left-8 z-[10000]
+                        w-[20rem]
+
+                        min-h-[17rem]        /* ⬅️ altezza base fissa */
+                        max-h-[40vh]         /* ⬅️ può crescere fino a qui */
+                        overflow-auto        /* ⬅️ scroll SOLO se necessario */
+
+                        rounded-2xl
+                        bg-slate-900 text-white
+                        shadow-2xl
+                        p-4
+                        border border-white overscroll-contain
+                      "
+                      onMouseEnter={() => setHoverModal(letter)}
+                      onMouseLeave={() => setHoverModal(null)}
+                    >
+                        {/* <div className="flex items-center justify-between">
+                          <div className="font-extrabold text-slate-900">
+                           Gruppo {letter}
+                          </div>
+                        </div> */}
+
+                        {/* ✅ CONTENUTO AGGANCIATO A groupNotesMond26 */}
+                        <div className="mt-0 space-y-0 text-sm text-white">
+                          {/* Day 1 */}
+                          <div>
+                            <div className="font-bold text-red-600">{groupData?.day1?.title}</div>
+                            <ul className="list-disc pl-5">
+                              {(groupData?.day1?.items ?? []).map((t, i) => (
+                                <li key={`d1-${i}`}>{t}</li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Day 2 */}
+                          <div>
+                            <div className="font-bold text-red-600">{groupData?.day2?.title}</div>
+                            <ul className="list-disc pl-5">
+                              {(groupData?.day2?.items ?? []).map((t, i) => (
+                                <li key={`d2-${i}`}>{t}</li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Day 3 */}
+                          <div>
+                            <div className="font-bold text-red-600">{groupData?.day3?.title}</div>
+                            <ul className="list-disc pl-5">
+                              {(groupData?.day3?.items ?? []).map((t, i) => (
+                                <li key={`d3-${i}`}>{t}</li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Note varie */}
+                          <div>
+                            <div className="font-bold text-red-600">{groupData?.notes?.title}</div>
+                            <div className="mt-1 p-2 rounded-xl">
+                              {groupData?.notes?.text ?? ""}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+
+
 
                   {/* GRIGLIA */}
                   <div className="flex-1 flex justify-end bg-slate-400">
@@ -373,6 +581,8 @@ export default function GridMatchesPage() {
                             mobileRankOpen={mobileRankOpen}
                             mobileGroup={mobileGroup}
                             mobileCutoff={mobileCutoff}
+                            setMobileNotesOpen={setMobileNotesOpen}
+                            setMobileNotesGroup={setMobileNotesGroup}
                             //------------------------------
                             bottomBorder={redBottom}
                             day={m?.day ?? ""}
@@ -558,6 +768,8 @@ function Row7({
   mobileRankOpen,
   mobileGroup,
   mobileCutoff,
+  setMobileNotesOpen,
+  setMobileNotesGroup,
   //-----
   day,
   city,
@@ -713,6 +925,10 @@ function Row7({
               if (window.matchMedia("(min-width: 768px)").matches) return;
 
               e.stopPropagation(); // IMPORTANTISSIMO: evita che il backdrop chiuda nello stesso tap
+
+              // ✅ CHIUDI LE NOTE SE APERTE (mobile)
+              setMobileNotesOpen(false);
+              setMobileNotesGroup(null);
 
               const groupEl = e.currentTarget.closest(".group-card");
               const rect =
