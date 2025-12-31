@@ -214,7 +214,7 @@ export default function GridMatchesPage() {
             md:px-1 px-2
             rounded-full font-extrabold text-sm 
             transition-all duration-300 
-            bg-slate-900 text-white sky-900 `}
+            bg-slate-900 text-sky-950 `}
         >
           {/* md:z-0 z-[999] */}
           {showPronostics ? "," : "."}
