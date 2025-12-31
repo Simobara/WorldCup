@@ -513,14 +513,26 @@ export default function GridMatchesPage() {
                         const t1 = m ? findTeam(m.team1) : null;
                         const t2 = m ? findTeam(m.team2) : null;
 
+                        // ✅ results sempre visibile
                         const official = (m?.results ?? "").trim();
                         const provisional = (m?.ris ?? "").trim();
-                        const res = official && official.includes("-") ? official
-                        : provisional && provisional.includes("-") ? provisional
-                        : "";
-                        const isProvisional = !official.includes("-") && provisional.includes("-");
+
+                        const hasOfficial = official.includes("-");
+                        const hasRis = provisional.includes("-");
+
+                        // ✅ res: results > ris (ma ris solo se toggle ON)
+                        const res = hasOfficial
+                          ? official
+                          : showPronostics && hasRis
+                            ? provisional
+                            : "";
+
+                        // ✅ ris è "provisional" solo quando lo stai mostrando (toggle ON) e non c'è results
+                        const isProvisional = !hasOfficial && showPronostics && hasRis;
+
                         const pron = (m?.pron ?? "").trim().toUpperCase();
                         const hasResult = res !== "";
+
                         let highlightType1 = "none";
                         let highlightType2 = "none";
 
@@ -529,7 +541,7 @@ export default function GridMatchesPage() {
                           const valid = Number.isFinite(a) && Number.isFinite(b);
 
                           if (valid) {
-                            const winType  = isProvisional ? "win-provisional" : "win";
+                            const winType = isProvisional ? "win-provisional" : "win";
                             const drawType = isProvisional ? "draw-provisional" : "draw";
 
                             if (a === b) {
@@ -544,7 +556,7 @@ export default function GridMatchesPage() {
                             }
                           }
                         } else if (showPronostics) {
-                          // NESSUN RISULTATO → PRONOSTICO (solo se attivo)
+                          // ✅ nessun results e nessun ris mostrato → evidenzia PRON (solo se toggle ON)
                           if (pron === "X") {
                             highlightType1 = "pron-draw";
                             highlightType2 = "pron-draw";
