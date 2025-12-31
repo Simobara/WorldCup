@@ -15,7 +15,7 @@ function show(val, { zeroAllowed }) {
   return "";
 }
 
-function parseResult(match) {
+function parseResult(match, { allowRis = true } = {}) {
   if (!match) return null;
 
   const pick = (s) => {
@@ -26,14 +26,19 @@ function parseResult(match) {
     return [a, b];
   };
 
-  // PRIORITÀ: results (ufficiale) → ris (provvisorio)
+  // ufficiale
   const off = pick(match.results);
   if (off) return { score: off, source: "results" };
 
+  // simulato/pronostico (ris) SOLO se consentito
+  if (!allowRis) return null;
+
   const sim = pick(match.ris);
   if (sim) return { score: sim, source: "ris" };
+
   return null;
 }
+
 
 function norm(s) {
   return String(s ?? "")
@@ -62,7 +67,8 @@ function computePronTableForGroup(
   matchesData,
   resolveName,
   groupTeamNames,
-  maxMatches = null
+  maxMatches = null,
+  allowRis = true
 ) {
   const table = {};
 
@@ -74,17 +80,19 @@ function computePronTableForGroup(
 
   const giornate = Object.values(matchesData);
   let seen = 0;
+
   for (const g of giornate) {
     for (const m of g?.matches ?? []) {
       if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
       seen++;
+
       const pron = String(m.pron ?? "")
         .trim()
         .toUpperCase();
       if (!pron) continue;
 
-      // se c'è un risultato valido, NON contare il pron
-      const hasRes = !!parseResult(m);
+      // se c'è un risultato "valido" (in base al toggle), NON contare il pron
+      const hasRes = !!parseResult(m, { allowRis });
       if (hasRes) continue;
 
       const t1 = resolveName(m.team1);
@@ -112,11 +120,13 @@ function computePronTableForGroup(
   return table;
 }
 
+
 function computeTableForGroup(
   matchesData,
   resolveName,
   groupTeamNames,
-  maxMatches = null
+  maxMatches = null,
+  allowRis = true
 ) {
   const table = {};
 
@@ -134,7 +144,7 @@ function computeTableForGroup(
       if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
       seen++;
 
-      const parsed = parseResult(m);
+      const parsed = parseResult(m, { allowRis });
       if (!parsed) continue;
 
       const [g1, g2] = parsed.score;
@@ -167,6 +177,7 @@ function computeTableForGroup(
 
   return table;
 }
+
 
 function sortTeamsByTable(teams, tableByTeam, resolveName, groupHasResults) {
   if (!groupHasResults) return teams;
@@ -314,19 +325,22 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
                 teams.map((t) => resolveName(t.name))
               );
 
+              // ✅ in questa pagina: "ris" conta solo quando clicchi "." / ","
+              const allowRis = showPronostics;
+
               const tableByTeam = computeTableForGroup(
                 matchesData,
                 resolveName,
                 groupTeamNames,
-                maxMatches
+                maxMatches,
+                allowRis
               );
-
               const simByTeam = {};
               for (const name of groupTeamNames) simByTeam[name] = false;
 
               for (const g of Object.values(matchesData ?? {})) {
                 for (const m of g?.matches ?? []) {
-                  const parsed = parseResult(m);
+                  const parsed = parseResult(m, { allowRis: showPronostics });
                   if (!parsed) continue;
                   if (parsed.source !== "ris") continue;
 
@@ -413,42 +427,50 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
                               ? `${stats.gf}:${stats.gs}`
                               : "";
 
+                          // ✅ in questa pagina pronostici: nascondi stats finché non clicchi "." / ","
+                          const shouldShow = showPronostics;
+
+                          const safeStats = shouldShow ? stats : null;
+                          const safeGolStr = shouldShow ? golStr : "";
+                          const safeIsSim = shouldShow ? isSim : false;
+
                           return (
-                            <Row7
-                              key={row}
-                              code={team?.id ?? ""}
-                              pt={stats?.pt ?? 0}
-                              showPronostics={showPronostics}
-                              pronPt={showPronostics ? pronPt : 0}
-                              w={stats?.w ?? 0}
-                              x={stats?.x ?? 0}
-                              p={stats?.p ?? 0}
-                              gol={golStr}
-                              showZero={groupHasResults}
-                              isSim={isSim}     
-                              teamEl={
-                                team ? (
-                                  <Quadrato
-                                    teamName={team.name}
-                                    flag={team.flag}
-                                    phase="round32"
-                                    advanced={false}
-                                    isPronTeam={false}
-                                    label={null}
-                                  />
-                                ) : (
-                                  <Quadrato
-                                    teamName=""
-                                    flag={null}
-                                    phase="round32"
-                                    advanced={false}
-                                    isPronTeam={false}
-                                    label={null}
-                                  />
-                                )
-                              }
-                            />
-                          );
+                          <Row7
+                            key={row}
+                            code={team?.id ?? ""}
+                            pt={safeStats?.pt ?? 0}
+                            showPronostics={showPronostics}
+                            pronPt={showPronostics ? pronPt : 0}
+                            w={safeStats?.w ?? 0}
+                            x={safeStats?.x ?? 0}
+                            p={safeStats?.p ?? 0}
+                            gol={safeGolStr}
+                            showZero={shouldShow && groupHasResults}
+                            isSim={safeIsSim}
+                            teamEl={
+                              team ? (
+                                <Quadrato
+                                  teamName={team.name}
+                                  flag={team.flag}
+                                  phase="round32"
+                                  advanced={false}
+                                  isPronTeam={false}
+                                  label={null}
+                                />
+                              ) : (
+                                <Quadrato
+                                  teamName=""
+                                  flag={null}
+                                  phase="round32"
+                                  advanced={false}
+                                  isPronTeam={false}
+                                  label={null}
+                                />
+                              )
+                            }
+                          />
+                        );
+
                         })}
                       </div>
                     </div>
