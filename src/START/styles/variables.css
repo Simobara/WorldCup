@@ -27,14 +27,14 @@
   /* ✅ PT  */
   --row7-pt-bg:           #0f172a; /* bg-slate-900 */
   --row7-pt-border:       #0f172a; /* border-slate-900 */
-  --row7-pt-text:         #3889B7;
+  --row7-pt-text:         #3550D5;
                            /* rgba(250, 204, 21, 0.70); text-yellow-400 (un pelo più soft) */
 
   --row7-pt-pron-text:    #9333ea; /* text-purple-600 */
 
   /* ✅ GOL */
   --row7-gol-bg:          #0f172a; /* bg-slate-900 */
-  --row7-gol-text:        #1A5578;
+  --row7-gol-text:        #4E93BB;
                            /* rgba(250, 204, 21, 0.70); text-yellow-400 (un pelo più soft) */
 
   /* Linee sotto W/X/P */
@@ -158,11 +158,11 @@
 
   --row7-pt-bg:           var(--c-slate-900);
   --row7-pt-border:       var(--c-slate-900);
-  --row7-pt-text:         #3889B7;
+  --row7-pt-text:         #A0C0F8;
   --row7-pt-pron-text:    #9333ea;
 
   --row7-gol-bg:          var(--c-slate-900);
-  --row7-gol-text:        #1A5578;
+  --row7-gol-text:        #507E9B;
 
   --row7-bottom-border:   var(--c-gray-600);
   --row7-wxp-text:        var(--c-gray-400);
@@ -189,9 +189,9 @@
   --mcell-text:           var(--c-gray-400);
   --mcell-sq-text:        var(--c-white);
 
-  --mris-bg:              var(--c-slate-400);
-  --mris-border:          var(--c-slate-400);
-  --mris-text:            var(--c-black);
+  --mris-bg:              var(--c-slate-900);
+  --mris-border:          var(--c-slate-900);
+  --mris-text:            var(--c-white);
 
   --mactive-md-bg:        var(--c-sky-800);
   --mactive-m-bg:         var(--c-sky-900);

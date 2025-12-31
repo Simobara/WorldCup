@@ -25,7 +25,7 @@ const TablePage = () => {
   const [showPron, setShowPron] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : true;
+      return saved ? JSON.parse(saved) : false;
     } catch {
       return true;
     }
