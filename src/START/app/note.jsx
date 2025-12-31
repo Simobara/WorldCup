@@ -3,15 +3,15 @@ export const groupNotesMond26 = {
   A: {
     day1: {
       title: ["1ª giornata"],
-      items: "MEX gioca in casa vince",
+      items: "MEX 1 gioca in casa vince",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "MEX per pubblico vince,",
+      items: "MEX 1 per pubblico vince,",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "MEX gioca in casa vince",
+      items: "MEX 1 gioca in casa vince",
     },
     notes: {
       title: ["Note varie"],
@@ -30,46 +30,45 @@ export const groupNotesMond26 = {
     },
     day3: {
       title: ["3ª giornata"],
-      items:
-        "Ribaltone, ITA x con QAT, CAN vince contro SWI e 1 nel gruppo cosi' per i tifosi li sposta internamente giocando le prossime a Vancouver",
+      items: "Ribalt, ITA x QAT, CAN 1 SWI e 1' nel gruppo cosi'i tifosi sposta internamente a Vancouver",
     },
     notes: {
       title: ["Note varie"],
       text: "ITA nella parte sx tabellone SWI come terza contro USA, CAN passa come prima perche' prox vancouver ricorda gpt detto uguale",
     },
   },
-  //---------------------------------------------------------------------------
+  //FATTO---------------------------------------------------------------------------
   C: {
     day1: {
       title: ["1ª giornata"],
-      items: "Note 1",
+      items: "BRA X  MOR, HAI SCO 2",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "Note 2",
+      items: "MOR 1 SCO, BRA 1 HAI",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "Note 3",
+      items: "MOR 1 HAI, SCO BRA 2",
     },
     notes: {
       title: ["Note varie"],
-      text: "MOR prima e BRA seconda nel girone solo per diff reti",
+      text: "MOR prima e BRA seconda nel girone solo per diff reti, SCO dovrebbe entrare come terza",
     },
   },
   //FATTO---------------------------------------------------------------------------
   D: {
     day1: {
       title: ["1ª giornata"],
-      items: "USA per pubblico vince",
+      items: "USA 1 per pubblico vince",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "USA per pubblico vince",
+      items: "USA 1 per pubblico vince",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "USA per pubblico vince",
+      items: "USA 1 per pubblico vince",
     },
     notes: {
       title: ["Note varie"],
@@ -80,27 +79,26 @@ export const groupNotesMond26 = {
   E: {
     day1: {
       title: ["1ª giornata"],
-      items: "GER win CUR, ECU win CAV",
+      items: "GER 1 CUR, ECU 1 CAV",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "GER win CAV, ECU X CUR, deve fare in modo che CUR entra a 4PT",
+      items: "GER 1 CAV, ECU X CUR, deve fare in modo che CUR entra a 4PT",
     },
     day3: {
       title: ["3ª giornata"],
-      items:
-        "GER par ECU un punto a testa e si rilassano, CUR win CAV ed entra come 3' a 4PT ",
+      items: "GER X ECU un punto a testa e si rilassano, CUR 1 CAV ed entra come 3' a 4PT ",
     },
     notes: {
       title: ["Note varie"],
-      text: "CUR sopresa favoriscono chi porta pubblico",
+      text: "CUR sopresa favoriscono in Usa chi porta pubblico",
     },
   },
   //FATTO---------------------------------------------------------------------------
   F: {
     day1: {
       title: ["1ª giornata"],
-      items: "JAP WIN NDL, ALB WIN TUN",
+      items: "JAP 1 NDL, ALB 1 TUN",
     },
     day2: {
       title: ["2ª giornata"],
@@ -108,11 +106,11 @@ export const groupNotesMond26 = {
     },
     day3: {
       title: ["3ª giornata"],
-      items: "ALB vince JAP, NDL vince TUR",
+      items: "ALB 1 JAP, NDL 1 TUN",
     },
     notes: {
       title: ["Note varie"],
-      text: "NDL 3' 4PT 2' JAP in modo che asiatiche 1 sx KOR e 1 dx JAP, NDL per poco dentro va contro CAN cosi' scusa padroni di casa",
+      text: "NDL 3' 4PT , 2' JAP in modo che asiatiche 1 sx KOR e 1 dx JAP, NDL per poco dentro va contro CAN cosi' scusa padroni di casa",
     },
   },
   //FATTO---------------------------------------------------------------------------
@@ -138,15 +136,15 @@ export const groupNotesMond26 = {
   H: {
     day1: {
       title: ["1ª giornata"],
-      items: "SPA batte CPV almeno 4-0",
+      items: "SPA 1 CPV almeno 4-0",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "URU goleada CPV almeno 6-1",
+      items: "URU 1 CPV almeno 6-1",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "SAR vince CPV almeno 2-0 (sicurezza 2scarto)",
+      items: "SAR 1 CPV almeno 2-0 (sicurezza 2scarto)",
     },
     notes: {
       title: ["Note varie"],
@@ -157,34 +155,34 @@ export const groupNotesMond26 = {
   I: {
     day1: {
       title: ["1ª giornata"],
-      items: "NOR win FIFA, FRA X SEN",
+      items: "NOR 1 FIFA, FRA X SEN",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "NOR win SEN, FRA WIN FIFA almeno 4-0",
+      items: "NOR 1 SEN, FRA 1 FIFA almeno 3-0",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "NOR win FRA, SEN WIN FIFA 2-0",
+      items: "NOR 1 FRA, SEN 1 FIFA 4-0 1 gol in piu che Francia",
     },
     notes: {
       title: ["Note varie"],
-      text: "NOR 9PT, SEN 2'con gol scarto per incontrare MOR, FRA 3 stessi punti",
+      text: "NOR 9PT, SEN 2'con diff reti per incontrare MOR, FRA 3' con 4PT",
     },
   },
   //FATTO---------------------------------------------------------------------------
   J: {
     day1: {
       title: ["1ª giornata"],
-      items: "ARG win",
+      items: "ARG 1",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "ARG win",
+      items: "ARG 1",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "ARG win",
+      items: "ARG 1",
     },
     notes: {
       title: ["Note varie"],
@@ -195,15 +193,15 @@ export const groupNotesMond26 = {
   K: {
     day1: {
       title: ["1ª giornata"],
-      items: "POR WIN",
+      items: "POR 1",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "POR WIN",
+      items: "POR 1",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "POR WIN",
+      items: "POR 1",
     },
     notes: {
       title: ["Note varie"],
@@ -214,15 +212,15 @@ export const groupNotesMond26 = {
   L: {
     day1: {
       title: ["1ª giornata"],
-      items: "ING win CRO",
+      items: "ING 1 CRO",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "ING win GHA, CRO x PAN tassativo almeno un punto CRO ",
+      items: "ING 1 GHA, CRO x PAN tassativo almeno un punto CRO ",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "ING win PAN, sopresa GHA win CRO",
+      items: "ING 1 PAN, sopresa GHA win CRO",
     },
     notes: {
       title: ["Note varie"],

@@ -107,8 +107,8 @@ export default function GridMatchesPage() {
 
   const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
   const [mobileNotesGroup, setMobileNotesGroup] = useState(null); // "A".."L"
-  const [mobileNotesTop, setMobileNotesTop] = useState(0);
-  const [mobileNotesSide, setMobileNotesSide] = useState("right");
+  // const [mobileNotesTop, setMobileNotesTop] = useState(0);
+  // const [mobileNotesSide, setMobileNotesSide] = useState("right");
 
   const hideTimerRef = useRef(null);
 
@@ -1058,7 +1058,7 @@ function Row7({
       >
        <span
           className={`md:text-[15px] text-[12px] font-extrabold ${
-            isProvisional ? "text-purple-400/80" : ""
+            isProvisional ? "text-purple-300/40" : ""
           }`}
         >
           {result || "\u00A0"}

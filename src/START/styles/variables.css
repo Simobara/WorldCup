@@ -30,7 +30,7 @@
   --row7-pt-text:         #3550D5;
                            /* rgba(250, 204, 21, 0.70); text-yellow-400 (un pelo più soft) */
 
-  --row7-pt-pron-text:    #9333ea; /* text-purple-600 */
+  --row7-pt-pron-text:    #996FC1; /* text-purple-600 */
 
   /* ✅ GOL */
   --row7-gol-bg:          #0f172a; /* bg-slate-900 */
@@ -71,7 +71,7 @@
   --mbtn-bg:              #334155; /* md:bg-slate-700 */
   --mbtn-bg-active:       #334155; /* md:bg-sky-600 */
   /* GRID MATCHES – DRAWER (mobile) ============================ */
-  --mdrawer-bg:           #075985; /* bg-sky-800 */
+  --mdrawer-bg:           #075985; /* bg-sky-800 */  
 
 
   /* HIGHLIGHTS (Gruppi) ======================================= */
