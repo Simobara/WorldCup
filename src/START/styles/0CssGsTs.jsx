@@ -98,20 +98,13 @@ export const CssHighlights = {
   Final:   "bg-[var(--hl-final)]",
 };
 
-const RETT_COLORS = {
-  A: "blue-600",
-  B: "rose-600",
-  C: "amber-600",
-  D: "violet-300",
-  Final: "yellow-500",
-};
-
 export const Rett = {
-  A: `bg-${RETT_COLORS.A}`,
-  B: `bg-${RETT_COLORS.B}`,
-  C: `bg-${RETT_COLORS.C}`,
-  D: `bg-${RETT_COLORS.D}`,
-  Final: `bg-${RETT_COLORS.Final}`,
-  SemiAB: `bg-gradient-to-l from-${RETT_COLORS.A} to-${RETT_COLORS.B}`,
-  SemiCD: `bg-gradient-to-r from-${RETT_COLORS.C} to-${RETT_COLORS.D}`,
+  A: "bg-blue-600",
+  B: "bg-rose-600",
+  C: "bg-amber-600",
+  D: "bg-violet-700",
+  Final: "bg-yellow-500",
+
+  SemiAB: "bg-gradient-to-b from-blue-600 to-rose-600",
+  SemiCD: "bg-gradient-to-b from-amber-600 to-violet-700",
 };

@@ -329,6 +329,7 @@ const TablePage = () => {
                 style={{ transform: `translateX(calc(-50% - ${SEMI_OFFSET_DESKTOP}))` }}
               >
                 <BlokQuadRettSemi
+                  infoSide="left"
                   rettColor={Rett.SemiAB}
                   topSquareLabel={mAB1?.pos1 || ""}
                   bottomSquareLabel={mAB1?.pos2 || ""}
