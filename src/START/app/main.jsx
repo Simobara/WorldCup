@@ -104,87 +104,87 @@ import FlagPanama from '/gironi/L/Pan.png';
 
 export const flagsMond26 = {
   A: [
-    { id: 'MEX', name: 'Mexico', group: 'A', flag: FlagMexico },
+    { id: 'MEX', name: 'Mexico',    group: 'A', flag: FlagMexico },
     { id: 'SAF', name: 'Sudafrica', group: 'A', flag: FlagSudafrica },
-    { id: 'KOR', name: 'Korea', group: 'A', flag: FlagKorea },
-    { id: 'PLAYA', name: 'PlayA', group: 'A', flag: PlayA },
+    { id: 'KOR', name: 'Korea',     group: 'A', flag: FlagKorea },
+    { id: 'IRL', name: 'IRL',       group: 'A', flag: PlayA },
   ],
 
   B: [
-    { id: 'CAN', name: 'Canada', group: 'B', flag: FlagCanada },
-    { id: 'ITA', name: 'Italia', group: 'B', flag: FlagItalia },
-    { id: 'QTR', name: 'Qatar', group: 'B', flag: FlagQatar },
-    { id: 'SWI', name: 'Svizzera', group: 'B', flag: FlagSvizzera },
+    { id: 'CAN', name: 'Canada',    group: 'B', flag: FlagCanada },
+    { id: 'ITA', name: 'Italia',    group: 'B', flag: FlagItalia },
+    { id: 'QTR', name: 'Qatar',     group: 'B', flag: FlagQatar },
+    { id: 'SWI', name: 'Svizzera',  group: 'B', flag: FlagSvizzera },
   ],
 
   C: [
-    { id: 'BRA', name: 'Brasile', group: 'C', flag: FlagBrasile },
-    { id: 'HAI', name: 'Haiti', group: 'C', flag: FlagHaiti },
-    { id: 'MOR', name: 'Marocco', group: 'C', flag: FlagMorocco },
-    { id: 'SCO', name: 'Scozia', group: 'C', flag: FlagScozia },
+    { id: 'BRA', name: 'Brasile',   group: 'C', flag: FlagBrasile },
+    { id: 'HAI', name: 'Haiti',     group: 'C', flag: FlagHaiti },
+    { id: 'MOR', name: 'Marocco',   group: 'C', flag: FlagMorocco },
+    { id: 'SCO', name: 'Scozia',    group: 'C', flag: FlagScozia },
   ],
 
   D: [
-    { id: 'USA', name: 'StatiUniti', group: 'D', flag: FlagUsa },
-    { id: 'PAR', name: 'Paraguay', group: 'D', flag: FlagParaguay },
+    { id: 'USA', name: 'StatiUniti',group: 'D', flag: FlagUsa },
+    { id: 'PAR', name: 'Paraguay',  group: 'D', flag: FlagParaguay },
     { id: 'AUS', name: 'Australia', group: 'D', flag: FlagAustralia },
-    { id: 'PLAYD', name: 'PlayD', group: 'D', flag: PlayD },
+    { id: 'TUR', name: 'TUR',       group: 'D', flag: PlayD },
   ],
 
   E: [
-    { id: 'GER', name: 'Germania', group: 'E', flag: FlagGermania },
-    { id: 'CUR', name: 'Curacao', group: 'E', flag: FlagCuracao },
-    { id: 'CAV', name: "CAvorio", group: 'E', flag: FlagCAvorio },
-    { id: 'ECU', name: 'Ecuador', group: 'E', flag: FlagEcuador },
+    { id: 'GER', name: 'Germania',  group: 'E', flag: FlagGermania },
+    { id: 'CUR', name: 'Curacao',   group: 'E', flag: FlagCuracao },
+    { id: 'CAV', name: "CAvorio",   group: 'E', flag: FlagCAvorio },
+    { id: 'ECU', name: 'Ecuador',   group: 'E', flag: FlagEcuador },
   ],
 
   F: [
-    { id: 'NDL', name: 'Netherland', group: 'F', flag: FlagOlanda },
-    { id: 'TUN', name: 'Tunisia', group: 'F', flag: FlagTunisia },
-    { id: 'JAP', name: 'Japan', group: 'F', flag: FlagJapan },
-    { id: 'PLAYF', name: 'PlayF', group: 'F', flag: PlayF },
+    { id: 'NDL', name: 'Netherland',group: 'F', flag: FlagOlanda },
+    { id: 'TUN', name: 'Tunisia',   group: 'F', flag: FlagTunisia },
+    { id: 'JAP', name: 'Japan',     group: 'F', flag: FlagJapan },
+    { id: 'ALB', name: 'ALB',       group: 'F', flag: PlayF },
   ],
 
   G: [
-    { id: 'BEL', name: 'Belgio', group: 'G', flag: FlagBelgio },
-    { id: 'EGT', name: 'Egitto', group: 'G', flag: FlagEgitto },
-    { id: 'IRN', name: 'Iran', group: 'G', flag: FlagIran },
-    { id: 'NZL', name: 'NZelanda', group: 'G', flag: FlagNZelanda },
+    { id: 'BEL', name: 'Belgio',    group: 'G', flag: FlagBelgio },
+    { id: 'EGT', name: 'Egitto',    group: 'G', flag: FlagEgitto },
+    { id: 'IRN', name: 'Iran',      group: 'G', flag: FlagIran },
+    { id: 'NZL', name: 'NZelanda',  group: 'G', flag: FlagNZelanda },
   ],
 
   H: [
-    { id: 'SPA', name: 'Spagna', group: 'H', flag: FlagSpagna },
-    { id: 'SAR', name: 'SArabia', group: 'H', flag: FlagSArabia },
-    { id: 'CPV', name: 'CpVerde', group: 'H', flag: FlagCpVerde },
-    { id: 'URU', name: 'Uruguay', group: 'H', flag: FlagUruguay },
+    { id: 'SPA', name: 'Spagna',    group: 'H', flag: FlagSpagna },
+    { id: 'SAR', name: 'SArabia',   group: 'H', flag: FlagSArabia },
+    { id: 'CPV', name: 'CpVerde',   group: 'H', flag: FlagCpVerde },
+    { id: 'URU', name: 'Uruguay',   group: 'H', flag: FlagUruguay },
   ],
 
   I: [
-    { id: 'FRA', name: 'Francia', group: 'I', flag: FlagFrancia },
-    { id: 'SEN', name: 'Senegal', group: 'I', flag: FlagSenegal },
-    { id: 'NOR', name: 'Norvegia', group: 'I', flag: FlagNorvegia },
-    { id: 'PLAYI', name: 'PlayI', group: 'I', flag: PlayI },
+    { id: 'FRA',  name: 'Francia',  group: 'I', flag: FlagFrancia },
+    { id: 'SEN',  name: 'Senegal',  group: 'I', flag: FlagSenegal },
+    { id: 'NOR',  name: 'Norvegia', group: 'I', flag: FlagNorvegia },
+    { id: 'BOL',  name: 'BOL',      group: 'I', flag: PlayI },
   ],
 
   J: [
     { id: 'ARG', name: 'Argentina', group: 'J', flag: FlagArgentina },
-    { id: 'ALG', name: 'Algeria', group: 'J', flag: FlagAlgeria },
-    { id: 'AUT', name: 'Austria', group: 'J', flag: FlagAustria },
-    { id: 'JOR', name: 'Jordania', group: 'J', flag: FlagJordania },
+    { id: 'ALG', name: 'Algeria',   group: 'J', flag: FlagAlgeria },
+    { id: 'AUT', name: 'Austria',   group: 'J', flag: FlagAustria },
+    { id: 'JOR', name: 'Jordania',  group: 'J', flag: FlagJordania },
   ],
 
   K: [
-    { id: 'POR', name: 'Portogallo', group: 'K', flag: FlagPortogallo },
-    { id: 'COL', name: 'Colombia', group: 'K', flag: FlagColombia },
-    { id: 'UZB', name: 'Uzbekistan', group: 'K', flag: FlagUzbekistan },
-    { id: 'PLAYK', name: 'PlayK', group: 'K', flag: PlayK },
+    { id: 'POR', name: 'Portogallo',group: 'K', flag: FlagPortogallo },
+    { id: 'COL', name: 'Colombia',  group: 'K', flag: FlagColombia },
+    { id: 'UZB', name: 'Uzbekistan',group: 'K', flag: FlagUzbekistan },
+    { id: 'JAM',name: 'JAM',      group: 'K', flag: PlayK },
   ],
 
   L: [
-    { id: 'ING', name: 'Inghilterra', group: 'L', flag: FlagInghilterra },
-    { id: 'CRO', name: 'Croazia', group: 'L', flag: FlagCroazia },
-    { id: 'GHA', name: 'Ghana', group: 'L', flag: FlagGhana },
-    { id: 'PAN', name: 'Panama', group: 'L', flag: FlagPanama },
+    { id: 'ING', name: 'Inghilterra',group: 'L', flag: FlagInghilterra },
+    { id: 'CRO', name: 'Croazia',    group: 'L', flag: FlagCroazia },
+    { id: 'GHA', name: 'Ghana',      group: 'L', flag: FlagGhana },
+    { id: 'PAN', name: 'Panama',     group: 'L', flag: FlagPanama },
   ],
 };
 

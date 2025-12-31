@@ -33,7 +33,7 @@ function buildNameResolver(allTeams) {
 
   // alias manuali (adatta ai tuoi nomi reali in flagsMond)
   map.set(norm("SAfrica"), "Sudafrica");
-  map.set(norm("Play"), ""); // placeholder: niente bandiera
+  map.set(norm("P"), ""); // placeholder: niente bandiera
 
   return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
 }
