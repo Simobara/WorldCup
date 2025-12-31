@@ -22,15 +22,15 @@ export const groupNotesMond26 = {
   B: {
     day1: {
       title: ["1ª giornata"],
-      items: "Italia vince contro canada 0-1",
+      items: "ITA 1 CAN 0-1",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "Italia pareggia con Svizzera",
+      items: "ITA X SWI",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "Ribalt, ITA x QAT, CAN 1 SWI e 1' nel gruppo cosi'i tifosi sposta internamente a Vancouver",
+      items: "Ribalt, ITA X QAT, CAN 1 SWI e 1' nel gruppo cosi'i tifosi sposta internamente a Vancouver",
     },
     notes: {
       title: ["Note varie"],
