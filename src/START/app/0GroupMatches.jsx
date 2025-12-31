@@ -37,8 +37,8 @@ group_B: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'Toronto',           time: '20:00',     team1: 'Canada',         team2: 'Italia',           pron:'2', ris: ' ' ,  results:'0-1' },
-            { numero: 2, city: 'SanFrancisco',      time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',            pron:'1', ris: ' ' ,  results:'2-0' },
+            { numero: 1, city: 'Toronto',           time: '20:00',     team1: 'Canada',         team2: 'Italia',           pron:'2', ris: '0-1 ' ,  results:' ' },
+            { numero: 2, city: 'SanFrancisco',      time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',            pron:'1', ris: '2-0 ' ,  results:' ' },
         ],
     },
     giornata_2: {
@@ -46,8 +46,8 @@ group_B: {
             'GIU/18',
         ],
         matches: [
-            { numero: 3, city: 'LAngeles',          time: '20:00',     team1: 'Svizzera',        team2: 'Italia',          pron:'X', ris: ' ' ,  results:'2-2' },
-            { numero: 4, city: 'Vancouver',         time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', ris: ' ' ,  results:'3-0' },
+            { numero: 3, city: 'LAngeles',          time: '20:00',     team1: 'Svizzera',        team2: 'Italia',          pron:'X', ris: '1-1 ' ,  results:' ' },
+            { numero: 4, city: 'Vancouver',         time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', ris: '3-0 ' ,  results:' ' },
         ],
     },
     giornata_3: {
@@ -55,8 +55,8 @@ group_B: {
             'GIU/24',
         ],
         matches: [
-            { numero: 5, city: 'Vancouver',         time: '20:00',     team1: 'Svizzera',        team2: 'Canada',           pron:'2', ris: ' ' ,  results:'0-4' },
-            { numero: 6, city: 'Seattle',           time: '20:00',     team1: 'Italia',          team2: 'Qatar',            pron:'X', ris: ' ' ,  results:'0-0' },
+            { numero: 5, city: 'Vancouver',         time: '20:00',     team1: 'Svizzera',        team2: 'Canada',           pron:'2', ris: '0-4 ' ,  results:' ' },
+            { numero: 6, city: 'Seattle',           time: '20:00',     team1: 'Italia',          team2: 'Qatar',            pron:'X', ris: '0-0 ' ,  results:' ' },
         ],
     },
 },
@@ -218,8 +218,8 @@ group_H: {
             'GIU/15',
         ],
         matches: [
-            { numero: 1, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'CpVerde',           pron:'1', ris: ' ' ,  results:'4-0' },
-            { numero: 2, city: 'Miami',             time: '04:00', team1: 'SArabia ',           team2: 'Uruguay',           pron:'X', ris: ' ' ,  results:'1-1 ' },
+            { numero: 1, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'CpVerde',           pron:'1', ris: '4-0 ' ,  results:' ' },
+            { numero: 2, city: 'Miami',             time: '04:00', team1: 'SArabia ',           team2: 'Uruguay',           pron:'X', ris: '1-1 ' ,  results:' ' },
         ],
     },
     giornata_2: {
@@ -227,8 +227,8 @@ group_H: {
             'GIU/21',
         ],
         matches: [
-            { numero: 3, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'SArabia',           pron:'X', ris: ' ' ,  results:'2-2 ' },
-            { numero: 4, city: 'Miami',             time: '04:00', team1: 'Uruguay',            team2: 'CpVerde',           pron:'1', ris: ' ' ,  results:'6-1 ' },
+            { numero: 3, city: 'Atlanta',           time: '22:00', team1: 'Spagna',             team2: 'SArabia',           pron:'X', ris: '2-2 ' ,  results:' ' },
+            { numero: 4, city: 'Miami',             time: '04:00', team1: 'Uruguay',            team2: 'CpVerde',           pron:'1', ris: '6-1 ' ,  results:' ' },
         ],
     },
     giornata_3: {
@@ -236,8 +236,8 @@ group_H: {
             'GIU/26',
         ],
         matches: [
-            { numero: 5, city: 'Houston',           time: '06:00', team1: 'CpVerde',             team2: 'SArabia',          pron:'2', ris: ' ' ,  results:'0-2 ' },
-            { numero: 6, city: 'Guadalajara',       time: '08:00', team1: 'Uruguay',             team2: 'Spagna',           pron:'X', ris: ' ' ,  results:'3-3 ' },
+            { numero: 5, city: 'Houston',           time: '06:00', team1: 'CpVerde',             team2: 'SArabia',          pron:'2', ris: '0-2 ' ,  results:' ' },
+            { numero: 6, city: 'Guadalajara',       time: '08:00', team1: 'Uruguay',             team2: 'Spagna',           pron:'X', ris: '3-3 ' ,  results:' ' },
         ],
     },
 },
