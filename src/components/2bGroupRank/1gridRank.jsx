@@ -15,15 +15,24 @@ function show(val, { zeroAllowed }) {
   return "";
 }
 
-function parseResult(res) {
-  if (!res) return null;
-  const s = String(res).trim();
-  if (!s.includes("-")) return null;
+function parseResult(match) {
+  if (!match) return null;
 
-  const [a, b] = s.split("-").map((x) => Number(String(x).trim()));
-  if (Number.isNaN(a) || Number.isNaN(b)) return null;
+  const pick = (s) => {
+    const raw = String(s ?? "").trim();
+    if (!raw || !raw.includes("-")) return null;
+    const [a, b] = raw.split("-").map((x) => Number(String(x).trim()));
+    if (Number.isNaN(a) || Number.isNaN(b)) return null;
+    return [a, b];
+  };
 
-  return [a, b]; // [golTeam1, golTeam2]
+  // PRIORITÀ: results (ufficiale) → ris (provvisorio)
+  const off = pick(match.results);
+  if (off) return { score: off, source: "results" };
+
+  const sim = pick(match.ris);
+  if (sim) return { score: sim, source: "ris" };
+  return null;
 }
 
 function norm(s) {
@@ -75,7 +84,7 @@ function computePronTableForGroup(
       if (!pron) continue;
 
       // se c'è un risultato valido, NON contare il pron
-      const hasRes = !!parseResult(m.results);
+      const hasRes = !!parseResult(m);
       if (hasRes) continue;
 
       const t1 = resolveName(m.team1);
@@ -125,10 +134,10 @@ function computeTableForGroup(
       if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
       seen++;
 
-      const parsed = parseResult(m.results);
+      const parsed = parseResult(m);
       if (!parsed) continue;
 
-      const [g1, g2] = parsed;
+      const [g1, g2] = parsed.score;
       const t1 = resolveName(m.team1);
       const t2 = resolveName(m.team2);
 
@@ -312,6 +321,22 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
                 maxMatches
               );
 
+              const simByTeam = {};
+              for (const name of groupTeamNames) simByTeam[name] = false;
+
+              for (const g of Object.values(matchesData ?? {})) {
+                for (const m of g?.matches ?? []) {
+                  const parsed = parseResult(m);
+                  if (!parsed) continue;
+                  if (parsed.source !== "ris") continue;
+
+                  const t1 = resolveName(m.team1);
+                  const t2 = resolveName(m.team2);
+                  if (groupTeamNames.has(t1)) simByTeam[t1] = true;
+                  if (groupTeamNames.has(t2)) simByTeam[t2] = true;
+                }
+              }
+
               const groupHasResults = Object.values(tableByTeam).some(
                 (t) => t.gf > 0 || t.gs > 0
               );
@@ -370,15 +395,18 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
                         <Header7 />
 
                         {Array.from({ length: 4 }).map((_, row) => {
-                          const team = sortedTeams[row] ?? null;
-                          const teamKey = team ? resolveName(team.name) : null;
+                         const team = sortedTeams[row] ?? null;
+                        const teamKey = team ? resolveName(team.name) : null;
 
-                          const stats = team ? tableByTeam[teamKey] : null;
-                          const pronStats = team
-                            ? pronTableByTeam?.[teamKey]
-                            : null;
+                        const stats = team ? tableByTeam[teamKey] : null;
+                        const pronStats = team
+                          ? pronTableByTeam?.[teamKey]
+                          : null;
 
-                          const pronPt = pronStats?.pt ?? 0;
+                        const pronPt = pronStats?.pt ?? 0;
+
+                        // 🔴 QUI: risultato simulato (ris)
+                        const isSim = team ? !!simByTeam[teamKey] : false;
 
                           const golStr =
                             stats && (stats.gf > 0 || stats.gs > 0)
@@ -397,6 +425,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
                               p={stats?.p ?? 0}
                               gol={golStr}
                               showZero={groupHasResults}
+                              isSim={isSim}     
                               teamEl={
                                 team ? (
                                   <Quadrato
@@ -513,6 +542,7 @@ function Row7({
   gol,
   showZero,
   showPronostics,
+  isSim,
 }) {
   return (
     <>
@@ -548,7 +578,13 @@ function Row7({
 
       {/* GOL: testo CENTRATO */}
       <div className={`${CssRow7.GolBg} border ${CssRow7.CellBorder} border-l-0 border-b-4 border-t-0 ${CssRow7.BottomLine} ${CssRow7.GolText} flex items-center justify-center md:pl-1 pl-0`}>
-        <span className="text-[12px] md:text-[15px] font-extrabold">{gol}</span>
+       <span
+        className={`text-[12px] md:text-[15px] font-extrabold ${
+        isSim ? "text-purple-400/80" : ""
+        }`}
+        >
+        {gol}
+      </span>
       </div>
 
 

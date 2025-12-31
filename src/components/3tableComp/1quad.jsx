@@ -25,6 +25,11 @@ const Quadrato = ({
   const borderByHighlight = {
     win: CssQuad.BorderWin,
     draw: CssQuad.BorderDraw,
+
+    // ✅ provvisorio (ris)
+    "win-provisional": CssQuad.BorderWinProvisional, // purple
+    "draw-provisional": CssQuad.BorderDrawProvisional, // green
+
     pron: CssQuad.BorderPron,
     "pron-draw": CssQuad.BorderPronDraw,
     none: CssQuad.BorderDefault,

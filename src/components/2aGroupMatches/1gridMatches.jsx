@@ -51,10 +51,9 @@ function getFlatMatchesForGroup(groupObj) {
         city: m.city ?? "",
         team1: m.team1 ?? "",
         team2: m.team2 ?? "",
-        pron: String(m.pron ?? "")
-          .trim()
-          .toUpperCase(), // "1" | "X" | "2" | ""
-        result: String(m.results ?? "").trim(), // "2-0" | ""
+        pron: String(m.pron ?? "").trim().toUpperCase(), // "1" | "X" | "2" | ""
+        results: String(m.results ?? "").trim(),
+        ris: String(m.ris ?? "").trim(),
       });
     }
   }
@@ -514,31 +513,34 @@ export default function GridMatchesPage() {
                         const t1 = m ? findTeam(m.team1) : null;
                         const t2 = m ? findTeam(m.team2) : null;
 
-                        const res = (m?.result ?? "").trim();
+                        const official = (m?.results ?? "").trim();
+                        const provisional = (m?.ris ?? "").trim();
+                        const res = official && official.includes("-") ? official
+                        : provisional && provisional.includes("-") ? provisional
+                        : "";
+                        const isProvisional = !official.includes("-") && provisional.includes("-");
                         const pron = (m?.pron ?? "").trim().toUpperCase();
-                        const hasResult = res !== "" && res.includes("-");
-
+                        const hasResult = res !== "";
                         let highlightType1 = "none";
                         let highlightType2 = "none";
 
                         if (hasResult) {
-                          const [a, b] = res
-                            .split("-")
-                            .map((n) => Number(n.trim()));
-                          const valid =
-                            Number.isFinite(a) && Number.isFinite(b);
+                          const [a, b] = res.split("-").map((n) => Number(n.trim()));
+                          const valid = Number.isFinite(a) && Number.isFinite(b);
 
                           if (valid) {
+                            const winType  = isProvisional ? "win-provisional" : "win";
+                            const drawType = isProvisional ? "draw-provisional" : "draw";
+
                             if (a === b) {
-                              // pareggio -> entrambi verdi
-                              highlightType1 = "draw";
-                              highlightType2 = "draw";
+                              highlightType1 = drawType;
+                              highlightType2 = drawType;
                             } else if (a > b) {
-                              // vince team1 -> sky
-                              highlightType1 = "win";
+                              highlightType1 = winType;
+                              highlightType2 = "none";
                             } else {
-                              // vince team2 -> sky
-                              highlightType2 = "win";
+                              highlightType2 = winType;
+                              highlightType1 = "none";
                             }
                           }
                         } else if (showPronostics) {
@@ -587,7 +589,8 @@ export default function GridMatchesPage() {
                             city={m?.city ?? ""}
                             team1={toCode3(t1)}
                             team2={toCode3(t2)}
-                            result={hasResult ? res : ""}
+                            result={res}
+                            isProvisional={isProvisional}
                             flag1={
                               <Quadrato
                                 teamName={t1?.name ?? ""}
@@ -775,8 +778,9 @@ function Row7({
   team2,
   flag1,
   flag2,
-  result,
   bottomBorder = false,
+  result, 
+  isProvisional, 
 }) {
   const bottom = bottomBorder ? "border-b-4 border-b-gray-700" : "border-b";
   const common = `border-t border-l border-r ${bottom}`;
@@ -1052,7 +1056,11 @@ function Row7({
           ${activeMob}
         `}
       >
-        <span className="md:text-[15px] text-[12px] font-extrabold">
+       <span
+          className={`md:text-[15px] text-[12px] font-extrabold ${
+            isProvisional ? "text-purple-400/80" : ""
+          }`}
+        >
           {result || "\u00A0"}
         </span>
       </div>

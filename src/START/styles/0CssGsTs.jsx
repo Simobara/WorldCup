@@ -13,6 +13,8 @@ export const CssQuad = {
   BorderPron:     "border-[var(--quad-border-pron)]",
   BorderPronDraw: "border-[var(--quad-border-pron-draw)]",
   BorderDefault:  "border-[var(--quad-border-default)]",
+  BorderWinProvisional: "border-purple-500/80",
+  BorderDrawProvisional: "border-green-500/80",
 }
 export const CssRettRis = {
   Ris:   "text-[var(--rettris-ris)]",
