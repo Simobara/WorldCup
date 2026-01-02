@@ -16,7 +16,7 @@ export default function AdminEditToggle({ className = "", onExit }) {
         }
         toggleEdit();
       }}
-      className={`px-3 py-2 rounded-full bg-red-600 text-white text-xs shadow-lg ${className}`}
+      className={`px-3 py-2 bg-red-800 text-white text-xs shadow-lg ${className}`}
     >
       {editMode ? "✅" : "☑️"}
     </button>

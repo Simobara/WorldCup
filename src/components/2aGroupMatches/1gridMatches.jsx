@@ -421,7 +421,8 @@ export default function GridMatchesPage() {
                         <div
                           className="
                             md:hidden fixed z-[10001]
-                            top-4 left-1/2 -translate-x-1/2
+                            top-4 
+                            md:left-2 left-4
                             w-[86vw] max-w-[20rem]
                             max-h-[80vh] overflow-auto
                             rounded-2xl
@@ -445,7 +446,7 @@ export default function GridMatchesPage() {
                                   (day, i) =>
                                     day && (
                                       <div key={i}>
-                                        <div className="font-bold text-red-500">
+                                        <div className="font-bold text-red-900 pl-2">
                                           {Array.isArray(day.title)
                                             ? day.title[0]
                                             : day.title}
@@ -463,10 +464,10 @@ export default function GridMatchesPage() {
 
                                 {data.notes && (
                                   <div>
-                                    <div className="font-bold text-red-500">
+                                    <div className="font-bold text-red-900 pl-2">
                                       {data.notes.title}
                                     </div>
-                                    <div className="mt-0">
+                                    <div className="mt-0 pl-2">
                                       <EditableText
                                         path={`${mobileNotesGroup}.notes.text`}
                                         value={data.notes.text}
@@ -479,7 +480,7 @@ export default function GridMatchesPage() {
                               </div>
                             );
                           })()}
-                          <div className="mt-4 flex justify-end border-t border-white/10 pt-3">
+                          <div className="mt-4 flex justify-end">
                             <AdminEditToggle onExit={saveAllEdits} />
                           </div>
                         </div>
@@ -522,7 +523,7 @@ export default function GridMatchesPage() {
                         {/* ✅ CONTENUTO AGGANCIATO A groupNotes */}
                         <div className="mt-0 space-y-0 text-sm text-white">
                           <div>
-                            <div className="font-bold text-red-600">
+                            <div className="font-bold text-red-900 pl-2">
                               {groupData?.day1?.title?.[0]}
                             </div>
                             <div className="pl-2">
@@ -536,7 +537,7 @@ export default function GridMatchesPage() {
                           </div>
                           {/* Day 2 */}
                           <div>
-                            <div className="font-bold text-red-600">
+                            <div className="font-bold text-red-900 pl-2">
                               {groupData?.day2?.title?.[0]}
                             </div>
                             <div className="pl-2">
@@ -551,7 +552,7 @@ export default function GridMatchesPage() {
 
                           {/* Day 3 */}
                           <div>
-                            <div className="font-bold text-red-600">
+                            <div className="font-bold text-red-900 pl-2">
                               {groupData?.day3?.title?.[0]}
                             </div>
                             <div className="pl-2">
@@ -566,10 +567,10 @@ export default function GridMatchesPage() {
 
                           {/* Note varie */}
                           <div>
-                            <div className="font-bold text-red-600">
+                            <div className="font-bold text-red-900 pl-2">
                               {groupData?.notes?.title}
                             </div>
-                            <div className="mt-0 p-0 rounded-xl">
+                            <div className="mt-0 p-0 rounded-xl pl-2">
                               <EditableText
                                 path={`${letter}.notes.text`}
                                 value={groupData?.notes?.text}
@@ -582,7 +583,7 @@ export default function GridMatchesPage() {
                           {/* ADMIN EDIT BUTTON */}
                         </div>
                         <AdminEditToggle
-                          className=" bottom-3 right-3"
+                          className=" bottom-3 right-3 pl-2"
                           onExit={saveAllEdits}
                         />
                       </div>
