@@ -11,40 +11,61 @@ Note:
 - Layout full-screen mobile/desktop
 - UI app-like senza scroll nativo
 ------------------------------------------------------------------------------*/
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-} from "react-router-dom";
+// App.jsx
+import { useEffect, useState } from "react";
+import { supabase } from "../Services/supabase/supabaseClient";
+import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+
 import TopInfo from "../Ap/TopInfo";
-import StandingsPage from "../Body/1standingsPage";
+import StandingsPage from "../Body/1StandingsPage";
 import GroupMatchesPage from "../Body/2aGroupMatchesPage";
 import GroupRankPage from "../Body/2bGroupRankPage";
 import TablePage from "../Body/3tablePage";
 import { EditModeProvider } from "../Providers/EditModeProvider";
 import { AuthProvider } from "../Services/supabase/AuthProvider";
+
+function AppRoutes() {
+  const [isLogged, setIsLogged] = useState(false);
+
+  useEffect(() => {
+    // iniziale
+    supabase.auth.getSession().then(({ data }) => {
+      setIsLogged(!!data?.session);
+    });
+
+    // update live
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLogged(!!session);
+    });
+
+    return () => sub?.subscription?.unsubscribe?.();
+  }, []);
+
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/standingsPage" replace />} />
+      <Route path="/standingsPage" element={<StandingsPage />} />
+      <Route path="/groupRankPage" element={<GroupRankPage isLogged={isLogged} />} />
+      <Route path="/groupMatchesPage" element={<GroupMatchesPage isLogged={isLogged} />} />
+      <Route path="/tablePage" element={<TablePage isLogged={isLogged} />} />
+    </Routes>
+  );
+}
+
 const App = () => {
   return (
-     <AuthProvider>
+    <AuthProvider>
       <EditModeProvider>
         <Router>
           <div className="relative h-[100svh] md:h-screen w-screen bg-slate-900 overflow-hidden overscroll-none touch-none">
             <TopInfo />
             <div className="h-full w-full flex">
-              <Routes>
-                <Route path="/" element={<Navigate to="/standingsPage" replace />}
-                />
-                <Route path="/standingsPage" element={<StandingsPage />} />
-                <Route path="/groupRankPage" element={<GroupRankPage />} />
-                <Route path="/groupMatchesPage" element={<GroupMatchesPage />} />
-                <Route path="/tablePage" element={<TablePage />} />
-              </Routes>
+              <AppRoutes />
             </div>
           </div>
         </Router>
       </EditModeProvider>
-     </AuthProvider>
+    </AuthProvider>
   );
 };
 

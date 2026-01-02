@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
-import { groupMatches } from "../../START/app/0GroupMatches";
+import { groupMatches } from "../../START/app/1GroupMatches";
 
 import { createNotesRepo } from "../../Services/notes/notesRepo";
 import { flagsMond } from "../../START/app/0main";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/0main";
+import { groupMatches } from "../../START/app/1GroupMatches";
 import { CssGroup, CssGroupLetter, CssHeader7, CssRow7, } from "../../START/styles/0CssGsTs";
 import Quadrato from "../3tableComp/1quad";
 
