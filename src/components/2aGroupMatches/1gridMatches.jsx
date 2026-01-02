@@ -325,7 +325,7 @@ export default function GridMatchesPage() {
             md:px-1 px-2
             rounded-full font-extrabold text-sm 
             transition-all duration-300 
-            bg-slate-900 text-slate-800 z-[11000]`}
+            bg-slate -900 text-slate-800 z-[11000]`}
         >
           {/* md:z-0 z-[999] */}
           {showPronostics ? "," : "."}
