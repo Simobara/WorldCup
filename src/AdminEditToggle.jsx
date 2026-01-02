@@ -1,7 +1,7 @@
 import { useAuth } from "./AuthProvider";
 import { useEditMode } from "./EditModeProvider";
 
-export default function AdminEditToggle() {
+export default function AdminEditToggle({ className = "" }) {
   const { user } = useAuth();
   const { editMode, toggleEdit } = useEditMode();
 
