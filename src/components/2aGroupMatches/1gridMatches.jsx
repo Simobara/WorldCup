@@ -396,12 +396,15 @@ export default function GridMatchesPage({ isLogged }) {
                       >
                         <div
                           className="
-                            absolute md:top-24 top-14 left-1/2 -translate-x-1/2
-                            w-7 h-7 md:w-8 md:h-8
+                            absolute
+                            md:top-0 top-0 
+                            left-1/2 -translate-x-1/2
+                            w-8 h-8 
+                            md:w-10 md:h-10
+                            md:text-[30px] text-[16px] 
                             rounded-full
-                            bg-slate-900 text-sky-300
+                            text-sky-300
                             flex items-center justify-center
-                            text-[14px] md:text-[16px]
                             cursor-pointer
                             z-[12000] pointer-events-auto
                             hover:bg-slate-800
@@ -409,7 +412,7 @@ export default function GridMatchesPage({ isLogged }) {
                             shadow-lg
                           "
                         >
-                          💬
+                          🗨️
                         </div>
                       </div>
                     )}
@@ -428,15 +431,16 @@ export default function GridMatchesPage({ isLogged }) {
                         {/* MODALE */}
                         <div
                           className="
-                            md:hidden fixed z-[10001]
+                            md:hidden fixed z-[22002]
                             top-4 
                             md:left-2 left-4
                             w-[86vw] max-w-[20rem]
+                            min-h-[50vh]
                             max-h-[80vh] overflow-auto
                             rounded-2xl
                             bg-slate-900 text-white
                             shadow-2xl
-                            p-0 md:
+                            p-0
                           "
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -1016,7 +1020,7 @@ function Row7({
             className={`
               absolute
               md:-top-12 -top-7
-              md:left-0 left-0
+              md:left-0 -left-[0.7rem]
 
               md:w-6 w-3
               md:h-[6rem] h-14
