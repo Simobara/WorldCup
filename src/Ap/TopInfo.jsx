@@ -254,7 +254,7 @@ export default function TopInfo() {
         title={isLogged ? "Logout" : "Login"}
         disabled={!authReady && !isLogged}
       >
-        {isLogged ? "🔒" : authReady ? "🔑" : "⏳"}
+        {isLogged ? "🔑" : authReady ? "🔐" : "⏳"}
       </button>
 
       {openLogin && !isLogged && (
