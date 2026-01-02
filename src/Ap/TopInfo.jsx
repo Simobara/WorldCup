@@ -33,18 +33,32 @@ export default function TopInfo() {
 
   // AUTH UI
   const [session, setSession] = useState(null);
+  const [authReady, setAuthReady] = useState(false); // <-- importante
   const [openLogin, setOpenLogin] = useState(false);
   const isLogged = !!session?.user;
 
-  // keep session in sync
+  // keep session in sync (recupera anche da storage)
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession);
-      }
-    );
-    return () => sub.subscription.unsubscribe();
+    let alive = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!alive) return;
+      setSession(data.session);
+      setAuthReady(true);
+      if (data.session) setOpenLogin(false);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (!alive) return;
+      setSession(newSession);
+      setAuthReady(true);
+      if (newSession) setOpenLogin(false);
+    });
+
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   // sync (back/forward o link esterni)
@@ -133,12 +147,9 @@ export default function TopInfo() {
         setSlider(to);
       }, EXPAND_MS);
 
-      setTimeout(
-        () => {
-          navigate(path);
-        },
-        EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET)
-      );
+      setTimeout(() => {
+        navigate(path);
+      }, EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET));
 
       setTimeout(() => {
         setPhase("idle");
@@ -149,6 +160,15 @@ export default function TopInfo() {
   const logout = async () => {
     await supabase.auth.signOut();
     setOpenLogin(false);
+  };
+
+  const handleAuthButton = () => {
+    if (isLogged) return logout();
+
+    // aspetta che supabase abbia letto lo storage, così eviti "flash" strani
+    if (!authReady) return;
+
+    setOpenLogin(true);
   };
 
   return (
@@ -184,10 +204,9 @@ export default function TopInfo() {
             phase === "expand"
               ? `${EXPAND_MS}ms`
               : phase === "snap"
-                ? `${SNAP_MS}ms`
-                : "0ms",
-          transitionTimingFunction:
-            phase === "snap" ? EASE_ELASTIC : "ease-out",
+              ? `${SNAP_MS}ms`
+              : "0ms",
+          transitionTimingFunction: phase === "snap" ? EASE_ELASTIC : "ease-out",
         }}
       />
 
@@ -211,10 +230,10 @@ export default function TopInfo() {
         </button>
       ))}
 
-      {/* AUTH BUTTON (piccolo, non rompe il layout) */}
+      {/* AUTH BUTTON */}
       <button
         type="button"
-        onClick={() => (isLogged ? logout() : setOpenLogin(true))}
+        onClick={handleAuthButton}
         className="
           relative z-10
           md:ml-2
@@ -224,10 +243,12 @@ export default function TopInfo() {
           border border-white/20
           text-white
           hover:bg-white/10
+          disabled:opacity-60
         "
         title={isLogged ? "Logout" : "Login"}
+        disabled={!authReady && !isLogged}
       >
-        {isLogged ? "🔒" : "🔑"}
+        {isLogged ? "🔒" : authReady ? "🔑" : "⏳"}
       </button>
 
       {openLogin && !isLogged && (
@@ -248,16 +269,14 @@ function LoginModal({ onClose }) {
     setErr("");
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     setLoading(false);
     if (error) {
       setErr(error.message);
       return;
     }
+
     onClose();
   };
 
@@ -265,9 +284,7 @@ function LoginModal({ onClose }) {
     <div className="fixed inset-0 z-[1000] flex items-center justify-start bg-black/60 md:justify-center md:top-[6rem]">
       <div className="w-[320px] rounded-xl bg-slate-900 p-4 border border-white/10 md:mr-[0] mr-4 shadow-xl -ml-[12rem] md:ml-0">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-white font-semibold -ml-[] md:ml-0">
-            Admin login
-          </div>
+          <div className="text-white font-semibold">Admin login</div>
 
           <button
             onClick={onClose}

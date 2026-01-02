@@ -9,7 +9,6 @@ import StandingsPage from "../Body/1standingsPage";
 import GroupMatchesPage from "../Body/2aGroupMatchesPage";
 import GroupRankPage from "../Body/2bGroupRankPage";
 import TablePage from "../Body/3tablePage";
-import AdminEditToggle from "../AdminEditToggle";
 
 
 import { AuthProvider } from "../AuthProvider";
@@ -22,7 +21,6 @@ const App = () => {
         <Router>
           <div className="relative h-[100svh] md:h-screen w-screen bg-slate-900 overflow-hidden overscroll-none touch-none">
             <TopInfo />
-            <AdminEditToggle />
             <div className="h-full w-full flex">
               <Routes>
                 <Route path="/" element={<Navigate to="/standingsPage" replace />}

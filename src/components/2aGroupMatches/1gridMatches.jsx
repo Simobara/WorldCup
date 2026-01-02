@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import AdminEditToggle from "../../AdminEditToggle";
+import { useAuth } from "../../AuthProvider";
+import EditableText from "../../EditableText";
 import { groupMatches } from "../../START/app/0GroupMatches";
 import { flagsMond } from "../../START/app/main";
 import { groupNotesMond26 } from "../../START/app/note";
 import { CssMatchGrid } from "../../START/styles/0CssGsTs";
+import { supabase } from "../../supabaseClient";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
-import AdminEditToggle from "../../AdminEditToggle";
-import { useAuth } from "../../AuthProvider";
+
 
 function toCode3(team) {
   const s = String(team?.id ?? team?.name ?? "")
@@ -90,9 +93,43 @@ function splitDayDesk(day) {
 
   return { label, num };
 }
+
+// helper: set deep da path tipo "A.day1.items"
+function setDeep(obj, path, value) {
+  const parts = path.split(".");
+  const out = structuredClone(obj);
+  let cur = out;
+
+  for (let i = 0; i < parts.length - 1; i++) {
+    const k = parts[i];
+    cur[k] = cur[k] ?? {};
+    cur = cur[k];
+  }
+  cur[parts[parts.length - 1]] = value;
+  return out;
+}
 // --------------------------------------------------------------------------
 export default function GridMatchesPage() {
+  
   const STORAGE_KEY = "gridMatches_showPronostics";
+
+  const { user } = useAuth();
+  async function loadNotesFromSupabase() {
+  const { data, error } = await supabase
+    .from("notes_base")
+    .select("key, data");
+
+  if (error) {
+    console.error("LOAD ERROR:", error);
+    return null;
+  }
+
+  const out = {};
+  for (const row of data ?? []) {
+    out[row.key] = row.data; // key = "A", "B", "C"...
+  }
+  return out;
+}
 
   const [showPronostics, setShowPronostics] = useState(() => {
     try {
@@ -107,6 +144,10 @@ export default function GridMatchesPage() {
   const [hoverCutoff, setHoverCutoff] = useState(null); // numero match da considerare (2,4,6)
   const [hoverModal, setHoverModal] = useState(null); 
 
+  // ✅ dati note (editabili e salvabili)
+  const [notes, setNotes] = useState(() => groupNotesMond26 ?? {});
+
+  // ✅ stato apertura modale note mobile
   const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
   const [mobileNotesGroup, setMobileNotesGroup] = useState(null); // "A".."L"
   // const [mobileNotesTop, setMobileNotesTop] = useState(0);
@@ -121,6 +162,44 @@ export default function GridMatchesPage() {
   const groups = "ABCDEFGHIJKL".split("");
 
   const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+
+
+  const [localEdits, setLocalEdits] = useState({});
+
+  const handleEditChange = (path, value) => {
+    setLocalEdits((prev) => ({
+      ...prev,
+      [path]: value,
+    }));
+    setNotes((prev) => setDeep(prev, path, value));
+  };
+
+  // ✅ salva tutto quando esci
+    async function saveAllEditsToSupabase() {
+    const paths = Object.keys(localEdits);
+    if (!paths.length) return;
+
+    // prendo le "key" toccate (A, B, C...)
+    const keysTouched = new Set(paths.map((p) => p.split(".")[0]));
+
+    const payload = Array.from(keysTouched).map((k) => ({
+      key: k,
+      data: notes[k] ?? null,
+      // created_at lo mette il DB, non serve qui
+    }));
+
+    const { error } = await supabase
+      .from("notes_base")
+      .upsert(payload, { onConflict: "key" });
+
+    if (error) {
+      console.error("SAVE ERROR:", error);
+      return;
+    }
+
+    setLocalEdits({});
+  }
+
 
   // DESKTOP: come ora
   const LEFT_SIDE_GROUPS = new Set(["D", "H", "L"]); // :contentReference[oaicite:1]{index=1}
@@ -154,6 +233,18 @@ export default function GridMatchesPage() {
   // 7 colonne: DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
 
   useEffect(() => {
+  (async () => {
+    const fresh = await loadNotesFromSupabase();
+    if (!fresh) return;
+
+    setNotes({
+      ...(groupNotesMond26 ?? {}),
+      ...fresh, // DB vince
+    });
+  })();
+}, []);
+
+  useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
     const update = () => {
       const isDesktop = mq.matches;
@@ -180,6 +271,9 @@ export default function GridMatchesPage() {
     setHoverModal(null);
   }
 }, [showPronostics]);
+
+
+
 
   // FIX D/H/L: calcolo left/top clampati in viewport (niente offset hardcoded)
   const BOX_W = 23 * 16; // w-[23rem]
@@ -244,7 +338,7 @@ export default function GridMatchesPage() {
           aria-label="World Cup groups match grid"
         >
           {groups.map((letter) => {
-            const groupData = groupNotesMond26?.[letter];
+            const groupData = notes?.[letter];
             const resolveName = buildNameResolver(flagsMond);
 
             const groupKey = `group_${letter}`;
@@ -378,7 +472,7 @@ export default function GridMatchesPage() {
                         >
                           {/* CONTENUTO NOTE */}
                           {(() => {
-                            const data = groupNotesMond26?.[mobileNotesGroup];
+                            const data = notes?.[mobileNotesGroup];
                             if (!data) return null;
 
                             return (
@@ -430,12 +524,13 @@ export default function GridMatchesPage() {
                         hidden md:block
                         absolute top-4 left-8 z-[10000]
                         w-[20rem]
-
+                        
                         min-h-[17rem]        /* ⬅️ altezza base fissa */
-                        max-h-[40vh]         /* ⬅️ può crescere fino a qui */
-                        overflow-auto        /* ⬅️ scroll SOLO se necessario */
+                        max-h-[20vh]         /* ⬅️ può crescere fino a qui */
+                        overflow-y-auto
+                        overflow-x-hidden
 
-                        rounded-2xl
+                  rounded-2xl
                         bg-slate-900 text-white
                         shadow-2xl
                         p-0
@@ -452,48 +547,73 @@ export default function GridMatchesPage() {
 
                         {/* ✅ CONTENUTO AGGANCIATO A groupNotesMond26 */}
                         <div className="mt-0 space-y-0 text-sm text-white">
-                          {/* Day 1 */}
-                          <div>
-                            <div className="font-bold text-red-600">
-                              {groupData?.day1?.title?.[0]}
-                            </div>
-                            <div className="pl-2">
-                              {groupData?.day1?.items}
-                            </div>
+                         <div>
+                          <div className="font-bold text-red-600">
+                            {groupData?.day1?.title?.[0]}
                           </div>
-
+                          <div className="pl-2">
+                            <EditableText
+                              path={`${letter}.day1.items`}
+                              value={groupData?.day1?.items}
+                              onChange={handleEditChange}
+                              className="pl-2"
+                            />
+                          </div>
+                        </div>
                           {/* Day 2 */}
-                          <div>
-                            <div className="font-bold text-red-600">
-                              {groupData?.day2?.title?.[0]}
-                            </div>
-                            <div className="pl-2">
-                              {groupData?.day2?.items}
-                            </div>
+                        <div>
+                          <div className="font-bold text-red-600">
+                            {groupData?.day2?.title?.[0]}
                           </div>
+                          <div className="pl-2">
+                            <EditableText
+                              path={`${letter}.day2.items`}
+                              value={groupData?.day2?.items}
+                              onChange={handleEditChange}
+                              className="pl-2"
+                            />
+                          </div>
+                        </div>
 
                           {/* Day 3 */}
-                          <div>
-                            <div className="font-bold text-red-600">
-                              {groupData?.day3?.title?.[0]}
-                            </div>
-                            <div className="pl-2">
-                              {groupData?.day3?.items}
-                            </div>
+                         <div>
+                          <div className="font-bold text-red-600">
+                            {groupData?.day3?.title?.[0]}
                           </div>
+                          <div className="pl-2">
+                            <EditableText
+                              path={`${letter}.day3.items`}
+                              value={groupData?.day3?.items}
+                              onChange={handleEditChange}
+                              className="pl-2"
+                            />
+                          </div>
+                        </div>
 
                           {/* Note varie */}
                           <div>
-                            <div className="font-bold text-red-600">{groupData?.notes?.title}</div>
-                            <div className="mt-0 p-0 rounded-xl">
-                              {groupData?.notes?.text ?? ""}
-                            </div>
+                          <div className="font-bold text-red-600">
+                            {groupData?.notes?.title}
+                          </div>
+                          <div className="mt-0 p-0 rounded-xl">
+                            <EditableText
+                              path={`${letter}.notes.text`}
+                              value={groupData?.notes?.text}
+                              onChange={handleEditChange}
+                              className=""
+                              textareaClassName="min-h-[80px]"
+                            />
                           </div>
                         </div>
-                        {/* ADMIN EDIT BUTTON */}
-                        <AdminEditToggle className="absolute bottom-3 right-3" />
+                          {/* ADMIN EDIT BUTTON */}
+                        </div>
+                        <AdminEditToggle
+                          className=" bottom-3 right-3"
+                          onExit={saveAllEditsToSupabase}
+                        />
                       </div>
                     )}
+                    
                   </div>
 
 
