@@ -9,11 +9,16 @@ const StandingsPage = () => {
     (async () => {
       const { data, error } = await supabase
         .from("notes_base")
-        .select("data")
-        .eq("key", "groupNotes")
-        .maybeSingle();
+        .select("key, data");
 
-      if (!error) setNotes(data.data);
+      if (error) {
+        setNotes(null);
+        return;
+      }
+
+      const out = {};
+      for (const row of data ?? []) out[row.key] = row.data;
+      setNotes(out);
     })();
   }, []);
 

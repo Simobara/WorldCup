@@ -340,7 +340,7 @@ export default function GridMatchesPage() {
                  ${CssMatchGrid.HeadBg}
                 border ${CssMatchGrid.HeadBorder} flex flex-col
                 md:rounded-tl-[48px] rounded-tl-[28px] md:rounded-bl-[48px] rounded-bl-[28px]
-                overflow-visible
+                overflow-hidden
               `}
               >
                 {/* Titolo gruppo (non cambia UI) */}

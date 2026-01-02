@@ -184,11 +184,17 @@ export default function TopInfo() {
         md:top-0 md:right-auto md:left-1/2 md:-translate-x-1/2 md:translate-y-0
         w-auto md:w-[100%] md:max-w-[420px]
         bg-slate-900 border-gray-400 shadow-lg
-        border-l-4 border-t-none border-t-4 border-white-800
+        border-l-4 
+        border-t-none 
+        border-t-4 b
+        
+        border-white-800
         rounded-tl-xl rounded-bl-xl
         rounded-tr-none rounded-br-none
         md:border-t-0
-        md:rounded-tl-none md:rounded-tr-none
+        md:border-b-4
+        md:rounded-tl-none 
+        md:rounded-tr-none
         md:rounded-bl-xl md:rounded-br-xl
         md:px-4 px-0 md:py-0 py-0
         flex flex-col md:flex-row items-center justify-center md:gap-2 gap-2
