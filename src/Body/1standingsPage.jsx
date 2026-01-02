@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
 import StandingsBlock from "../components/1standingsComp/4standingsBlock";
+import { supabase } from "../supabaseClient";
 
 const StandingsPage = () => {
   const [notes, setNotes] = useState(null);
@@ -11,7 +11,7 @@ const StandingsPage = () => {
         .from("notes_base")
         .select("data")
         .eq("key", "groupNotes")
-        .single();
+        .maybeSingle();
 
       if (!error) setNotes(data.data);
     })();
