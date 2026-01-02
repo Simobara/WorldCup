@@ -12,6 +12,7 @@ Note:
 - UI app-like senza scroll nativo
 ------------------------------------------------------------------------------*/
 // App.jsx
+// deploy bump
 import { useEffect, useState } from "react";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { supabase } from "../Services/supabase/supabaseClient";
