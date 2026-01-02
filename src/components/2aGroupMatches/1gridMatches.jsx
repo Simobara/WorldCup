@@ -467,7 +467,12 @@ export default function GridMatchesPage() {
                                       {data.notes.title}
                                     </div>
                                     <div className="mt-0">
-                                      {data.notes.text}
+                                      <EditableText
+                                        path={`${mobileNotesGroup}.notes.text`}
+                                        value={data.notes.text}
+                                        onChange={handleEditChange}
+                                        textareaClassName="min-h-[80px]"
+                                      />
                                     </div>
                                   </div>
                                 )}
@@ -759,7 +764,7 @@ export default function GridMatchesPage() {
                       ? "left-[0.3rem]" //OKK container centrale OKK
                       : "left-[1.5rem]" //OKK container destra OKK
                     : SHIFT_RIGHT_MOBILE_GROUPS.has(mobileGroup)
-                      ? "right-[4.3rem]" // container sinsitras
+                      ? "right-[4.3rem]" //OKK container sinistra
                       : "right-[6rem]"
                 }
               `}
