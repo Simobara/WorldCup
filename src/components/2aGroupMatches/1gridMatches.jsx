@@ -427,7 +427,7 @@ export default function GridMatchesPage() {
                             rounded-2xl
                             bg-slate-900 text-white
                             shadow-2xl
-                            p-0
+                            p-0 md:
                           "
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -757,7 +757,7 @@ export default function GridMatchesPage() {
                   mobileSide === "left"
                     ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
                       ? "left-0"
-                      : "left-[2rem]"
+                      : "left-[1.7rem]"
                     : SHIFT_RIGHT_MOBILE_GROUPS.has(mobileGroup)
                       ? "right-[4.5rem]" // più a destra (tweak qui)
                       : "right-[6rem]"
