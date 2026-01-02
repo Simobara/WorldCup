@@ -5,6 +5,8 @@ import { groupNotesMond26 } from "../../START/app/note";
 import { CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
+import AdminEditToggle from "../../AdminEditToggle";
+import { useAuth } from "../../AuthProvider";
 
 function toCode3(team) {
   const s = String(team?.id ?? team?.name ?? "")
@@ -224,12 +226,12 @@ export default function GridMatchesPage() {
             absolute 
             md:w-8 md:h-8
             md:-top-11 top-[18.5rem]
-            md:right-[27.5rem] -right-10 
+            md:right-[30rem] -right-10 
             md:py-0 py-2
             md:px-1 px-2
             rounded-full font-extrabold text-sm 
             transition-all duration-300 
-            bg-slate-900 text-slate-950 `}
+            bg-slate-900 text-slate-800 z-[11000]`}
         >
           {/* md:z-0 z-[999] */}
           {showPronostics ? "," : "."}
@@ -488,6 +490,8 @@ export default function GridMatchesPage() {
                             </div>
                           </div>
                         </div>
+                        {/* ADMIN EDIT BUTTON */}
+                        <AdminEditToggle className="absolute bottom-3 right-3" />
                       </div>
                     )}
                   </div>

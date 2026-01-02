@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 const routes = [
   { path: "/standingsPage", icon: "🗓️" },
@@ -29,6 +30,22 @@ export default function TopInfo() {
     width: 0,
     height: 0,
   });
+
+  // AUTH UI
+  const [session, setSession] = useState(null);
+  const [openLogin, setOpenLogin] = useState(false);
+  const isLogged = !!session?.user;
+
+  // keep session in sync
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setSession(newSession);
+      }
+    );
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   // sync (back/forward o link esterni)
   useEffect(() => {
@@ -101,26 +118,21 @@ export default function TopInfo() {
     const to = readBtn(toIdx);
     if (!from || !to) return;
 
-    // evidenzia subito (non aspetta location)
     setActivePath(path);
 
     const u = unionBox(from, to);
 
-    // start: quadrato iniziale
     setSlider(from);
     setPhase("expand");
 
     requestAnimationFrame(() => {
-      // 1) rettangolo che unisce
       setSlider(u);
 
-      // 2) snap elastico verso target (quadrato finale)
       setTimeout(() => {
         setPhase("snap");
         setSlider(to);
       }, EXPAND_MS);
 
-      // 3) naviga DURANTE snap (meno attesa percepita)
       setTimeout(
         () => {
           navigate(path);
@@ -128,11 +140,15 @@ export default function TopInfo() {
         EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET)
       );
 
-      // 4) fine
       setTimeout(() => {
         setPhase("idle");
       }, EXPAND_MS + SNAP_MS);
     });
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setOpenLogin(false);
   };
 
   return (
@@ -142,24 +158,20 @@ export default function TopInfo() {
         absolute top-[54%] right-0 -translate-y-1/2
         md:top-0 md:right-auto md:left-1/2 md:-translate-x-1/2 md:translate-y-0
         w-auto md:w-[100%] md:max-w-[420px]
-        bg-slate-900  border-gray-400 shadow-lg
-
+        bg-slate-900 border-gray-400 shadow-lg
         border-l-4 border-t-none border-b-4 border-white-800
         rounded-tl-xl rounded-bl-xl
         rounded-tr-none rounded-br-none
-
         md:border-t-0
         md:rounded-tl-none md:rounded-tr-none
         md:rounded-bl-xl md:rounded-br-xl
-
-        md:px-4 px-0  md:py-0 py-0 
+        md:px-4 px-0 md:py-0 py-0
         flex flex-col md:flex-row items-center justify-center md:gap-2 gap-2
         z-[999]
         outline-none focus:outline-none focus-visible:outline-none active:outline-none
-        
       "
     >
-      {/* SLIDER UNICO (più piccolo in mobile) */}
+      {/* SLIDER */}
       <div
         className="absolute bg-red-900 rounded-md pointer-events-none h-8 md:h-12"
         style={{
@@ -179,7 +191,7 @@ export default function TopInfo() {
         }}
       />
 
-      {/* BOTTONI (più piccoli in mobile) */}
+      {/* NAV BUTTONS */}
       {routes.map((r, i) => (
         <button
           key={r.path}
@@ -198,6 +210,102 @@ export default function TopInfo() {
           {r.icon}
         </button>
       ))}
+
+      {/* AUTH BUTTON (piccolo, non rompe il layout) */}
+      <button
+        type="button"
+        onClick={() => (isLogged ? logout() : setOpenLogin(true))}
+        className="
+          relative z-10
+          md:ml-2
+          px-2 py-1
+          text-xs md:text-sm
+          rounded-md
+          border border-white/20
+          text-white
+          hover:bg-white/10
+        "
+        title={isLogged ? "Logout" : "Login"}
+      >
+        {isLogged ? "🔒" : "🔑"}
+      </button>
+
+      {openLogin && !isLogged && (
+        <LoginModal onClose={() => setOpenLogin(false)} />
+      )}
+    </div>
+  );
+}
+
+function LoginModal({ onClose }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setErr("");
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-start bg-black/60 md:justify-center md:top-[6rem]">
+      <div className="w-[320px] rounded-xl bg-slate-900 p-4 border border-white/10 md:mr-[0] mr-4 shadow-xl -ml-[12rem] md:ml-0">
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-white font-semibold -ml-[] md:ml-0">
+            Admin login
+          </div>
+
+          <button
+            onClick={onClose}
+            className="text-white/70 hover:text-white"
+            type="button"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={submit} className="flex flex-col gap-2">
+          <input
+            className="rounded-md bg-slate-800 border border-white/10 px-3 py-2 text-white text-sm"
+            placeholder="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+          />
+          <input
+            className="rounded-md bg-slate-800 border border-white/10 px-3 py-2 text-white text-sm"
+            placeholder="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+          />
+
+          {err && <div className="text-red-400 text-xs">{err}</div>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 rounded-md bg-white/10 hover:bg-white/20 text-white py-2 text-sm disabled:opacity-60"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
