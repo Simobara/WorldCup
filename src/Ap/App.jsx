@@ -21,7 +21,7 @@ import TopInfo from "../Ap/TopInfo";
 import StandingsPage from "../Body/1standingsPage";
 import GroupMatchesPage from "../Body/2aGroupMatchesPage";
 import GroupRankPage from "../Body/2bGroupRankPage";
-import TablePage from "../Body/3TablePage";
+import TablePage from "../Body/3TablePageX";
 import { EditModeProvider } from "../Providers/EditModeProvider";
 import { AuthProvider } from "../Services/supabase/AuthProvider";
 
