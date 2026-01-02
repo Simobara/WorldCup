@@ -109,7 +109,7 @@ function setDeep(obj, path, value) {
   return out;
 }
 // --------------------------------------------------------------------------
-export default function GridMatchesPage() {
+export default function GridMatchesPage({ isLogged }) {
   const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? "remote";
   const repo = useMemo(() => createNotesRepo(NOTES_SOURCE), [NOTES_SOURCE]);
   const STORAGE_KEY = "gridMatches_showPronostics";
@@ -209,6 +209,14 @@ export default function GridMatchesPage() {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (isLogged) {
+      setShowPronostics(true);
+    } else {
+      setShowPronostics(false); // opzionale
+    }
+  }, [isLogged]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -772,7 +780,11 @@ export default function GridMatchesPage() {
               style={{ top: mobileTop }}
               onClick={(e) => e.stopPropagation()}
             >
-              <GridRankPage onlyGroup={mobileGroup} maxMatches={mobileCutoff} />
+              <GridRankPage
+                onlyGroup={mobileGroup}
+                maxMatches={mobileCutoff}
+                isLogged={isLogged}
+              />
             </div>
           </>
         )}
@@ -806,7 +818,11 @@ export default function GridMatchesPage() {
                 }, 0);
               }}
             >
-              <GridRankPage onlyGroup={hoverGroup} maxMatches={hoverCutoff} />
+              <GridRankPage
+                onlyGroup={hoverGroup}
+                maxMatches={hoverCutoff}
+                isLogged={isLogged}
+              />
             </div>
           </>
         )}

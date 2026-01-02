@@ -213,7 +213,7 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
   });
 }
 // ---------------------------------------------------------------------------------
-export default function GridRankPage({ onlyGroup, maxMatches = null }) {
+export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged }) {
   const isTooltip = !!onlyGroup;
   const STORAGE_KEY = "gridRank_showPronostics";
 
@@ -249,6 +249,14 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
 
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
+
+  useEffect(() => {
+    if (isLogged) {
+      setShowPronostics(true);
+    } else {
+      setShowPronostics(false); // opzionale
+    }
+  }, [isLogged]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
