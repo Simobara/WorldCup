@@ -435,7 +435,7 @@ export default function GridMatchesPage({ isLogged }) {
                             top-4 
                             md:left-2 left-4
                             w-[86vw] max-w-[20rem]
-                            min-h-[50vh]
+                            min-h-[30vh]
                             max-h-[80vh] overflow-auto
                             rounded-2xl
                             bg-slate-900 text-white
