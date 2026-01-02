@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import GridMatchesPage from "../components/2aGroupMatches/1gridMatches";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../Services/supabase/supabaseClient";
 
 const GroupMatchesPage = () => {
   const [isLogged, setIsLogged] = useState(false);

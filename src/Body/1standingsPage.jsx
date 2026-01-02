@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import StandingsBlock from "../components/1standingsComp/4standingsBlock";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../Services/supabase/supabaseClient";
+
 
 const StandingsPage = () => {
   const [notes, setNotes] = useState(null);

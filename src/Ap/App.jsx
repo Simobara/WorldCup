@@ -11,8 +11,8 @@ import GroupRankPage from "../Body/2bGroupRankPage";
 import TablePage from "../Body/3tablePage";
 
 
-import { AuthProvider } from "../AuthProvider";
-import { EditModeProvider } from "../EditModeProvider";
+import { EditModeProvider } from "../Providers/EditModeProvider";
+import { AuthProvider } from "../Services/supabase/AuthProvider";
 
 const App = () => {
   return (

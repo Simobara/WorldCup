@@ -1,29 +1,26 @@
 // src/components/1standingsComp/citiesOsp.js
-
-const SKY = 'bg-sky-400';
-const GREEN = 'bg-green-500';
-const ROSE = 'bg-rose-300';
+import { CssCities } from "../styles/0CssGsTs";
 
 export const citiesOsp = [
   // 🔵 SKY – PRIME 4
-  { name: 'Vancouver',    abbr: 'VANCOUVER', color: SKY },
-  { name: 'Seattle',      abbr: 'SEATTLE', color: SKY },
-  { name: 'SanFrancisco', abbr: 'SAN FRANCISCO', color: SKY },
-  { name: 'LAngeles',     abbr: 'LOS ANGELES', color: SKY },
+  { name: 'Vancouver',    abbr: 'VANCOUVER',      color: CssCities.Sky },
+  { name: 'Seattle',      abbr: 'SEATTLE',        color: CssCities.Sky },
+  { name: 'SanFrancisco', abbr: 'SAN FRANCISCO',  color: CssCities.Sky },
+  { name: 'LAngeles',     abbr: 'LOS ANGELES',    color: CssCities.Sky },
 
   // 🟢 GREEN – SUCCESSIVE 6
-  { name: 'Guadalajara',  abbr: 'GUADALAJARA', color: GREEN },
-  { name: 'CDMX',         abbr: 'CDMX', color: GREEN },
-  { name: 'Monterrey',    abbr: 'MONTERREY', color: GREEN },
-  { name: 'Houston',      abbr: 'HOUSTON', color: GREEN },
-  { name: 'Dallas',       abbr: 'DALLAS', color: GREEN },
-  { name: 'Kansas',       abbr: 'KANSAS', color: GREEN },
+  { name: 'Guadalajara',  abbr: 'GUADALAJARA',    color: CssCities.Green },
+  { name: 'CDMX',         abbr: 'CDMX',           color: CssCities.Green },
+  { name: 'Monterrey',    abbr: 'MONTERREY',      color: CssCities.Green },
+  { name: 'Houston',      abbr: 'HOUSTON',        color: CssCities.Green },
+  { name: 'Dallas',       abbr: 'DALLAS',         color: CssCities.Green },
+  { name: 'Kansas',       abbr: 'KANSAS',         color: CssCities.Green },
 
   // 🌸 ROSE – ULTIME 6
-  { name: 'Atlanta',      abbr: 'ATLANTA', color: ROSE },
-  { name: 'Miami',        abbr: 'MIAMI', color: ROSE },
-  { name: 'Toronto',      abbr: 'TORONTO', color: ROSE },
-  { name: 'Boston',       abbr: 'BOSTON', color: ROSE },
-  { name: 'Philadelphia', abbr: 'PHILADELPHIA', color: ROSE },
-  { name: 'NewYork',      abbr: 'NEWYORK', color: ROSE },
+  { name: 'Atlanta',      abbr: 'ATLANTA',        color: CssCities.Rose },
+  { name: 'Miami',        abbr: 'MIAMI',          color: CssCities.Rose },
+  { name: 'Toronto',      abbr: 'TORONTO',        color: CssCities.Rose },
+  { name: 'Boston',       abbr: 'BOSTON',         color: CssCities.Rose },
+  { name: 'Philadelphia', abbr: 'PHILADELPHIA',   color: CssCities.Rose },
+  { name: 'NewYork',      abbr: 'NEWYORK',        color: CssCities.Rose },
 ];

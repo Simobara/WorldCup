@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import AdminEditToggle from "../../AdminEditToggle";
-import EditableText from "../../EditableText";
+import AdminEditToggle from "../../Editor/AdminEditToggle";
+import EditableText from "../../Editor/EditableText";
 import { groupMatches } from "../../START/app/0GroupMatches";
 
-import { createNotesRepo } from "../../notesRepo";
+import { createNotesRepo } from "../../Services/notes/notesRepo";
 import { flagsMond } from "../../START/app/main";
 import { CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";

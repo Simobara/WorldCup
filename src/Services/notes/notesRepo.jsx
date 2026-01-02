@@ -1,5 +1,5 @@
-import { supabase } from "./supabaseClient";
-import { groupNotes } from "./START/app/note";
+import { groupNotes } from "../../START/app/note";
+import { supabase } from "../supabase/supabaseClient";
 
 const LOCAL_STORAGE_KEY = "notes_base_local"; // se vuoi persistere anche in local
 
@@ -45,7 +45,9 @@ export function createNotesRepo(source = "remote") {
       if (!isRemote) {
         // LOCAL: persisti solo i gruppi toccati, non tutto per forza
         try {
-          const current = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "{}");
+          const current = JSON.parse(
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "{}"
+          );
           const next = { ...current };
           for (const k of keysTouched) next[k] = notes?.[k] ?? null;
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(next));

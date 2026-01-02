@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../Services/supabase/supabaseClient";
 
 const routes = [
   { path: "/standingsPage", icon: "🗓️" },

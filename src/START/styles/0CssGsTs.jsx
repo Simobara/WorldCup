@@ -1,5 +1,11 @@
 import "./variables.css";
 
+export const CssCities = {
+  Sky:   "bg-[var(--city-sky)]",
+  Green: "bg-[var(--city-green)]",
+  Rose:  "bg-[var(--city-rose)]",
+};
+
 export const CssQuad = {
   // background per fase  
   BgRound32:  "bg-[var(--quad-bg-round32)]",
@@ -16,12 +22,14 @@ export const CssQuad = {
   BorderWinProvisional: "border-purple-500/80",
   BorderDrawProvisional: "border-green-500/80",
 }
+
 export const CssRettRis = {
   Ris:   "text-[var(--rettris-ris)]",
   Ts:    "text-[var(--rettris-ts)]",
   Pen:   "text-[var(--rettris-pen)]",
   Title: "text-[var(--rettris-title)]",
 };
+
 export const CssRow7 = {
   // celle base (CODICE / SQUADRA / W X P)
   CellBg:     "bg-[var(--row7-bg-cell)]",
@@ -39,15 +47,18 @@ export const CssRow7 = {
   // W X P testo
   WxpText:    "text-[var(--row7-wxp-text)]",
 };
+
 export const CssHeader7 = {
   Bg:     "bg-[var(--header7-bg)]",
   Border: "border-[var(--header7-border)]",
   Text:   "text-[var(--header7-text)]",
 };
+
 export const CssGroup = {
   Bg:     "bg-[var(--group-bg)]",
   Border: "border-[var(--group-border)]",
 };
+
 export const CssMatchGrid = {
   // Header
   HeadBg:     "bg-[var(--mhead-bg)]",

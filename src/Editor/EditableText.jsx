@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useEditMode } from "./EditModeProvider";
+import { useEditMode } from "../Providers/EditModeProvider";
 
 /**
  * EditableText

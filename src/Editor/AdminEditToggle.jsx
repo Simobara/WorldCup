@@ -1,5 +1,5 @@
-import { useAuth } from "./AuthProvider";
-import { useEditMode } from "./EditModeProvider";
+import { useEditMode } from "../Providers/EditModeProvider";
+import { useAuth } from "../Services/supabase/AuthProvider";
 
 export default function AdminEditToggle({ className = "", onExit }) {
   const { user } = useAuth();

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import GridRankPage from "../components/2bGroupRank/1gridRank";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../Services/supabase/supabaseClient";
 
 const GroupRankWrapperPage = () => {
   const [isLogged, setIsLogged] = useState(false);
