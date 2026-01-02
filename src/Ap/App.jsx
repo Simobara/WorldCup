@@ -1,3 +1,16 @@
+/* -----------------------------------------------------------------------------
+📄 File: App.jsx
+Scopo: componente root dell’app.
+       Gestisce provider globali, routing e layout principale.
+🔹 Include:
+- AuthProvider (autenticazione Supabase)
+- EditModeProvider (modalità admin)
+- Router e route principali
+- TopInfo sempre visibile
+Note:
+- Layout full-screen mobile/desktop
+- UI app-like senza scroll nativo
+------------------------------------------------------------------------------*/
 import {
   Navigate,
   Route,
@@ -9,11 +22,8 @@ import StandingsPage from "../Body/1standingsPage";
 import GroupMatchesPage from "../Body/2aGroupMatchesPage";
 import GroupRankPage from "../Body/2bGroupRankPage";
 import TablePage from "../Body/3tablePage";
-
-
 import { EditModeProvider } from "../Providers/EditModeProvider";
 import { AuthProvider } from "../Services/supabase/AuthProvider";
-
 const App = () => {
   return (
      <AuthProvider>
