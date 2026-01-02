@@ -48,12 +48,14 @@ export default function TopInfo() {
       if (data.session) setOpenLogin(false);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (!alive) return;
-      setSession(newSession);
-      setAuthReady(true);
-      if (newSession) setOpenLogin(false);
-    });
+    const { data: sub } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        if (!alive) return;
+        setSession(newSession);
+        setAuthReady(true);
+        if (newSession) setOpenLogin(false);
+      }
+    );
 
     return () => {
       alive = false;
@@ -147,9 +149,12 @@ export default function TopInfo() {
         setSlider(to);
       }, EXPAND_MS);
 
-      setTimeout(() => {
-        navigate(path);
-      }, EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET));
+      setTimeout(
+        () => {
+          navigate(path);
+        },
+        EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET)
+      );
 
       setTimeout(() => {
         setPhase("idle");
@@ -204,9 +209,10 @@ export default function TopInfo() {
             phase === "expand"
               ? `${EXPAND_MS}ms`
               : phase === "snap"
-              ? `${SNAP_MS}ms`
-              : "0ms",
-          transitionTimingFunction: phase === "snap" ? EASE_ELASTIC : "ease-out",
+                ? `${SNAP_MS}ms`
+                : "0ms",
+          transitionTimingFunction:
+            phase === "snap" ? EASE_ELASTIC : "ease-out",
         }}
       />
 
@@ -264,12 +270,17 @@ function LoginModal({ onClose }) {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const emailRef = useRef(null);
+
   const submit = async (e) => {
     e.preventDefault();
     setErr("");
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     setLoading(false);
     if (error) {
@@ -279,6 +290,19 @@ function LoginModal({ onClose }) {
 
     onClose();
   };
+
+  useEffect(() => {
+    emailRef.current?.focus();
+  }, []);
+
+  // useEffect(() => {
+  //   if (!email) return;
+  //   if (password) return;
+  //   const t = setTimeout(() => {
+  //     document.getElementById("password")?.focus();
+  //   }, 150);
+  //   return () => clearTimeout(t);
+  // }, [email, password]);
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-start bg-black/60 md:justify-center md:top-[6rem]">
@@ -295,24 +319,41 @@ function LoginModal({ onClose }) {
           </button>
         </div>
 
-        <form onSubmit={submit} className="flex flex-col gap-2">
+        <form
+          onSubmit={submit}
+          autoComplete="on"
+          method="post"
+          action="#"
+          className="flex flex-col gap-2"
+        >
           <input
+            ref={emailRef}
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
+            inputMode="email"
             className="rounded-md bg-slate-800 border border-white/10 px-3 py-2 text-white text-sm"
             placeholder="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
-          <input
-            className="rounded-md bg-slate-800 border border-white/10 px-3 py-2 text-white text-sm"
-            placeholder="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
           />
 
-          {err && <div className="text-red-400 text-xs">{err}</div>}
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            autoCapitalize="none"
+            spellCheck={false}
+            inputMode="password"
+            className="rounded-md bg-slate-800 border border-white/10 px-3 py-2 text-white text-sm"
+            placeholder="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           <button
             type="submit"
