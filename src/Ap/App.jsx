@@ -46,9 +46,9 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Navigate to="/standingsPage" replace />} />
       <Route path="/standingsPage" element={<StandingsPage />} />
-      <Route path="/groupRankPage" element={<GroupRankPage isLogged={isLogged} />} />
-      <Route path="/groupMatchesPage" element={<GroupMatchesPage isLogged={isLogged} />} />
-      <Route path="/tablePage" element={<TablePage isLogged={isLogged} />} />
+      <Route path="/groupRankPage" element={<GroupRankPage/>} />
+      <Route path="/groupMatchesPage" element={<GroupMatchesPage />} />
+      <Route path="/tablePage" element={<TablePage />} />
     </Routes>
   );
 }

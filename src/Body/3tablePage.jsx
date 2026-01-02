@@ -2,16 +2,31 @@ import { useEffect, useState } from "react";
 import { supabase } from "../Services/supabase/supabaseClient";
 import TableBlock from "../components/3tableComp/0tableBlock";
 
-// 👉 questo è il TUO componente "tabellone" (quello lungo che mi hai incollato)
-// se ora si chiama già TablePage, rinominalo in TableBlock per non fare clash
-
-
-const TablePage = ({ isLogged }) => {
+const TablePage = () => {
   const [notes, setNotes] = useState(null);
+  const [isLogged, setIsLogged] = useState(false);
 
+  // 🔐 LOGIN (IDENTICO agli altri wrapper)
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setIsLogged(!!data?.session?.user);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setIsLogged(!!session?.user);
+      }
+    );
+
+    return () => sub?.subscription?.unsubscribe?.();
+  }, []);
+
+  // 📝 NOTES
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase.from("notes_base").select("key, data");
+      const { data, error } = await supabase
+        .from("notes_base")
+        .select("key, data");
 
       if (error) {
         setNotes(null);
