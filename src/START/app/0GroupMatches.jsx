@@ -37,8 +37,8 @@ group_B: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'Toronto',           time: '20:00',     team1: 'Canada',         team2: 'Italia',           pron:'2', ris: '0-1 ' ,  results:' ' },
-            { numero: 2, city: 'SanFrancisco',      time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',            pron:'1', ris: '2-0 ' ,  results:' ' },
+            { numero: 1, city: 'Toronto',           time: '20:00',     team1: 'Canada',         team2: 'Italia',           pron:'2', ris: '0-1 ' ,  results:'0-1 ' },
+            { numero: 2, city: 'SanFrancisco',      time: '20:00',     team1: 'Svizzera',       team2: 'Qatar',            pron:'1', ris: '2-0 ' ,  results:'2-0 ' },
         ],
     },
     giornata_2: {

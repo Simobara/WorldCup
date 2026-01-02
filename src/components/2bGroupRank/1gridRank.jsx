@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { groupMatches } from "../../START/app/0GroupMatches";
-import { flagsMond } from "../../START/app/main";
-import { CssGroup, CssHeader7, CssRow7 } from "../../START/styles/0CssGsTs";
+import { flagsMond } from "../../START/app/0main";
+import { CssGroup, CssGroupLetter, CssHeader7, CssRow7, } from "../../START/styles/0CssGsTs";
 import Quadrato from "../3tableComp/1quad";
 
 function v(val, showZero) {
@@ -397,7 +397,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
                     
 
                       {/* LETTERA */}
-                      <span className="mt-4 text-gray-400 font-extrabold text-xl md:text-3xl leading-none">
+                      <span className={`mt-4 font-extrabold text-xl md:text-3xl leading-none ${CssGroupLetter.Text}`}>
                         {letter}
                       </span>
                     </div>
@@ -501,7 +501,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
 
 function Header7() {
   const headers = [
-    { mobile: "SQ", desktop: "SQUADRA" },
+    { mobile: "SQ", desktop: "TEAM" },
     "", // colonna vuota (come prima)
     { mobile: "PT", desktop: "PUNTI" },
     { mobile: "G", desktop: "GOL" },
@@ -520,7 +520,7 @@ function Header7() {
           return (
           <div 
             key="squadra"
-            className={` col-span-2 ${CssHeader7.Bg} border ${CssHeader7.Border} flex items-center justify-center text-[9px] font-extrabold ${CssHeader7.Text} leading-none `}
+            className={` col-span-2 ${CssHeader7.Bg} border ${CssHeader7.Border} flex items-center justify-center text-[12px] font-extrabold ${CssHeader7.Text} leading-none `}
           >
               {typeof t === "string" ? (
                 t
@@ -543,7 +543,7 @@ function Header7() {
         return (
           <div
             key={`h-${idx}`}
-            className={` ${CssHeader7.Bg} border ${CssHeader7.Border} flex items-center justify-center text-[9px] font-bold ${CssHeader7.Text} leading-none `} >
+            className={` ${CssHeader7.Bg} border ${CssHeader7.Border} flex items-center justify-center text-[12px] font-bold ${CssHeader7.Text} leading-none `} >
             {typeof t === "string" ? (
               t
             ) : (
@@ -578,7 +578,7 @@ function Row7({
     <>
       {/* CODICE */}
       <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} flex items-center justify-center`} >
-        <span className={`hidden md:block text-[10px] ${CssRow7.CodeText} font-extrabold`} >
+        <span className={`hidden md:block text-[12px] ${CssRow7.CodeText} font-extrabold`} >
           {code}
         </span>
       </div>

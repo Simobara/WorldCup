@@ -4,7 +4,7 @@ import EditableText from "../../Editor/EditableText";
 import { groupMatches } from "../../START/app/0GroupMatches";
 
 import { createNotesRepo } from "../../Services/notes/notesRepo";
-import { flagsMond } from "../../START/app/main";
+import { flagsMond } from "../../START/app/0main";
 import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
@@ -839,9 +839,9 @@ function Header7() {
   const headers = [
     { mobile: "D ", desktop: "DATA" },
     { mobile: "CIT ", desktop: "CITTA'" },
-    { mobile: "SQ1", desktop: "SQUADRA 1" },
+    { mobile: "SQ1", desktop: "TEAM 1" },
     { mobile: "RIS", desktop: "RIS" },
-    { mobile: "SQ2", desktop: "SQUADRA 2" },
+    { mobile: "SQ2", desktop: "TEAM 2" },
   ];
   return (
     <>
@@ -859,7 +859,7 @@ function Header7() {
               ${CssMatchGrid.HeadBg}
               border ${CssMatchGrid.HeadBorder}
               flex items-center justify-center
-              text-[9px] font-extrabold
+              text-[12px] font-extrabold
               ${CssMatchGrid.HeadText}
               z-[100]
             `}
@@ -1167,15 +1167,15 @@ function Row7({
           scale-[0.45] md:scale-[0.65] origin-center
           ${
             // DESKTOP
-            flagsGrayOnDesktop
-              ? "md:[&_img]:grayscale md:[&_svg]:grayscale"
+           flagsGrayOnDesktop
+              ? "md:[&_img]:grayscale md:[&_img]:brightness-50 md:[&_svg]:grayscale md:[&_svg]:brightness-50"
               : "md:[&_img]:grayscale-0 md:[&_svg]:grayscale-0"
           }
           ${
             // MOBILE
             flagsGrayOnMobile
-              ? "[&_img]:grayscale [&_svg]:grayscale"
-              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"
+              ? "[&_img]:grayscale [&_img]:brightness-50 [&_svg]:grayscale [&_svg]:brightness-50"
+              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"          
           }
         `}
         >
@@ -1219,15 +1219,15 @@ function Row7({
           scale-[0.45] md:scale-[0.65] origin-center
            ${
              // DESKTOP
-             flagsGrayOnDesktop
-               ? "md:[&_img]:grayscale md:[&_svg]:grayscale"
-               : "md:[&_img]:grayscale-0 md:[&_svg]:grayscale-0"
-           }
+              flagsGrayOnDesktop
+              ? "md:[&_img]:grayscale md:[&_img]:brightness-50 md:[&_svg]:grayscale md:[&_svg]:brightness-50"
+              : "md:[&_img]:grayscale-0 md:[&_svg]:grayscale-0"
+          }
           ${
             // MOBILE
             flagsGrayOnMobile
-              ? "[&_img]:grayscale [&_svg]:grayscale"
-              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"
+              ? "[&_img]:grayscale [&_img]:brightness-50 [&_svg]:grayscale [&_svg]:brightness-50"
+              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"          
           }
         `}
         >

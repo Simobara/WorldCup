@@ -54,7 +54,7 @@ export const CssRow7 = {
 export const CssHeader7 = {
   Bg:     "bg-[var(--header7-bg)]",
   Border: "border-[var(--header7-border)]",
-  Text:   "text-[var(--header7-text)]",
+  Text:   "text-[var(--group-header-text)]",
 };
 
 export const CssGroup = {

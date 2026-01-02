@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import BlokQuadRett from "../components/3tableComp/4blokQuadRett";
 import BlokQuadRettSemi from "../components/3tableComp/5blokQuadRettSemi";
 import { groupFinal } from "../START/app/1GroupFinal";
-import { flagsMond } from "../START/app/main";
+import { flagsMond } from "../START/app/0main";
 import { Rett } from "../START/styles/0CssGsTs";
 
 // 🔹 flatten delle squadre (A, B, C, ... → un solo array)
