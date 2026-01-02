@@ -747,7 +747,7 @@ export default function GridMatchesPage() {
             <div
               className={`
                 md:hidden fixed z-[10001]
-                md:w-0 w-[30vw]
+                md:w-0 w-[40vw]
                 max-h-[80vh] overflow-auto
                 rounded-2xl
                 ${CssMatchGrid.DrawerBg}

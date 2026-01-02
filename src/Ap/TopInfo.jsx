@@ -184,7 +184,7 @@ export default function TopInfo() {
         md:top-0 md:right-auto md:left-1/2 md:-translate-x-1/2 md:translate-y-0
         w-auto md:w-[100%] md:max-w-[420px]
         bg-slate-900 border-gray-400 shadow-lg
-        border-l-4 border-t-none border-b-4 border-white-800
+        border-l-4 border-t-none border-t-4 border-white-800
         rounded-tl-xl rounded-bl-xl
         rounded-tr-none rounded-br-none
         md:border-t-0
@@ -240,19 +240,21 @@ export default function TopInfo() {
       <button
         type="button"
         onClick={handleAuthButton}
-        className="
-          relative z-10
-          md:ml-2
-          px-2 py-1
-          text-xs md:text-sm
-          rounded-md
-          border border-white/20
-          text-white
-          hover:bg-white/10
-          disabled:opacity-60
-        "
-        title={isLogged ? "Logout" : "Login"}
-        disabled={!authReady && !isLogged}
+        className={`
+        relative z-10
+        md:ml-2
+        w-8 h-8 md:w-12 md:h-12
+        flex items-center justify-center
+        text-base md:text-2xl
+        rounded-md
+        transition-colors
+        ${
+          isLogged
+            ? "text-white hover:bg-white/10"
+            : "grayscale brightness-75 opacity-80"
+        }
+        disabled:opacity-60
+      `}
       >
         {isLogged ? "🔑" : authReady ? "🔐" : "⏳"}
       </button>
