@@ -10,7 +10,7 @@ const StandingsPage = () => {
       const { data, error } = await supabase
         .from("notes_base")
         .select("data")
-        .eq("key", "groupNotesMond26")
+        .eq("key", "groupNotes")
         .single();
 
       if (!error) setNotes(data.data);

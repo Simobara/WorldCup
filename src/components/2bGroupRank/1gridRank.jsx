@@ -384,7 +384,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null }) {
                 >
                   <div className="flex-1 flex items-stretch">
                     {/* LETTERA + MESSAGE DIV */}
-                    `<div className="relative w-8 md:w-10 flex items-center justify-center">
+                    <div className="relative w-8 md:w-10 flex items-center justify-center -top-4">
 
                     
 

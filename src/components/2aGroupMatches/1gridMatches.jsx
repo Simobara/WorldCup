@@ -1,15 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AdminEditToggle from "../../AdminEditToggle";
-import { useAuth } from "../../AuthProvider";
 import EditableText from "../../EditableText";
 import { groupMatches } from "../../START/app/0GroupMatches";
+
+import { createNotesRepo } from "../../notesRepo";
 import { flagsMond } from "../../START/app/main";
-import { groupNotesMond26 } from "../../START/app/note";
 import { CssMatchGrid } from "../../START/styles/0CssGsTs";
-import { supabase } from "../../supabaseClient";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
-
 
 function toCode3(team) {
   const s = String(team?.id ?? team?.name ?? "")
@@ -56,7 +54,9 @@ function getFlatMatchesForGroup(groupObj) {
         city: m.city ?? "",
         team1: m.team1 ?? "",
         team2: m.team2 ?? "",
-        pron: String(m.pron ?? "").trim().toUpperCase(), // "1" | "X" | "2" | ""
+        pron: String(m.pron ?? "")
+          .trim()
+          .toUpperCase(), // "1" | "X" | "2" | ""
         results: String(m.results ?? "").trim(),
         ris: String(m.ris ?? "").trim(),
       });
@@ -110,26 +110,9 @@ function setDeep(obj, path, value) {
 }
 // --------------------------------------------------------------------------
 export default function GridMatchesPage() {
-  
+  const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? "remote";
+  const repo = useMemo(() => createNotesRepo(NOTES_SOURCE), [NOTES_SOURCE]);
   const STORAGE_KEY = "gridMatches_showPronostics";
-
-  const { user } = useAuth();
-  async function loadNotesFromSupabase() {
-  const { data, error } = await supabase
-    .from("notes_base")
-    .select("key, data");
-
-  if (error) {
-    console.error("LOAD ERROR:", error);
-    return null;
-  }
-
-  const out = {};
-  for (const row of data ?? []) {
-    out[row.key] = row.data; // key = "A", "B", "C"...
-  }
-  return out;
-}
 
   const [showPronostics, setShowPronostics] = useState(() => {
     try {
@@ -142,10 +125,10 @@ export default function GridMatchesPage() {
   const [hoverGroup, setHoverGroup] = useState(null); // "A".."L" oppure null
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0, side: "right" });
   const [hoverCutoff, setHoverCutoff] = useState(null); // numero match da considerare (2,4,6)
-  const [hoverModal, setHoverModal] = useState(null); 
+  const [hoverModal, setHoverModal] = useState(null);
 
   // ✅ dati note (editabili e salvabili)
-  const [notes, setNotes] = useState(() => groupNotesMond26 ?? {});
+  const [notes, setNotes] = useState({});
 
   // ✅ stato apertura modale note mobile
   const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
@@ -161,8 +144,9 @@ export default function GridMatchesPage() {
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
 
-  const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
-
+  const isDesktopNow =
+    typeof window !== "undefined" &&
+    window.matchMedia("(min-width: 768px)").matches;
 
   const [localEdits, setLocalEdits] = useState({});
 
@@ -174,32 +158,18 @@ export default function GridMatchesPage() {
     setNotes((prev) => setDeep(prev, path, value));
   };
 
-  // ✅ salva tutto quando esci
-    async function saveAllEditsToSupabase() {
+  // ✅ salva tutte le modifiche quando esci da EDIT
+  async function saveAllEdits() {
     const paths = Object.keys(localEdits);
     if (!paths.length) return;
 
-    // prendo le "key" toccate (A, B, C...)
+    // keys = lettere A..L dai path tipo "A.day1.items"
     const keysTouched = new Set(paths.map((p) => p.split(".")[0]));
 
-    const payload = Array.from(keysTouched).map((k) => ({
-      key: k,
-      data: notes[k] ?? null,
-      // created_at lo mette il DB, non serve qui
-    }));
-
-    const { error } = await supabase
-      .from("notes_base")
-      .upsert(payload, { onConflict: "key" });
-
-    if (error) {
-      console.error("SAVE ERROR:", error);
-      return;
-    }
+    await repo.save({ notes, keysTouched });
 
     setLocalEdits({});
   }
-
 
   // DESKTOP: come ora
   const LEFT_SIDE_GROUPS = new Set(["D", "H", "L"]); // :contentReference[oaicite:1]{index=1}
@@ -233,16 +203,12 @@ export default function GridMatchesPage() {
   // 7 colonne: DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
 
   useEffect(() => {
-  (async () => {
-    const fresh = await loadNotesFromSupabase();
-    if (!fresh) return;
-
-    setNotes({
-      ...(groupNotesMond26 ?? {}),
-      ...fresh, // DB vince
-    });
-  })();
-}, []);
+    (async () => {
+      const loaded = await repo.load();
+      setNotes(loaded);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -267,13 +233,10 @@ export default function GridMatchesPage() {
   }, [showPronostics]);
 
   useEffect(() => {
-  if (!showPronostics) {
-    setHoverModal(null);
-  }
-}, [showPronostics]);
-
-
-
+    if (!showPronostics) {
+      setHoverModal(null);
+    }
+  }, [showPronostics]);
 
   // FIX D/H/L: calcolo left/top clampati in viewport (niente offset hardcoded)
   const BOX_W = 23 * 16; // w-[23rem]
@@ -386,45 +349,43 @@ export default function GridMatchesPage() {
                 </h2>
 
                 <div className="flex-1 flex items-stretch">
-                 {/* LETTERA + MESSAGE */}
+                  {/* LETTERA + MESSAGE */}
                   <div className="relative w-8 md:w-10 flex items-center justify-center">
-
                     {/* bottone messaggio SOLO se showPronostics */}
                     {showPronostics && (
-                      
-                        <div
-                          className="flex"
-                          onMouseEnter={() => {
-                            if (!isDesktop) return;
-                            setHoverModal(letter);
-                          }}
-                          onMouseLeave={() => {
-                            if (!isDesktop) return;
-                            setHoverModal(null);
-                          }}
-                          onClick={(e) => {
-                            if (isDesktop) return;
+                      <div
+                        className="flex"
+                        onMouseEnter={() => {
+                          if (!isDesktopNow) return;
+                          setHoverModal(letter);
+                        }}
+                        onMouseLeave={() => {
+                          if (!isDesktopNow) return;
+                          setHoverModal(null);
+                        }}
+                        onClick={(e) => {
+                          if (isDesktopNow) return;
 
-                            e.stopPropagation();
+                          e.stopPropagation();
 
-                            setMobileRankOpen(false);
-                            setMobileGroup(null);
-                            setMobileCutoff(null);
+                          setMobileRankOpen(false);
+                          setMobileGroup(null);
+                          setMobileCutoff(null);
 
-                            const groupEl = e.currentTarget.closest(".group-card");
-                            const rect = groupEl.getBoundingClientRect();
+                          const groupEl =
+                            e.currentTarget.closest(".group-card");
+                          const rect = groupEl.getBoundingClientRect();
 
-                            const isLeft =
-                              LEFT_SIDE_GROUPS_MOBILE.has(letter) ||
-                              CENTRAL_GROUPS_MOBILE.has(letter);
+                          const isLeft =
+                            LEFT_SIDE_GROUPS_MOBILE.has(letter) ||
+                            CENTRAL_GROUPS_MOBILE.has(letter);
 
-                            setMobileNotesGroup(letter);
-                            // setMobileNotesTop(rect.top);
-                            // setMobileNotesSide(isLeft ? "left" : "right");
-                            setMobileNotesOpen(true);
-                          }}
-                        >
-                      
+                          setMobileNotesGroup(letter);
+                          // setMobileNotesTop(rect.top);
+                          // setMobileNotesSide(isLeft ? "left" : "right");
+                          setMobileNotesOpen(true);
+                        }}
+                      >
                         <div
                           className="
                             absolute md:top-24 top-14 left-1/2 -translate-x-1/2
@@ -434,7 +395,7 @@ export default function GridMatchesPage() {
                             flex items-center justify-center
                             text-[14px] md:text-[16px]
                             cursor-pointer
-                            z-[50]
+                            z-[12000] pointer-events-auto
                             hover:bg-slate-800
                             transition
                             shadow-lg
@@ -461,7 +422,7 @@ export default function GridMatchesPage() {
                           className="
                             md:hidden fixed z-[10001]
                             top-4 left-1/2 -translate-x-1/2
-                            w-[92vw] max-w-[26rem]
+                            w-[86vw] max-w-[20rem]
                             max-h-[80vh] overflow-auto
                             rounded-2xl
                             bg-slate-900 text-white
@@ -480,16 +441,21 @@ export default function GridMatchesPage() {
                                 <div className="font-extrabold text-center">
                                   Gruppo {mobileNotesGroup}
                                 </div>
-
                                 {[data.day1, data.day2, data.day3].map(
                                   (day, i) =>
                                     day && (
                                       <div key={i}>
                                         <div className="font-bold text-red-500">
-                                          {Array.isArray(day.title) ? day.title[0] : day.title}
+                                          {Array.isArray(day.title)
+                                            ? day.title[0]
+                                            : day.title}
                                         </div>
                                         <div className="pl-2">
-                                          {day.items}
+                                          <EditableText
+                                            path={`${mobileNotesGroup}.day${i + 1}.items`}
+                                            value={day.items}
+                                            onChange={handleEditChange}
+                                          />
                                         </div>
                                       </div>
                                     )
@@ -508,6 +474,9 @@ export default function GridMatchesPage() {
                               </div>
                             );
                           })()}
+                          <div className="mt-4 flex justify-end border-t border-white/10 pt-3">
+                            <AdminEditToggle onExit={saveAllEdits} />
+                          </div>
                         </div>
                       </>
                     )}
@@ -518,9 +487,9 @@ export default function GridMatchesPage() {
                     </span>
 
                     {/* MODALE LOCALE: SOLO di quel gruppo */}
-                    {showPronostics && hoverModal === letter && (
-                     <div
-                      className="
+                    {hoverModal === letter && (
+                      <div
+                        className="
                         hidden md:block
                         absolute top-4 left-8 z-[10000]
                         w-[20rem]
@@ -536,88 +505,84 @@ export default function GridMatchesPage() {
                         p-0
                         border border-white overscroll-contain
                       "
-                      onMouseEnter={() => setHoverModal(letter)}
-                      onMouseLeave={() => setHoverModal(null)}
-                    >
+                        onMouseEnter={() => setHoverModal(letter)}
+                        onMouseLeave={() => setHoverModal(null)}
+                      >
                         {/* <div className="flex items-center justify-between">
                           <div className="font-extrabold text-slate-900">
                            Gruppo {letter}
                           </div>
                         </div> */}
 
-                        {/* ✅ CONTENUTO AGGANCIATO A groupNotesMond26 */}
+                        {/* ✅ CONTENUTO AGGANCIATO A groupNotes */}
                         <div className="mt-0 space-y-0 text-sm text-white">
-                         <div>
-                          <div className="font-bold text-red-600">
-                            {groupData?.day1?.title?.[0]}
+                          <div>
+                            <div className="font-bold text-red-600">
+                              {groupData?.day1?.title?.[0]}
+                            </div>
+                            <div className="pl-2">
+                              <EditableText
+                                path={`${letter}.day1.items`}
+                                value={groupData?.day1?.items}
+                                onChange={handleEditChange}
+                                className="pl-2"
+                              />
+                            </div>
                           </div>
-                          <div className="pl-2">
-                            <EditableText
-                              path={`${letter}.day1.items`}
-                              value={groupData?.day1?.items}
-                              onChange={handleEditChange}
-                              className="pl-2"
-                            />
-                          </div>
-                        </div>
                           {/* Day 2 */}
-                        <div>
-                          <div className="font-bold text-red-600">
-                            {groupData?.day2?.title?.[0]}
+                          <div>
+                            <div className="font-bold text-red-600">
+                              {groupData?.day2?.title?.[0]}
+                            </div>
+                            <div className="pl-2">
+                              <EditableText
+                                path={`${letter}.day2.items`}
+                                value={groupData?.day2?.items}
+                                onChange={handleEditChange}
+                                className="pl-2"
+                              />
+                            </div>
                           </div>
-                          <div className="pl-2">
-                            <EditableText
-                              path={`${letter}.day2.items`}
-                              value={groupData?.day2?.items}
-                              onChange={handleEditChange}
-                              className="pl-2"
-                            />
-                          </div>
-                        </div>
 
                           {/* Day 3 */}
-                         <div>
-                          <div className="font-bold text-red-600">
-                            {groupData?.day3?.title?.[0]}
+                          <div>
+                            <div className="font-bold text-red-600">
+                              {groupData?.day3?.title?.[0]}
+                            </div>
+                            <div className="pl-2">
+                              <EditableText
+                                path={`${letter}.day3.items`}
+                                value={groupData?.day3?.items}
+                                onChange={handleEditChange}
+                                className="pl-2"
+                              />
+                            </div>
                           </div>
-                          <div className="pl-2">
-                            <EditableText
-                              path={`${letter}.day3.items`}
-                              value={groupData?.day3?.items}
-                              onChange={handleEditChange}
-                              className="pl-2"
-                            />
-                          </div>
-                        </div>
 
                           {/* Note varie */}
                           <div>
-                          <div className="font-bold text-red-600">
-                            {groupData?.notes?.title}
+                            <div className="font-bold text-red-600">
+                              {groupData?.notes?.title}
+                            </div>
+                            <div className="mt-0 p-0 rounded-xl">
+                              <EditableText
+                                path={`${letter}.notes.text`}
+                                value={groupData?.notes?.text}
+                                onChange={handleEditChange}
+                                className=""
+                                textareaClassName="min-h-[80px]"
+                              />
+                            </div>
                           </div>
-                          <div className="mt-0 p-0 rounded-xl">
-                            <EditableText
-                              path={`${letter}.notes.text`}
-                              value={groupData?.notes?.text}
-                              onChange={handleEditChange}
-                              className=""
-                              textareaClassName="min-h-[80px]"
-                            />
-                          </div>
-                        </div>
                           {/* ADMIN EDIT BUTTON */}
                         </div>
                         <AdminEditToggle
                           className=" bottom-3 right-3"
-                          onExit={saveAllEditsToSupabase}
+                          onExit={saveAllEdits}
                         />
                       </div>
                     )}
-                    
                   </div>
-
-
-
 
                   {/* GRIGLIA */}
                   <div className="flex-1 flex justify-end bg-slate-400">
@@ -652,7 +617,8 @@ export default function GridMatchesPage() {
                             : "";
 
                         // ✅ ris è "provisional" solo quando lo stai mostrando (toggle ON) e non c'è results
-                        const isProvisional = !hasOfficial && showPronostics && hasRis;
+                        const isProvisional =
+                          !hasOfficial && showPronostics && hasRis;
 
                         const pron = (m?.pron ?? "").trim().toUpperCase();
                         const hasResult = res !== "";
@@ -661,12 +627,19 @@ export default function GridMatchesPage() {
                         let highlightType2 = "none";
 
                         if (hasResult) {
-                          const [a, b] = res.split("-").map((n) => Number(n.trim()));
-                          const valid = Number.isFinite(a) && Number.isFinite(b);
+                          const [a, b] = res
+                            .split("-")
+                            .map((n) => Number(n.trim()));
+                          const valid =
+                            Number.isFinite(a) && Number.isFinite(b);
 
                           if (valid) {
-                            const winType = isProvisional ? "win-provisional" : "win";
-                            const drawType = isProvisional ? "draw-provisional" : "draw";
+                            const winType = isProvisional
+                              ? "win-provisional"
+                              : "win";
+                            const drawType = isProvisional
+                              ? "draw-provisional"
+                              : "draw";
 
                             if (a === b) {
                               highlightType1 = drawType;
@@ -774,7 +747,7 @@ export default function GridMatchesPage() {
             <div
               className={`
                 md:hidden fixed z-[10001]
-                md:w-0 w-[40vw]
+                md:w-0 w-[30vw]
                 max-h-[80vh] overflow-auto
                 rounded-2xl
                 ${CssMatchGrid.DrawerBg}
@@ -841,7 +814,7 @@ function Header7() {
     { mobile: "D ", desktop: "DATA" },
     { mobile: "CIT ", desktop: "CITTA'" },
     { mobile: "SQ1", desktop: "SQUADRA 1" },
-    { mobile: "RIS", desktop: "RIS"},
+    { mobile: "RIS", desktop: "RIS" },
     { mobile: "SQ2", desktop: "SQUADRA 2" },
   ];
   return (
@@ -915,8 +888,8 @@ function Row7({
   flag1,
   flag2,
   bottomBorder = false,
-  result, 
-  isProvisional, 
+  result,
+  isProvisional,
 }) {
   const bottom = bottomBorder ? "border-b-4 border-b-gray-700" : "border-b";
   const common = `border-t border-l border-r ${bottom}`;
@@ -953,11 +926,13 @@ function Row7({
   const flagsGrayOnMobile = !mobileRankOpen || !isThisMobileGroupOpen;
 
   // (se vuoi anche quando drawer chiuso: puoi usare true fisso, vedi nota sotto)
-  const activeDesk = isActivePair ? `${CssMatchGrid.ActiveMdBg} ${CssMatchGrid.ActiveMdText}` : "";
-  const activeMob  = isActivePairMobile ? `${CssMatchGrid.ActiveMBg} ${CssMatchGrid.ActiveMText}` : "";
+  const activeDesk = isActivePair
+    ? `${CssMatchGrid.ActiveMdBg} ${CssMatchGrid.ActiveMdText}`
+    : "";
+  const activeMob = isActivePairMobile
+    ? `${CssMatchGrid.ActiveMBg} ${CssMatchGrid.ActiveMText}`
+    : "";
 
-
-  
   return (
     <>
       {/* DATA */}
@@ -987,7 +962,6 @@ function Row7({
         <span className="block md:hidden text-[8px] leading-none font-bold">
           {dayOnly(day) || "\u00A0"}
         </span>
-
 
         {/* 🔘 BOTTONE ogni 2 incontri (2°, 4°, 6°) */}
         {(rowIndex + 1) % 2 === 0 && (
@@ -1145,9 +1119,11 @@ function Row7({
           ${activeMob}
         `}
       >
-      <span className={`hidden md:block text-[9px] font-bold ${CssMatchGrid.CellSqText} pl-2`}>
-        {team1 || "\u00A0"}
-      </span>
+        <span
+          className={`hidden md:block text-[9px] font-bold ${CssMatchGrid.CellSqText} pl-2`}
+        >
+          {team1 || "\u00A0"}
+        </span>
       </div>
       {/* FLAG 1 */}
       <div
@@ -1192,7 +1168,7 @@ function Row7({
           ${activeMob}
         `}
       >
-       <span
+        <span
           className={`md:text-[15px] text-[12px] font-extrabold ${
             isProvisional ? "text-purple-300/40" : ""
           }`}
@@ -1202,7 +1178,7 @@ function Row7({
       </div>
 
       {/* FLAG 2 */}
-       <div
+      <div
         className={`
           ${common}
           border-transparent

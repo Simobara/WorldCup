@@ -1,4 +1,4 @@
-export const groupNotesMond26 = {
+const groupNotesMond26 = {
   //FATTO---------------------------------------------------------------------------
   A: {
     day1: {
@@ -228,3 +228,6 @@ export const groupNotesMond26 = {
     },
   },
 };
+
+
+export const groupNotes = groupNotesMond26;
