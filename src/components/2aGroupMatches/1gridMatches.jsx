@@ -759,7 +759,7 @@ export default function GridMatchesPage() {
                       ? "left-[0.3rem]" //OKK container centrale OKK
                       : "left-[1.5rem]" //OKK container destra OKK
                     : SHIFT_RIGHT_MOBILE_GROUPS.has(mobileGroup)
-                      ? "right-[4.5rem]" // più a destra (tweak qui)
+                      ? "right-[4.3rem]" // container sinsitras
                       : "right-[6rem]"
                 }
               `}
