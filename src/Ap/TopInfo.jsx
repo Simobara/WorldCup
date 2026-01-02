@@ -41,6 +41,7 @@ export default function TopInfo() {
     if (!authReady) return;
     setOpenLogin(true);
   };
+
   const [phase, setPhase] = useState("idle"); // idle | expand | snap
   const [activePath, setActivePath] = useState(location.pathname);
   const [slider, setSlider] = useState({ left: 0, top: 0, width: 0, height: 0 });
@@ -51,6 +52,7 @@ export default function TopInfo() {
   const containerRef = useRef(null);
   const btnRefs = useRef([]);
 
+  
 
   /* USE EFFECT ---------------------------------------------------------------------------------------*/
   /* Mantiene la sessione Supabase sincronizzata.
@@ -177,7 +179,7 @@ export default function TopInfo() {
         bg-slate-900 border-gray-400 shadow-lg
         border-l-4 
         border-t-none 
-        border-t-4 b
+        border-b-4 b
         
         border-white-800
         rounded-tl-xl rounded-bl-xl

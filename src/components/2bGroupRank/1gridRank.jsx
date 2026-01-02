@@ -307,13 +307,13 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
             className={`
             absolute 
             md:w-8 md:h-8
-            md:-top-11 top-[18.5rem]
+            md:-top-11 top-[1rem]
             md:right-[30rem] -right-10 
             md:py-0 py-2
             md:px-1 px-2
             rounded-full font-extrabold text-sm 
             transition-all duration-300 
-            bg-slate -900 text-slate-800 z-[11000]`}
+            bg-slate -900 text-slate-900 z-[11000]`}
         >
             {/* md:z-0 z-[999] */}
             {showPronostics ? "," : "."}
