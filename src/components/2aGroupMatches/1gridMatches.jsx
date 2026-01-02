@@ -756,8 +756,8 @@ export default function GridMatchesPage() {
                   // md:p-0 p-1
                   mobileSide === "left"
                     ? CENTRAL_GROUPS_MOBILE.has(mobileGroup)
-                      ? "-left-[0.5rem]"
-                      : "left-[1.5rem]" //container tutti a destra
+                      ? "left-[0.3rem]" //container centrale
+                      : "left-[1.5rem]" //container destra
                     : SHIFT_RIGHT_MOBILE_GROUPS.has(mobileGroup)
                       ? "right-[4rem]" // più a destra (tweak qui)
                       : "right-[6rem]"
