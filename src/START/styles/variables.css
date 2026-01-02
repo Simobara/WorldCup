@@ -102,6 +102,10 @@
   --hl-semi:     var(--quad-bg-semi);
   --hl-final:    var(--quad-bg-final);
 
+/* GROUP LETTER ============================================== */
+  --group-letter-text: #060F36; /* slate-950 */
+/* GROUP HEADER ============================================== */
+  --group-header-text: #555D7E; /* slate-950 */
 
  
  

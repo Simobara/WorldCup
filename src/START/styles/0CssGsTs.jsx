@@ -5,6 +5,9 @@ export const CssCities = {
   Green: "bg-[var(--city-green)]",
   Rose:  "bg-[var(--city-rose)]",
 };
+export const CssGroupLetter = {
+  Text: "text-[var(--group-letter-text)]",
+};
 
 export const CssQuad = {
   // background per fase  
@@ -63,7 +66,7 @@ export const CssMatchGrid = {
   // Header
   HeadBg:     "bg-[var(--mhead-bg)]",
   HeadBorder: "border-[var(--mhead-border)]",
-  HeadText:   "text-[var(--mhead-text)]",
+  HeadText:   "text-[var(--group-header-text)]",
   // Celle base
   CellBg:     "bg-[var(--mcell-bg)]",
   CellBorder: "border-[var(--mcell-border)]",

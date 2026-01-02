@@ -5,7 +5,7 @@ import { groupMatches } from "../../START/app/0GroupMatches";
 
 import { createNotesRepo } from "../../Services/notes/notesRepo";
 import { flagsMond } from "../../START/app/main";
-import { CssMatchGrid } from "../../START/styles/0CssGsTs";
+import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
 
@@ -500,7 +500,7 @@ export default function GridMatchesPage({ isLogged }) {
                     )}
 
                     {/* Lettera */}
-                    <span className="mt-0 text-gray-400 font-extrabold text-xl md:text-3xl leading-none">
+                    <span className={`mt-0 ${CssGroupLetter.Text} font-extrabold text-xl md:text-3xl leading-none`}>
                       {letter}
                     </span>
 
