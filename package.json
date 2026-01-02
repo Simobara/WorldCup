@@ -1,5 +1,5 @@
 {
-  "name": "1my-calcio",
+  "name": "1my-wc",
   "version": "1.0.0",
   "scripts": {
     "preinstall": "if [ -n \"$VERCEL\" ]; then npm i -g npm@11.3.0; fi",

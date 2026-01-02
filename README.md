@@ -1,4 +1,6 @@
-<a name="top"></a>
+<a
+name="top">
+</#a>
 
 # WorldCup - The BEsT App
 
@@ -70,10 +72,10 @@
 
 <details >
 <a name="top1"></a>
-   <summary> Click </summary>
+<summary> Click </summary>
 
 ```sh
-1my-calcio@1.0.0 /Users/0ilbaroneutente/Desktop/prog_clc
+1my-wc@1.0.0 /Users/0ilbaroneutente/Desktop/prog_clc
 ├── @tailwindcss/aspect-ratio@0.4.2
 ├── @tailwindcss/forms@0.5.7
 ├── @tailwindcss/line-clamp@0.4.4
@@ -106,7 +108,7 @@
 ```
 
 ```sh
-1my-calcio@1.0.0 /Users/0ilbaroneutente/Desktop/prog_clc
+1my-wc@1.0.0 /Users/0ilbaroneutente/Desktop/prog_clc
 ├─┬ @tailwindcss/aspect-ratio@0.4.2
 │ └── tailwindcss@3.4.4 deduped
 ├─┬ @tailwindcss/forms@0.5.7
