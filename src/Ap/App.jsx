@@ -13,11 +13,11 @@ Note:
 ------------------------------------------------------------------------------*/
 // App.jsx
 import { useEffect, useState } from "react";
-import { supabase } from "../Services/supabase/supabaseClient";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { supabase } from "../Services/supabase/supabaseClient";
 
 import TopInfo from "../Ap/TopInfo";
-import StandingsPage from "../Body/1StandingsPage";
+import StandingsPage from "../Body/1standingsPage";
 import GroupMatchesPage from "../Body/2aGroupMatchesPage";
 import GroupRankPage from "../Body/2bGroupRankPage";
 import TablePage from "../Body/3tablePage";
