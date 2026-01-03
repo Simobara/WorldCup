@@ -29,23 +29,20 @@ const EXPAND_MS = 200;
 const SNAP_MS = 200;
 const NAV_OFFSET = 10;
 
-/* -----------------------------------------------------------------------------------------*/
 export default function TopInfo() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const [phase, setPhase] = useState("idle"); // idle | expand | snap
   const [activePath, setActivePath] = useState(location.pathname);
-  const [slider, setSlider] = useState({
-    left: 0,
-    top: 0,
-    width: 0,
-    height: 0,
-  });
+  const [slider, setSlider] = useState({ left: 0, top: 0, width: 0, height: 0 });
 
   const [session, setSession] = useState(null);
   const [authReady, setAuthReady] = useState(false);
   const [openLogin, setOpenLogin] = useState(false);
+
+  // ✅ NEW: stato “email non confermata”
+  const [pendingEmail, setPendingEmail] = useState(null); // string | null
 
   const isLogged = !!session?.user;
 
@@ -59,12 +56,10 @@ export default function TopInfo() {
 
   const handleAuthButton = () => {
     if (isLogged) return logout();
-    // aspetta che supabase abbia letto lo storage, così eviti "flash" strani
     if (!authReady) return;
     setOpenLogin(true);
   };
 
-  /* USE EFFECT ---------------------------------------------------------------------------------------*/
   useEffect(() => {
     let alive = true;
 
@@ -72,17 +67,21 @@ export default function TopInfo() {
       if (!alive) return;
       setSession(data.session);
       setAuthReady(true);
-      if (data.session) setOpenLogin(false);
+      if (data.session) {
+        setOpenLogin(false);
+        setPendingEmail(null); // ✅ se sei loggato, resetta pending
+      }
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        if (!alive) return;
-        setSession(newSession);
-        setAuthReady(true);
-        if (newSession) setOpenLogin(false);
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (!alive) return;
+      setSession(newSession);
+      setAuthReady(true);
+      if (newSession) {
+        setOpenLogin(false);
+        setPendingEmail(null); // ✅ se arriva sessione valida, resetta pending
       }
-    );
+    });
 
     return () => {
       alive = false;
@@ -100,12 +99,7 @@ export default function TopInfo() {
     if (!btn || !cont) return null;
     const b = btn.getBoundingClientRect();
     const c = cont.getBoundingClientRect();
-    return {
-      left: b.left - c.left,
-      top: b.top - c.top,
-      width: b.width,
-      height: b.height,
-    };
+    return { left: b.left - c.left, top: b.top - c.top, width: b.width, height: b.height };
   };
 
   const unionBox = (a, b) => {
@@ -175,7 +169,9 @@ export default function TopInfo() {
     });
   };
 
-  /* -----------------------------------------------------------------------------------------*/
+  // ✅ NEW: icona auth con priorità "pending"
+  const authIcon = isLogged ? "🔑" : pendingEmail ? "✉️" : authReady ? "🔐" : "⏳";
+
   return (
     <div
       ref={containerRef}
@@ -211,11 +207,7 @@ export default function TopInfo() {
           height: slider.height,
           transitionProperty: "left, top, width, height",
           transitionDuration:
-            phase === "expand"
-              ? `${EXPAND_MS}ms`
-              : phase === "snap"
-              ? `${SNAP_MS}ms`
-              : "0ms",
+            phase === "expand" ? `${EXPAND_MS}ms` : phase === "snap" ? `${SNAP_MS}ms` : "0ms",
           transitionTimingFunction: phase === "snap" ? EASE_ELASTIC : "ease-out",
         }}
       />
@@ -252,64 +244,107 @@ export default function TopInfo() {
           text-base md:text-2xl
           rounded-md
           transition-colors
-          ${
-            isLogged
-              ? "text-white hover:bg-white/10"
-              : "grayscale brightness-75 opacity-80"
-          }
+          ${isLogged ? "text-white hover:bg-white/10" : "grayscale brightness-75 opacity-80"}
           disabled:opacity-60
         `}
+        title={pendingEmail ? "Conferma email richiesta" : isLogged ? "Logout" : "Login"}
       >
-        {isLogged ? "🔑" : authReady ? "🔐" : "⏳"}
+        {authIcon}
       </button>
 
       {openLogin && !isLogged && (
-        <LoginModal onClose={() => setOpenLogin(false)} />
+        <LoginModal
+          onClose={() => setOpenLogin(false)}
+          pendingEmail={pendingEmail}
+          setPendingEmail={setPendingEmail}
+        />
       )}
     </div>
   );
 }
 
-/* -----------------------------------------------------------------------------------------*/
-function LoginModal({ onClose }) {
+function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
   const [mode, setMode] = useState("login"); // "login" | "signup"
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(pendingEmail ?? "");
   const [password, setPassword] = useState("");
 
   const [err, setErr] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
 
   const emailRef = useRef(null);
 
+  useEffect(() => {
+    emailRef.current?.focus();
+  }, []);
+
+  const isPending = !!pendingEmail;
+
   const submit = async (e) => {
     e.preventDefault();
     setErr("");
+    setInfo("");
     setLoading(true);
 
     const { error } =
       mode === "login"
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: "https://world-cup26.vercel.app/",
-        },
-      });
+            email,
+            password,
+            options: {
+              emailRedirectTo: "https://world-cup26.vercel.app/",
+            },
+          });
 
     setLoading(false);
 
     if (error) {
+      // ✅ NEW: gestisci “email non confermata”
+      const msg = (error.message || "").toLowerCase();
+      if (msg.includes("email not confirmed")) {
+        setPendingEmail(email);
+        setErr("");
+        setInfo("✉️ Revisa la tua email per confermare. Poi torna qui e fai Login.");
+        return;
+      }
+
       setErr(error.message);
+      return;
+    }
+
+    // signup ok: informa che deve controllare mail (se conferma attiva)
+    if (mode === "signup") {
+      setPendingEmail(email);
+      setInfo("✉️ Controlla la tua email e conferma l’account. Poi fai Login.");
       return;
     }
 
     onClose();
   };
 
-  useEffect(() => {
-    emailRef.current?.focus();
-  }, []);
+  // ✅ NEW: reinvia email conferma
+  const resend = async () => {
+    setErr("");
+    setInfo("");
+    setLoading(true);
+    try {
+      // Supabase JS v2
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: "https://world-cup26.vercel.app/" },
+      });
+
+      if (error) {
+        setErr(error.message);
+      } else {
+        setInfo("✉️ Email di conferma reinviata. Controlla inbox/spam.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-start bg-black/60 md:justify-center md:top-[6rem]">
@@ -324,9 +359,7 @@ function LoginModal({ onClose }) {
                 type="button"
                 onClick={() => setMode("login")}
                 className={`px-2 py-1 text-xs rounded-md ${
-                  mode === "login"
-                    ? "bg-white/15 text-white"
-                    : "text-white/60 hover:text-white"
+                  mode === "login" ? "bg-white/15 text-white" : "text-white/60 hover:text-white"
                 }`}
               >
                 Login
@@ -335,9 +368,7 @@ function LoginModal({ onClose }) {
                 type="button"
                 onClick={() => setMode("signup")}
                 className={`px-2 py-1 text-xs rounded-md ${
-                  mode === "signup"
-                    ? "bg-white/15 text-white"
-                    : "text-white/60 hover:text-white"
+                  mode === "signup" ? "bg-white/15 text-white" : "text-white/60 hover:text-white"
                 }`}
               >
                 Sign up
@@ -345,22 +376,12 @@ function LoginModal({ onClose }) {
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="text-white/70 hover:text-white"
-            type="button"
-          >
+          <button onClick={onClose} className="text-white/70 hover:text-white" type="button">
             ✕
           </button>
         </div>
 
-        <form
-          onSubmit={submit}
-          autoComplete="on"
-          method="post"
-          action="#"
-          className="flex flex-col gap-2"
-        >
+        <form onSubmit={submit} autoComplete="on" className="flex flex-col gap-2">
           <input
             ref={emailRef}
             id="email"
@@ -390,6 +411,7 @@ function LoginModal({ onClose }) {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          {info && <div className="text-xs text-emerald-300 mt-1">{info}</div>}
           {err && <div className="text-xs text-red-300 mt-1">{err}</div>}
 
           <button
@@ -406,7 +428,18 @@ function LoginModal({ onClose }) {
               : "Create account"}
           </button>
 
-          {/* Desktop only helper text */}
+          {/* ✅ NEW: se pending, offri resend */}
+          {isPending && (
+            <button
+              type="button"
+              onClick={resend}
+              disabled={loading}
+              className="rounded-md bg-white/5 hover:bg-white/10 text-white/80 py-2 text-xs disabled:opacity-60"
+            >
+              Reinvia email di conferma
+            </button>
+          )}
+
           <div className="hidden md:block text-[11px] text-white/40 mt-1">
             {mode === "signup"
               ? "Crea un nuovo account con email e password."
