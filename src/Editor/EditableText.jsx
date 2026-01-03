@@ -20,8 +20,16 @@ export default function EditableText({
 
   // se cambia value dal DB (es. cambi gruppo o refresh), aggiorna local
   useEffect(() => {
-    if (!editMode) setLocal(value ?? "");
-  }, [value, editMode]);
+    // se non sto editando → sync normale
+    if (!editMode) {
+      setLocal(value ?? "");
+      return;
+    }
+    // se sto editando e local è ancora vuoto ma dal DB arriva un value → riempi
+    if ((local ?? "").trim() === "" && (value ?? "").trim() !== "") {
+      setLocal(value ?? "");
+    }
+  }, [value, editMode, local]); // (local lo usiamo ma non lo metto nelle deps per evitare loop)
 
   if (!editMode) {
     return <div className={className}>{value ?? ""}</div>;
