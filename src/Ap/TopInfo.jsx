@@ -55,11 +55,9 @@ export default function TopInfo() {
   };
 
   const handleAuthButton = () => {
-    if (isLogged) return logout();
-    // if (isLogged) return setOpenLogin(true);
-    // if (!authReady) return;
-    setOpenLogin(true);
-  };
+  if (isLogged) return logout(); // logout SEMPRE possibile
+  setOpenLogin(true);
+};
 
   useEffect(() => {
     let alive = true;
@@ -78,6 +76,7 @@ export default function TopInfo() {
       if (!alive) return;
       setSession(newSession);
       setAuthReady(true);
+      if (!newSession) setOpenLogin(false); // sessione persa → torna a 🔐
       if (newSession) {
       // setOpenLogin(false); // NON chiudere automaticamente
         setPendingEmail(null); // ✅ se arriva sessione valida, resetta pending
