@@ -1,6 +1,5 @@
-import { groupNotes } from "../../START/app/note";
+import { groupNotes, REMOTEorLOCAL } from "../../START/app/note";
 import { supabase } from "../supabase/supabaseClient";
-import { REMOTEorLOCAL } from "../../START/app/note";
 
 const LOCAL_STORAGE_KEY = "notes_base_local";
 const ADMIN_EMAIL = "simobara@hotmail.it";
@@ -22,17 +21,19 @@ function stripComments(base) {
     if (!group) continue;
 
     for (const dayKey of ["day1", "day2", "day3"]) {
-      if (group[dayKey]) group[dayKey].items = ""; // vuoto per utenti
+      if (group[dayKey]) group[dayKey].items = "";
     }
 
-    if (group.notes) group.notes.text = ""; // vuoto per utenti
+    if (group.notes) group.notes.text = "";
   }
 
   return out;
 }
 
 export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
+  // ✅ REMOTEorLOCAL deve essere "remote" o "local"
   const isRemote = source === REMOTEorLOCAL;
+
   const userId = opts.userId;
   const userEmail = opts.userEmail;
 
@@ -54,16 +55,13 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
       }
 
       // ---------- REMOTE ----------
+      // non loggato → admin vede base completa, altri base pulita
       if (!userId) {
         return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
       }
 
-      // seed (una volta per user)
-      const { error: seedErr } = await supabase.rpc("seed_notes_from_global");
-      if (seedErr) console.warn("SEED WARN:", seedErr);
-
-      // carica SOLO le note dell’utente
-      const { data, error } = await supabase
+      // 1) Leggi DB user
+      let { data, error } = await supabase
         .from("notes_base")
         .select("key, data")
         .eq("user_id", userId);
@@ -73,80 +71,88 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
         return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
       }
 
+      // 2) ADMIN: prima volta assoluta → seed DB con il LOCALE COMPLETO
+      if (isAdmin && (!data || data.length === 0)) {
+        const payload = Object.keys(groupNotes ?? {}).map((k) => ({
+          user_id: userId,
+          key: k,
+          data: groupNotes?.[k] ?? null,
+        }));
+
+        const { error: seedAdminErr } = await supabase
+          .from("notes_base")
+          .upsert(payload, { onConflict: "user_id,key" });
+
+        if (seedAdminErr) {
+          console.warn("ADMIN SEED WARN:", seedAdminErr);
+          // fallback: almeno vedi il locale completo
+          return groupNotes ?? {};
+        }
+
+        // rilegge dopo seed
+        const res2 = await supabase
+          .from("notes_base")
+          .select("key, data")
+          .eq("user_id", userId);
+
+        if (res2.error) {
+          console.error("LOAD AFTER ADMIN SEED ERROR:", res2.error);
+          return groupNotes ?? {};
+        }
+
+        data = res2.data;
+      }
+
+      // 3) NON-ADMIN: seed "pulito" (se vuoi continuare a usare la RPC)
+      //    Nota: se la tua RPC copia commenti, non è un problema perché sotto li nascondiamo.
+      if (!isAdmin) {
+        const { error: seedErr } = await supabase.rpc("seed_notes_from_global");
+        if (seedErr) console.warn("SEED WARN:", seedErr);
+
+        const res3 = await supabase
+          .from("notes_base")
+          .select("key, data")
+          .eq("user_id", userId);
+
+        if (!res3.error) data = res3.data;
+      }
+
+      // 4) out dal DB
       const out = {};
       for (const row of data ?? []) out[row.key] = row.data;
 
-      const base = isAdmin ? groupNotes : stripComments(groupNotes);
+      // 5) base:
+      // - admin: base vuota (perché ormai DB è la source of truth dopo la 1a volta)
+      // - non-admin: base pulita (struttura + commenti vuoti)
+      const base = isAdmin ? {} : stripComments(groupNotes);
 
-      // merge profondo minimo + regola admin:
-      // se DB ha stringhe vuote, tieni quelle del file
-      const merged = clone(base ?? {});
+      // 6) merge (DB vince)
+      const merged = { ...clone(base), ...out };
 
-      for (const k of Object.keys(out)) {
-        const dbG = out[k] ?? {};
-        const baseG = base?.[k] ?? {};
+      // 7) NON-ADMIN: nascondi i commenti seed se uguali al file principale
+      if (!isAdmin) {
+        for (const g of Object.keys(merged ?? {})) {
+          const mG = merged[g];
+          const refG = groupNotes?.[g];
+          if (!mG || !refG) continue;
 
-        // merge top level
-        merged[k] = { ...clone(baseG), ...clone(dbG) };
-
-        // merge day1/day2/day3
-        for (const dayKey of ["day1", "day2", "day3"]) {
-          const bDay = baseG?.[dayKey] ?? {};
-          const dDay = dbG?.[dayKey] ?? {};
-          merged[k][dayKey] = { ...clone(bDay), ...clone(dDay) };
-        }
-
-        // merge notes
-        const bNotes = baseG?.notes ?? {};
-        const dNotes = dbG?.notes ?? {};
-        merged[k].notes = { ...clone(bNotes), ...clone(dNotes) };
-
-        // admin: se DB vuoto, ripristina dal file
-        if (isAdmin) {
           for (const dayKey of ["day1", "day2", "day3"]) {
-            const b = baseG?.[dayKey]?.items;
-            const d = dbG?.[dayKey]?.items;
-            if (d === "" && typeof b === "string" && b.length) {
-              merged[k][dayKey].items = b;
+            const mItem = mG?.[dayKey]?.items ?? "";
+            const refItem = refG?.[dayKey]?.items ?? "";
+            if (refItem && mItem === refItem) {
+              mG[dayKey] = mG[dayKey] ?? {};
+              mG[dayKey].items = "";
             }
           }
 
-          const bText = baseG?.notes?.text;
-          const dText = dbG?.notes?.text;
-          if (dText === "" && typeof bText === "string" && bText.length) {
-            merged[k].notes.text = bText;
+          const mText = mG?.notes?.text ?? "";
+          const refText = refG?.notes?.text ?? "";
+          if (refText && mText === refText) {
+            mG.notes = mG.notes ?? {};
+            mG.notes.text = "";
           }
         }
       }
-// ✅ REGOLA: i non-admin NON devono vedere i commenti "seed" (uguali al file principale)
-// ma devono vedere i loro commenti se diversi (quindi salvati da loro).
-if (!isAdmin) {
-  for (const g of Object.keys(merged ?? {})) {
-    const mG = merged[g];
-    const refG = groupNotes?.[g]; // commenti originali "admin"
-
-    if (!mG || !refG) continue;
-
-    for (const dayKey of ["day1", "day2", "day3"]) {
-      const mItem = mG?.[dayKey]?.items ?? "";
-      const refItem = refG?.[dayKey]?.items ?? "";
-
-      // se coincide col commento originale -> nascondilo
-      if (refItem && mItem === refItem) {
-        mG[dayKey] = mG[dayKey] ?? {};
-        mG[dayKey].items = "";
-      }
-    }
-
-    const mText = mG?.notes?.text ?? "";
-    const refText = refG?.notes?.text ?? "";
-
-    if (refText && mText === refText) {
-      mG.notes = mG.notes ?? {};
-      mG.notes.text = "";
-    }
-  }
-}
 
       return merged;
     },
