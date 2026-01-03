@@ -55,8 +55,8 @@ export default function TopInfo() {
   };
 
   const handleAuthButton = () => {
-    // if (isLogged) return logout();
-    if (isLogged) return setOpenLogin(true);
+    if (isLogged) return logout();
+    // if (isLogged) return setOpenLogin(true);
     // if (!authReady) return;
     setOpenLogin(true);
   };
@@ -69,7 +69,7 @@ export default function TopInfo() {
       setSession(data.session);
       setAuthReady(true);
       if (data.session) {
-        setOpenLogin(false);
+        // setOpenLogin(false); // NON chiudere automaticamente
         setPendingEmail(null); // ✅ se sei loggato, resetta pending
       }
     });
@@ -79,7 +79,7 @@ export default function TopInfo() {
       setSession(newSession);
       setAuthReady(true);
       if (newSession) {
-        setOpenLogin(false);
+      // setOpenLogin(false); // NON chiudere automaticamente
         setPendingEmail(null); // ✅ se arriva sessione valida, resetta pending
       }
     });
