@@ -9,7 +9,7 @@ import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
 import { useAuth } from "../../Services/supabase/AuthProvider";
-
+import { REMOTEorLOCAL } from "../../START/app/note";
 
 function toCode3(team) {
   const s = String(team?.id ?? team?.name ?? "")
@@ -114,7 +114,7 @@ function setDeep(obj, path, value) {
 export default function GridMatchesPage({ isLogged }) {
   const { user } = useAuth(); 
 
-  const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? "remote";
+  const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? REMOTEorLOCAL;
   const repo = useMemo(
   () =>
     createNotesRepo(NOTES_SOURCE, {

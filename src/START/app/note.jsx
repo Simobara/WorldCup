@@ -231,3 +231,4 @@ const groupNotesMond26 = {
 
 
 export const groupNotes = groupNotesMond26;
+export const REMOTEorLOCAL ="remote" // change local if not working supabase

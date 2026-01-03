@@ -1,5 +1,6 @@
 import { groupNotes } from "../../START/app/note";
 import { supabase } from "../supabase/supabaseClient";
+import { REMOTEorLOCAL } from "../../START/app/note";
 
 const LOCAL_STORAGE_KEY = "notes_base_local";
 const ADMIN_EMAIL = "simobara@hotmail.it";
@@ -30,8 +31,8 @@ function stripComments(base) {
   return out;
 }
 
-export function createNotesRepo(source = "remote", opts = {}) {
-  const isRemote = source === "remote";
+export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
+  const isRemote = source === REMOTEorLOCAL;
   const userId = opts.userId;
   const userEmail = opts.userEmail;
 
@@ -117,6 +118,35 @@ export function createNotesRepo(source = "remote", opts = {}) {
           }
         }
       }
+// ✅ REGOLA: i non-admin NON devono vedere i commenti "seed" (uguali al file principale)
+// ma devono vedere i loro commenti se diversi (quindi salvati da loro).
+if (!isAdmin) {
+  for (const g of Object.keys(merged ?? {})) {
+    const mG = merged[g];
+    const refG = groupNotes?.[g]; // commenti originali "admin"
+
+    if (!mG || !refG) continue;
+
+    for (const dayKey of ["day1", "day2", "day3"]) {
+      const mItem = mG?.[dayKey]?.items ?? "";
+      const refItem = refG?.[dayKey]?.items ?? "";
+
+      // se coincide col commento originale -> nascondilo
+      if (refItem && mItem === refItem) {
+        mG[dayKey] = mG[dayKey] ?? {};
+        mG[dayKey].items = "";
+      }
+    }
+
+    const mText = mG?.notes?.text ?? "";
+    const refText = refG?.notes?.text ?? "";
+
+    if (refText && mText === refText) {
+      mG.notes = mG.notes ?? {};
+      mG.notes.text = "";
+    }
+  }
+}
 
       return merged;
     },
