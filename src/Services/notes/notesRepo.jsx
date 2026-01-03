@@ -141,7 +141,11 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
       const base = isAdmin ? groupNotes : stripComments(groupNotes);
 
       // 6) merge (DB vince)
-      const merged = { ...clone(base), ...out };
+      const merged = clone(base);
+
+      for (const k of Object.keys(out ?? {})) {
+        if (out[k]) merged[k] = out[k];
+      }
 
       // 7) NON-ADMIN: nascondi i commenti seed se uguali al file principale
       if (!isAdmin) {
