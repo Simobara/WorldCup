@@ -594,7 +594,7 @@ export default function GridMatchesPage({ isLogged }) {
                             <div className="font-bold text-red-900 pl-2">
                               {groupData?.notes?.title}
                             </div>
-                            <div className="mt-0 p-0 rounded-xl pl-2">
+                            <div className="mt-0 p-0 rounded-xl pl-4">
                               <EditableText
                                 path={`${letter}.notes.text`}
                                 value={groupData?.notes?.text}
