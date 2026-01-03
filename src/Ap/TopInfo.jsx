@@ -238,7 +238,7 @@ export default function TopInfo() {
         onClick={handleAuthButton}
         className={`
           relative z-10
-          md:ml-0
+          -md:ml-2
           w-8 h-8 md:w-12 md:h-12
           flex items-center justify-center
           text-base md:text-2xl
