@@ -153,12 +153,34 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
           }
         }
       }
+      // ✅ NON-ADMIN: mostra items/text SOLO se l’utente ha scritto (__edited === true)
+      if (!isAdmin) {
+        for (const g of Object.keys(merged ?? {})) {
+          const mG = merged[g];
+          if (!mG) continue;
+
+          if (mG.__edited !== true) {
+            for (const dayKey of ["day1", "day2", "day3"]) {
+              if (mG[dayKey]) mG[dayKey].items = "";
+            }
+            if (mG.notes) mG.notes.text = "";
+          }
+        }
+      }
 
       return merged;
     },
 
     async save({ notes, keysTouched }) {
       if (!keysTouched?.size) return;
+
+      // ✅ NON-ADMIN: marca i gruppi modificati dall’utente
+      if (!isAdmin && notes) {
+        for (const k of keysTouched) {
+          notes[k] = notes[k] ?? {};
+          notes[k].__edited = true;
+        }
+      }
 
       // ---------- LOCAL ----------
       if (!isRemote) {
