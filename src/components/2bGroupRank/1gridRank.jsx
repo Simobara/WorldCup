@@ -305,6 +305,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
                 : "Show pronostics highlights"
             }
             className={`
+               select-none
             absolute 
             md:w-8 md:h-8
             md:-top-11 top-[1rem]

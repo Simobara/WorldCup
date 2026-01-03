@@ -4,12 +4,12 @@ import EditableText from "../../Editor/EditableText";
 import { groupMatches } from "../../START/app/1GroupMatches";
 
 import { createNotesRepo } from "../../Services/notes/notesRepo";
+import { useAuth } from "../../Services/supabase/AuthProvider";
 import { flagsMond } from "../../START/app/0main";
+import { REMOTEorLOCAL } from "../../START/app/note";
 import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
-import { useAuth } from "../../Services/supabase/AuthProvider";
-import { REMOTEorLOCAL } from "../../START/app/note";
 
 function toCode3(team) {
   const s = String(team?.id ?? team?.name ?? "")
@@ -299,6 +299,7 @@ export default function GridMatchesPage({ isLogged }) {
               : "Show pronostics highlights"
           }
           className={`
+             select-none
             absolute 
             md:w-8 md:h-8
             md:-top-11 top-[1rem]
