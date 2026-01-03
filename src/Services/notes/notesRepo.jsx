@@ -32,12 +32,13 @@ function stripComments(base) {
 
 export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
   // ✅ REMOTEorLOCAL deve essere "remote" o "local"
-  const isRemote = source === REMOTEorLOCAL;
+  const isRemote = source === "remote";
 
   const userId = opts.userId;
   const userEmail = opts.userEmail;
 
-  const isAdmin = userEmail === ADMIN_EMAIL;
+  const isAdmin = (userEmail || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
 
   return {
     source,
@@ -105,9 +106,23 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
 
       // 3) NON-ADMIN: seed "pulito" (se vuoi continuare a usare la RPC)
       //    Nota: se la tua RPC copia commenti, non è un problema perché sotto li nascondiamo.
-      if (!isAdmin) {
-        const { error: seedErr } = await supabase.rpc("seed_notes_from_global");
-        if (seedErr) console.warn("SEED WARN:", seedErr);
+      // 3) NON-ADMIN: se è la prima volta → seed nel DB con BASE PULITA (senza commenti)
+      if (!isAdmin && (!data || data.length === 0)) {
+        const cleanBase = stripComments(groupNotes);
+
+        const payload = Object.keys(cleanBase ?? {}).map((k) => ({
+          user_id: userId,
+          key: k,
+          data: cleanBase?.[k] ?? null,
+        }));
+
+        const { error: seedCleanErr } = await supabase
+          .from("notes_base")
+          .upsert(payload, { onConflict: "user_id,key" });
+
+        if (seedCleanErr) {
+          console.warn("NON-ADMIN SEED CLEAN WARN:", seedCleanErr);
+        }
 
         const res3 = await supabase
           .from("notes_base")
