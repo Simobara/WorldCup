@@ -8,6 +8,8 @@ import { flagsMond } from "../../START/app/0main";
 import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
+import { useAuth } from "../../Services/supabase/AuthProvider";
+
 
 function toCode3(team) {
   const s = String(team?.id ?? team?.name ?? "")
@@ -110,8 +112,17 @@ function setDeep(obj, path, value) {
 }
 // --------------------------------------------------------------------------
 export default function GridMatchesPage({ isLogged }) {
+  const { user } = useAuth(); 
+
   const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? "remote";
-  const repo = useMemo(() => createNotesRepo(NOTES_SOURCE), [NOTES_SOURCE]);
+  const repo = useMemo(
+  () =>
+    createNotesRepo(NOTES_SOURCE, {
+      userId: user?.id,
+      userEmail: user?.email, // ⬅️ QUESTO
+    }),
+  [NOTES_SOURCE, user?.id, user?.email]
+);
   const STORAGE_KEY = "gridMatches_showPronostics";
 
   const [showPronostics, setShowPronostics] = useState(() => {

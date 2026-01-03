@@ -1,17 +1,48 @@
 import { groupNotes } from "../../START/app/note";
 import { supabase } from "../supabase/supabaseClient";
 
-const LOCAL_STORAGE_KEY = "notes_base_local"; // se vuoi persistere anche in local
+const LOCAL_STORAGE_KEY = "notes_base_local";
+const ADMIN_EMAIL = "simobara@hotmail.it";
 
-export function createNotesRepo(source = "remote") {
+// safe clone (fallback se structuredClone non esiste)
+function clone(x) {
+  if (typeof structuredClone === "function") return structuredClone(x);
+  return JSON.parse(JSON.stringify(x ?? null));
+}
+
+/**
+ * Rimuove i commenti (items e notes.text) mantenendo la struttura
+ */
+function stripComments(base) {
+  const out = clone(base ?? {});
+
+  for (const g of Object.keys(out)) {
+    const group = out[g];
+    if (!group) continue;
+
+    for (const dayKey of ["day1", "day2", "day3"]) {
+      if (group[dayKey]) group[dayKey].items = ""; // vuoto per utenti
+    }
+
+    if (group.notes) group.notes.text = ""; // vuoto per utenti
+  }
+
+  return out;
+}
+
+export function createNotesRepo(source = "remote", opts = {}) {
   const isRemote = source === "remote";
+  const userId = opts.userId;
+  const userEmail = opts.userEmail;
+
+  const isAdmin = userEmail === ADMIN_EMAIL;
 
   return {
     source,
 
     async load() {
+      // ---------- LOCAL ----------
       if (!isRemote) {
-        // LOCAL: base da JSX + (opzionale) override da localStorage
         try {
           const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
           const parsed = saved ? JSON.parse(saved) : null;
@@ -21,29 +52,80 @@ export function createNotesRepo(source = "remote") {
         }
       }
 
-      // REMOTE: Supabase
+      // ---------- REMOTE ----------
+      if (!userId) {
+        return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
+      }
+
+      // seed (una volta per user)
+      const { error: seedErr } = await supabase.rpc("seed_notes_from_global");
+      if (seedErr) console.warn("SEED WARN:", seedErr);
+
+      // carica SOLO le note dell’utente
       const { data, error } = await supabase
         .from("notes_base")
-        .select("key, data");
+        .select("key, data")
+        .eq("user_id", userId);
 
       if (error) {
         console.error("LOAD ERROR:", error);
-        // fallback: almeno non rompi la UI
-        return groupNotes ?? {};
+        return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
       }
 
       const out = {};
       for (const row of data ?? []) out[row.key] = row.data;
 
-      // “DB vince” come fai già tu
-      return { ...(groupNotes ?? {}), ...out };
+      const base = isAdmin ? groupNotes : stripComments(groupNotes);
+
+      // merge profondo minimo + regola admin:
+      // se DB ha stringhe vuote, tieni quelle del file
+      const merged = clone(base ?? {});
+
+      for (const k of Object.keys(out)) {
+        const dbG = out[k] ?? {};
+        const baseG = base?.[k] ?? {};
+
+        // merge top level
+        merged[k] = { ...clone(baseG), ...clone(dbG) };
+
+        // merge day1/day2/day3
+        for (const dayKey of ["day1", "day2", "day3"]) {
+          const bDay = baseG?.[dayKey] ?? {};
+          const dDay = dbG?.[dayKey] ?? {};
+          merged[k][dayKey] = { ...clone(bDay), ...clone(dDay) };
+        }
+
+        // merge notes
+        const bNotes = baseG?.notes ?? {};
+        const dNotes = dbG?.notes ?? {};
+        merged[k].notes = { ...clone(bNotes), ...clone(dNotes) };
+
+        // admin: se DB vuoto, ripristina dal file
+        if (isAdmin) {
+          for (const dayKey of ["day1", "day2", "day3"]) {
+            const b = baseG?.[dayKey]?.items;
+            const d = dbG?.[dayKey]?.items;
+            if (d === "" && typeof b === "string" && b.length) {
+              merged[k][dayKey].items = b;
+            }
+          }
+
+          const bText = baseG?.notes?.text;
+          const dText = dbG?.notes?.text;
+          if (dText === "" && typeof bText === "string" && bText.length) {
+            merged[k].notes.text = bText;
+          }
+        }
+      }
+
+      return merged;
     },
 
     async save({ notes, keysTouched }) {
       if (!keysTouched?.size) return;
 
+      // ---------- LOCAL ----------
       if (!isRemote) {
-        // LOCAL: persisti solo i gruppi toccati, non tutto per forza
         try {
           const current = JSON.parse(
             localStorage.getItem(LOCAL_STORAGE_KEY) || "{}"
@@ -57,15 +139,18 @@ export function createNotesRepo(source = "remote") {
         return;
       }
 
-      // REMOTE: upsert su Supabase
+      // ---------- REMOTE ----------
+      if (!userId) return;
+
       const payload = Array.from(keysTouched).map((k) => ({
+        user_id: userId,
         key: k,
         data: notes?.[k] ?? null,
       }));
 
       const { error } = await supabase
         .from("notes_base")
-        .upsert(payload, { onConflict: "key" });
+        .upsert(payload, { onConflict: "user_id,key" });
 
       if (error) console.error("SAVE ERROR:", error);
     },
