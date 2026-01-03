@@ -360,8 +360,9 @@ const TableBlock = ({ isLogged }) => {
               <button
                 onClick={() => setShowPron((prev) => !prev)}
                 className="
+                  select-none
                   absolute left-1/2 
-                  md:-top-[1.5rem] -top-[1.8rem]
+                  md:-top-[1.75rem] -top-[1.8rem]
                   md:translate-x-2 translate-x-4
                   bg-transparent border-0 border-yellow-400
                   text-yellow-500 font-bold
