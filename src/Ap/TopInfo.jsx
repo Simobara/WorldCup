@@ -348,10 +348,10 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-start bg-black/60 md:justify-center md:top-[10rem]">
-      <div className="w-[320px] rounded-xl bg-slate-900 p-10 border border-white/10 md:mr-[0] mr-4 shadow-xl -ml-[12rem] md:ml-0">
+      <div className="w-[320px] rounded-xl bg-slate-900 p-2 border border-white/10 md:mr-[0] mr-4 shadow-xl -ml-[12rem] md:ml-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="text-white font-semibold">Admin login</div>
+            <div className="text-white font-semibold">User Login</div>
 
             {/* DESKTOP ONLY: Login / Sign up tabs */}
             <div className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1">

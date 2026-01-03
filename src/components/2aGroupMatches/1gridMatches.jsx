@@ -1,128 +1,39 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
-import { groupMatches } from "../../START/app/1GroupMatches";
-
 import { createNotesRepo } from "../../Services/notes/notesRepo";
 import { useAuth } from "../../Services/supabase/AuthProvider";
 import { flagsMond } from "../../START/app/0main";
+import { groupMatches } from "../../START/app/1GroupMatches";
 import { REMOTEorLOCAL } from "../../START/app/note";
 import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
+//zExternal
+import React from "react";
+import EditableScore from "../../Editor/EditableScore";
+import { useEditMode } from "../../Providers/EditModeProvider";
+import { buildNameResolver } from "./zExternal/buildNameResolver";
+import { city3 } from "./zExternal/city3";
+import { dayOnly } from "./zExternal/dayOnly";
+import { getFlatMatchesForGroup } from "./zExternal/getFlatMatchesForGroup";
+import { setDeep } from "./zExternal/setDeep";
+import { splitDayDesk } from "./zExternal/splitDayDesk";
+import { toCode3 } from "./zExternal/toCode3";
 
-function toCode3(team) {
-  const s = String(team?.id ?? team?.name ?? "")
-    .trim()
-    .toUpperCase();
-  if (!s) return "";
-  return s.replace(/\s+/g, "").slice(0, 3);
-}
-
-function norm(s) {
-  return String(s ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "")
-    .replace(/[^\p{L}\p{N}]/gu, "");
-}
-
-function buildNameResolver(allTeams) {
-  const map = new Map();
-
-  for (const t of allTeams ?? []) {
-    map.set(norm(t.name), t.name);
-    map.set(norm(t.id), t.name);
-    map.set(norm(t.name.replaceAll(".", "")), t.name);
-  }
-
-  // alias manuali (adatta ai tuoi nomi reali in flagsMond)
-  map.set(norm("SAfrica"), "Sudafrica");
-  map.set(norm("P"), ""); // placeholder: niente bandiera
-
-  return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
-}
-
-function getFlatMatchesForGroup(groupObj) {
-  if (!groupObj) return [];
-  const giornate = Object.values(groupObj);
-
-  const out = [];
-  for (const g of giornate) {
-    const day = g?.dates?.[0] ?? "";
-    for (const m of g?.matches ?? []) {
-      out.push({
-        day,
-        city: m.city ?? "",
-        team1: m.team1 ?? "",
-        team2: m.team2 ?? "",
-        pron: String(m.pron ?? "")
-          .trim()
-          .toUpperCase(), // "1" | "X" | "2" | ""
-        results: String(m.results ?? "").trim(),
-        ris: String(m.ris ?? "").trim(),
-      });
-    }
-  }
-  return out;
-}
-
-function city3(city) {
-  const s = String(city ?? "")
-    .trim()
-    .toUpperCase()
-    .replace(/[^\p{L}]/gu, "");
-  if (!s) return "";
-  return s.slice(0, 3);
-}
-
-function dayOnly(day) {
-  const s = String(day ?? "").trim();
-  if (!s) return "";
-  // prende tutto dopo l’ultimo /
-  const parts = s.split("/");
-  return parts[parts.length - 1];
-}
-function splitDayDesk(day) {
-  const s = String(day ?? "")
-    .replaceAll("/", " ")
-    .trim();
-  if (!s) return { label: "", num: "" };
-
-  const parts = s.split(/\s+/);
-  const label = parts[0] ?? "";
-  const num = parts.slice(1).join(" ");
-
-  return { label, num };
-}
-
-// helper: set deep da path tipo "A.day1.items"
-function setDeep(obj, path, value) {
-  const parts = path.split(".");
-  const out = structuredClone(obj);
-  let cur = out;
-
-  for (let i = 0; i < parts.length - 1; i++) {
-    const k = parts[i];
-    cur[k] = cur[k] ?? {};
-    cur = cur[k];
-  }
-  cur[parts[parts.length - 1]] = value;
-  return out;
-}
-// --------------------------------------------------------------------------
 export default function GridMatchesPage({ isLogged }) {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
+  const { editMode } = useEditMode();
 
   const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? REMOTEorLOCAL;
   const repo = useMemo(
-  () =>
-    createNotesRepo(NOTES_SOURCE, {
-      userId: user?.id,
-      userEmail: user?.email, // ⬅️ QUESTO
-    }),
-  [NOTES_SOURCE, user?.id, user?.email]
-);
+    () =>
+      createNotesRepo(NOTES_SOURCE, {
+        userId: user?.id,
+        userEmail: user?.email, // ⬅️ QUESTO
+      }),
+    [NOTES_SOURCE, user?.id, user?.email]
+  );
   const STORAGE_KEY = "gridMatches_showPronostics";
 
   const [showPronostics, setShowPronostics] = useState(() => {
@@ -133,68 +44,16 @@ export default function GridMatchesPage({ isLogged }) {
       return false;
     }
   });
-  const [hoverGroup, setHoverGroup] = useState(null); // "A".."L" oppure null
-  const [hoverPos, setHoverPos] = useState({ x: 0, y: 0, side: "right" });
-  const [hoverCutoff, setHoverCutoff] = useState(null); // numero match da considerare (2,4,6)
-  const [hoverModal, setHoverModal] = useState(null);
-
-  // ✅ dati note (editabili e salvabili)
-  const [notes, setNotes] = useState({});
-
-  // ✅ stato apertura modale note mobile
-  const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
-  const [mobileNotesGroup, setMobileNotesGroup] = useState(null); // "A".."L"
-  // const [mobileNotesTop, setMobileNotesTop] = useState(0);
-  // const [mobileNotesSide, setMobileNotesSide] = useState("right");
-
-  const hideTimerRef = useRef(null);
-
+  // 7 colonne: DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
   const gridColsDesktop = "90px 40px 30px 45px 40px 45px 30px";
   const gridColsMobile = "10px 20px 1px 35px 30px 35px 1px";
-
-  const [gridCols, setGridCols] = useState(gridColsMobile);
   const groups = "ABCDEFGHIJKL".split("");
-
-  const isDesktopNow =
-    typeof window !== "undefined" &&
-    window.matchMedia("(min-width: 768px)").matches;
-
-  const [localEdits, setLocalEdits] = useState({});
-
-  const handleEditChange = (path, value) => {
-    setLocalEdits((prev) => ({
-      ...prev,
-      [path]: value,
-    }));
-    setNotes((prev) => setDeep(prev, path, value));
-  };
-
-  // ✅ salva tutte le modifiche quando esci da EDIT
-  async function saveAllEdits() {
-    const paths = Object.keys(localEdits);
-    if (!paths.length) return;
-
-    // keys = lettere A..L dai path tipo "A.day1.items"
-    const keysTouched = new Set(paths.map((p) => p.split(".")[0]));
-
-    await repo.save({ notes, keysTouched });
-
-    setLocalEdits({});
-  }
-
   // DESKTOP: come ora
   const LEFT_SIDE_GROUPS = new Set(["D", "H", "L"]); // :contentReference[oaicite:1]{index=1}
-
   // MOBILE: nuova regola
   const LEFT_SIDE_GROUPS_MOBILE = new Set(["C", "F", "I", "L"]);
   const CENTRAL_GROUPS_MOBILE = new Set(["B", "E", "H", "K"]);
   const SHIFT_RIGHT_MOBILE_GROUPS = new Set(["A", "D", "G", "J"]);
-
-  const [mobileRankOpen, setMobileRankOpen] = useState(false);
-  const [mobileGroup, setMobileGroup] = useState(null); // "A".."L"
-  const [mobileCutoff, setMobileCutoff] = useState(null); // 2/4/6
-  const [mobileSide, setMobileSide] = useState("right"); // "left" | "right"
-  const [mobileTop, setMobileTop] = useState(0);
 
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
   const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
@@ -208,11 +67,66 @@ export default function GridMatchesPage({ isLogged }) {
   const headerHMobile = "1rem";
   const rowHMobile = 28;
 
+  const isDesktopNow =
+    typeof window !== "undefined" &&
+    window.matchMedia("(min-width: 768px)").matches;
+
+  // FIX D/H/L: calcolo left/top clampati in viewport (niente offset hardcoded)
+  const BOX_W = 23 * 16; // w-[23rem]
+  const GAP_RIGHT = 0; // gruppi A–C, E–G, I–K
+  const GAP_LEFT = 0; // gruppi D / H / L
+
+  const handleEditChange = (path, value) => {
+    setLocalEdits((prev) => ({
+      ...prev,
+      [path]: value,
+    }));
+    setNotes((prev) => setDeep(prev, path, value));
+  };
+  // ✅ salva tutte le modifiche quando esci da EDIT
+  async function saveAllEdits() {
+    const paths = Object.keys(localEdits);
+    if (!paths.length) return;
+    // keys = lettere A..L dai path tipo "A.day1.items"
+    const keysTouched = new Set(paths.map((p) => p.split(".")[0]));
+    await repo.save({ notes, keysTouched });
+    setLocalEdits({});
+  }
+  const [hoverGroup, setHoverGroup] = useState(null); // "A".."L" oppure null
+  const [hoverPos, setHoverPos] = useState({ x: 0, y: 0, side: "right" });
+  const top = Math.max(8, Math.min(hoverPos.y, window.innerHeight - 8));
+  const desiredLeft =
+    hoverPos.side === "right"
+      ? hoverPos.x + GAP_RIGHT
+      : hoverPos.x - BOX_W - GAP_LEFT;
+  const left = Math.max(
+    8,
+    Math.min(desiredLeft, window.innerWidth - BOX_W - 8)
+  );
+  const [hoverCutoff, setHoverCutoff] = useState(null); // numero match da considerare (2,4,6)
+  const [hoverModal, setHoverModal] = useState(null);
+
+  // ✅ dati note (editabili e salvabili)
+  const [notes, setNotes] = useState({});
+
+  // ✅ stato apertura modale note mobile
+  const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
+  const [mobileNotesGroup, setMobileNotesGroup] = useState(null);
+  const [hoverPlusModal, setHoverPlusModal] = useState(null); // "A".."L"
+  const [gridCols, setGridCols] = useState(gridColsMobile);
+  const [localEdits, setLocalEdits] = useState({});
+
+  const hideTimerRef = useRef(null);
+
+  const [mobileRankOpen, setMobileRankOpen] = useState(false);
+  const [mobileGroup, setMobileGroup] = useState(null); // "A".."L"
+  const [mobileCutoff, setMobileCutoff] = useState(null); // 2/4/6
+  const [mobileSide, setMobileSide] = useState("right"); // "left" | "right"
+  const [mobileTop, setMobileTop] = useState(0);
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
 
-  // 7 colonne: DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
-
+  //------------------------------------------------------------------------
   useEffect(() => {
     (async () => {
       const loaded = await repo.load();
@@ -256,22 +170,7 @@ export default function GridMatchesPage({ isLogged }) {
       setHoverModal(null);
     }
   }, [showPronostics]);
-
-  // FIX D/H/L: calcolo left/top clampati in viewport (niente offset hardcoded)
-  const BOX_W = 23 * 16; // w-[23rem]
-  const GAP_RIGHT = 0; // gruppi A–C, E–G, I–K
-  const GAP_LEFT = 0; // gruppi D / H / L
-
-  const desiredLeft =
-    hoverPos.side === "right"
-      ? hoverPos.x + GAP_RIGHT
-      : hoverPos.x - BOX_W - GAP_LEFT;
-  const left = Math.max(
-    8,
-    Math.min(desiredLeft, window.innerWidth - BOX_W - 8)
-  );
-  const top = Math.max(8, Math.min(hoverPos.y, window.innerHeight - 8));
-
+  //------------------------------------------------------------------------
   return (
     <section
       aria-labelledby="wc-matches-title"
@@ -338,6 +237,20 @@ export default function GridMatchesPage({ isLogged }) {
                 null
               );
             };
+            const computeRes = (m) => {
+              const official = (m?.results ?? "").trim();
+              const provisional = (m?.ris ?? "").trim();
+
+              const hasOfficial = official.includes("-");
+              const hasRis = provisional.includes("-");
+
+              // results sempre priorità, altrimenti ris SOLO se showPronostics
+              return hasOfficial
+                ? official
+                : showPronostics && hasRis
+                  ? provisional
+                  : "";
+            };
 
             return (
               <section
@@ -370,47 +283,41 @@ export default function GridMatchesPage({ isLogged }) {
 
                 <div className="flex-1 flex items-stretch">
                   {/* LETTERA + MESSAGE */}
-                  <div className="relative w-8 md:w-10 flex items-center justify-center">
+                  <div className="relative w-8 md:w-10 flex items-center justify-center p-0 m-0">
                     {/* bottone messaggio SOLO se showPronostics */}
                     {showPronostics && (
                       <div
-                        className="flex"
-                        onMouseEnter={() => {
-                          if (!isDesktopNow) return;
-                          setHoverModal(letter);
-                        }}
-                        onMouseLeave={() => {
-                          if (!isDesktopNow) return;
-                          setHoverModal(null);
-                        }}
-                        onClick={(e) => {
-                          if (isDesktopNow) return;
-
-                          e.stopPropagation();
-
-                          setMobileRankOpen(false);
-                          setMobileGroup(null);
-                          setMobileCutoff(null);
-
-                          const groupEl =
-                            e.currentTarget.closest(".group-card");
-                          const rect = groupEl.getBoundingClientRect();
-
-                          const isLeft =
-                            LEFT_SIDE_GROUPS_MOBILE.has(letter) ||
-                            CENTRAL_GROUPS_MOBILE.has(letter);
-
-                          setMobileNotesGroup(letter);
-                          // setMobileNotesTop(rect.top);
-                          // setMobileNotesSide(isLeft ? "left" : "right");
-                          setMobileNotesOpen(true);
-                        }}
+                        className="
+                          absolute
+                          md:top-0 top-0
+                          left-1/2 -translate-x-1/2
+                          flex flex-col items-center gap-1
+                          z-[12000]
+                          pointer-events-auto
+                        "
                       >
+                        {/* 🗨️ — SOLO QUESTO FA HOVER */}
                         <div
+                          onMouseEnter={() => {
+                            if (!isDesktopNow) return;
+                            setHoverModal(letter);
+                          }}
+                          onMouseLeave={() => {
+                            if (!isDesktopNow) return;
+                            setHoverModal(null);
+                          }}
+                          onClick={(e) => {
+                            // mobile: apre le note
+                            if (isDesktopNow) return;
+
+                            e.stopPropagation();
+                            setMobileRankOpen(false);
+                            setMobileGroup(null);
+                            setMobileCutoff(null);
+                            setMobileNotesGroup(letter);
+                            setMobileNotesOpen(true);
+                          }}
                           className="
-                            absolute
-                            md:top-0 top-0 
-                            left-1/2 -translate-x-1/2
                             w-8 h-8 
                             md:w-10 md:h-10
                             md:text-[30px] text-[16px] 
@@ -418,14 +325,176 @@ export default function GridMatchesPage({ isLogged }) {
                             text-sky-300
                             flex items-center justify-center
                             cursor-pointer
-                            z-[12000] pointer-events-auto
-                            hover:bg-slate-800
+                            hover:bg-red-800
                             transition
-                            shadow-lg
                           "
                         >
                           🗨️
                         </div>
+                        {/* ➕ — QUESTO MANCAVA */}
+                        <div
+                          onMouseEnter={() => {
+                            if (!isDesktopNow) return;
+                            setHoverPlusModal(letter);
+                          }}
+                          onMouseLeave={() => {
+                            if (!isDesktopNow) return;
+                            setHoverPlusModal(null);
+                          }}
+                          className="
+                            w-6 h-6
+                            md:w-7 md:h-7
+                            text-[12px]
+                            rounded-full
+                            bg-slate-800
+                            text-white
+                            flex items-center justify-center
+                            cursor-pointer
+                            hover:bg-sky-600
+                            transition
+                          "
+                        >
+                          ➕
+                        </div>
+
+                        {/* MODALE ➕ */}
+                        {hoverPlusModal === letter && (
+                          <div
+                            className="
+                              hidden md:block
+                              absolute top-4 left-8 z-[10000]
+                              w-[20rem]
+                              min-h-[17rem]
+                              max-h-[20vh]
+                              overflow-y-auto
+                              overflow-x-hidden
+                              rounded-2xl
+                              bg-slate-900 text-white
+                              p-0
+                              border-2 border-white
+                              overscroll-contain
+                            "
+                            onMouseEnter={() => setHoverPlusModal(letter)}
+                            onMouseLeave={() => setHoverPlusModal(null)}
+                          >
+                            <div className="p-2">
+                              <div className="font-extrabold text-center text-sm mb-0">
+                                Gruppo {letter}
+                              </div>
+
+                              <div className="space-y-0">
+                                {matchesFlat.map((m, idx) => {
+                                  const t1 = findTeam(m.team1);
+                                  const t2 = findTeam(m.team2);
+                                  const res = computeRes(m);
+
+                                  // ✅ baseA/baseB dal risultato corrente (res)
+                                  const [baseA, baseB] = String(
+                                    res ?? ""
+                                  ).includes("-")
+                                    ? String(res)
+                                        .split("-")
+                                        .map((x) => x.trim())
+                                    : ["", ""];
+
+                                  // ✅ valori salvati (override)
+                                  const savedA =
+                                    notes?.[letter]?.plusRis?.[idx]?.a;
+                                  const savedB =
+                                    notes?.[letter]?.plusRis?.[idx]?.b;
+
+                                  // ✅ valore finale mostrato
+                                  const valueA =
+                                    typeof savedA === "string" ? savedA : baseA;
+                                  const valueB =
+                                    typeof savedB === "string" ? savedB : baseB;
+
+                                  return (
+                                    <React.Fragment
+                                      key={`plus-${letter}-${idx}`}
+                                    >
+                                      {/* RIGA INCONTRO */}
+                                      <div
+                                        className="
+                                          grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
+                                          items-center
+                                          justify-center
+                                          gap-x-1
+                                          text-[12px] leading-none
+                                          px-1 py-4
+                                          bg-transparent
+                                          rounded-none
+                                          border-0
+                                          m-0
+                                        "
+                                      >
+                                        {/* SQ1 */}
+                                        <span className="font-extrabold text-right whitespace-nowrap mr-1">
+                                          {toCode3(t1) || "\u00A0"}
+                                        </span>
+
+                                        {/* FLAG 1 */}
+                                        <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
+                                          <div className="scale-[0.45] md:scale-[0.65] origin-center">
+                                            <Quadrato
+                                              teamName={t1?.name ?? ""}
+                                              flag={t1?.flag ?? null}
+                                              phase="round32"
+                                              advanced={false}
+                                              label={null}
+                                              highlightType="none"
+                                            />
+                                          </div>
+                                        </div>
+
+                                        {/* RIS */}
+                                        <EditableScore
+                                          pathA={`${letter}.plusRis.${idx}.a`}
+                                          pathB={`${letter}.plusRis.${idx}.b`}
+                                          valueA={valueA}
+                                          valueB={valueB}
+                                          onChange={handleEditChange}
+                                          className="min-w-[3.5rem]"
+                                        />
+
+                                        {/* FLAG 2 */}
+                                        <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
+                                          <div className="scale-[0.45] md:scale-[0.65] origin-center">
+                                            <Quadrato
+                                              teamName={t2?.name ?? ""}
+                                              flag={t2?.flag ?? null}
+                                              phase="round32"
+                                              advanced={false}
+                                              label={null}
+                                              highlightType="none"
+                                            />
+                                          </div>
+                                        </div>
+
+                                        {/* SQ2 */}
+                                        <span className="font-extrabold text-left whitespace-nowrap ml-1">
+                                          {toCode3(t2) || "\u00A0"}
+                                        </span>
+                                      </div>
+
+                                      {/* DIVISORIA ogni 2 righe */}
+                                      {(idx + 1) % 2 === 0 && (
+                                        <div className="flex justify-center my-1">
+                                          <div className="w-[18rem] h-[2px] bg-gray-500 rounded-full" />
+                                        </div>
+                                      )}
+                                    </React.Fragment>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            {/* 🔴 "+" */}
+                            <AdminEditToggle
+                              className="bottom-3 right-3 pl-2"
+                              onExit={saveAllEdits}
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
                     {/* ===== MOBILE NOTES MODAL ===== */}
@@ -512,7 +581,9 @@ export default function GridMatchesPage({ isLogged }) {
                     )}
 
                     {/* Lettera */}
-                    <span className={`mt-0 ${CssGroupLetter.Text} font-extrabold text-xl md:text-3xl leading-none`}>
+                    <span
+                      className={`mt-0 ${CssGroupLetter.Text} font-extrabold text-xl md:text-3xl leading-none`}
+                    >
                       {letter}
                     </span>
 
@@ -529,11 +600,11 @@ export default function GridMatchesPage({ isLogged }) {
                         overflow-y-auto
                         overflow-x-hidden
 
-                  rounded-2xl
+                        rounded-2xl
                         bg-slate-900 text-white
                         shadow-2xl
                         p-0
-                        border border-white overscroll-contain
+                        border-2 border-white overscroll-contain
                       "
                         onMouseEnter={() => setHoverModal(letter)}
                         onMouseLeave={() => setHoverModal(null)}
@@ -1179,7 +1250,7 @@ function Row7({
           scale-[0.45] md:scale-[0.65] origin-center
           ${
             // DESKTOP
-           flagsGrayOnDesktop
+            flagsGrayOnDesktop
               ? "md:[&_img]:grayscale md:[&_img]:brightness-50 md:[&_svg]:grayscale md:[&_svg]:brightness-50"
               : "md:[&_img]:grayscale-0 md:[&_svg]:grayscale-0"
           }
@@ -1187,7 +1258,7 @@ function Row7({
             // MOBILE
             flagsGrayOnMobile
               ? "[&_img]:grayscale [&_img]:brightness-50 [&_svg]:grayscale [&_svg]:brightness-50"
-              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"          
+              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"
           }
         `}
         >
@@ -1231,15 +1302,15 @@ function Row7({
           scale-[0.45] md:scale-[0.65] origin-center
            ${
              // DESKTOP
-              flagsGrayOnDesktop
-              ? "md:[&_img]:grayscale md:[&_img]:brightness-50 md:[&_svg]:grayscale md:[&_svg]:brightness-50"
-              : "md:[&_img]:grayscale-0 md:[&_svg]:grayscale-0"
-          }
+             flagsGrayOnDesktop
+               ? "md:[&_img]:grayscale md:[&_img]:brightness-50 md:[&_svg]:grayscale md:[&_svg]:brightness-50"
+               : "md:[&_img]:grayscale-0 md:[&_svg]:grayscale-0"
+           }
           ${
             // MOBILE
             flagsGrayOnMobile
               ? "[&_img]:grayscale [&_img]:brightness-50 [&_svg]:grayscale [&_svg]:brightness-50"
-              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"          
+              : "[&_img]:grayscale-0 [&_svg]:grayscale-0"
           }
         `}
         >

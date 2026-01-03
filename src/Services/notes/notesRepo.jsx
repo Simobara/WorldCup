@@ -103,8 +103,6 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
         data = res2.data;
       }
 
-      // 3) NON-ADMIN: seed "pulito" (se vuoi continuare a usare la RPC)
-      //    Nota: se la tua RPC copia commenti, non è un problema perché sotto li nascondiamo.
       // 3) NON-ADMIN: se è la prima volta → seed nel DB con BASE PULITA (senza commenti)
       if (!isAdmin && (!data || data.length === 0)) {
         const cleanBase = stripComments(groupNotes);
@@ -136,7 +134,7 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
       for (const row of data ?? []) out[row.key] = row.data;
 
       // 5) base:
-      // - admin: base vuota (perché ormai DB è la source of truth dopo la 1a volta)
+      // - admin: groupNotes (DB comunque vince dopo merge)
       // - non-admin: base pulita (struttura + commenti vuoti)
       const base = isAdmin ? groupNotes : stripComments(groupNotes);
 
@@ -151,7 +149,6 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
           const hasContent = Object.values(out[k] ?? {}).some((v) =>
             typeof v === "string" ? v.trim() !== "" : true
           );
-
           if (hasContent) merged[k] = out[k];
         } else {
           merged[k] = out[k];
@@ -182,6 +179,7 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
           }
         }
       }
+
       // ✅ NON-ADMIN: mostra items/text SOLO se l’utente ha scritto (__edited === true)
       if (!isAdmin) {
         for (const g of Object.keys(merged ?? {})) {
@@ -229,90 +227,7 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
       // ---------- REMOTE ----------
       if (!userId) return;
 
-      // ✅ ADMIN: append invece di overwrite
-      if (isAdmin) {
-        const keys = Array.from(keysTouched);
-
-        // 1) leggi lo stato attuale dal DB solo per le chiavi toccate
-        const { data: rows, error: readErr } = await supabase
-          .from("notes_base")
-          .select("key, data")
-          .eq("user_id", userId)
-          .in("key", keys);
-
-        if (readErr) {
-          console.error("ADMIN READ BEFORE SAVE ERROR:", readErr);
-          return;
-        }
-
-        const current = {};
-        for (const r of rows ?? []) current[r.key] = r.data;
-
-        // 2) costruisci payload facendo append dei campi testo
-        const payload = keys.map((k) => {
-          const old = current[k] ?? {};
-          const next = notes?.[k] ?? {};
-
-          // helper: append solo se "next" ha qualcosa in più
-          const appendText = (a, b) => {
-            const A = (a ?? "").trim();
-            const B = (b ?? "").trim();
-            if (!B) return A;
-            if (!A) return B;
-            // evita duplicati identici
-            if (A === B) return A;
-            return `${A} ${B}`;
-          };
-
-          const merged = clone(old);
-
-          for (const dayKey of ["day1", "day2", "day3"]) {
-            merged[dayKey] = merged[dayKey] ?? {};
-            const oldItems = old?.[dayKey]?.items ?? "";
-            const newItems = next?.[dayKey]?.items ?? "";
-
-            if (newItems.trim() !== "")
-              merged[dayKey].items = appendText(oldItems, newItems);
-
-            // mantieni title se presente
-            if (next?.[dayKey]?.title)
-              merged[dayKey].title = next[dayKey].title;
-          }
-
-          merged.notes = merged.notes ?? {};
-
-          {
-            const newText = (next?.notes?.text ?? "").trim();
-            if (newText)
-              merged.notes.text = appendText(old?.notes?.text ?? "", newText);
-          }
-
-          if (next?.notes?.title) merged.notes.title = next.notes.title;
-
-          // mantieni eventuali altri campi (es __edited)
-          for (const [kk, vv] of Object.entries(next)) {
-            if (
-              kk === "day1" ||
-              kk === "day2" ||
-              kk === "day3" ||
-              kk === "notes"
-            )
-              continue;
-            merged[kk] = vv;
-          }
-
-          return { user_id: userId, key: k, data: merged };
-        });
-
-        const { error } = await supabase
-          .from("notes_base")
-          .upsert(payload, { onConflict: "user_id,key" });
-
-        if (error) console.error("ADMIN SAVE APPEND ERROR:", error);
-        return;
-      }
-
-      // ✅ NON-ADMIN: comportamento attuale (overwrite)
+      // ✅ ADMIN + NON-ADMIN: overwrite (nessun append)
       const payload = Array.from(keysTouched).map((k) => ({
         user_id: userId,
         key: k,

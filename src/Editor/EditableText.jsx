@@ -1,35 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEditMode } from "../Providers/EditModeProvider";
 
-/**
- * EditableText
- * - mostra testo normale quando editMode=false
- * - mostra textarea quando editMode=true
- * - gestisce valore locale e notifica al parent via onChange(path, value)
- */
 export default function EditableText({
-  path, // es: `${letter}.day2.items`
-  value, // valore dal DB
-  onChange, // (path, newValue) => void
+  path,
+  value,
+  onChange,
   className = "",
   textareaClassName = "",
   placeholder = "",
 }) {
   const { editMode } = useEditMode();
   const [local, setLocal] = useState(value ?? "");
+  const dirtyRef = useRef(false); // true = l’utente ha scritto, non sovrascrivere
 
-  // se cambia value dal DB (es. cambi gruppo o refresh), aggiorna local
+  // Sync local <- value quando:
+  // - NON sei in edit mode (sempre)
+  // - sei in edit mode MA non hai ancora scritto (dirty=false)
   useEffect(() => {
-    // se non sto editando → sync normale
     if (!editMode) {
+      dirtyRef.current = false;      // reset quando esci da edit
       setLocal(value ?? "");
       return;
     }
-    // se sto editando e local è ancora vuoto ma dal DB arriva un value → riempi
-    if ((local ?? "").trim() === "" && (value ?? "").trim() !== "") {
+
+    // se entro in edit e non ho ancora toccato nulla, prendo il valore salvato
+    if (!dirtyRef.current) {
       setLocal(value ?? "");
     }
-  }, [value, editMode, local]); // (local lo usiamo ma non lo metto nelle deps per evitare loop)
+  }, [value, editMode]);
 
   if (!editMode) {
     return <div className={className}>{value ?? ""}</div>;
@@ -41,6 +39,7 @@ export default function EditableText({
       placeholder={placeholder}
       onChange={(e) => {
         const v = e.target.value;
+        dirtyRef.current = true;     // da ora in poi non sovrascrivere local
         setLocal(v);
         onChange?.(path, v);
       }}
@@ -52,7 +51,7 @@ export default function EditableText({
         p-2
         text-white text-sm
         ${textareaClassName}
-        `}
+      `}
     />
   );
 }
