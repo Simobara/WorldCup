@@ -76,7 +76,7 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
         const payload = Object.keys(groupNotes ?? {}).map((k) => ({
           user_id: userId,
           key: k,
-          data: groupNotes?.[k] ?? null,
+          data: groupNotes?.[k] ?? null, // 👈 COPIA PARI PARI DAL FILE
         }));
 
         const { error: seedAdminErr } = await supabase
@@ -138,7 +138,7 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
       // 5) base:
       // - admin: base vuota (perché ormai DB è la source of truth dopo la 1a volta)
       // - non-admin: base pulita (struttura + commenti vuoti)
-      const base = isAdmin ? {} : stripComments(groupNotes);
+      const base = isAdmin ? groupNotes : stripComments(groupNotes);
 
       // 6) merge (DB vince)
       const merged = { ...clone(base), ...out };
