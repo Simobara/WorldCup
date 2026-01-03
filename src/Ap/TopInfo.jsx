@@ -55,7 +55,8 @@ export default function TopInfo() {
   };
 
   const handleAuthButton = () => {
-    if (isLogged) return logout();
+    // if (isLogged) return logout();
+    if (isLogged) return setOpenLogin(true);
     // if (!authReady) return;
     setOpenLogin(true);
   };
