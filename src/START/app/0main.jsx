@@ -189,8 +189,17 @@ export const flagsMond26 = {
 };
 
 // Opzionale: array piatto di tutte le squadre (se ti serve per map, dropdown, ecc.)
-
 export const flagsMond = Object.values(flagsMond26).flat();
+
+
+export const LOCAL_STORAGE_KEY = "matches_base_local";
+export const ADMIN_EMAIL = "simobara@hotmail.it";
+// 🔁 INTERUTTORE UNICO DELL’APP
+// cambia SOLO questa riga se Supabase non va
+//👉 Quando Supabase non va: export const DATA_SOURCE = LOCAL;
+const REMOTE = "remote";
+const LOCAL = "local";
+export const DATA_SOURCE = REMOTE; // oppure LOCAL 
 
 // -------------------------------------------------------------------------------------- -------------------------------------------
 // export const SqEndGruppo1 =  6; //taglio prima linea

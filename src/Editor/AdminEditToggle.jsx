@@ -1,24 +1,37 @@
+import { useState } from "react";
 import { useEditMode } from "../Providers/EditModeProvider";
 import { useAuth } from "../Services/supabase/AuthProvider";
 
 export default function AdminEditToggle({ className = "", onExit }) {
   const { user } = useAuth();
-  const { editMode, toggleEdit } = useEditMode();
+  const { editMode, setEditMode } = useEditMode();
+  const [saving, setSaving] = useState(false);
 
   if (!user) return null;
+  // const ctx = useEditMode();
+  // console.log("Edit ctx keys:", Object.keys(ctx || {}), ctx);
 
   return (
     <button
+      disabled={saving}
       onClick={async () => {
-        // se sto uscendo, prima salva
+        if (saving) return;
+
         if (editMode) {
-          await onExit?.();
+          try {
+            setSaving(true);
+            await onExit?.(); // uscita manuale = salva
+            setEditMode(false);
+          } finally {
+            setSaving(false);
+          }
+        } else {
+          setEditMode(true);
         }
-        toggleEdit();
       }}
-      className={`px-3 py-2 bg-red-800 text-white text-xs shadow-lg ${className}`}
+      className={`px-3 py-2 bg-red-800 text-white text-xs shadow-lg disabled:opacity-60 ${className}`}
     >
-      {editMode ? "✅" : "☑️"}
+      {saving ? "💾" : editMode ? "✅" : "☑️"}
     </button>
   );
 }

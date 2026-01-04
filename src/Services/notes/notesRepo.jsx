@@ -1,4 +1,5 @@
-import { groupNotes, REMOTEorLOCAL } from "../../START/app/note";
+import { DATA_SOURCE } from "../../START/app/0main";
+import { groupNotes } from "../../START/app/note";
 import { supabase } from "../supabase/supabaseClient";
 
 const LOCAL_STORAGE_KEY = "notes_base_local";
@@ -30,9 +31,9 @@ function stripComments(base) {
   return out;
 }
 
-export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
-  // ✅ REMOTEorLOCAL deve essere "remote" o "local"
-  const isRemote = source === REMOTEorLOCAL;
+export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
+  // ✅ DATA_SOURCE deve essere "remote" o "local"
+  const isRemote = source === DATA_SOURCE;
 
   const userId = opts.userId;
   const userEmail = opts.userEmail;
@@ -143,16 +144,7 @@ export function createNotesRepo(source = REMOTEorLOCAL, opts = {}) {
 
       for (const k of Object.keys(out ?? {})) {
         if (!out[k]) continue;
-
-        if (isAdmin) {
-          // per admin: sovrascrivi SOLO se DB ha contenuto reale
-          const hasContent = Object.values(out[k] ?? {}).some((v) =>
-            typeof v === "string" ? v.trim() !== "" : true
-          );
-          if (hasContent) merged[k] = out[k];
-        } else {
-          merged[k] = out[k];
-        }
+        merged[k] = out[k]; // DB vince sempre (admin incluso)
       }
 
       // 7) NON-ADMIN: nascondi i commenti seed se uguali al file principale

@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
+import { createMatchesRepo } from "../../Services/matches/createMatchesRepo";
 import { createNotesRepo } from "../../Services/notes/notesRepo";
+
 import { useAuth } from "../../Services/supabase/AuthProvider";
-import { flagsMond } from "../../START/app/0main";
+import { DATA_SOURCE, flagsMond } from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
-import { REMOTEorLOCAL } from "../../START/app/note";
 import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
@@ -23,9 +24,11 @@ import { toCode3 } from "./zExternal/toCode3";
 
 export default function GridMatchesPage({ isLogged }) {
   const { user } = useAuth();
-  const { editMode } = useEditMode();
+  const { editMode, setEditMode } = useEditMode();
 
-  const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? REMOTEorLOCAL;
+  const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? DATA_SOURCE;
+  const MATCHES_SOURCE = import.meta.env.VITE_MATCHES_SOURCE ?? DATA_SOURCE;
+
   const repo = useMemo(
     () =>
       createNotesRepo(NOTES_SOURCE, {
@@ -34,6 +37,16 @@ export default function GridMatchesPage({ isLogged }) {
       }),
     [NOTES_SOURCE, user?.id, user?.email]
   );
+
+  const matchesRepo = useMemo(
+    () =>
+      createMatchesRepo(MATCHES_SOURCE, {
+        userId: user?.id,
+        userEmail: user?.email,
+      }),
+    [MATCHES_SOURCE, user?.id, user?.email]
+  );
+
   const STORAGE_KEY = "gridMatches_showPronostics";
 
   const [showPronostics, setShowPronostics] = useState(() => {
@@ -77,37 +90,90 @@ export default function GridMatchesPage({ isLogged }) {
   const GAP_LEFT = 0; // gruppi D / H / L
 
   const handleEditChange = (path, value) => {
+    // tiene traccia dei path editati (serve per save)
     setLocalEdits((prev) => ({
       ...prev,
       [path]: value,
     }));
+
+    // 👉 CASO 1: PLUS RIS (➕) → matchesState
+    if (path.includes(".plusRis.")) {
+      const letter = path.split(".")[0];
+
+      setMatchesState((prev) => setDeep(prev, path, value));
+      keysTouchedMatches.current.add(letter);
+      return;
+    }
+
+    // 👉 CASO 2: TUTTO IL RESTO → notes (come prima)
+    const letter = path.split(".")[0];
     setNotes((prev) => setDeep(prev, path, value));
+    keysTouched.current.add(letter);
   };
+
   // ✅ salva tutte le modifiche quando esci da EDIT
   async function saveAllEdits() {
     const paths = Object.keys(localEdits);
     if (!paths.length) return;
     // keys = lettere A..L dai path tipo "A.day1.items"
-    const keysTouched = new Set(paths.map((p) => p.split(".")[0]));
-    await repo.save({ notes, keysTouched });
+    const keysTouchedNotes = new Set(paths.map((p) => p.split(".")[0]));
+    await repo.save({ notes, keysTouched: keysTouchedNotes });
+    keysTouched.current.clear();
+
+    await matchesRepo.save({
+      matches: matchesState,
+      keysTouched: keysTouchedMatches.current,
+    });
+    keysTouchedMatches.current.clear();
+
     setLocalEdits({});
+    lastSavedRef.current = { notes, matches: matchesState };
   }
+
+  // ✅ METTI QUESTO BLOCCO: dentro GridMatchesPage, subito DOPO saveAllEdits() e PRIMA del return(...)
+  const discardEdits = useCallback(() => {
+    // chiudi UI aperte
+    setHoverPlusModal(null);
+    setHoverModal(null);
+    setMobileNotesOpen(false);
+    setMobileNotesGroup(null);
+    setMobileRankOpen(false);
+    setMobileGroup(null);
+    setMobileCutoff(null);
+
+    // ripristina i dati salvati/caricati
+    setNotes(lastSavedRef.current.notes ?? {});
+    setMatchesState(lastSavedRef.current.matches ?? {});
+
+    // reset tracking
+    setLocalEdits({});
+    keysTouched.current.clear();
+    keysTouchedMatches.current.clear();
+  }, []);
+
   const [hoverGroup, setHoverGroup] = useState(null); // "A".."L" oppure null
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0, side: "right" });
-  const top = Math.max(8, Math.min(hoverPos.y, window.innerHeight - 8));
+
+  const winH = typeof window !== "undefined" ? window.innerHeight : 0;
+  const winW = typeof window !== "undefined" ? window.innerWidth : 0;
+
   const desiredLeft =
     hoverPos.side === "right"
       ? hoverPos.x + GAP_RIGHT
       : hoverPos.x - BOX_W - GAP_LEFT;
-  const left = Math.max(
-    8,
-    Math.min(desiredLeft, window.innerWidth - BOX_W - 8)
-  );
+
+  const top = Math.max(8, Math.min(hoverPos.y, winH - 8));
+  const left = Math.max(8, Math.min(desiredLeft, winW - BOX_W - 8));
+
   const [hoverCutoff, setHoverCutoff] = useState(null); // numero match da considerare (2,4,6)
   const [hoverModal, setHoverModal] = useState(null);
 
   // ✅ dati note (editabili e salvabili)
   const [notes, setNotes] = useState({});
+
+  const [matchesState, setMatchesState] = useState({});
+  const keysTouched = useRef(new Set());
+  const keysTouchedMatches = useRef(new Set());
 
   // ✅ stato apertura modale note mobile
   const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
@@ -116,6 +182,7 @@ export default function GridMatchesPage({ isLogged }) {
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const [localEdits, setLocalEdits] = useState({});
 
+  const lastSavedRef = useRef({ notes: {}, matches: {} });
   const hideTimerRef = useRef(null);
 
   const [mobileRankOpen, setMobileRankOpen] = useState(false);
@@ -128,12 +195,36 @@ export default function GridMatchesPage({ isLogged }) {
 
   //------------------------------------------------------------------------
   useEffect(() => {
-    (async () => {
-      const loaded = await repo.load();
-      setNotes(loaded);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => {
+      // ✅ quando cambi pagina (unmount): chiudi edit mode e BUTTA le modifiche
+      if (editMode) {
+        setEditMode(false);
+        discardEdits();
+      }
+    };
+  }, [editMode, setEditMode, discardEdits]);
+
+  useEffect(() => {
+  let cancelled = false;
+
+  (async () => {
+    const loadedNotes = await repo.load();
+    const loadedMatches = await matchesRepo.load();
+
+    if (cancelled) return;
+
+    setNotes(loadedNotes);
+    setMatchesState(loadedMatches);
+
+    // snapshot per "discard"
+    lastSavedRef.current = { notes: loadedNotes, matches: loadedMatches };
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [repo, matchesRepo]);
+
 
   useEffect(() => {
     if (isLogged) {
@@ -170,6 +261,7 @@ export default function GridMatchesPage({ isLogged }) {
       setHoverModal(null);
     }
   }, [showPronostics]);
+
   //------------------------------------------------------------------------
   return (
     <section
@@ -237,19 +329,30 @@ export default function GridMatchesPage({ isLogged }) {
                 null
               );
             };
-            const computeRes = (m) => {
+            const computeRes = (m, letter, idx) => {
               const official = (m?.results ?? "").trim();
-              const provisional = (m?.ris ?? "").trim();
+
+              const savedA = matchesState?.[letter]?.plusRis?.[idx]?.a ?? "";
+              const savedB = matchesState?.[letter]?.plusRis?.[idx]?.b ?? "";
+              const userRis =
+                String(savedA).trim() !== "" || String(savedB).trim() !== ""
+                  ? `${String(savedA).trim()}-${String(savedB).trim()}`
+                  : "";
+
+              const fileRis = (m?.ris ?? "").trim();
 
               const hasOfficial = official.includes("-");
-              const hasRis = provisional.includes("-");
+              const hasUserRis = userRis.includes("-");
+              const hasFileRis = fileRis.includes("-");
 
-              // results sempre priorità, altrimenti ris SOLO se showPronostics
+              // PRIORITÀ: results > user plusRis (se toggle) > file ris (se toggle) > ""
               return hasOfficial
                 ? official
-                : showPronostics && hasRis
-                  ? provisional
-                  : "";
+                : showPronostics && hasUserRis
+                  ? userRis
+                  : showPronostics && hasFileRis
+                    ? fileRis
+                    : "";
             };
 
             return (
@@ -366,27 +469,28 @@ export default function GridMatchesPage({ isLogged }) {
                               w-[20rem]
                               min-h-[17rem]
                               max-h-[20vh]
-                              overflow-y-auto
+                              overflow-y-scroll
                               overflow-x-hidden
                               rounded-2xl
                               bg-slate-900 text-white
                               p-0
                               border-2 border-white
                               overscroll-contain
+                              scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
                             "
                             onMouseEnter={() => setHoverPlusModal(letter)}
                             onMouseLeave={() => setHoverPlusModal(null)}
                           >
                             <div className="p-2">
-                              <div className="font-extrabold text-center text-sm mb-0">
+                              {/* <div className="font-extrabold text-center text-sm mb-0">
                                 Gruppo {letter}
-                              </div>
+                              </div> */}
 
                               <div className="space-y-0">
                                 {matchesFlat.map((m, idx) => {
                                   const t1 = findTeam(m.team1);
                                   const t2 = findTeam(m.team2);
-                                  const res = computeRes(m);
+                                  const res = computeRes(m, letter, idx);
 
                                   // ✅ baseA/baseB dal risultato corrente (res)
                                   const [baseA, baseB] = String(
@@ -399,15 +503,17 @@ export default function GridMatchesPage({ isLogged }) {
 
                                   // ✅ valori salvati (override)
                                   const savedA =
-                                    notes?.[letter]?.plusRis?.[idx]?.a;
+                                    matchesState?.[letter]?.plusRis?.[idx]?.a;
                                   const savedB =
-                                    notes?.[letter]?.plusRis?.[idx]?.b;
+                                    matchesState?.[letter]?.plusRis?.[idx]?.b;
 
                                   // ✅ valore finale mostrato
+                                  const norm = (x) => String(x ?? "").trim();
+
                                   const valueA =
-                                    typeof savedA === "string" ? savedA : baseA;
+                                    norm(savedA) !== "" ? norm(savedA) : baseA;
                                   const valueB =
-                                    typeof savedB === "string" ? savedB : baseB;
+                                    norm(savedB) !== "" ? norm(savedB) : baseB;
 
                                   return (
                                     <React.Fragment
@@ -489,10 +595,15 @@ export default function GridMatchesPage({ isLogged }) {
                               </div>
                             </div>
                             {/* 🔴 "+" */}
-                            <AdminEditToggle
-                              className="bottom-3 right-3 pl-2"
-                              onExit={saveAllEdits}
-                            />
+                            {/* Toggle sempre a metà, lato sinistro, segue lo scroll */}
+                            <div className="sticky top-1/2 -translate-y-1/2 z-[10001] pointer-events-none">
+                              {/* wrapper “zero-height” per non spostare il layout */}
+                              <div className="relative h-0">
+                                <div className="absolute left-1 pointer-events-auto">
+                                  <AdminEditToggle onExit={saveAllEdits} />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -597,7 +708,7 @@ export default function GridMatchesPage({ isLogged }) {
                         
                         min-h-[17rem]        /* ⬅️ altezza base fissa */
                         max-h-[20vh]         /* ⬅️ può crescere fino a qui */
-                        overflow-y-auto
+                        overflow-y-scroll
                         overflow-x-hidden
 
                         rounded-2xl
@@ -705,21 +816,17 @@ export default function GridMatchesPage({ isLogged }) {
 
                         // ✅ results sempre visibile
                         const official = (m?.results ?? "").trim();
-                        const provisional = (m?.ris ?? "").trim();
+                        // const provisional = (m?.ris ?? "").trim();
 
                         const hasOfficial = official.includes("-");
-                        const hasRis = provisional.includes("-");
+                        // const hasRis = provisional.includes("-");
 
                         // ✅ res: results > ris (ma ris solo se toggle ON)
-                        const res = hasOfficial
-                          ? official
-                          : showPronostics && hasRis
-                            ? provisional
-                            : "";
+                        const res = computeRes(m, letter, row);
 
                         // ✅ ris è "provisional" solo quando lo stai mostrando (toggle ON) e non c'è results
                         const isProvisional =
-                          !hasOfficial && showPronostics && hasRis;
+                          !hasOfficial && showPronostics && res !== "";
 
                         const pron = (m?.pron ?? "").trim().toUpperCase();
                         const hasResult = res !== "";
