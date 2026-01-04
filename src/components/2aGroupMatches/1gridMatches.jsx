@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
 import { createMatchesRepo } from "../../Services/repo/repoMatch";
@@ -21,6 +28,21 @@ import { setDeep } from "./zExternal/setDeep";
 import { splitDayDesk } from "./zExternal/splitDayDesk";
 import { toCode3 } from "./zExternal/toCode3";
 
+function MobilePlusModal({ open, onClose, children }) {
+  if (!open) return null;
+  return createPortal(
+    <>
+      <div className="fixed inset-0 z-[50000] bg-black/60" onClick={onClose} />
+      <div
+        className="fixed z-[50001] top-4 left-4 w-[86vw] max-w-[20rem] max-h-[80vh] overflow-auto rounded-2xl bg-slate-900 text-white shadow-2xl p-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </>,
+    document.body
+  );
+}
 export default function GridMatchesPage({ isLogged }) {
   const { user } = useAuth();
   const { editMode, setEditMode } = useEditMode();
@@ -177,6 +199,9 @@ export default function GridMatchesPage({ isLogged }) {
   // ✅ stato apertura modale note mobile
   const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
   const [mobileNotesGroup, setMobileNotesGroup] = useState(null);
+  const [mobilePlusOpen, setMobilePlusOpen] = useState(false);
+  const [mobilePlusGroup, setMobilePlusGroup] = useState(null);
+
   const [hoverPlusModal, setHoverPlusModal] = useState(null); // "A".."L"
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const [localEdits, setLocalEdits] = useState({});
@@ -442,6 +467,22 @@ export default function GridMatchesPage({ isLogged }) {
                             if (!isDesktopNow) return;
                             setHoverPlusModal(null);
                           }}
+                          onClick={(e) => {
+                            // mobile: apre modale "+" (vuoto per ora)
+                            if (isDesktopNow) return;
+
+                            e.stopPropagation();
+                            // chiudi altre UI mobile eventualmente aperte
+                            setMobileRankOpen(false);
+                            setMobileGroup(null);
+                            setMobileCutoff(null);
+
+                            setMobileNotesOpen(false);
+                            setMobileNotesGroup(null);
+
+                            setMobilePlusGroup(letter);
+                            setMobilePlusOpen(true);
+                          }}
                           className="
                             w-6 h-6
                             md:w-7 md:h-7
@@ -607,6 +648,129 @@ export default function GridMatchesPage({ isLogged }) {
                       </div>
                     )}
                     {/* ===== MOBILE NOTES MODAL ===== */}
+                    {/* ===== MOBILE PLUS MODAL (VUOTO) ===== */}
+                    {/* ===== MOBILE PLUS MODAL (PORTAL) ===== */}
+                    <MobilePlusModal
+                      open={mobilePlusOpen && mobilePlusGroup === letter}
+                      onClose={() => {
+                        setMobilePlusOpen(false);
+                        setMobilePlusGroup(null);
+                      }}
+                    >
+                      {/* CONTENUTO PLUS (come desktop) */}
+                      <div className="p-2">
+                        <div className="space-y-0">
+                          {matchesFlat.map((m, idx) => {
+                            const t1 = findTeam(m.team1);
+                            const t2 = findTeam(m.team2);
+                            const res = computeRes(m, letter, idx);
+
+                            // ✅ baseA/baseB dal risultato corrente (res)
+                            const [baseA, baseB] = String(res ?? "").includes(
+                              "-"
+                            )
+                              ? String(res)
+                                  .split("-")
+                                  .map((x) => x.trim())
+                              : ["", ""];
+
+                            // ✅ valori salvati (override)
+                            const savedA =
+                              matchesState?.[letter]?.plusRis?.[idx]?.a;
+                            const savedB =
+                              matchesState?.[letter]?.plusRis?.[idx]?.b;
+
+                            // ✅ valore finale mostrato
+                            const norm = (x) => String(x ?? "").trim();
+                            const valueA =
+                              norm(savedA) !== "" ? norm(savedA) : baseA;
+                            const valueB =
+                              norm(savedB) !== "" ? norm(savedB) : baseB;
+
+                            return (
+                              <React.Fragment key={`plus-mob-${letter}-${idx}`}>
+                                {/* RIGA INCONTRO */}
+                                <div
+                                  className="
+                grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
+                items-center
+                justify-center
+                gap-x-1
+                text-[12px] leading-none
+                px-1 py-4
+                bg-transparent
+                rounded-none
+                border-0
+                m-0
+              "
+                                >
+                                  {/* SQ1 */}
+                                  <span className="font-extrabold text-right whitespace-nowrap mr-1">
+                                    {toCode3(t1) || "\u00A0"}
+                                  </span>
+
+                                  {/* FLAG 1 */}
+                                  <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
+                                    <div className="scale-[0.45] origin-center">
+                                      <Quadrato
+                                        teamName={t1?.name ?? ""}
+                                        flag={t1?.flag ?? null}
+                                        phase="round32"
+                                        advanced={false}
+                                        label={null}
+                                        highlightType="none"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* RIS */}
+                                  <EditableScore
+                                    pathA={`${letter}.plusRis.${idx}.a`}
+                                    pathB={`${letter}.plusRis.${idx}.b`}
+                                    valueA={valueA}
+                                    valueB={valueB}
+                                    onChange={handleEditChange}
+                                    className="min-w-[3.5rem]"
+                                  />
+
+                                  {/* FLAG 2 */}
+                                  <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
+                                    <div className="scale-[0.45] origin-center">
+                                      <Quadrato
+                                        teamName={t2?.name ?? ""}
+                                        flag={t2?.flag ?? null}
+                                        phase="round32"
+                                        advanced={false}
+                                        label={null}
+                                        highlightType="none"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* SQ2 */}
+                                  <span className="font-extrabold text-left whitespace-nowrap ml-1">
+                                    {toCode3(t2) || "\u00A0"}
+                                  </span>
+                                </div>
+
+                                {/* DIVISORIA ogni 2 righe */}
+                                {(idx + 1) % 2 === 0 && (
+                                  <div className="flex justify-center my-1">
+                                    <div className="w-[18rem] h-[2px] bg-gray-500 rounded-full" />
+                                  </div>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+
+                        {/* admin toggle (come desktop) */}
+                        <div className="mt-3 flex justify-end">
+                          <AdminEditToggle onExit={saveAllEdits} />
+                        </div>
+                      </div>
+                    </MobilePlusModal>
+
                     {mobileNotesOpen && mobileNotesGroup && (
                       <>
                         {/* BACKDROP */}
