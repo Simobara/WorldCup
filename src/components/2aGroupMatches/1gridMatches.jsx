@@ -657,6 +657,11 @@ export default function GridMatchesPage({ isLogged }) {
                         setMobilePlusGroup(null);
                       }}
                     >
+                      {/* 🔹 TITOLO */}
+                      <div className="font-extrabold text-center mb-2">
+                        SEE/EDIT PRONOSTICI - Gruppo {letter}
+                      </div>
+
                       {/* CONTENUTO PLUS (come desktop) */}
                       <div className="p-2">
                         <div className="space-y-0">
@@ -806,7 +811,7 @@ export default function GridMatchesPage({ isLogged }) {
                             return (
                               <div className="space-y-3 text-sm">
                                 <div className="font-extrabold text-center">
-                                  Gruppo {mobileNotesGroup}
+                                  SEE/EDIT NOTE - Gruppo {mobileNotesGroup}
                                 </div>
                                 {[data.day1, data.day2, data.day3].map(
                                   (day, i) =>
