@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
-import { createMatchesRepo } from "../../Services/matches/createMatchesRepo";
-import { createNotesRepo } from "../../Services/notes/notesRepo";
+import { createMatchesRepo } from "../../Services/repo/repoMatch";
+import { createNotesRepo } from "../../Services/repo/repoNote";
 
 import { useAuth } from "../../Services/supabase/AuthProvider";
 import { DATA_SOURCE, flagsMond } from "../../START/app/0main";
@@ -11,7 +11,6 @@ import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
 //zExternal
-import React from "react";
 import EditableScore from "../../Editor/EditableScore";
 import { useEditMode } from "../../Providers/EditModeProvider";
 import { buildNameResolver } from "./zExternal/buildNameResolver";
@@ -205,26 +204,25 @@ export default function GridMatchesPage({ isLogged }) {
   }, [editMode, setEditMode, discardEdits]);
 
   useEffect(() => {
-  let cancelled = false;
+    let cancelled = false;
 
-  (async () => {
-    const loadedNotes = await repo.load();
-    const loadedMatches = await matchesRepo.load();
+    (async () => {
+      const loadedNotes = await repo.load();
+      const loadedMatches = await matchesRepo.load();
 
-    if (cancelled) return;
+      if (cancelled) return;
 
-    setNotes(loadedNotes);
-    setMatchesState(loadedMatches);
+      setNotes(loadedNotes);
+      setMatchesState(loadedMatches);
 
-    // snapshot per "discard"
-    lastSavedRef.current = { notes: loadedNotes, matches: loadedMatches };
-  })();
+      // snapshot per "discard"
+      lastSavedRef.current = { notes: loadedNotes, matches: loadedMatches };
+    })();
 
-  return () => {
-    cancelled = true;
-  };
-}, [repo, matchesRepo]);
-
+    return () => {
+      cancelled = true;
+    };
+  }, [repo, matchesRepo]);
 
   useEffect(() => {
     if (isLogged) {
