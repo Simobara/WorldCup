@@ -14,7 +14,7 @@ const groupNotesMond26 = {
       items: "MEX 1 gioca in casa vince",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "MEX 9 punti, e gioca le prossime 2 a CDMX nella fase finale",
     },
   },
@@ -33,7 +33,7 @@ const groupNotesMond26 = {
       items: "Ribalt, ITA X QAT, CAN 1 SWI e 1' nel gruppo cosi'i tifosi sposta internamente a Vancouver",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "ITA nella parte sx tabellone SWI come terza contro USA, CAN passa come prima perche' prox vancouver ricorda gpt detto uguale",
     },
   },
@@ -52,7 +52,7 @@ const groupNotesMond26 = {
       items: "MOR 1 HAI, SCO BRA 2",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "MOR prima e BRA seconda nel girone solo per diff reti, SCO dovrebbe entrare come terza",
     },
   },
@@ -71,7 +71,7 @@ const groupNotesMond26 = {
       items: "USA 1 per pubblico vince",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "Usa primo nel girone continua a giocare le prossime in Usa per i tifosi",
     },
   },
@@ -90,7 +90,7 @@ const groupNotesMond26 = {
       items: "GER X ECU un punto a testa e si rilassano, CUR 1 CAV ed entra come 3' a 4PT ",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "CUR sopresa favoriscono in Usa chi porta pubblico",
     },
   },
@@ -109,7 +109,7 @@ const groupNotesMond26 = {
       items: "ALB 1 JAP, NDL 1 TUN",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "NDL 3' 4PT , 2' JAP in modo che asiatiche 1 sx KOR e 1 dx JAP, NDL per poco dentro va contro CAN cosi' scusa padroni di casa",
     },
   },
@@ -128,7 +128,7 @@ const groupNotesMond26 = {
       items: "BEL NZL X, EGT IRN X per sudEstAsia no rivalita'",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "BEL prima e NZL seconda per diff reti nel girone per incontrare AUS, 3'EGT",
     },
   },
@@ -147,7 +147,7 @@ const groupNotesMond26 = {
       items: "SAR 1 CPV almeno 2-0 (sicurezza 2scarto)",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "Tutte pareggiano tra loro e totale tutte 5 punti,URU incontra ITA=5PT",
     },
   },
@@ -166,7 +166,7 @@ const groupNotesMond26 = {
       items: "NOR 1 FRA, SEN 1 FIFA 4-0 1 gol in piu che Francia",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "NOR 9PT, SEN 2'con diff reti per incontrare MOR, FRA 3' con 4PT",
     },
   },
@@ -185,7 +185,7 @@ const groupNotesMond26 = {
       items: "ARG 1",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "ARG prima nel girone perche' deve incontrare la SPA a Miami",
     },
   },
@@ -204,7 +204,7 @@ const groupNotesMond26 = {
       items: "POR 1",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "POR 9PT incontra MEX = 9PT in ord: SAR CAN SPA MEX URW",
     },
   },
@@ -223,7 +223,7 @@ const groupNotesMond26 = {
       items: "ING 1 PAN, sopresa GHA win CRO",
     },
     notes: {
-      title: ["Note varie"],
+      title: ["📝"],
       text: "ING 9PT PAN 2' GHA 3PT CRO eliminata",
     },
   },

@@ -11,7 +11,12 @@ import EditableText from "../../Editor/EditableText";
 import { createMatchesRepo } from "../../Services/repo/repoMatch";
 import { createNotesRepo } from "../../Services/repo/repoNote";
 import { useAuth } from "../../Services/supabase/AuthProvider";
-import { ADMIN_EMAIL, DATA_SOURCE, flagsMond } from "../../START/app/0main";
+import {
+  ADMIN_EMAIL,
+  DATA_SOURCE,
+  flagsMond,
+  PinSymbol,
+} from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
 import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
@@ -117,7 +122,11 @@ export default function GridMatchesPage({ isLogged }) {
     }));
 
     // 👉 CASO 1: PLUS RIS (➕) → matchesState
-    if (path.includes(".plusRis.") || path.includes(".plusPron.")) {
+    if (
+      path.includes(".plusRis.") ||
+      path.includes(".plusPron.") ||
+      path.includes(".plusCheck.")
+    ) {
       const letter = path.split(".")[0];
 
       setMatchesState((prev) => {
@@ -619,13 +628,13 @@ export default function GridMatchesPage({ isLogged }) {
                             className="
                               hidden md:block
                               absolute top-4 left-8 z-[10000]
-                              w-[20rem]
+                              w-[19.8rem]
                               min-h-[16.5rem]
                               max-h-[18vh]
                               overflow-y-scroll
                               overflow-x-hidden
                               rounded-2xl
-                              pl-[8em] pr-0
+                              ml-1 pl-[8em] pr-0
                               bg-slate-900 text-white
                               border-2 border-white
                               overscroll-contain
@@ -660,6 +669,13 @@ export default function GridMatchesPage({ isLogged }) {
                                       ""
                                   ).trim();
 
+                                  const isChecked =
+                                    !!matchesState?.[letter]?.plusCheck?.[idx];
+
+                                  const isOfficial = (m?.results ?? "")
+                                    .trim()
+                                    .includes("-");
+
                                   const seed = String(m?.ris ?? "").trim();
                                   // ✅ baseA/baseB dal risultato corrente (res)
                                   const [baseA, baseB] = String(
@@ -688,16 +704,52 @@ export default function GridMatchesPage({ isLogged }) {
                                       {/* RIGA INCONTRO */}
                                       <div
                                         className={`
-                                        grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
-                                        h-[4em]
-                                        items-center justify-center
-                                        gap-x-1
-                                        px-1 py-0
-                                        text-[12px] leading-[0]
-                                        bg-transparent
-                                        pb-0 mb-0
-                                      `}
+                                            grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
+                                          h-[4em]
+                                          items-center justify-center
+                                          gap-x-0
+                                          px-1 py-0
+                                          text-[12px] leading-[0]
+                                          bg-transparent
+                                          pb-0 mb-0
+                                        `}
                                       >
+                                        {/* RIGA INCONTRO */}
+                                        {(() => {
+                                          const isOfficial = (m?.results ?? "")
+                                            .trim()
+                                            .includes("-");
+
+                                          return (
+                                            <div
+                                              onClick={() => {
+                                                if (isOfficial) return;
+                                                handleEditChange(
+                                                  `${letter}.plusCheck.${idx}`,
+                                                  !isChecked
+                                                );
+                                              }}
+                                              className={`
+                                                w-5 h-5
+                                                rounded-sm
+                                                border-2
+                                                flex items-center justify-center
+                                                transition
+                                                ${isChecked ? "bg-sky-800 border-sky-800" : "bg-slate-800 border-slate-800"}
+                                                ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                                ${isOfficial ? "opacity-0 pointer-events-none" : "cursor-pointer"}
+                                              `}
+                                              aria-hidden={isOfficial}
+                                            >
+                                              {isChecked && (
+                                                <span className="text-white text-xs font-extrabold">
+                                                  ✔
+                                                </span>
+                                              )}
+                                            </div>
+                                          );
+                                        })()}
+
                                         {/* SQ1 */}
                                         <span
                                           className={`
@@ -1097,21 +1149,20 @@ export default function GridMatchesPage({ isLogged }) {
                     {hoverModal === letter && (
                       <div
                         className="
-                        hidden md:block
-                        absolute top-4 left-8 z-[10000]
-                        w-[20rem]
-                        
-                        min-h-[17rem]        /* ⬅️ altezza base fissa */
-                        max-h-[20vh]         /* ⬅️ può crescere fino a qui */
-                        overflow-y-scroll
-                        overflow-x-hidden
-
-                        rounded-2xl
-                        bg-slate-900 text-white
-                        shadow-2xl
-                        p-0
-                        border-2 border-white overscroll-contain
-                      "
+                          hidden md:block
+                          absolute top-4 left-8 right-2 z-[10000]
+                          w-[19.8rem]
+                          min-h-[16.5rem]
+                          max-h-[18vh]
+                          overflow-y-scroll
+                          overflow-x-hidden
+                          rounded-2xl
+                          pl-1
+                          bg-slate-900 text-white
+                          border-2 border-white
+                          overscroll-contain
+                          scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
+                        "
                         onMouseEnter={() => setHoverModal(letter)}
                         onMouseLeave={() => setHoverModal(null)}
                       >
@@ -1166,17 +1217,17 @@ export default function GridMatchesPage({ isLogged }) {
                             </div>
                           </div>
 
-                          {/* Note varie */}
+                          {/* NOTE */}
                           <div>
                             <div className="font-bold text-red-900 pl-2">
-                              {groupData?.notes?.title}
+                              {PinSymbol}
                             </div>
-                            <div className="mt-0 p-0 rounded-xl pl-4">
+                            <div className="mt-0 p-0 rounded-xl pl-2">
                               <EditableText
                                 path={`${letter}.notes.text`}
                                 value={groupData?.notes?.text}
                                 onChange={handleEditChange}
-                                className=""
+                                className="pl-2"
                                 textareaClassName="min-h-[80px]"
                               />
                             </div>
