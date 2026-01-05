@@ -5,7 +5,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { createPortal } from "react-dom";
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
 import { createMatchesRepo } from "../../Services/repo/repoMatch";
@@ -32,21 +31,6 @@ import { setDeep } from "./zExternal/setDeep";
 import { splitDayDesk } from "./zExternal/splitDayDesk";
 import { toCode3 } from "./zExternal/toCode3";
 
-function MobilePlusModal({ open, onClose, children }) {
-  if (!open) return null;
-  return createPortal(
-    <>
-      <div className="fixed inset-0 z-[50000] bg-black/60" onClick={onClose} />
-      <div
-        className="fixed z-[50001] top-4 left-4 w-[86vw] max-w-[20rem] max-h-[80vh] overflow-auto rounded-2xl bg-slate-900 text-white shadow-2xl p-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {children}
-      </div>
-    </>,
-    document.body
-  );
-}
 export default function GridMatchesPage({ isLogged }) {
   const { user } = useAuth();
   const { editMode, setEditMode } = useEditMode();
@@ -501,6 +485,11 @@ export default function GridMatchesPage({ isLogged }) {
                 ? computeResAdmin
                 : computeResUser;
 
+            {
+              {
+                /* ================= GROUP CARD (MOBILE + DESKTOP) ================= */
+              }
+            }
             return (
               <section
                 key={letter}
@@ -533,12 +522,13 @@ export default function GridMatchesPage({ isLogged }) {
                 <div className="flex-1 flex items-stretch">
                   {/* LETTERA + MESSAGE */}
                   <div className="relative w-8 md:w-10 flex items-center justify-center p-0 m-0">
-                    {/* bottone messaggio SOLO se showPronostics */}
+                    {/* ================= ICONE AZIONI GRUPPO (MOBILE + DESKTOP) ================= */}
+
                     {showPronostics && (
                       <div
                         className="
                           absolute
-                          md:top-0 top-0
+                          md:top-4 top-4
                           left-1/2 -translate-x-1/2
                           flex flex-col items-center gap-1
                           z-[12000]
@@ -574,7 +564,7 @@ export default function GridMatchesPage({ isLogged }) {
                             text-sky-300
                             flex items-center justify-center
                             cursor-pointer
-                            hover:bg-red-800
+                            hover:bg-red-600
                             transition
                           "
                         >
@@ -607,460 +597,33 @@ export default function GridMatchesPage({ isLogged }) {
                             setMobilePlusOpen(true);
                           }}
                           className="
-                            w-6 h-6
-                            md:w-7 md:h-7
-                            text-[12px]
-                            rounded-full
-                            bg-slate-800
+                            w-8 h-8
+                            md:w-10 md:h-10
+                            -translate-y-2
+                            md:text-[20px] text-[12px]
+                            rounded-full                            
                             text-white
                             flex items-center justify-center
                             cursor-pointer
-                            hover:bg-sky-600
+                            hover:bg-red-600
                             transition
+                             z-[12000]
+                            
                           "
                         >
-                          ➕
+                          {/* ➕ */}
+                          📋
                         </div>
-
-                        {/* MODALE ➕ */}
-                        {hoverPlusModal === letter && (
-                          <div
-                            className="
-                              hidden md:block
-                              absolute top-4 left-8 z-[10000]
-                              w-[19.8rem]
-                              min-h-[16.5rem]
-                              max-h-[18vh]
-                              overflow-y-scroll
-                              overflow-x-hidden
-                              rounded-2xl
-                              ml-1 pl-[8em] pr-0
-                              bg-slate-900 text-white
-                              border-2 border-white
-                              overscroll-contain
-                              scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
-                              "
-                            // pl-24
-                            onMouseEnter={() => setHoverPlusModal(letter)}
-                            onMouseLeave={() => setHoverPlusModal(null)}
-                          >
-                            <div className="p-0">
-                              {/* <div className="font-extrabold text-center text-sm mb-0">
-                                Gruppo {letter}
-                              </div> */}
-
-                              <div
-                                className="
-                                  -space-y-2
-                                  [&_input]:text-xl md:[&_input]:text-2xl
-                                  [&_input]:font-extrabold
-                                  [&_input]:leading-none
-                                  [&_input]:text-center
-                                "
-                              >
-                                {matchesFlat.map((m, idx) => {
-                                  const t1 = findTeam(m.team1);
-                                  const t2 = findTeam(m.team2);
-                                  const res = computeRes(m, letter, idx);
-
-                                  // ✅ pron selezionato nel modale (+)
-                                  const selectedPron = String(
-                                    matchesState?.[letter]?.plusPron?.[idx] ??
-                                      ""
-                                  ).trim();
-
-                                  const isChecked =
-                                    !!matchesState?.[letter]?.plusCheck?.[idx];
-
-                                  const isOfficial = (m?.results ?? "")
-                                    .trim()
-                                    .includes("-");
-
-                                  const seed = String(m?.ris ?? "").trim();
-                                  // ✅ baseA/baseB dal risultato corrente (res)
-                                  const [baseA, baseB] = String(
-                                    res ?? ""
-                                  ).includes("-")
-                                    ? String(res)
-                                        .split("-")
-                                        .map((x) => x.trim())
-                                    : ["", ""];
-                                  // ✅ valori salvati (override)
-                                  const savedA =
-                                    matchesState?.[letter]?.plusRis?.[idx]?.a;
-                                  const savedB =
-                                    matchesState?.[letter]?.plusRis?.[idx]?.b;
-
-                                  // ✅ valore finale mostrato
-                                  const norm = (x) => String(x ?? "").trim();
-
-                                  const valueA = norm(savedA);
-                                  const valueB = norm(savedB);
-
-                                  return (
-                                    <React.Fragment
-                                      key={`plus-${letter}-${idx}`}
-                                    >
-                                      {/* RIGA INCONTRO */}
-                                      <div
-                                        className={`
-                                            grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
-                                          h-[4em]
-                                          items-center justify-center
-                                          gap-x-0
-                                          px-1 py-0
-                                          text-[12px] leading-[0]
-                                          bg-transparent
-                                          pb-0 mb-0
-                                        `}
-                                      >
-                                        {/* RIGA INCONTRO */}
-                                        {(() => {
-                                          const isOfficial = (m?.results ?? "")
-                                            .trim()
-                                            .includes("-");
-
-                                          return (
-                                            <div
-                                              onClick={() => {
-                                                if (isOfficial) return;
-                                                handleEditChange(
-                                                  `${letter}.plusCheck.${idx}`,
-                                                  !isChecked
-                                                );
-                                              }}
-                                              className={`
-                                                w-5 h-5
-                                                rounded-sm
-                                                border-2
-                                                flex items-center justify-center
-                                                transition
-                                                ${isChecked ? "bg-sky-800 border-sky-800" : "bg-slate-800 border-slate-800"}
-                                                ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-                                                ${isOfficial ? "opacity-0 pointer-events-none" : "cursor-pointer"}
-                                              `}
-                                              aria-hidden={isOfficial}
-                                            >
-                                              {isChecked && (
-                                                <span className="text-white text-xs font-extrabold">
-                                                  ✔
-                                                </span>
-                                              )}
-                                            </div>
-                                          );
-                                        })()}
-
-                                        {/* SQ1 */}
-                                        <span
-                                          className={`
-                                            font-extrabold text-right whitespace-nowrap mr-1
-                                            transition-transform duration-200 ease-out
-                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-                                          `}
-                                        >
-                                          {toCode3(t1) || "\u00A0"}
-                                        </span>
-
-                                        {/* FLAG 1 */}
-                                        <div
-                                          className={`
-                                            flex items-center justify-center p-0 m-0 leading-none h-full
-                                            transition-transform duration-200 ease-out
-                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-                                          `}
-                                        >
-                                          <button
-                                            type="button"
-                                            disabled={!editMode}
-                                            onClick={() =>
-                                              handleEditChange(
-                                                `${letter}.plusPron.${idx}`,
-                                                "1"
-                                              )
-                                            }
-                                            className={`scale-[0.45] md:scale-[0.65] origin-center ${
-                                              editMode
-                                                ? "cursor-pointer"
-                                                : "cursor-default opacity-60"
-                                            }`}
-                                            aria-label={`Pronostico: vince ${t1?.name ?? "team1"}`}
-                                          >
-                                            <Quadrato
-                                              teamName={t1?.name ?? ""}
-                                              flag={t1?.flag ?? null}
-                                              phase="round32"
-                                              advanced={false}
-                                              label={null}
-                                              highlightType={
-                                                selectedPron === "1"
-                                                  ? "pron"
-                                                  : "none"
-                                              }
-                                            />
-                                          </button>
-                                        </div>
-
-                                        {/* RIS */}
-                                        <EditableScore
-                                          pathA={`${letter}.plusRis.${idx}.a`}
-                                          pathB={`${letter}.plusRis.${idx}.b`}
-                                          valueA={valueA}
-                                          valueB={valueB}
-                                          placeholderA={
-                                            user?.email?.toLowerCase() ===
-                                            ADMIN_EMAIL.toLowerCase()
-                                              ? baseA
-                                              : ""
-                                          }
-                                          placeholderB={
-                                            user?.email?.toLowerCase() ===
-                                            ADMIN_EMAIL.toLowerCase()
-                                              ? baseB
-                                              : ""
-                                          }
-                                          onChange={handleEditChange}
-                                          className="min-w-[2.5rem]"
-                                        />
-
-                                        {/* FLAG 2 */}
-                                        <div className="flex items-center justify-center p-0 m-0 leading-none h-full">
-                                          <button
-                                            type="button"
-                                            disabled={!editMode}
-                                            onClick={() =>
-                                              handleEditChange(
-                                                `${letter}.plusPron.${idx}`,
-                                                "2"
-                                              )
-                                            }
-                                            className={`scale-[0.45] md:scale-[0.65] origin-center ${
-                                              editMode
-                                                ? "cursor-pointer"
-                                                : "cursor-default opacity-60"
-                                            }`}
-                                            aria-label={`Pronostico: vince ${t2?.name ?? "team2"}`}
-                                          >
-                                            <Quadrato
-                                              teamName={t2?.name ?? ""}
-                                              flag={t2?.flag ?? null}
-                                              phase="round32"
-                                              advanced={false}
-                                              label={null}
-                                              highlightType={
-                                                selectedPron === "2"
-                                                  ? "pron"
-                                                  : "none"
-                                              }
-                                            />
-                                          </button>
-                                        </div>
-
-                                        {/* SQ2 */}
-                                        <span className="font-extrabold text-left whitespace-nowrap ml-1">
-                                          {toCode3(t2) || "\u00A0"}
-                                        </span>
-                                      </div>
-
-                                      {/* DIVISORIA OGNI 2 RIGHE */}
-                                      {(idx + 1) % 2 === 0 &&
-                                        idx !== matchesFlat.length - 1 && (
-                                          <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] px-8">
-                                            <div className="col-span-5 flex justify-center">
-                                              <div
-                                                className={`
-                                                  mt-[0.5rem]
-                                                  h-[4px]
-                                                  bg-slate-500
-                                                  rounded-full
-                                                  transition-all duration-100 ease-out
-                                                  ${editMode ? "w-[calc(100%+10.5rem)] -ml-[6.5rem]" : "w-full"}
-                                                `}
-                                              />
-                                            </div>
-                                          </div>
-                                        )}
-                                    </React.Fragment>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                            {/* 🔴 "+" */}
-                            {/* Toggle sempre a metà, lato sinistro, segue lo scroll */}
-                            {/* ADMIN TOGGLE – CENTRATO */}
-                            <div
-                              className="
-                                absolute inset-0 -top-[2rem]
-                                flex items-center justify-center
-                                z-[10002]
-                                pointer-events-none
-                              "
-                            >
-                              <div className="pointer-events-auto">
-                                <div className="absolute left-1 pointer-events-auto">
-                                  <AdminEditToggle onExit={saveAllEdits} />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     )}
-                    {/* ===== MOBILE NOTES MODAL ===== */}
-                    {/* ===== MOBILE PLUS MODAL (VUOTO) ===== */}
-                    {/* ===== MOBILE PLUS MODAL (PORTAL) ===== */}
-                    <MobilePlusModal
-                      open={mobilePlusOpen && mobilePlusGroup === letter}
-                      onClose={() => {
-                        setMobilePlusOpen(false);
-                        setMobilePlusGroup(null);
-                      }}
-                    >
-                      {/* 🔹 TITOLO */}
-                      <div className="font-extrabold text-center mb-2">
-                        SEE/EDIT PRONOSTICI - Gruppo {letter}
-                      </div>
-
-                      {/* CONTENUTO PLUS (come desktop) */}
-                      <div className="p-2">
-                        <div
-                          className="
-                            space-y-0
-                            [&_input]:text-xl md:[&_input]:text-2xl
-                            [&_input]:font-extrabold
-                            [&_input]:leading-none
-                            [&_input]:text-center
-                          "
-                        >
-                          {matchesFlat.map((m, idx) => {
-                            const t1 = findTeam(m.team1);
-                            const t2 = findTeam(m.team2);
-                            const res = computeRes(m, letter, idx);
-
-                            // ✅ baseA/baseB dal risultato corrente (res)
-                            const [baseA, baseB] = String(res ?? "").includes(
-                              "-"
-                            )
-                              ? String(res)
-                                  .split("-")
-                                  .map((x) => x.trim())
-                              : ["", ""];
-
-                            // ✅ valori salvati (override)
-                            const savedA =
-                              matchesState?.[letter]?.plusRis?.[idx]?.a;
-                            const savedB =
-                              matchesState?.[letter]?.plusRis?.[idx]?.b;
-
-                            // ✅ valore finale mostrato
-                            const norm = (x) => String(x ?? "").trim();
-
-                            const valueA = norm(savedA);
-
-                            const valueB = norm(savedB);
-
-                            return (
-                              <React.Fragment key={`plus-mob-${letter}-${idx}`}>
-                                {/* RIGA INCONTRO */}
-                                <div
-                                  className="
-                                    grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]                                     
-                                    items-center
-                                    justify-center
-                                    gap-x-1
-                                    text-[12px] leading-none
-                                    px-1 py-0
-                                    bg-transparent
-                                    rounded-none
-                                    border-0
-                                    m-0
-                                  "
-                                >
-                                  {/* SQ1 */}
-                                  <span className="font-extrabold text-right whitespace-nowrap mr-1">
-                                    {toCode3(t1) || "\u00A0"}
-                                  </span>
-
-                                  {/* FLAG 1 */}
-                                  <div className="flex items-center justify-center p-0 m-0 leading-none">
-                                    <div className="scale-[0.45] origin-center">
-                                      <Quadrato
-                                        teamName={t1?.name ?? ""}
-                                        flag={t1?.flag ?? null}
-                                        phase="round32"
-                                        advanced={false}
-                                        label={null}
-                                        highlightType="none"
-                                      />
-                                    </div>
-                                  </div>
-
-                                  {/* RIS */}
-                                  <EditableScore
-                                    pathA={`${letter}.plusRis.${idx}.a`}
-                                    pathB={`${letter}.plusRis.${idx}.b`}
-                                    valueA={valueA}
-                                    valueB={valueB}
-                                    placeholderA={
-                                      user?.email?.toLowerCase() ===
-                                      ADMIN_EMAIL.toLowerCase()
-                                        ? baseA
-                                        : ""
-                                    }
-                                    placeholderB={
-                                      user?.email?.toLowerCase() ===
-                                      ADMIN_EMAIL.toLowerCase()
-                                        ? baseB
-                                        : ""
-                                    }
-                                    onChange={handleEditChange}
-                                    className="min-w-[3.5rem] plus-score"
-                                  />
-
-                                  {/* FLAG 2 */}
-                                  <div className="flex items-center justify-center p-0 m-0 leading-none">
-                                    <div className="scale-[0.45] origin-center">
-                                      <Quadrato
-                                        teamName={t2?.name ?? ""}
-                                        flag={t2?.flag ?? null}
-                                        phase="round32"
-                                        advanced={false}
-                                        label={null}
-                                        highlightType="none"
-                                      />
-                                    </div>
-                                  </div>
-
-                                  {/* SQ2 */}
-                                  <span className="font-extrabold text-left whitespace-nowrap ml-1">
-                                    {toCode3(t2) || "\u00A0"}
-                                  </span>
-                                </div>
-                                {/* DIVISORIA OGNI 2 RIGHE */}
-                                {(idx + 1) % 2 === 0 &&
-                                  idx !== matchesFlat.length - 1 && (
-                                    <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] px-1">
-                                      <div className="col-span-5 flex justify-center">
-                                        <div className="mt-2 w-full max-w-[12rem] h-[2px] bg-gray-500/70 rounded-full" />
-                                      </div>
-                                    </div>
-                                  )}
-                              </React.Fragment>
-                            );
-                          })}
-                        </div>
-
-                        {/* admin toggle (come desktop) */}
-                        <div className="mt-3 flex justify-end">
-                          <AdminEditToggle onExit={saveAllEdits} />
-                        </div>
-                      </div>
-                    </MobilePlusModal>
+                    {/* ================= MOBILE ONLY — MODAL NOTE ================= */}
+                    {/* ===== MOBILE MODAL NOTE (MESSAGGI) ===== */}
 
                     {mobileNotesOpen && mobileNotesGroup && (
                       <>
                         {/* BACKDROP */}
                         <div
-                          className="md:hidden fixed inset-0 z-[9998] bg-black/60"
+                          className="md:hidden fixed inset-0 z-[9998] bg-black/30"
                           onClick={() => {
                             setMobileNotesOpen(false);
                             setMobileNotesGroup(null);
@@ -1071,7 +634,7 @@ export default function GridMatchesPage({ isLogged }) {
                         <div
                           className="
                             md:hidden fixed z-[22002]
-                            top-4 
+                            top-0 
                             md:left-2 left-4
                             w-[86vw] max-w-[20rem]
                             min-h-[30vh]
@@ -1144,20 +707,20 @@ export default function GridMatchesPage({ isLogged }) {
                     >
                       {letter}
                     </span>
+                    {/* ================= DESKTOP ONLY — HOVER PLUS ================= */}
+                    {/* ===== DESKTOP HOVER NOTE (TOOLTIP LATERALE) ===== */}
 
-                    {/* MODALE LOCALE: SOLO di quel gruppo */}
                     {hoverModal === letter && (
                       <div
                         className="
                           hidden md:block
-                          absolute top-4 left-8 right-2 z-[10000]
+                          absolute top-4 left-8 right-2 z-[12000]
                           w-[19.8rem]
                           min-h-[16.5rem]
                           max-h-[18vh]
                           overflow-y-scroll
                           overflow-x-hidden
                           rounded-2xl
-                          pl-1
                           bg-slate-900 text-white
                           border-2 border-white
                           overscroll-contain
@@ -1238,6 +801,285 @@ export default function GridMatchesPage({ isLogged }) {
                           className=" bottom-3 right-3 pl-2"
                           onExit={saveAllEdits}
                         />
+                      </div>
+                    )}
+                    {/* ===== DESKTOP HOVER PLUS ➕(RIS PRONOSTICI) ===== */}
+
+                    {hoverPlusModal === letter && (
+                      <div
+                        className="
+                              hidden md:block
+                              absolute top-4 left-8 z-[12000]
+                              w-[19.8rem]
+                              min-h-[16.5rem]
+                              max-h-[18vh]
+                              overflow-y-scroll
+                              overflow-x-hidden
+                              rounded-2xl
+                              ml-0 pl-[8em] pr-0
+                              bg-slate-900 text-white
+                              border-2 border-white
+                              overscroll-contain
+                              scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
+                              "
+                        // pl-24
+                        onMouseEnter={() => setHoverPlusModal(letter)}
+                        onMouseLeave={() => setHoverPlusModal(null)}
+                      >
+                        <div className="p-0">
+                          {/* <div className="font-extrabold text-center text-sm mb-0">
+                                Gruppo {letter}
+                              </div> */}
+
+                          <div
+                            className="
+                                  -space-y-2
+                                  [&_input]:text-xl md:[&_input]:text-2xl
+                                  [&_input]:font-extrabold
+                                  [&_input]:leading-none
+                                  [&_input]:text-center
+                                "
+                          >
+                            {matchesFlat.map((m, idx) => {
+                              const t1 = findTeam(m.team1);
+                              const t2 = findTeam(m.team2);
+                              const res = computeRes(m, letter, idx);
+
+                              // ✅ pron selezionato nel modale (+)
+                              const selectedPron = String(
+                                matchesState?.[letter]?.plusPron?.[idx] ?? ""
+                              ).trim();
+
+                              const isChecked =
+                                !!matchesState?.[letter]?.plusCheck?.[idx];
+
+                              const isOfficial = (m?.results ?? "")
+                                .trim()
+                                .includes("-");
+
+                              const seed = String(m?.ris ?? "").trim();
+                              // ✅ baseA/baseB dal risultato corrente (res)
+                              const [baseA, baseB] = String(res ?? "").includes(
+                                "-"
+                              )
+                                ? String(res)
+                                    .split("-")
+                                    .map((x) => x.trim())
+                                : ["", ""];
+                              // ✅ valori salvati (override)
+                              const savedA =
+                                matchesState?.[letter]?.plusRis?.[idx]?.a;
+                              const savedB =
+                                matchesState?.[letter]?.plusRis?.[idx]?.b;
+
+                              // ✅ valore finale mostrato
+                              const norm = (x) => String(x ?? "").trim();
+
+                              const valueA = norm(savedA);
+                              const valueB = norm(savedB);
+
+                              return (
+                                <React.Fragment key={`plus-${letter}-${idx}`}>
+                                  {/* RIGA INCONTRO */}
+                                  <div
+                                    className={`
+                                            grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
+                                          h-[4em]
+                                          items-center justify-center
+                                          gap-x-0
+                                          px-1 py-0
+                                          text-[12px] leading-[0]
+                                          bg-transparent
+                                          pb-0 mb-0
+                                        `}
+                                  >
+                                    {/* RIGA INCONTRO */}
+                                    {(() => {
+                                      const isOfficial = (m?.results ?? "")
+                                        .trim()
+                                        .includes("-");
+
+                                      return (
+                                        <div
+                                          onClick={() => {
+                                            if (isOfficial) return;
+                                            handleEditChange(
+                                              `${letter}.plusCheck.${idx}`,
+                                              !isChecked
+                                            );
+                                          }}
+                                          className={`
+                                                w-5 h-5
+                                                rounded-sm
+                                                border-2
+                                                flex items-center justify-center
+                                                transition
+                                                ${isChecked ? "bg-sky-800 border-sky-800" : "bg-slate-800 border-slate-800"}
+                                                ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                                ${isOfficial ? "opacity-0 pointer-events-none" : "cursor-pointer"}
+                                              `}
+                                          aria-hidden={isOfficial}
+                                        >
+                                          {isChecked && (
+                                            <span className="text-white text-xs font-extrabold">
+                                              ✔
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    })()}
+
+                                    {/* SQ1 */}
+                                    <span
+                                      className={`
+                                            font-extrabold text-right whitespace-nowrap mr-1
+                                            transition-transform duration-200 ease-out
+                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                          `}
+                                    >
+                                      {toCode3(t1) || "\u00A0"}
+                                    </span>
+
+                                    {/* FLAG 1 */}
+                                    <div
+                                      className={`
+                                            flex items-center justify-center p-0 m-0 leading-none h-full
+                                            transition-transform duration-200 ease-out
+                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                          `}
+                                    >
+                                      <button
+                                        type="button"
+                                        disabled={!editMode}
+                                        onClick={() =>
+                                          handleEditChange(
+                                            `${letter}.plusPron.${idx}`,
+                                            "1"
+                                          )
+                                        }
+                                        className={`scale-[0.45] md:scale-[0.65] origin-center ${
+                                          editMode
+                                            ? "cursor-pointer"
+                                            : "cursor-default opacity-60"
+                                        }`}
+                                        aria-label={`Pronostico: vince ${t1?.name ?? "team1"}`}
+                                      >
+                                        <Quadrato
+                                          teamName={t1?.name ?? ""}
+                                          flag={t1?.flag ?? null}
+                                          phase="round32"
+                                          advanced={false}
+                                          label={null}
+                                          highlightType={
+                                            selectedPron === "1"
+                                              ? "pron"
+                                              : "none"
+                                          }
+                                        />
+                                      </button>
+                                    </div>
+
+                                    {/* RIS */}
+                                    <EditableScore
+                                      pathA={`${letter}.plusRis.${idx}.a`}
+                                      pathB={`${letter}.plusRis.${idx}.b`}
+                                      valueA={valueA}
+                                      valueB={valueB}
+                                      placeholderA={
+                                        user?.email?.toLowerCase() ===
+                                        ADMIN_EMAIL.toLowerCase()
+                                          ? baseA
+                                          : ""
+                                      }
+                                      placeholderB={
+                                        user?.email?.toLowerCase() ===
+                                        ADMIN_EMAIL.toLowerCase()
+                                          ? baseB
+                                          : ""
+                                      }
+                                      onChange={handleEditChange}
+                                      className="min-w-[2.5rem]"
+                                    />
+
+                                    {/* FLAG 2 */}
+                                    <div className="flex items-center justify-center p-0 m-0 leading-none h-full">
+                                      <button
+                                        type="button"
+                                        disabled={!editMode}
+                                        onClick={() =>
+                                          handleEditChange(
+                                            `${letter}.plusPron.${idx}`,
+                                            "2"
+                                          )
+                                        }
+                                        className={`scale-[0.45] md:scale-[0.65] origin-center ${
+                                          editMode
+                                            ? "cursor-pointer"
+                                            : "cursor-default opacity-60"
+                                        }`}
+                                        aria-label={`Pronostico: vince ${t2?.name ?? "team2"}`}
+                                      >
+                                        <Quadrato
+                                          teamName={t2?.name ?? ""}
+                                          flag={t2?.flag ?? null}
+                                          phase="round32"
+                                          advanced={false}
+                                          label={null}
+                                          highlightType={
+                                            selectedPron === "2"
+                                              ? "pron"
+                                              : "none"
+                                          }
+                                        />
+                                      </button>
+                                    </div>
+
+                                    {/* SQ2 */}
+                                    <span className="font-extrabold text-left whitespace-nowrap ml-1">
+                                      {toCode3(t2) || "\u00A0"}
+                                    </span>
+                                  </div>
+
+                                  {/* DIVISORIA OGNI 2 RIGHE */}
+                                  {(idx + 1) % 2 === 0 &&
+                                    idx !== matchesFlat.length - 1 && (
+                                      <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] px-8">
+                                        <div className="col-span-5 flex justify-center">
+                                          <div
+                                            className={`
+                                                  mt-[0.5rem]
+                                                  h-[4px]
+                                                  bg-slate-500
+                                                  rounded-full
+                                                  transition-all duration-100 ease-out
+                                                  ${editMode ? "w-[calc(100%+10.5rem)] -ml-[6.5rem]" : "w-full"}
+                                                `}
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        {/* 🔴 "+" */}
+                        {/* Toggle sempre a metà, lato sinistro, segue lo scroll */}
+                        {/* ADMIN TOGGLE – CENTRATO */}
+                        <div
+                          className="
+                                absolute inset-0 -top-[2rem]
+                                flex items-center justify-center
+                                z-[10002]
+                                pointer-events-none
+                              "
+                        >
+                          <div className="pointer-events-auto">
+                            <div className="absolute left-1 pointer-events-auto">
+                              <AdminEditToggle onExit={saveAllEdits} />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1390,12 +1232,180 @@ export default function GridMatchesPage({ isLogged }) {
             );
           })}
         </div>
-        {/* ===== MOBILE DRAWER RANKING (MOBILE ONLY) ===== */}
+        {/* ================= MOBILE ONLY — MODAL PLUS ================= */}
+        {/* ===== MOBILE MODAL PLUS (PRONOSTICI) ===== */}
+        {mobilePlusOpen && mobilePlusGroup && (
+          <>
+            {/* BACKDROP (uguale a NOTE mobile) */}
+            <div
+              className="md:hidden fixed inset-0 z-[9998] bg-black/60"
+              onClick={() => {
+                setMobilePlusOpen(false);
+                setMobilePlusGroup(null);
+              }}
+            />
+
+            {/* MODALE (uguale a NOTE mobile) */}
+            <div
+              className="
+        md:hidden fixed z-[30000]
+        top-0 left-4
+        w-[86vw] max-w-[20rem]
+        min-h-[30vh]
+        max-h-[80vh] overflow-auto
+        rounded-2xl
+        bg-slate-900 text-white
+        shadow-2xl
+        p-0
+      "
+              onClick={(e) => e.stopPropagation()}
+            >
+              {(() => {
+                const letterP = mobilePlusGroup;
+                const resolveName = buildNameResolver(flagsMond);
+
+                const groupKey = `group_${letterP}`;
+                const matchesFlatP = getFlatMatchesForGroup(
+                  groupMatches?.[groupKey]
+                );
+
+                const findTeamP = (rawName) => {
+                  const name = resolveName(rawName);
+                  if (!name) return null;
+                  return (
+                    (flagsMond ?? []).find(
+                      (t) => resolveName(t.name) === name
+                    ) ?? null
+                  );
+                };
+
+                const computeResP = (m, idx) => {
+                  const official = (m?.results ?? "").trim();
+                  if (official.includes("-")) return official;
+
+                  const a = String(
+                    matchesState?.[letterP]?.plusRis?.[idx]?.a ?? ""
+                  ).trim();
+                  const b = String(
+                    matchesState?.[letterP]?.plusRis?.[idx]?.b ?? ""
+                  ).trim();
+
+                  if (a !== "" && b !== "") return `${a}-${b}`;
+                  return "";
+                };
+
+                return (
+                  <>
+                    {/* 🔹 TITOLO */}
+                    <div className="font-extrabold text-center p-2">
+                      SEE/EDIT PRONOSTICI - Gruppo {letterP}
+                    </div>
+
+                    {/* CONTENUTO PLUS */}
+                    <div className="p-2">
+                      <div className="space-y-0 [&_input]:text-xl [&_input]:font-extrabold [&_input]:leading-none [&_input]:text-center">
+                        {matchesFlatP.map((m, idx) => {
+                          const t1 = findTeamP(m.team1);
+                          const t2 = findTeamP(m.team2);
+                          const res = computeResP(m, idx);
+
+                          const [baseA, baseB] = String(res ?? "").includes("-")
+                            ? String(res)
+                                .split("-")
+                                .map((x) => x.trim())
+                            : ["", ""];
+
+                          const savedA =
+                            matchesState?.[letterP]?.plusRis?.[idx]?.a;
+                          const savedB =
+                            matchesState?.[letterP]?.plusRis?.[idx]?.b;
+
+                          const norm = (x) => String(x ?? "").trim();
+                          const valueA = norm(savedA);
+                          const valueB = norm(savedB);
+
+                          return (
+                            <div
+                              key={`plus-mob-${letterP}-${idx}`}
+                              className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] items-center justify-center gap-x-1 text-[12px] leading-none px-1 py-0"
+                            >
+                              <span className="font-extrabold text-right whitespace-nowrap mr-1">
+                                {toCode3(t1) || "\u00A0"}
+                              </span>
+
+                              <div className="flex items-center justify-center leading-none">
+                                <div className="scale-[0.45] origin-center">
+                                  <Quadrato
+                                    teamName={t1?.name ?? ""}
+                                    flag={t1?.flag ?? null}
+                                    phase="round32"
+                                    advanced={false}
+                                    label={null}
+                                    highlightType="none"
+                                  />
+                                </div>
+                              </div>
+
+                              <EditableScore
+                                pathA={`${letterP}.plusRis.${idx}.a`}
+                                pathB={`${letterP}.plusRis.${idx}.b`}
+                                valueA={valueA}
+                                valueB={valueB}
+                                placeholderA={
+                                  user?.email?.toLowerCase() ===
+                                  ADMIN_EMAIL.toLowerCase()
+                                    ? baseA
+                                    : ""
+                                }
+                                placeholderB={
+                                  user?.email?.toLowerCase() ===
+                                  ADMIN_EMAIL.toLowerCase()
+                                    ? baseB
+                                    : ""
+                                }
+                                onChange={handleEditChange}
+                                className="min-w-[3.5rem] plus-score"
+                              />
+
+                              <div className="flex items-center justify-center leading-none">
+                                <div className="scale-[0.45] origin-center">
+                                  <Quadrato
+                                    teamName={t2?.name ?? ""}
+                                    flag={t2?.flag ?? null}
+                                    phase="round32"
+                                    advanced={false}
+                                    label={null}
+                                    highlightType="none"
+                                  />
+                                </div>
+                              </div>
+
+                              <span className="font-extrabold text-left whitespace-nowrap ml-1">
+                                {toCode3(t2) || "\u00A0"}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-3 flex justify-end">
+                        <AdminEditToggle onExit={saveAllEdits} />
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </>
+        )}
+        {/* ================= MOBILE ONLY — DRAWER CLASSIFICA ================= */}
+        {/* ===== MOBILE DRAWER RANKING (CLASSIFICA GRUPPO) ===== */}
+
         {mobileRankOpen && mobileGroup && (
           <>
             {/* BACKDROP — mobile only */}
             <div
-              className="md:hidden fixed inset-0 z-[9998] bg-black/60"
+              className="md:hidden fixed inset-0  z-[9998] bg-black"
               onClick={() => {
                 setMobileRankOpen(false);
                 setMobileGroup(null);
@@ -1697,7 +1707,7 @@ function Row7({
                 ? "z-10"
                 : isThisMobileGroupOpen
                   ? isThisMobileButtonOpen
-                    ? "z-[10000]"
+                    ? "z-[12000]"
                     : "z-[9999]"
                   : "z-10"
             }

@@ -70,7 +70,7 @@ export default function EditableScore({
     <div
       className={[
         "flex items-center gap-[3px] transition-transform duration-200 ease-out",
-        editMode ? "justify-start -translate-x-[2.5rem]" : "justify-center",
+        editMode ? "justify-start md:-translate-x-[2.5rem]" : "justify-center",
         className,
       ].join(" ")}
     >
