@@ -441,6 +441,7 @@ export default function GridMatchesPage({ isLogged }) {
             // ====== COMPUTE RES: ADMIN / NON-ADMIN ======
 
             // ADMIN: legge seed (m.ris) se NON edited
+            // ADMIN: seed solo la PRIMA volta (quando DB è vuoto)
             const computeResAdmin = (m, letter, idx) => {
               const official = (m?.results ?? "").trim();
               if (official.includes("-")) return official;
@@ -455,13 +456,16 @@ export default function GridMatchesPage({ isLogged }) {
               const wasEdited = !!matchesState?.[letter]?.plusRisEdited?.[idx];
 
               if (a !== "" && b !== "") return `${a}-${b}`;
-
-              // se l'admin ha editato e poi svuotato → vuoto
               if (wasEdited) return "";
 
-              // fallback seed SOLO admin
+              // ✅ seed SOLO se non c'è ancora nulla nel DB (prima volta)
+              const dbEmpty =
+                !matchesLoaded || Object.keys(matchesState ?? {}).length === 0;
+
               const seed = String(m?.ris ?? "").trim();
-              return showPronostics && seed.includes("-") ? seed : "";
+              if (showPronostics && dbEmpty && seed.includes("-")) return seed;
+
+              return "";
             };
 
             // NON-ADMIN: NON legge MAI seed
