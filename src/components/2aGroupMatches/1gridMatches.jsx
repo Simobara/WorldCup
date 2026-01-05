@@ -755,7 +755,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                 "2"
                                               )
                                             }
-                                            className={`scale-[0.45] md:scale-[0.65] origin-center ${
+                                            className={`scale-[0.45] md:scale-[0.65] origin-center  ${
                                               editMode
                                                 ? "cursor-pointer"
                                                 : "cursor-default opacity-60"

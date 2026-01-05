@@ -17,7 +17,7 @@
   --quad-border-draw:     #facc15; /* border-yellow-400 */
   --quad-border-pron:     #a855f7; /* border-purple-500 */
   --quad-border-pron-draw:#22c55e; /* border-green-500 */
-  --quad-border-default:  #ffffff; /* border-white */
+  --quad-border-default:  #FFFFFF; /* border-white */
 
   /* RETTRIS – COLORI TESTO =================================== */
   --rettris-ris:          #102C57; /* custom (tuo) */
@@ -149,7 +149,7 @@
   --quad-border-draw:     var(--c-yellow-400);
   --quad-border-pron:     var(--c-purple-500);
   --quad-border-pron-draw:var(--c-green-500);
-  --quad-border-default:  var(--c-white);
+  --quad-border-default:  var(--c-slate-900);
 
   /* ============================================================
      RETTRIS
