@@ -1231,10 +1231,11 @@ export default function GridMatchesPage({ isLogged }) {
                                       value={day.items}
                                       onChange={handleEditChange}
                                       textareaClassName="
-                                      h-[1.25rem] min-h-[1.25rem] max-h-[1.25rem]
+                                      h-[1.25rem] min-h-[1rem] max-h-[1.25rem]
                                       p-0 pt-0
-                                      leading-[1.25rem]
-                                      overflow-hidden resize-none
+                                      leading-[1rem]
+                                      overflow-hidden
+                                      resize-none
                                       align-top
                                     "
                                     />
@@ -1254,9 +1255,13 @@ export default function GridMatchesPage({ isLogged }) {
                                   value={data.notes.text}
                                   onChange={handleEditChange}
                                   textareaClassName="
-                                  h-[4.5rem] min-h-[4.5rem] max-h-[4.5rem]
-                                  overflow-auto resize-none
+                                  h-[6.25rem]
+                                  min-h-[6.25rem]
+                                  max-h-[6.25rem]
                                   leading-[1.25rem]
+                                  overflow-hidden
+                                  resize-none
+                                  align-top
                                 "
                                 />
                               </div>
