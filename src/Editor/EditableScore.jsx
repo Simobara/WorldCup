@@ -67,7 +67,13 @@ export default function EditableScore({
   }
 
   return (
-    <div className={`flex items-center justify-center gap-[3px] ${className}`}>
+    <div
+      className={[
+        "flex items-center gap-[3px] transition-transform duration-200 ease-out",
+        editMode ? "justify-start -translate-x-[2.5rem]" : "justify-center",
+        className,
+      ].join(" ")}
+    >
       {/* INPUT A */}
       <input
         value={a}
@@ -100,7 +106,7 @@ export default function EditableScore({
           h-6 md:h-7
           rounded-sm
           bg-slate-700
-          hover:bg-sky-600
+          hover:bg-sky-600 !px-2
           transition
           flex items-center justify-center
           ${!editMode ? "opacity-40 cursor-default" : "cursor-pointer"}

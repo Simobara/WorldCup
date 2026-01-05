@@ -94,8 +94,8 @@ export default function GridMatchesPage({ isLogged }) {
       return false;
     }
   });
-  // 7 colonne: DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
-  const gridColsDesktop = "90px 40px 30px 45px 40px 45px 30px";
+  // 7 colonne: ------DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
+  const gridColsDesktop = "80px 50px 30px 45px 40px 45px 30px";
   const gridColsMobile = "10px 20px 1px 35px 30px 35px 1px";
   const groups = "ABCDEFGHIJKL".split("");
   // DESKTOP: come ora
@@ -620,12 +620,13 @@ export default function GridMatchesPage({ isLogged }) {
                               overflow-y-scroll
                               overflow-x-hidden
                               rounded-2xl
+                              pl-[8em] pr-0
                               bg-slate-900 text-white
-                              p-0
                               border-2 border-white
                               overscroll-contain
                               scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
-                            "
+                              "
+                            // pl-24
                             onMouseEnter={() => setHoverPlusModal(letter)}
                             onMouseLeave={() => setHoverPlusModal(null)}
                           >
@@ -691,12 +692,24 @@ export default function GridMatchesPage({ isLogged }) {
                                       `}
                                       >
                                         {/* SQ1 */}
-                                        <span className="font-extrabold text-right whitespace-nowrap mr-1">
+                                        <span
+                                          className={`
+                                            font-extrabold text-right whitespace-nowrap mr-1
+                                            transition-transform duration-200 ease-out
+                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                          `}
+                                        >
                                           {toCode3(t1) || "\u00A0"}
                                         </span>
 
                                         {/* FLAG 1 */}
-                                        <div className="flex items-center justify-center p-0 m-0 leading-none h-full">
+                                        <div
+                                          className={`
+                                            flex items-center justify-center p-0 m-0 leading-none h-full
+                                            transition-transform duration-200 ease-out
+                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                          `}
+                                        >
                                           <button
                                             type="button"
                                             disabled={!editMode}
@@ -792,9 +805,18 @@ export default function GridMatchesPage({ isLogged }) {
                                       {/* DIVISORIA OGNI 2 RIGHE */}
                                       {(idx + 1) % 2 === 0 &&
                                         idx !== matchesFlat.length - 1 && (
-                                          <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] px-1">
+                                          <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] px-8">
                                             <div className="col-span-5 flex justify-center">
-                                              <div className="mt-2 w-full max-w-[12rem] h-[2px] bg-gray-500/70 rounded-full" />
+                                              <div
+                                                className={`
+                                                  mt-[0.5rem]
+                                                  h-[4px]
+                                                  bg-slate-500
+                                                  rounded-full
+                                                  transition-all duration-100 ease-out
+                                                  ${editMode ? "w-[calc(100%+10.5rem)] -ml-[6.5rem]" : "w-full"}
+                                                `}
+                                              />
                                             </div>
                                           </div>
                                         )}
@@ -1420,7 +1442,16 @@ function Header7() {
               relative
               ${CssMatchGrid.HeadBg}
               border ${CssMatchGrid.HeadBorder}
-              flex items-center justify-center
+              flex items-center
+              ${
+                h?.desktop === "TEAM 1"
+                  ? "justify-start pl-4"
+                  : h?.desktop === "CITTA'"
+                    ? "justify-start -pl-2"
+                    : h?.desktop === "TEAM 2"
+                      ? "justify-start ml-0"
+                      : "justify-center"
+              }
               text-[12px] font-extrabold
               ${CssMatchGrid.HeadText}
               z-[100]
