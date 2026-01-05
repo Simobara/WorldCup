@@ -629,12 +629,11 @@ export default function GridMatchesPage({ isLogged }) {
                     {hoverModal === letter && (
                       <div
                         className="
-                          hidden md:block
+                          hidden md:flex flex-row
                           absolute top-4 left-8 right-2 z-[12000]
                           w-[19.8rem]
-                          min-h-[16.5rem]
-                          max-h-[18vh]
-                          overflow-y-scroll
+                          min-h-[16.9rem]
+                          max-h-[18vh]                          
                           overflow-x-hidden
                           rounded-2xl
                           bg-slate-900 text-white
@@ -652,7 +651,10 @@ export default function GridMatchesPage({ isLogged }) {
                         </div> */}
 
                         {/* ✅ CONTENUTO AGGANCIATO A groupNotes */}
-                        <div className="mt-0 space-y-0 text-sm text-white">
+                        <div className="w-[3rem] flex items-start justify-center pt-1">
+                          <AdminEditToggle onExit={saveAllEdits} />
+                        </div>
+                        <div className="mt-0 space-y-0 text-sm text-white flex-1 min-w-0 pr-2">
                           <div>
                             <div className="font-bold text-red-900 pl-2">
                               {groupData?.day1?.title?.[0]}
@@ -663,6 +665,7 @@ export default function GridMatchesPage({ isLogged }) {
                                 value={groupData?.day1?.items}
                                 onChange={handleEditChange}
                                 className="pl-2"
+                                textareaClassName="h-[1rem] min-h-[1.50rem] max-h-[1.75rem] overflow-hidden resize-none p-0 pt-0 leading-[1.75rem] align-top"
                               />
                             </div>
                           </div>
@@ -677,6 +680,7 @@ export default function GridMatchesPage({ isLogged }) {
                                 value={groupData?.day2?.items}
                                 onChange={handleEditChange}
                                 className="pl-2"
+                                textareaClassName="h-[1rem] min-h-[1.50rem] max-h-[1.75rem] overflow-hidden resize-none p-0 pt-0 leading-[1.50rem] align-top"
                               />
                             </div>
                           </div>
@@ -686,12 +690,13 @@ export default function GridMatchesPage({ isLogged }) {
                             <div className="font-bold text-red-900 pl-2">
                               {groupData?.day3?.title?.[0]}
                             </div>
-                            <div className="pl-2">
+                            <div className="pl-2 ">
                               <EditableText
                                 path={`${letter}.day3.items`}
                                 value={groupData?.day3?.items}
                                 onChange={handleEditChange}
-                                className="pl-2"
+                                className="pl-2 items-center"
+                                textareaClassName="h-[1rem] min-h-[1.50rem] max-h-[1.75rem] overflow-hidden resize-none p-0 pt-0 leading-[1.50rem] align-top"
                               />
                             </div>
                           </div>
@@ -707,16 +712,16 @@ export default function GridMatchesPage({ isLogged }) {
                                 value={groupData?.notes?.text}
                                 onChange={handleEditChange}
                                 className="pl-2"
-                                textareaClassName="min-h-[80px]"
+                                textareaClassName="min-h-[6.5rem] max-h-[6.5rem] overflow-auto resize-none"
                               />
                             </div>
                           </div>
                           {/* ADMIN EDIT BUTTON */}
                         </div>
-                        <AdminEditToggle
-                          className=" bottom-3 right-3 pl-2"
+                        {/* <AdminEditToggle
+                          className="mt-auto pb-2 pl-2 w-full flex justify-start self-start"
                           onExit={saveAllEdits}
-                        />
+                        /> */}
                       </div>
                     )}
                     {/* ===== DESKTOP HOVER PLUS ➕(RIS PRONOSTICI) ===== */}
@@ -726,7 +731,7 @@ export default function GridMatchesPage({ isLogged }) {
                         className="
                           absolute top-4 left-8 right-2 z-[12000]
                           w-[19.8rem]
-                          min-h-[16.5rem]
+                          min-h-[16.9rem]
                           max-h-[18vh]
                           overflow-y-scroll
                           overflow-x-hidden
@@ -797,15 +802,16 @@ export default function GridMatchesPage({ isLogged }) {
                                   {/* RIGA INCONTRO */}
                                   <div
                                     className={`
-                                            grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
-                                          h-[4em]
-                                          items-center justify-center
-                                          gap-x-0
-                                          px-1 py-0
-                                          text-[12px] leading-[0]
-                                          bg-transparent
-                                          pb-0 mb-0
-                                        `}
+                                      grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
+                                      w-full
+                                      items-center justify-center
+                                      h-[4em]                                          
+                                      gap-x-0
+                                      px-1 pl-[8rem] py-0
+                                      text-[12px] leading-[0]
+                                      bg-transparent
+                                      pb-0 mb-0
+                                    `}
                                   >
                                     {/* RIGA INCONTRO */}
                                     {(() => {
@@ -957,7 +963,7 @@ export default function GridMatchesPage({ isLogged }) {
                                   {/* DIVISORIA OGNI 2 RIGHE */}
                                   {(idx + 1) % 2 === 0 &&
                                     idx !== matchesFlat.length - 1 && (
-                                      <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] px-8">
+                                      <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] items-center justify-end gap-x-2 text-[12px] leading-none">
                                         <div className="col-span-5 flex justify-center">
                                           <div
                                             className={`
@@ -965,8 +971,8 @@ export default function GridMatchesPage({ isLogged }) {
                                                   h-[4px]
                                                   bg-slate-500
                                                   rounded-full
-                                                  transition-all duration-100 ease-out
-                                                  ${editMode ? "w-[calc(100%+10.5rem)] -ml-[6.5rem]" : "w-full"}
+                                                  transition-all duration-100 ease-out ml-[1rem] mr-0
+                                                  ${editMode ? "w-[calc(100%+10.5rem)] -ml-[4rem]" : "w-full"}
                                                 `}
                                           />
                                         </div>
@@ -982,7 +988,7 @@ export default function GridMatchesPage({ isLogged }) {
                         {/* ADMIN TOGGLE – CENTRATO */}
                         <div
                           className="
-                                absolute inset-0 -top-[2rem]
+                                absolute inset-0 -top-[2rem]  md:-top-[12rem]  
                                 flex items-center justify-center
                                 z-[10002]
                                 pointer-events-none
@@ -1147,11 +1153,6 @@ export default function GridMatchesPage({ isLogged }) {
           })}
           {/* ================= MOBILE ONLY — MODAL NOTE ================= */}
           {/* ===== MOBILE MODAL NOTE (MESSAGGI) ===== */}
-
-          {/* todo------------------------ */}
-          {/* todo------------------------ */}
-
-          {/* todo------------------------ */}
           {mobileNotesOpen && mobileNotesGroup && (
             <>
               {/* BACKDROP */}
@@ -1163,72 +1164,88 @@ export default function GridMatchesPage({ isLogged }) {
                 }}
               />
 
-              {/* MODALE */}
+              {/* MODALE NOTE — MOBILE */}
               <div
                 className="
-                            md:hidden fixed z-[22002]
-                            top-0 
-                            md:left-2 left-4
-                            w-[86vw] max-w-[20rem]
-                            min-h-[30vh]
-                            max-h-[80vh] overflow-auto
-                            rounded-2xl
-                            bg-slate-900 text-white
-                            shadow-2xl
-                            p-0
-                          "
+                  md:hidden fixed z-[22002]
+                  top-0 left-0
+                  w-[82vw] max-w- [20rem]
+                  h-[42vh]
+                  rounded-2xl
+                  bg-slate-900 text-white
+                  shadow-2xl
+                  p-0
+                "
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* CONTENUTO NOTE */}
-                {(() => {
-                  const data = notes?.[mobileNotesGroup];
-                  if (!data) return null;
+                {/* INNER: relativo SOLO per i children absolute */}
+                <div className="relative h-full flex flex-col">
+                  {/* CONTENUTO NOTE */}
+                  {(() => {
+                    const data = notes?.[mobileNotesGroup];
+                    if (!data) return null;
 
-                  return (
-                    <div className="space-y-3 text-sm">
-                      <div className="font-extrabold text-center">
-                        SEE/EDIT NOTE - Gruppo {mobileNotesGroup}
-                      </div>
-                      {[data.day1, data.day2, data.day3].map(
-                        (day, i) =>
-                          day && (
-                            <div key={i}>
+                    return (
+                      <>
+                        <div className="font-extrabold text-center p-2 text-sm">
+                          SEE/EDIT NOTE - Gruppo {mobileNotesGroup}
+                        </div>
+
+                        {/* contenuto scrollabile (lascia spazio al bottone) */}
+                        <div className="flex-1 overflow-auto p-2 pb-16 text-sm">
+                          {[data.day1, data.day2, data.day3].map(
+                            (day, i) =>
+                              day && (
+                                <div key={i}>
+                                  <div className="font-bold text-red-900 pl-2">
+                                    {Array.isArray(day.title)
+                                      ? day.title[0]
+                                      : day.title}
+                                  </div>
+                                  <div className="pl-2">
+                                    <EditableText
+                                      path={`${mobileNotesGroup}.day${i + 1}.items`}
+                                      value={day.items}
+                                      onChange={handleEditChange}
+                                      textareaClassName="
+                          h-[1.75rem] min-h-[1.5rem] max-h-[3.5rem]
+                          overflow-hidden resize-none
+                          leading-[1.75rem] align-top
+                        "
+                                    />
+                                  </div>
+                                </div>
+                              )
+                          )}
+
+                          {data.notes && (
+                            <div>
                               <div className="font-bold text-red-900 pl-2">
-                                {Array.isArray(day.title)
-                                  ? day.title[0]
-                                  : day.title}
+                                {data.notes.title}
                               </div>
-                              <div className="pl-2">
+                              <div className="mt-0 pl-2">
                                 <EditableText
-                                  path={`${mobileNotesGroup}.day${i + 1}.items`}
-                                  value={day.items}
+                                  path={`${mobileNotesGroup}.notes.text`}
+                                  value={data.notes.text}
                                   onChange={handleEditChange}
+                                  textareaClassName="
+                      h-[4.50rem] min-h-[4.50rem] max-h-[7.25rem]
+                      overflow-auto resize-none
+                      leading-[1.25rem] align-top
+                    "
                                 />
                               </div>
                             </div>
-                          )
-                      )}
-
-                      {data.notes && (
-                        <div>
-                          <div className="font-bold text-red-900 pl-2">
-                            {data.notes.title}
-                          </div>
-                          <div className="mt-0 pl-2">
-                            <EditableText
-                              path={`${mobileNotesGroup}.notes.text`}
-                              value={data.notes.text}
-                              onChange={handleEditChange}
-                              textareaClassName="min-h-[80px]"
-                            />
-                          </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })()}
-                <div className="mt-4 flex justify-end">
-                  <AdminEditToggle onExit={saveAllEdits} />
+
+                        {/* bottone sempre bottom-right */}
+                        <div className="absolute bottom-3 right-3">
+                          <AdminEditToggle onExit={saveAllEdits} />
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </>
@@ -1251,8 +1268,8 @@ export default function GridMatchesPage({ isLogged }) {
             <div
               className="
                 md:hidden fixed z-[30000]
-                top-0 left-4
-                w-[86vw] max-w-[20rem]
+                top-0 left-0
+                w-[82vw] max-w- [20]
                 min-h-[30vh]
                 max-h-[80vh] overflow-auto
                 rounded-2xl
@@ -1304,7 +1321,7 @@ export default function GridMatchesPage({ isLogged }) {
                     </div>
 
                     {/* CONTENUTO PLUS */}
-                    <div className="p-2">
+                    <div className="p-2  pl-6">
                       <div className="space-y-0 [&_input]:text-xl [&_input]:font-extrabold [&_input]:leading-none [&_input]:text-center">
                         {matchesFlatP.map((m, idx) => {
                           const t1 = findTeamP(m.team1);
@@ -1329,13 +1346,13 @@ export default function GridMatchesPage({ isLogged }) {
                           return (
                             <div
                               key={`plus-mob-${letterP}-${idx}`}
-                              className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] items-center justify-center gap-x-1 text-[12px] leading-none px-1 py-0"
+                              className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] items-center justify-center gap-x-1 text-[12px] leading-none"
                             >
                               <span className="font-extrabold text-right whitespace-nowrap mr-1">
                                 {toCode3(t1) || "\u00A0"}
                               </span>
 
-                              <div className="flex items-center justify-center leading-none">
+                              <div className="flex items-center justify-center h-full min-h-[2.5rem]">
                                 <div className="scale-[0.45] origin-center">
                                   <Quadrato
                                     teamName={t1?.name ?? ""}
@@ -1366,10 +1383,10 @@ export default function GridMatchesPage({ isLogged }) {
                                     : ""
                                 }
                                 onChange={handleEditChange}
-                                className="min-w-[3.5rem] plus-score"
+                                className="min-w-[3.5rem] plus-score text-sm"
                               />
 
-                              <div className="flex items-center justify-center leading-none">
+                              <div className="flex items-center justify-center h-full min-h-[2.5rem]">
                                 <div className="scale-[0.45] origin-center">
                                   <Quadrato
                                     teamName={t2?.name ?? ""}
@@ -1858,7 +1875,7 @@ function Row7({
         `}
       >
         <span
-          className={`text-lg md:text-lg leading-none font-extrabold ${
+          className={`text-sm md:text-lg leading-none font-extrabold ${
             isProvisional ? "text-purple-300/40" : ""
           }`}
         >

@@ -11,45 +11,43 @@ export default function EditableText({
 }) {
   const { editMode } = useEditMode();
   const [local, setLocal] = useState(value ?? "");
-  const dirtyRef = useRef(false); // true = l’utente ha scritto, non sovrascrivere
+  const dirtyRef = useRef(false);
 
-  // Sync local <- value quando:
-  // - NON sei in edit mode (sempre)
-  // - sei in edit mode MA non hai ancora scritto (dirty=false)
   useEffect(() => {
     if (!editMode) {
-      dirtyRef.current = false;      // reset quando esci da edit
+      dirtyRef.current = false;
       setLocal(value ?? "");
       return;
     }
-
-    // se entro in edit e non ho ancora toccato nulla, prendo il valore salvato
-    if (!dirtyRef.current) {
-      setLocal(value ?? "");
-    }
+    if (!dirtyRef.current) setLocal(value ?? "");
   }, [value, editMode]);
-
-  if (!editMode) {
-    return <div className={className}>{value ?? ""}</div>;
-  }
 
   return (
     <textarea
-      value={local}
+      value={editMode ? local : (value ?? "")}
       placeholder={placeholder}
+      readOnly={!editMode}
       onChange={(e) => {
+        if (!editMode) return;
         const v = e.target.value;
-        dirtyRef.current = true;     // da ora in poi non sovrascrivere local
+        dirtyRef.current = true;
         setLocal(v);
         onChange?.(path, v);
       }}
       className={`
-        w-full
-        bg-slate-800
-        border border-white/20
+        block w-full
         rounded-md
-        p-2
         text-white text-sm
+        leading-[1.25rem]
+        min-h-[80px] md:min-h-0
+
+        ${
+          editMode
+            ? "bg-slate-800 border border-white/20 p-2"
+            : "bg-slate-800/70 border border-white/10 p-2 opacity-95"
+        }
+
+        ${className}
         ${textareaClassName}
       `}
     />
