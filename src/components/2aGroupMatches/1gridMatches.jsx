@@ -10,15 +10,14 @@ import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
 import { createMatchesRepo } from "../../Services/repo/repoMatch";
 import { createNotesRepo } from "../../Services/repo/repoNote";
-
 import { useAuth } from "../../Services/supabase/AuthProvider";
-import { DATA_SOURCE, flagsMond } from "../../START/app/0main";
+import { ADMIN_EMAIL, DATA_SOURCE, flagsMond } from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
 import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
 //zExternal
-import EditableScore from "../../Editor/EditableScore";
+import EditableScore from "../../Editor/EditableScore.jsx";
 import { useEditMode } from "../../Providers/EditModeProvider";
 import { buildNameResolver } from "./zExternal/buildNameResolver";
 import { city3 } from "./zExternal/city3";
@@ -27,6 +26,23 @@ import { getFlatMatchesForGroup } from "./zExternal/getFlatMatchesForGroup";
 import { setDeep } from "./zExternal/setDeep";
 import { splitDayDesk } from "./zExternal/splitDayDesk";
 import { toCode3 } from "./zExternal/toCode3";
+
+function getDisplayRis({ groupKey, matchIndex, officialResults }) {
+  // 1) se esiste risultato ufficiale, mostra quello
+  const off = String(officialResults ?? "").trim();
+  if (off) return off;
+
+  // 2) altrimenti mostra il pronosticato dal DB (plusRis) SOLO se edited
+  const g = matchesState?.[groupKey];
+  const edited = !!g?.plusRisEdited?.[matchIndex];
+  if (!edited) return "";
+
+  const a = String(g?.plusRis?.[matchIndex]?.a ?? "").trim();
+  const b = String(g?.plusRis?.[matchIndex]?.b ?? "").trim();
+  if (a === "" && b === "") return "";
+
+  return `${a}-${b}`;
+}
 
 function MobilePlusModal({ open, onClose, children }) {
   if (!open) return null;
@@ -118,10 +134,23 @@ export default function GridMatchesPage({ isLogged }) {
     }));
 
     // 👉 CASO 1: PLUS RIS (➕) → matchesState
-    if (path.includes(".plusRis.")) {
+    if (path.includes(".plusRis.") || path.includes(".plusPron.")) {
       const letter = path.split(".")[0];
 
-      setMatchesState((prev) => setDeep(prev, path, value));
+      setMatchesState((prev) => {
+        let next = setDeep(prev, path, value);
+
+        // ✅ MARCA RIS COME EDITED ANCHE SE VUOTO
+        if (path.includes(".plusRis.")) {
+          const idx = Number(path.split(".plusRis.")[1]?.split(".")[0]);
+          if (Number.isFinite(idx)) {
+            next = setDeep(next, `${letter}.plusRisEdited.${idx}`, true);
+          }
+        }
+
+        return next;
+      });
+
       keysTouchedMatches.current.add(letter);
       return;
     }
@@ -136,7 +165,7 @@ export default function GridMatchesPage({ isLogged }) {
   async function saveAllEdits() {
     const paths = Object.keys(localEdits);
     if (!paths.length) return;
-    // keys = lettere A..L dai path tipo "A.day1.items"
+
     const keysTouchedNotes = new Set(paths.map((p) => p.split(".")[0]));
     await repo.save({ notes, keysTouched: keysTouchedNotes });
     keysTouched.current.clear();
@@ -147,8 +176,12 @@ export default function GridMatchesPage({ isLogged }) {
     });
     keysTouchedMatches.current.clear();
 
+    // ✅ RICARICA DAL DB così RIS è sempre allineato
+    const freshMatches = await matchesRepo.load({ forceRefresh: true });
+    setMatchesState(freshMatches);
+
     setLocalEdits({});
-    lastSavedRef.current = { notes, matches: matchesState };
+    lastSavedRef.current = { notes, matches: freshMatches };
   }
 
   // ✅ METTI QUESTO BLOCCO: dentro GridMatchesPage, subito DOPO saveAllEdits() e PRIMA del return(...)
@@ -193,6 +226,7 @@ export default function GridMatchesPage({ isLogged }) {
   const [notes, setNotes] = useState({});
 
   const [matchesState, setMatchesState] = useState({});
+  const [matchesLoaded, setMatchesLoaded] = useState(false);
   const keysTouched = useRef(new Set());
   const keysTouchedMatches = useRef(new Set());
 
@@ -205,9 +239,12 @@ export default function GridMatchesPage({ isLogged }) {
   const [hoverPlusModal, setHoverPlusModal] = useState(null); // "A".."L"
   const [gridCols, setGridCols] = useState(gridColsMobile);
   const [localEdits, setLocalEdits] = useState({});
+  const [displayRisByKey, setDisplayRisByKey] = useState({});
+  const didHydrateRef = useRef(false);
 
   const lastSavedRef = useRef({ notes: {}, matches: {} });
   const hideTimerRef = useRef(null);
+  const saveAllEditsRef = useRef(null);
 
   const [mobileRankOpen, setMobileRankOpen] = useState(false);
   const [mobileGroup, setMobileGroup] = useState(null); // "A".."L"
@@ -218,27 +255,32 @@ export default function GridMatchesPage({ isLogged }) {
   const [headerH, setHeaderH] = useState(headerHMobile);
 
   //------------------------------------------------------------------------
+
+  useEffect(() => {
+    saveAllEditsRef.current = saveAllEdits;
+  }, [saveAllEdits]);
+
   useEffect(() => {
     return () => {
-      // ✅ quando cambi pagina (unmount): chiudi edit mode e BUTTA le modifiche
       if (editMode) {
+        void saveAllEditsRef.current?.();
         setEditMode(false);
-        discardEdits();
       }
     };
-  }, [editMode, setEditMode, discardEdits]);
+  }, [editMode, setEditMode]);
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       const loadedNotes = await repo.load();
-      const loadedMatches = await matchesRepo.load();
+      const loadedMatches = await matchesRepo.load({ forceRefresh: true });
 
       if (cancelled) return;
 
       setNotes(loadedNotes);
       setMatchesState(loadedMatches);
+      setMatchesLoaded(true);
 
       // snapshot per "discard"
       lastSavedRef.current = { notes: loadedNotes, matches: loadedMatches };
@@ -248,6 +290,50 @@ export default function GridMatchesPage({ isLogged }) {
       cancelled = true;
     };
   }, [repo, matchesRepo]);
+
+  useEffect(() => {
+    if (!matchesLoaded) return;
+
+    setMatchesState((prev) => {
+      let changed = false;
+      const next = { ...(prev ?? {}) };
+
+      for (const letter of Object.keys(next)) {
+        const obj = next[letter];
+        if (!obj) continue;
+
+        const risArr = Array.isArray(obj.plusRis) ? obj.plusRis : [];
+        const editedArr = Array.isArray(obj.plusRisEdited)
+          ? obj.plusRisEdited
+          : [];
+
+        // se manca o lunghezza diversa, ricostruisco
+        if (editedArr.length !== risArr.length) {
+          obj.plusRisEdited = Array.from(
+            { length: risArr.length },
+            () => false
+          );
+          changed = true;
+        }
+
+        // forza edited=true se ci sono numeri
+        for (let i = 0; i < risArr.length; i++) {
+          const a = String(risArr[i]?.a ?? "").trim();
+          const b = String(risArr[i]?.b ?? "").trim();
+          const hasAny = a !== "" || b !== "";
+
+          if (hasAny && obj.plusRisEdited[i] !== true) {
+            obj.plusRisEdited[i] = true;
+            changed = true;
+          }
+        }
+
+        next[letter] = obj;
+      }
+
+      return changed ? next : prev;
+    });
+  }, [matchesLoaded]);
 
   useEffect(() => {
     if (isLogged) {
@@ -285,6 +371,21 @@ export default function GridMatchesPage({ isLogged }) {
     }
   }, [showPronostics]);
 
+  useEffect(() => {
+    const onFocus = async () => {
+      const fresh = await matchesRepo.load({ forceRefresh: true });
+      setMatchesState(fresh);
+      lastSavedRef.current = { ...lastSavedRef.current, matches: fresh };
+    };
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") onFocus();
+    });
+
+    return () => window.removeEventListener("focus", onFocus);
+  }, [matchesRepo]);
+
   //------------------------------------------------------------------------
   return (
     <section
@@ -304,29 +405,31 @@ export default function GridMatchesPage({ isLogged }) {
       </p>
 
       <div className="relative flex justify-center items-start min-w-max">
-        <button
-          onClick={() => setShowPronostics((v) => !v)}
-          aria-pressed={showPronostics}
-          aria-label={
-            showPronostics
-              ? "Hide pronostics highlights"
-              : "Show pronostics highlights"
-          }
-          className={`
-             select-none
-            absolute 
-            md:w-8 md:h-8
-            md:-top-11 top-[1rem]
-            md:right-[30rem] -right-10 
-            md:py-0 py-2
-            md:px-1 px-2
-            rounded-full font-extrabold text-sm 
-            transition-all duration-300 
-            bg-slate -900 text-slate-900 z-[11000]`}
-        >
-          {/* md:z-0 z-[999] */}
-          {showPronostics ? "," : "."}
-        </button>
+        {!isLogged && (
+          <button
+            onClick={() => setShowPronostics((v) => !v)}
+            aria-pressed={showPronostics}
+            aria-label={
+              showPronostics
+                ? "Hide pronostics highlights"
+                : "Show pronostics highlights"
+            }
+            className={`
+              select-none
+              absolute 
+              md:w-8 md:h-8
+              md:-top-11 top-[1rem]
+              md:right-[30rem] -right-10 
+              md:py-0 py-2
+              md:px-1 px-2
+              rounded-full font-extrabold text-sm 
+              transition-all duration-300 
+              bg-slate -900 text-slate-900 z-[11000]
+            `}
+          >
+            {showPronostics ? "," : "."}
+          </button>
+        )}
 
         {/* Contenitore della “tabella” */}
         <div
@@ -354,28 +457,34 @@ export default function GridMatchesPage({ isLogged }) {
             };
             const computeRes = (m, letter, idx) => {
               const official = (m?.results ?? "").trim();
+              const hasOfficial = official.includes("-");
 
               const savedA = matchesState?.[letter]?.plusRis?.[idx]?.a ?? "";
               const savedB = matchesState?.[letter]?.plusRis?.[idx]?.b ?? "";
-              const userRis =
-                String(savedA).trim() !== "" || String(savedB).trim() !== ""
-                  ? `${String(savedA).trim()}-${String(savedB).trim()}`
-                  : "";
 
+              const a = String(savedA).trim();
+              const b = String(savedB).trim();
+
+              // ris utente valido solo se ho entrambi i numeri
+              const hasUserNumbers = a !== "" && b !== "";
+              const userRis = hasUserNumbers ? `${a}-${b}` : "";
+              const isLogged = !!user;
+              // ris dal FILE (groupMatches)
               const fileRis = (m?.ris ?? "").trim();
-
-              const hasOfficial = official.includes("-");
-              const hasUserRis = userRis.includes("-");
               const hasFileRis = fileRis.includes("-");
 
-              // PRIORITÀ: results > user plusRis (se toggle) > file ris (se toggle) > ""
-              return hasOfficial
-                ? official
-                : showPronostics && hasUserRis
-                  ? userRis
-                  : showPronostics && hasFileRis
-                    ? fileRis
-                    : "";
+              // admin check
+              const isAdmin =
+                (user?.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+              // 1) ufficiale sempre
+              if (hasOfficial) return official;
+
+              // 2) se utente ha inserito ris, mostralo SEMPRE (riflette fuori dal modale)
+              if (userRis) return userRis;
+
+              // 3) fallback al file (seed) per TUTTI quando toggle ON
+              return showPronostics && hasFileRis ? fileRis : "";
             };
 
             return (
@@ -531,6 +640,11 @@ export default function GridMatchesPage({ isLogged }) {
                                   const t2 = findTeam(m.team2);
                                   const res = computeRes(m, letter, idx);
 
+                                  // ✅ pron selezionato nel modale (+)
+                                  const selectedPron = String(
+                                    matchesState?.[letter]?.plusPron?.[idx] ??
+                                      ""
+                                  ).trim();
                                   // ✅ baseA/baseB dal risultato corrente (res)
                                   const [baseA, baseB] = String(
                                     res ?? ""
@@ -539,7 +653,6 @@ export default function GridMatchesPage({ isLogged }) {
                                         .split("-")
                                         .map((x) => x.trim())
                                     : ["", ""];
-
                                   // ✅ valori salvati (override)
                                   const savedA =
                                     matchesState?.[letter]?.plusRis?.[idx]?.a;
@@ -549,10 +662,8 @@ export default function GridMatchesPage({ isLogged }) {
                                   // ✅ valore finale mostrato
                                   const norm = (x) => String(x ?? "").trim();
 
-                                  const valueA =
-                                    norm(savedA) !== "" ? norm(savedA) : baseA;
-                                  const valueB =
-                                    norm(savedB) !== "" ? norm(savedB) : baseB;
+                                  const valueA = norm(savedA);
+                                  const valueB = norm(savedB);
 
                                   return (
                                     <React.Fragment
@@ -580,16 +691,35 @@ export default function GridMatchesPage({ isLogged }) {
 
                                         {/* FLAG 1 */}
                                         <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
-                                          <div className="scale-[0.45] md:scale-[0.65] origin-center">
+                                          <button
+                                            type="button"
+                                            disabled={!editMode}
+                                            onClick={() =>
+                                              handleEditChange(
+                                                `${letter}.plusPron.${idx}`,
+                                                "1"
+                                              )
+                                            }
+                                            className={`scale-[0.45] md:scale-[0.65] origin-center ${
+                                              editMode
+                                                ? "cursor-pointer"
+                                                : "cursor-default opacity-60"
+                                            }`}
+                                            aria-label={`Pronostico: vince ${t1?.name ?? "team1"}`}
+                                          >
                                             <Quadrato
                                               teamName={t1?.name ?? ""}
                                               flag={t1?.flag ?? null}
                                               phase="round32"
                                               advanced={false}
                                               label={null}
-                                              highlightType="none"
+                                              highlightType={
+                                                selectedPron === "1"
+                                                  ? "pron"
+                                                  : "none"
+                                              }
                                             />
-                                          </div>
+                                          </button>
                                         </div>
 
                                         {/* RIS */}
@@ -598,22 +728,53 @@ export default function GridMatchesPage({ isLogged }) {
                                           pathB={`${letter}.plusRis.${idx}.b`}
                                           valueA={valueA}
                                           valueB={valueB}
+                                          placeholderA={
+                                            user?.email?.toLowerCase() ===
+                                            ADMIN_EMAIL.toLowerCase()
+                                              ? baseA
+                                              : ""
+                                          }
+                                          placeholderB={
+                                            user?.email?.toLowerCase() ===
+                                            ADMIN_EMAIL.toLowerCase()
+                                              ? baseB
+                                              : ""
+                                          }
                                           onChange={handleEditChange}
                                           className="min-w-[3.5rem]"
                                         />
 
                                         {/* FLAG 2 */}
                                         <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
-                                          <div className="scale-[0.45] md:scale-[0.65] origin-center">
+                                          <button
+                                            type="button"
+                                            disabled={!editMode}
+                                            onClick={() =>
+                                              handleEditChange(
+                                                `${letter}.plusPron.${idx}`,
+                                                "2"
+                                              )
+                                            }
+                                            className={`scale-[0.45] md:scale-[0.65] origin-center ${
+                                              editMode
+                                                ? "cursor-pointer"
+                                                : "cursor-default opacity-60"
+                                            }`}
+                                            aria-label={`Pronostico: vince ${t2?.name ?? "team2"}`}
+                                          >
                                             <Quadrato
                                               teamName={t2?.name ?? ""}
                                               flag={t2?.flag ?? null}
                                               phase="round32"
                                               advanced={false}
                                               label={null}
-                                              highlightType="none"
+                                              highlightType={
+                                                selectedPron === "2"
+                                                  ? "pron"
+                                                  : "none"
+                                              }
                                             />
-                                          </div>
+                                          </button>
                                         </div>
 
                                         {/* SQ2 */}
@@ -687,10 +848,10 @@ export default function GridMatchesPage({ isLogged }) {
 
                             // ✅ valore finale mostrato
                             const norm = (x) => String(x ?? "").trim();
-                            const valueA =
-                              norm(savedA) !== "" ? norm(savedA) : baseA;
-                            const valueB =
-                              norm(savedB) !== "" ? norm(savedB) : baseB;
+
+                            const valueA = norm(savedA);
+
+                            const valueB = norm(savedB);
 
                             return (
                               <React.Fragment key={`plus-mob-${letter}-${idx}`}>
@@ -734,6 +895,18 @@ export default function GridMatchesPage({ isLogged }) {
                                     pathB={`${letter}.plusRis.${idx}.b`}
                                     valueA={valueA}
                                     valueB={valueB}
+                                    placeholderA={
+                                      user?.email?.toLowerCase() ===
+                                      ADMIN_EMAIL.toLowerCase()
+                                        ? baseA
+                                        : ""
+                                    }
+                                    placeholderB={
+                                      user?.email?.toLowerCase() ===
+                                      ADMIN_EMAIL.toLowerCase()
+                                        ? baseB
+                                        : ""
+                                    }
                                     onChange={handleEditChange}
                                     className="min-w-[3.5rem]"
                                   />
@@ -995,7 +1168,13 @@ export default function GridMatchesPage({ isLogged }) {
                         const isProvisional =
                           !hasOfficial && showPronostics && res !== "";
 
-                        const pron = (m?.pron ?? "").trim().toUpperCase();
+                        const pron = (
+                          matchesState?.[letter]?.plusPron?.[row] ??
+                          m?.pron ??
+                          ""
+                        )
+                          .trim()
+                          .toUpperCase();
                         const hasResult = res !== "";
 
                         let highlightType1 = "none";

@@ -16,44 +16,64 @@ function clone(x) {
 function stripForNonAdmin(fileBase) {
   const out = {};
   for (const k of Object.keys(fileBase ?? {})) {
-    out[k] = {
-      plusRis: Array.from(
-        {
-          length: Object.values(fileBase[k] ?? {})
-            .filter((v) => v?.matches)
-            .reduce((acc, g) => acc + g.matches.length, 0),
-        },
-        () => ({ a: "", b: "" })
-      ),
-      __edited: false,
-    };
-  }
-  return out;
-}
-
-// costruisce la base DAL FILE (admin)
-function buildBaseFromFile(fileBase) {
-  const out = {};
-  for (const letter of Object.keys(fileBase ?? {})) {
-    // quante partite ci sono nel gruppo?
-    const matchesCount = Object.values(fileBase[letter] ?? {})
+    // calcolo quante partite ci sono nel gruppo (non-admin)
+    const matchesCount = Object.values(fileBase[k] ?? {})
       .filter((v) => v?.matches)
       .reduce((acc, g) => acc + g.matches.length, 0);
 
-    out[letter] = {
+    out[k] = {
       plusRis: Array.from({ length: matchesCount }, () => ({ a: "", b: "" })),
+      plusPron: Array.from({ length: matchesCount }, () => ""),
+      plusRisEdited: Array.from({ length: matchesCount }, () => false),
       __edited: false,
     };
   }
   return out;
 }
 
+// costruisce la base DAL FILE (admin) + seed pron/ris dal file
+function buildBaseFromFile(fileBase) {
+  const out = {};
+  for (const letter of Object.keys(fileBase ?? {})) {
+    // prendo tutte le partite del gruppo nello stesso ordine del file
+    const matchesFlat = Object.values(fileBase[letter] ?? {})
+      .filter((v) => v?.matches)
+      .flatMap((g) => g.matches ?? []);
+
+    const matchesCount = matchesFlat.length;
+
+    // ✅ seed pron dal file (può essere "1" | "2" | "X" | "")
+    const plusPronFromFile = matchesFlat.map((m) =>
+      String(m?.pron ?? "").trim()
+    );
+
+    // ✅ seed ris dal file (es. "0-1") → {a:"0", b:"1"}
+    // se ris è vuoto/spazio → {a:"", b:""}
+    const plusRisFromFile = matchesFlat.map((m) => {
+      const raw = String(m?.ris ?? "").trim(); // es: "0-1"
+      const parts = raw.split("-").map((s) => s.trim());
+      const a = parts?.[0] && /^\d+$/.test(parts[0]) ? parts[0] : "";
+      const b = parts?.[1] && /^\d+$/.test(parts[1]) ? parts[1] : "";
+      return { a, b };
+    });
+
+    out[letter] = {
+      plusRis: plusRisFromFile,
+      plusPron: plusPronFromFile,
+      plusRisEdited: Array.from({ length: matchesCount }, () => false),
+      __edited: false,
+    };
+  }
+  return out;
+}
+let MEMORY_CACHE_BY_USER = new Map();
 export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
   const isRemote = source === DATA_SOURCE;
 
   const userId = opts.userId;
   const userEmail = opts.userEmail;
   const isAdmin = (userEmail || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const cacheKey = userId ? `${userId}:${isAdmin ? "admin" : "user"}` : null;
 
   // base dal file
   const fileBaseAdmin = buildBaseFromFile(groupMatches);
@@ -80,6 +100,10 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       if (!userId) {
         return isAdmin ? fileBaseAdmin : fileBaseNonAdmin;
       }
+      // ✅ CACHE: se ho già dati in memoria per questo user, li ritorno subito
+
+      const cached = cacheKey ? MEMORY_CACHE_BY_USER.get(cacheKey) : null;
+      if (cached) return cached;
 
       // 1) leggi DB
       let { data, error } = await supabase
@@ -150,6 +174,63 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         if (fromDb[k]) merged[k] = fromDb[k];
       }
 
+      // ✅ MIGRAZIONI SOFT (admin + non-admin)
+      let didFix = false;
+      const keysFixed = new Set();
+
+      // ✅ FIX A: plusRisEdited deve esistere per TUTTI
+      // - Se manca, la creo
+      // - Se nel DB ci sono già numeri in plusRis, segno edited=true su quegli indici
+      for (const k of Object.keys(merged ?? {})) {
+        const obj = merged[k] ?? {};
+
+        if (!Array.isArray(obj.plusRisEdited)) {
+          const count = Array.isArray(obj.plusRis) ? obj.plusRis.length : 0;
+          obj.plusRisEdited = Array.from({ length: count }, () => false);
+
+          for (let i = 0; i < count; i++) {
+            const a = String(obj.plusRis?.[i]?.a ?? "").trim();
+            const b = String(obj.plusRis?.[i]?.b ?? "").trim();
+            if (a !== "" || b !== "") obj.plusRisEdited[i] = true;
+          }
+
+          merged[k] = obj;
+          didFix = true;
+          keysFixed.add(k);
+        }
+      }
+
+      // ✅ FIX B: plusPron seed dal file SOLO admin (per retro-compatibilità)
+      if (isAdmin) {
+        for (const k of Object.keys(fileBaseAdmin)) {
+          const obj = merged[k] ?? {};
+          const seed = fileBaseAdmin[k] ?? {};
+
+          if (!Array.isArray(obj.plusPron)) {
+            obj.plusPron = Array.isArray(seed.plusPron) ? seed.plusPron : [];
+            merged[k] = obj;
+            didFix = true;
+            keysFixed.add(k);
+          }
+        }
+      }
+
+      // ✅ se ho riparato, salvo subito su DB (remote)
+      if (didFix && isRemote && userId && keysFixed.size) {
+        const payload = Array.from(keysFixed).map((k) => ({
+          user_id: userId,
+          key: k,
+          data: merged?.[k] ?? null,
+        }));
+
+        const { error: fixSaveErr } = await supabase
+          .from("matches_pron")
+          .upsert(payload, { onConflict: "user_id,key" });
+
+        if (fixSaveErr) console.warn("MATCHES FIX SAVE WARN:", fixSaveErr);
+      }
+      MEMORY_CACHE_BY_USER.set(cacheKey, merged);
+
       return merged;
     },
 
@@ -182,7 +263,13 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
 
       // ===== REMOTE =====
       if (!userId) return;
-
+      // ✅ aggiorna cache locale subito (se possibile)
+      try {
+        const prev = cacheKey ? MEMORY_CACHE_BY_USER.get(cacheKey) || {} : {};
+        const next = { ...prev };
+        for (const k of keysTouched) next[k] = matches?.[k] ?? null;
+        if (cacheKey) MEMORY_CACHE_BY_USER.set(cacheKey, next);
+      } catch {}
       const payload = Array.from(keysTouched).map((k) => ({
         user_id: userId,
         key: k,

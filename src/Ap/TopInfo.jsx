@@ -266,8 +266,10 @@ export default function TopInfo() {
 function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
   const [mode, setMode] = useState("login"); // "login" | "signup"
   const [email, setEmail] = useState(pendingEmail ?? "");
-  const [password, setPassword] = useState("");
+  const PW_KEY_PREFIX = "wc26_pw:";
+  const normEmail = (s) => String(s || "").trim().toLowerCase();
 
+  const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -277,6 +279,12 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
   useEffect(() => {
     emailRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+  const key = PW_KEY_PREFIX + normEmail(email);
+  const savedPw = localStorage.getItem(key) || "";
+  if (savedPw) setPassword(savedPw);
+}, [email]);
 
   const isPending = !!pendingEmail;
 
@@ -320,7 +328,8 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
       return;
     }
 
-    onClose();
+    localStorage.setItem(PW_KEY_PREFIX + normEmail(email), password);
+  onClose();
   };
 
   // ✅ NEW: reinvia email conferma
@@ -408,7 +417,12 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
             className="rounded-md bg-slate-800 border border-white/10 px-3 py-2 text-white text-sm"
             placeholder="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              setPassword(v);
+              const key = PW_KEY_PREFIX + normEmail(email);
+              if (normEmail(email)) localStorage.setItem(key, v);
+            }}
           />
 
           {info && <div className="text-xs text-emerald-300 mt-1">{info}</div>}
