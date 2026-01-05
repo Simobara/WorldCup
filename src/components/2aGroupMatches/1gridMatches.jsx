@@ -560,7 +560,7 @@ export default function GridMatchesPage({ isLogged }) {
                             w-8 h-8 
                             md:w-10 md:h-10
                             md:text-[20px] text-[12px]
-                            rounded-full
+                            rounded- full
                             text-sky-300
                             flex items-center justify-center
                             cursor-pointer
@@ -601,7 +601,7 @@ export default function GridMatchesPage({ isLogged }) {
                             md:w-10 md:h-10
                             -translate-y-2
                             md:text-[20px] text-[12px]
-                            rounded-full                            
+                            rounded- full                            
                             text-white
                             flex items-center justify-center
                             cursor-pointer
