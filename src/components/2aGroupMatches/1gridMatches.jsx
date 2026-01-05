@@ -616,90 +616,6 @@ export default function GridMatchesPage({ isLogged }) {
                         </div>
                       </div>
                     )}
-                    {/* ================= MOBILE ONLY — MODAL NOTE ================= */}
-                    {/* ===== MOBILE MODAL NOTE (MESSAGGI) ===== */}
-
-                    {mobileNotesOpen && mobileNotesGroup && (
-                      <>
-                        {/* BACKDROP */}
-                        <div
-                          className="md:hidden fixed inset-0 z-[9998] bg-black/30"
-                          onClick={() => {
-                            setMobileNotesOpen(false);
-                            setMobileNotesGroup(null);
-                          }}
-                        />
-
-                        {/* MODALE */}
-                        <div
-                          className="
-                            md:hidden fixed z-[22002]
-                            top-0 
-                            md:left-2 left-4
-                            w-[86vw] max-w-[20rem]
-                            min-h-[30vh]
-                            max-h-[80vh] overflow-auto
-                            rounded-2xl
-                            bg-slate-900 text-white
-                            shadow-2xl
-                            p-0
-                          "
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {/* CONTENUTO NOTE */}
-                          {(() => {
-                            const data = notes?.[mobileNotesGroup];
-                            if (!data) return null;
-
-                            return (
-                              <div className="space-y-3 text-sm">
-                                <div className="font-extrabold text-center">
-                                  SEE/EDIT NOTE - Gruppo {mobileNotesGroup}
-                                </div>
-                                {[data.day1, data.day2, data.day3].map(
-                                  (day, i) =>
-                                    day && (
-                                      <div key={i}>
-                                        <div className="font-bold text-red-900 pl-2">
-                                          {Array.isArray(day.title)
-                                            ? day.title[0]
-                                            : day.title}
-                                        </div>
-                                        <div className="pl-2">
-                                          <EditableText
-                                            path={`${mobileNotesGroup}.day${i + 1}.items`}
-                                            value={day.items}
-                                            onChange={handleEditChange}
-                                          />
-                                        </div>
-                                      </div>
-                                    )
-                                )}
-
-                                {data.notes && (
-                                  <div>
-                                    <div className="font-bold text-red-900 pl-2">
-                                      {data.notes.title}
-                                    </div>
-                                    <div className="mt-0 pl-2">
-                                      <EditableText
-                                        path={`${mobileNotesGroup}.notes.text`}
-                                        value={data.notes.text}
-                                        onChange={handleEditChange}
-                                        textareaClassName="min-h-[80px]"
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })()}
-                          <div className="mt-4 flex justify-end">
-                            <AdminEditToggle onExit={saveAllEdits} />
-                          </div>
-                        </div>
-                      </>
-                    )}
 
                     {/* Lettera */}
                     <span
@@ -808,20 +724,18 @@ export default function GridMatchesPage({ isLogged }) {
                     {hoverPlusModal === letter && (
                       <div
                         className="
-                              hidden md:block
-                              absolute top-4 left-8 z-[12000]
-                              w-[19.8rem]
-                              min-h-[16.5rem]
-                              max-h-[18vh]
-                              overflow-y-scroll
-                              overflow-x-hidden
-                              rounded-2xl
-                              ml-0 pl-[8em] pr-0
-                              bg-slate-900 text-white
-                              border-2 border-white
-                              overscroll-contain
-                              scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
-                              "
+                          absolute top-4 left-8 right-2 z-[12000]
+                          w-[19.8rem]
+                          min-h-[16.5rem]
+                          max-h-[18vh]
+                          overflow-y-scroll
+                          overflow-x-hidden
+                          rounded-2xl
+                          bg-slate-900 text-white
+                          border-2 border-white
+                          overscroll-contain
+                          scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
+                        "
                         // pl-24
                         onMouseEnter={() => setHoverPlusModal(letter)}
                         onMouseLeave={() => setHoverPlusModal(null)}
@@ -1231,6 +1145,94 @@ export default function GridMatchesPage({ isLogged }) {
               </section>
             );
           })}
+          {/* ================= MOBILE ONLY — MODAL NOTE ================= */}
+          {/* ===== MOBILE MODAL NOTE (MESSAGGI) ===== */}
+
+          {/* todo------------------------ */}
+          {/* todo------------------------ */}
+
+          {/* todo------------------------ */}
+          {mobileNotesOpen && mobileNotesGroup && (
+            <>
+              {/* BACKDROP */}
+              <div
+                className="md:hidden fixed inset-0 z-[9998] bg-black/80"
+                onClick={() => {
+                  setMobileNotesOpen(false);
+                  setMobileNotesGroup(null);
+                }}
+              />
+
+              {/* MODALE */}
+              <div
+                className="
+                            md:hidden fixed z-[22002]
+                            top-0 
+                            md:left-2 left-4
+                            w-[86vw] max-w-[20rem]
+                            min-h-[30vh]
+                            max-h-[80vh] overflow-auto
+                            rounded-2xl
+                            bg-slate-900 text-white
+                            shadow-2xl
+                            p-0
+                          "
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* CONTENUTO NOTE */}
+                {(() => {
+                  const data = notes?.[mobileNotesGroup];
+                  if (!data) return null;
+
+                  return (
+                    <div className="space-y-3 text-sm">
+                      <div className="font-extrabold text-center">
+                        SEE/EDIT NOTE - Gruppo {mobileNotesGroup}
+                      </div>
+                      {[data.day1, data.day2, data.day3].map(
+                        (day, i) =>
+                          day && (
+                            <div key={i}>
+                              <div className="font-bold text-red-900 pl-2">
+                                {Array.isArray(day.title)
+                                  ? day.title[0]
+                                  : day.title}
+                              </div>
+                              <div className="pl-2">
+                                <EditableText
+                                  path={`${mobileNotesGroup}.day${i + 1}.items`}
+                                  value={day.items}
+                                  onChange={handleEditChange}
+                                />
+                              </div>
+                            </div>
+                          )
+                      )}
+
+                      {data.notes && (
+                        <div>
+                          <div className="font-bold text-red-900 pl-2">
+                            {data.notes.title}
+                          </div>
+                          <div className="mt-0 pl-2">
+                            <EditableText
+                              path={`${mobileNotesGroup}.notes.text`}
+                              value={data.notes.text}
+                              onChange={handleEditChange}
+                              textareaClassName="min-h-[80px]"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+                <div className="mt-4 flex justify-end">
+                  <AdminEditToggle onExit={saveAllEdits} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
         {/* ================= MOBILE ONLY — MODAL PLUS ================= */}
         {/* ===== MOBILE MODAL PLUS (PRONOSTICI) ===== */}
@@ -1238,7 +1240,7 @@ export default function GridMatchesPage({ isLogged }) {
           <>
             {/* BACKDROP (uguale a NOTE mobile) */}
             <div
-              className="md:hidden fixed inset-0 z-[9998] bg-black/60"
+              className="md:hidden fixed inset-0 z-[9998]  bg-black/80"
               onClick={() => {
                 setMobilePlusOpen(false);
                 setMobilePlusGroup(null);
@@ -1248,16 +1250,16 @@ export default function GridMatchesPage({ isLogged }) {
             {/* MODALE (uguale a NOTE mobile) */}
             <div
               className="
-        md:hidden fixed z-[30000]
-        top-0 left-4
-        w-[86vw] max-w-[20rem]
-        min-h-[30vh]
-        max-h-[80vh] overflow-auto
-        rounded-2xl
-        bg-slate-900 text-white
-        shadow-2xl
-        p-0
-      "
+                md:hidden fixed z-[30000]
+                top-0 left-4
+                w-[86vw] max-w-[20rem]
+                min-h-[30vh]
+                max-h-[80vh] overflow-auto
+                rounded-2xl
+                bg-slate-900 text-white
+                shadow-2xl
+                p-0
+              "
               onClick={(e) => e.stopPropagation()}
             >
               {(() => {
@@ -1405,7 +1407,7 @@ export default function GridMatchesPage({ isLogged }) {
           <>
             {/* BACKDROP — mobile only */}
             <div
-              className="md:hidden fixed inset-0  z-[9998] bg-black"
+              className="md:hidden fixed inset-0 z-[9998] bg-black/80"
               onClick={() => {
                 setMobileRankOpen(false);
                 setMobileGroup(null);
