@@ -27,23 +27,6 @@ import { setDeep } from "./zExternal/setDeep";
 import { splitDayDesk } from "./zExternal/splitDayDesk";
 import { toCode3 } from "./zExternal/toCode3";
 
-function getDisplayRis({ groupKey, matchIndex, officialResults }) {
-  // 1) se esiste risultato ufficiale, mostra quello
-  const off = String(officialResults ?? "").trim();
-  if (off) return off;
-
-  // 2) altrimenti mostra il pronosticato dal DB (plusRis) SOLO se edited
-  const g = matchesState?.[groupKey];
-  const edited = !!g?.plusRisEdited?.[matchIndex];
-  if (!edited) return "";
-
-  const a = String(g?.plusRis?.[matchIndex]?.a ?? "").trim();
-  const b = String(g?.plusRis?.[matchIndex]?.b ?? "").trim();
-  if (a === "" && b === "") return "";
-
-  return `${a}-${b}`;
-}
-
 function MobilePlusModal({ open, onClose, children }) {
   if (!open) return null;
   return createPortal(
@@ -455,38 +438,55 @@ export default function GridMatchesPage({ isLogged }) {
                 null
               );
             };
-            const computeRes = (m, letter, idx) => {
+            // ====== COMPUTE RES: ADMIN / NON-ADMIN ======
+
+            // ADMIN: legge seed (m.ris) se NON edited
+            const computeResAdmin = (m, letter, idx) => {
               const official = (m?.results ?? "").trim();
-              const hasOfficial = official.includes("-");
+              if (official.includes("-")) return official;
 
-              const savedA = matchesState?.[letter]?.plusRis?.[idx]?.a ?? "";
-              const savedB = matchesState?.[letter]?.plusRis?.[idx]?.b ?? "";
+              const a = String(
+                matchesState?.[letter]?.plusRis?.[idx]?.a ?? ""
+              ).trim();
+              const b = String(
+                matchesState?.[letter]?.plusRis?.[idx]?.b ?? ""
+              ).trim();
 
-              const a = String(savedA).trim();
-              const b = String(savedB).trim();
-
-              // 👇 NEW: l'utente ha editato questo match?
               const wasEdited = !!matchesState?.[letter]?.plusRisEdited?.[idx];
 
-              // ris utente valido solo se ho entrambi i numeri
-              const hasUserNumbers = a !== "" && b !== "";
-              const userRis = hasUserNumbers ? `${a}-${b}` : "";
+              if (a !== "" && b !== "") return `${a}-${b}`;
 
-              const fileRis = (m?.ris ?? "").trim();
-              const hasFileRis = fileRis.includes("-");
+              // se l'admin ha editato e poi svuotato → vuoto
+              if (wasEdited) return "";
 
-              // 1) ufficiale sempre
-              if (hasOfficial) return official;
-
-              // 2) se ha scritto un ris completo, mostra quello
-              if (userRis) return userRis;
-
-              // ✅ 2b) se l'ha editato MA ora è vuoto, significa "ho cancellato" → NON mostrare seed
-              if (wasEdited && a === "" && b === "") return "";
-
-              // 3) fallback al file (seed) solo se toggle ON
-              return showPronostics && hasFileRis ? fileRis : "";
+              // fallback seed SOLO admin
+              const seed = String(m?.ris ?? "").trim();
+              return showPronostics && seed.includes("-") ? seed : "";
             };
+
+            // NON-ADMIN: NON legge MAI seed
+            const computeResUser = (m, letter, idx) => {
+              const official = (m?.results ?? "").trim();
+              if (official.includes("-")) return official;
+
+              const a = String(
+                matchesState?.[letter]?.plusRis?.[idx]?.a ?? ""
+              ).trim();
+              const b = String(
+                matchesState?.[letter]?.plusRis?.[idx]?.b ?? ""
+              ).trim();
+
+              if (a !== "" && b !== "") return `${a}-${b}`;
+
+              // mai seed
+              return "";
+            };
+
+            // 🔑 QUESTA È LA RIGA CHIAVE (ANCORA)
+            const computeRes =
+              user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+                ? computeResAdmin
+                : computeResUser;
 
             return (
               <section
