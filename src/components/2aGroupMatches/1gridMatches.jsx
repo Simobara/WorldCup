@@ -465,25 +465,26 @@ export default function GridMatchesPage({ isLogged }) {
               const a = String(savedA).trim();
               const b = String(savedB).trim();
 
+              // 👇 NEW: l'utente ha editato questo match?
+              const wasEdited = !!matchesState?.[letter]?.plusRisEdited?.[idx];
+
               // ris utente valido solo se ho entrambi i numeri
               const hasUserNumbers = a !== "" && b !== "";
               const userRis = hasUserNumbers ? `${a}-${b}` : "";
-              const isLogged = !!user;
-              // ris dal FILE (groupMatches)
+
               const fileRis = (m?.ris ?? "").trim();
               const hasFileRis = fileRis.includes("-");
-
-              // admin check
-              const isAdmin =
-                (user?.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
               // 1) ufficiale sempre
               if (hasOfficial) return official;
 
-              // 2) se utente ha inserito ris, mostralo SEMPRE (riflette fuori dal modale)
+              // 2) se ha scritto un ris completo, mostra quello
               if (userRis) return userRis;
 
-              // 3) fallback al file (seed) per TUTTI quando toggle ON
+              // ✅ 2b) se l'ha editato MA ora è vuoto, significa "ho cancellato" → NON mostrare seed
+              if (wasEdited && a === "" && b === "") return "";
+
+              // 3) fallback al file (seed) solo se toggle ON
               return showPronostics && hasFileRis ? fileRis : "";
             };
 
@@ -654,6 +655,8 @@ export default function GridMatchesPage({ isLogged }) {
                                     matchesState?.[letter]?.plusPron?.[idx] ??
                                       ""
                                   ).trim();
+
+                                  const seed = String(m?.ris ?? "").trim();
                                   // ✅ baseA/baseB dal risultato corrente (res)
                                   const [baseA, baseB] = String(
                                     res ?? ""
