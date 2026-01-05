@@ -615,8 +615,8 @@ export default function GridMatchesPage({ isLogged }) {
                               hidden md:block
                               absolute top-4 left-8 z-[10000]
                               w-[20rem]
-                              min-h-[17rem]
-                              max-h-[20vh]
+                              min-h-[16.5rem]
+                              max-h-[18vh]
                               overflow-y-scroll
                               overflow-x-hidden
                               rounded-2xl
@@ -629,12 +629,20 @@ export default function GridMatchesPage({ isLogged }) {
                             onMouseEnter={() => setHoverPlusModal(letter)}
                             onMouseLeave={() => setHoverPlusModal(null)}
                           >
-                            <div className="p-2">
+                            <div className="p-0">
                               {/* <div className="font-extrabold text-center text-sm mb-0">
                                 Gruppo {letter}
                               </div> */}
 
-                              <div className="space-y-0">
+                              <div
+                                className="
+                                  -space-y-2
+                                  [&_input]:text-xl md:[&_input]:text-2xl
+                                  [&_input]:font-extrabold
+                                  [&_input]:leading-none
+                                  [&_input]:text-center
+                                "
+                              >
                                 {matchesFlat.map((m, idx) => {
                                   const t1 = findTeam(m.team1);
                                   const t2 = findTeam(m.team2);
@@ -671,18 +679,16 @@ export default function GridMatchesPage({ isLogged }) {
                                     >
                                       {/* RIGA INCONTRO */}
                                       <div
-                                        className="
-                                          grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
-                                          items-center
-                                          justify-center
-                                          gap-x-1
-                                          text-[12px] leading-none
-                                          px-1 py-4
-                                          bg-transparent
-                                          rounded-none
-                                          border-0
-                                          m-0
-                                        "
+                                        className={`
+                                        grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
+                                        h-[4em]
+                                        items-center justify-center
+                                        gap-x-1
+                                        px-1 py-0
+                                        text-[12px] leading-[0]
+                                        bg-transparent
+                                        pb-0 mb-0
+                                      `}
                                       >
                                         {/* SQ1 */}
                                         <span className="font-extrabold text-right whitespace-nowrap mr-1">
@@ -690,7 +696,7 @@ export default function GridMatchesPage({ isLogged }) {
                                         </span>
 
                                         {/* FLAG 1 */}
-                                        <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
+                                        <div className="flex items-center justify-center p-0 m-0 leading-none h-full">
                                           <button
                                             type="button"
                                             disabled={!editMode}
@@ -741,11 +747,11 @@ export default function GridMatchesPage({ isLogged }) {
                                               : ""
                                           }
                                           onChange={handleEditChange}
-                                          className="min-w-[3.5rem]"
+                                          className="min-w-[2.5rem]"
                                         />
 
                                         {/* FLAG 2 */}
-                                        <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
+                                        <div className="flex items-center justify-center p-0 m-0 leading-none h-full">
                                           <button
                                             type="button"
                                             disabled={!editMode}
@@ -755,7 +761,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                 "2"
                                               )
                                             }
-                                            className={`scale-[0.45] md:scale-[0.65] origin-center  ${
+                                            className={`scale-[0.45] md:scale-[0.65] origin-center ${
                                               editMode
                                                 ? "cursor-pointer"
                                                 : "cursor-default opacity-60"
@@ -783,12 +789,15 @@ export default function GridMatchesPage({ isLogged }) {
                                         </span>
                                       </div>
 
-                                      {/* DIVISORIA ogni 2 righe */}
-                                      {(idx + 1) % 2 === 0 && (
-                                        <div className="flex justify-center my-1">
-                                          <div className="w-[18rem] h-[2px] bg-gray-500 rounded-full" />
-                                        </div>
-                                      )}
+                                      {/* DIVISORIA OGNI 2 RIGHE */}
+                                      {(idx + 1) % 2 === 0 &&
+                                        idx !== matchesFlat.length - 1 && (
+                                          <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] px-1">
+                                            <div className="col-span-5 flex justify-center">
+                                              <div className="mt-2 w-full max-w-[12rem] h-[2px] bg-gray-500/70 rounded-full" />
+                                            </div>
+                                          </div>
+                                        )}
                                     </React.Fragment>
                                   );
                                 })}
@@ -796,9 +805,16 @@ export default function GridMatchesPage({ isLogged }) {
                             </div>
                             {/* 🔴 "+" */}
                             {/* Toggle sempre a metà, lato sinistro, segue lo scroll */}
-                            <div className="sticky top-1/2 -translate-y-1/2 z-[10001] pointer-events-none">
-                              {/* wrapper “zero-height” per non spostare il layout */}
-                              <div className="relative h-0">
+                            {/* ADMIN TOGGLE – CENTRATO */}
+                            <div
+                              className="
+                                absolute inset-0 -top-[2rem]
+                                flex items-center justify-center
+                                z-[10002]
+                                pointer-events-none
+                              "
+                            >
+                              <div className="pointer-events-auto">
                                 <div className="absolute left-1 pointer-events-auto">
                                   <AdminEditToggle onExit={saveAllEdits} />
                                 </div>
@@ -825,7 +841,15 @@ export default function GridMatchesPage({ isLogged }) {
 
                       {/* CONTENUTO PLUS (come desktop) */}
                       <div className="p-2">
-                        <div className="space-y-0">
+                        <div
+                          className="
+                            space-y-0
+                            [&_input]:text-xl md:[&_input]:text-2xl
+                            [&_input]:font-extrabold
+                            [&_input]:leading-none
+                            [&_input]:text-center
+                          "
+                        >
                           {matchesFlat.map((m, idx) => {
                             const t1 = findTeam(m.team1);
                             const t2 = findTeam(m.team2);
@@ -858,17 +882,17 @@ export default function GridMatchesPage({ isLogged }) {
                                 {/* RIGA INCONTRO */}
                                 <div
                                   className="
-                grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
-                items-center
-                justify-center
-                gap-x-1
-                text-[12px] leading-none
-                px-1 py-4
-                bg-transparent
-                rounded-none
-                border-0
-                m-0
-              "
+                                    grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]                                     
+                                    items-center
+                                    justify-center
+                                    gap-x-1
+                                    text-[12px] leading-none
+                                    px-1 py-0
+                                    bg-transparent
+                                    rounded-none
+                                    border-0
+                                    m-0
+                                  "
                                 >
                                   {/* SQ1 */}
                                   <span className="font-extrabold text-right whitespace-nowrap mr-1">
@@ -876,7 +900,7 @@ export default function GridMatchesPage({ isLogged }) {
                                   </span>
 
                                   {/* FLAG 1 */}
-                                  <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
+                                  <div className="flex items-center justify-center p-0 m-0 leading-none">
                                     <div className="scale-[0.45] origin-center">
                                       <Quadrato
                                         teamName={t1?.name ?? ""}
@@ -908,11 +932,11 @@ export default function GridMatchesPage({ isLogged }) {
                                         : ""
                                     }
                                     onChange={handleEditChange}
-                                    className="min-w-[3.5rem]"
+                                    className="min-w-[3.5rem] plus-score"
                                   />
 
                                   {/* FLAG 2 */}
-                                  <div className="flex items-center justify-center p-0 m-0 leading-none h-[14px]">
+                                  <div className="flex items-center justify-center p-0 m-0 leading-none">
                                     <div className="scale-[0.45] origin-center">
                                       <Quadrato
                                         teamName={t2?.name ?? ""}
@@ -930,13 +954,15 @@ export default function GridMatchesPage({ isLogged }) {
                                     {toCode3(t2) || "\u00A0"}
                                   </span>
                                 </div>
-
-                                {/* DIVISORIA ogni 2 righe */}
-                                {(idx + 1) % 2 === 0 && (
-                                  <div className="flex justify-center my-1">
-                                    <div className="w-[18rem] h-[2px] bg-gray-500 rounded-full" />
-                                  </div>
-                                )}
+                                {/* DIVISORIA OGNI 2 RIGHE */}
+                                {(idx + 1) % 2 === 0 &&
+                                  idx !== matchesFlat.length - 1 && (
+                                    <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] px-1">
+                                      <div className="col-span-5 flex justify-center">
+                                        <div className="mt-2 w-full max-w-[12rem] h-[2px] bg-gray-500/70 rounded-full" />
+                                      </div>
+                                    </div>
+                                  )}
                               </React.Fragment>
                             );
                           })}
@@ -1731,7 +1757,7 @@ function Row7({
         `}
       >
         <span
-          className={`md:text-[15px] text-[12px] font-extrabold ${
+          className={`text-lg md:text-lg leading-none font-extrabold ${
             isProvisional ? "text-purple-300/40" : ""
           }`}
         >

@@ -3,11 +3,11 @@ import { useEditMode } from "../Providers/EditModeProvider";
 
 /**
  * EditableScore
- * - editMode=false: mostra "a-b" come testo
- * - editMode=true: mostra 2 caselle numeriche (solo цифre) con "-" in mezzo
- * - salva su 2 path separati: pathA, pathB
+ * - editMode=false: mostra "a-b"
+ * - editMode=true:
+ *   - 2 input numerici
+ *   - rettangolo centrale cliccabile (pareggio / X)
  */
-
 export default function EditableScore({
   pathA,
   pathB,
@@ -21,9 +21,9 @@ export default function EditableScore({
   placeholderB = "",
 }) {
   const { editMode } = useEditMode();
+
   const [a, setA] = useState(valueA ?? "");
   const [b, setB] = useState(valueB ?? "");
-
   const dirtyRef = useRef(false);
 
   const sanitize = (v) =>
@@ -31,8 +31,6 @@ export default function EditableScore({
       .replace(/\D+/g, "")
       .slice(0, maxLen);
 
-  // ✅ Sync dai props quando arrivano (es. dopo load async),
-  // ma NON sovrascrivere mentre l’utente sta scrivendo
   useEffect(() => {
     if (!editMode) {
       dirtyRef.current = false;
@@ -47,17 +45,30 @@ export default function EditableScore({
     }
   }, [editMode, valueA, valueB]);
 
+  // 🧠 path base (serve per scrivere il pronostico X)
+  const basePath = pathA.split(".").slice(0, -1).join(".");
+
   if (!editMode) {
     const left = String(valueA ?? "").trim();
     const right = String(valueB ?? "").trim();
-    const txt = left !== "" || right !== "" ? `${left}-${right}` : "\u00A0";
+    const txt = left || right ? `${left}-${right}` : "\u00A0";
+
     return (
-      <div className={`text-center font-extrabold ${className}`}>{txt}</div>
+      <div
+        className={[
+          "text-center font-black leading-none tabular-nums",
+          "text-lg md:text-lg", // 👈 QUI li fai grossi
+          className,
+        ].join(" ")}
+      >
+        {txt}
+      </div>
     );
   }
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center gap-[3px] ${className}`}>
+      {/* INPUT A */}
       <input
         value={a}
         placeholder={placeholderA}
@@ -69,11 +80,35 @@ export default function EditableScore({
           setA(v);
           onChange?.(pathA, v);
         }}
-        className={`w-9 md:w-10 h-8 md:h-9 text-center font-extrabold bg-slate-800 rounded-lg text-white text-[15px] leading-none p-0 m-0 ${inputClassName}`}
+        className={[
+          "w-6 md:w-7 h-full",
+          "text-[12px] md:text-[13px]",
+          "text-center leading-none p-0",
+          "font-extrabold bg-slate-800 text-white",
+          "rounded-sm appearance-none",
+          inputClassName,
+        ].join(" ")}
       />
 
-      <span className="font-extrabold opacity-80">-</span>
+      {/* 🔲 RETTANGOLO CENTRALE (X) */}
+      <button
+        type="button"
+        disabled={!editMode}
+        onClick={() => onChange?.(`${basePath}.plusPron`, "X")}
+        className={`
+          w-[12px]
+          h-6 md:h-7
+          rounded-sm
+          bg-slate-700
+          hover:bg-sky-600
+          transition
+          flex items-center justify-center
+          ${!editMode ? "opacity-40 cursor-default" : "cursor-pointer"}
+        `}
+        aria-label="Pareggio"
+      />
 
+      {/* INPUT B */}
       <input
         value={b}
         placeholder={placeholderB}
@@ -85,7 +120,14 @@ export default function EditableScore({
           setB(v);
           onChange?.(pathB, v);
         }}
-        className={`w-9 md:w-10 h-8 md:h-9 text-center font-extrabold bg-slate-800 rounded-lg text-white text-[15px] leading-none p-0 m-0 ${inputClassName}`}
+        className={[
+          "w-6 md:w-7 h-full",
+          "text-[12px] md:text-[13px]",
+          "text-center leading-none p-0",
+          "font-extrabold bg-slate-800 text-white",
+          "rounded-sm appearance-none",
+          inputClassName,
+        ].join(" ")}
       />
     </div>
   );
