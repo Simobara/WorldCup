@@ -559,7 +559,7 @@ export default function GridMatchesPage({ isLogged }) {
                           className="
                             w-8 h-8 
                             md:w-10 md:h-10
-                            md:text-[30px] text-[16px] 
+                            md:text-[20px] text-[12px]
                             rounded-full
                             text-sky-300
                             flex items-center justify-center
@@ -568,7 +568,7 @@ export default function GridMatchesPage({ isLogged }) {
                             transition
                           "
                         >
-                          🗨️
+                          ℹ️
                         </div>
                         {/* ➕ — QUESTO MANCAVA */}
                         <div
@@ -612,7 +612,7 @@ export default function GridMatchesPage({ isLogged }) {
                           "
                         >
                           {/* ➕ */}
-                          📋
+                          #️⃣
                         </div>
                       </div>
                     )}
@@ -665,7 +665,12 @@ export default function GridMatchesPage({ isLogged }) {
                                 value={groupData?.day1?.items}
                                 onChange={handleEditChange}
                                 className="pl-2"
-                                textareaClassName="h-[1rem] min-h-[1.50rem] max-h-[1.75rem] overflow-hidden resize-none p-0 pt-0 leading-[1.75rem] align-top"
+                                textareaClassName="
+                                  h-[1.25rem] min-h-[1.25rem] max-h-[1.25rem]
+                                      p-0 pt-0
+                                      leading-[1.25rem]
+                                      overflow-hidden resize-none
+                                      align-top"
                               />
                             </div>
                           </div>
@@ -680,7 +685,13 @@ export default function GridMatchesPage({ isLogged }) {
                                 value={groupData?.day2?.items}
                                 onChange={handleEditChange}
                                 className="pl-2"
-                                textareaClassName="h-[1rem] min-h-[1.50rem] max-h-[1.75rem] overflow-hidden resize-none p-0 pt-0 leading-[1.50rem] align-top"
+                                textareaClassName="
+                                  h-[1.25rem] min-h-[1.25rem] max-h-[1.25rem]
+                                      p-0 pt-0
+                                      leading-[1.25rem]
+                                      overflow-hidden resize-none
+                                      align-top
+                                "
                               />
                             </div>
                           </div>
@@ -696,7 +707,13 @@ export default function GridMatchesPage({ isLogged }) {
                                 value={groupData?.day3?.items}
                                 onChange={handleEditChange}
                                 className="pl-2 items-center"
-                                textareaClassName="h-[1rem] min-h-[1.50rem] max-h-[1.75rem] overflow-hidden resize-none p-0 pt-0 leading-[1.50rem] align-top"
+                                textareaClassName="
+                                  h-[1.25rem] min-h-[1.25rem] max-h-[1.25rem]
+                                      p-0 pt-0
+                                      leading-[1.25rem]
+                                      overflow-hidden resize-none
+                                      align-top
+                                "
                               />
                             </div>
                           </div>
@@ -712,7 +729,12 @@ export default function GridMatchesPage({ isLogged }) {
                                 value={groupData?.notes?.text}
                                 onChange={handleEditChange}
                                 className="pl-2"
-                                textareaClassName="min-h-[6.5rem] max-h-[6.5rem] overflow-auto resize-none"
+                                textareaClassName="
+                                  !min-h-[6.5rem] !max-h-[6.5rem]
+                                  !leading-[1.25rem]
+                                  !p-0 !pt-[0.25rem]
+                                  overflow-auto resize-none align-top
+                                "
                               />
                             </div>
                           </div>
@@ -1167,6 +1189,7 @@ export default function GridMatchesPage({ isLogged }) {
               {/* MODALE NOTE — MOBILE */}
               <div
                 className="
+                overflow-hidden
                   md:hidden fixed z-[22002]
                   top-0 left-0
                   w-[82vw] max-w- [20rem]
@@ -1188,7 +1211,7 @@ export default function GridMatchesPage({ isLogged }) {
                     return (
                       <>
                         <div className="font-extrabold text-center p-2 text-sm">
-                          SEE/EDIT NOTE - Gruppo {mobileNotesGroup}
+                          EDIT NOTE - Gruppo {mobileNotesGroup}
                         </div>
 
                         {/* contenuto scrollabile (lascia spazio al bottone) */}
@@ -1208,10 +1231,12 @@ export default function GridMatchesPage({ isLogged }) {
                                       value={day.items}
                                       onChange={handleEditChange}
                                       textareaClassName="
-                          h-[1.75rem] min-h-[1.5rem] max-h-[3.5rem]
-                          overflow-hidden resize-none
-                          leading-[1.75rem] align-top
-                        "
+                                      h-[1.25rem] min-h-[1.25rem] max-h-[1.25rem]
+                                      p-0 pt-0
+                                      leading-[1.25rem]
+                                      overflow-hidden resize-none
+                                      align-top
+                                    "
                                     />
                                   </div>
                                 </div>
@@ -1221,7 +1246,7 @@ export default function GridMatchesPage({ isLogged }) {
                           {data.notes && (
                             <div>
                               <div className="font-bold text-red-900 pl-2">
-                                {data.notes.title}
+                                {PinSymbol}
                               </div>
                               <div className="mt-0 pl-2">
                                 <EditableText
@@ -1229,10 +1254,10 @@ export default function GridMatchesPage({ isLogged }) {
                                   value={data.notes.text}
                                   onChange={handleEditChange}
                                   textareaClassName="
-                      h-[4.50rem] min-h-[4.50rem] max-h-[7.25rem]
-                      overflow-auto resize-none
-                      leading-[1.25rem] align-top
-                    "
+                                  h-[4.5rem] min-h-[4.5rem] max-h-[4.5rem]
+                                  overflow-auto resize-none
+                                  leading-[1.25rem]
+                                "
                                 />
                               </div>
                             </div>
@@ -1240,7 +1265,7 @@ export default function GridMatchesPage({ isLogged }) {
                         </div>
 
                         {/* bottone sempre bottom-right */}
-                        <div className="absolute bottom-3 right-3">
+                        <div className="absolute bottom-0 right-0">
                           <AdminEditToggle onExit={saveAllEdits} />
                         </div>
                       </>
@@ -1267,15 +1292,15 @@ export default function GridMatchesPage({ isLogged }) {
             {/* MODALE (uguale a NOTE mobile) */}
             <div
               className="
-                md:hidden fixed z-[30000]
+                md:hidden fixed z-[22002]
                 top-0 left-0
-                w-[82vw] max-w- [20]
-                min-h-[30vh]
-                max-h-[80vh] overflow-auto
+                w-[82vw] max-w-[20rem]
+                h-[42vh]
                 rounded-2xl
                 bg-slate-900 text-white
                 shadow-2xl
                 p-0
+                overflow-hidden
               "
               onClick={(e) => e.stopPropagation()}
             >
@@ -1317,7 +1342,7 @@ export default function GridMatchesPage({ isLogged }) {
                   <>
                     {/* 🔹 TITOLO */}
                     <div className="font-extrabold text-center p-2">
-                      SEE/EDIT PRONOSTICI - Gruppo {letterP}
+                      EDIT RIS/PRONOSTICI - Gruppo {letterP}
                     </div>
 
                     {/* CONTENUTO PLUS */}
@@ -1407,7 +1432,7 @@ export default function GridMatchesPage({ isLogged }) {
                         })}
                       </div>
 
-                      <div className="mt-3 flex justify-end">
+                      <div className="absolute bottom-0 right-0">
                         <AdminEditToggle onExit={saveAllEdits} />
                       </div>
                     </div>
