@@ -461,7 +461,7 @@ export default function GridMatchesPage({ isLogged }) {
               return "";
             };
 
-            // NON-ADMIN: NON legge MAI seed
+            // NON-ADMIN: legge il seed SOLO quando il toggle "," (showPronostics) è attivo
             const computeResUser = (m, letter, idx) => {
               const official = (m?.results ?? "").trim();
               if (official.includes("-")) return official;
@@ -475,7 +475,10 @@ export default function GridMatchesPage({ isLogged }) {
 
               if (a !== "" && b !== "") return `${a}-${b}`;
 
-              // mai seed
+              // ✅ seed solo con pronostics ON
+              const seed = String(m?.ris ?? "").trim();
+              if (showPronostics && seed.includes("-")) return seed;
+
               return "";
             };
 
@@ -1231,7 +1234,9 @@ export default function GridMatchesPage({ isLogged }) {
                                       value={day.items}
                                       onChange={handleEditChange}
                                       textareaClassName="
-                                      h-[1.25rem] min-h-[1rem] max-h-[1.25rem]
+                                      !h-[1.25rem] 
+                                      !min-h-[1rem] 
+                                      !max-h-[1.25rem]
                                       p-0 pt-0
                                       leading-[1rem]
                                       overflow-hidden
@@ -1255,9 +1260,9 @@ export default function GridMatchesPage({ isLogged }) {
                                   value={data.notes.text}
                                   onChange={handleEditChange}
                                   textareaClassName="
-                                  h-[6.25rem]
-                                  min-h-[6.25rem]
-                                  max-h-[6.25rem]
+                                  !h-[6.25rem]
+                                  !min-h-[6.25rem]
+                                  !max-h-[6.25rem]
                                   leading-[1.25rem]
                                   overflow-hidden
                                   resize-none
