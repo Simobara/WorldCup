@@ -230,6 +230,35 @@ export default function GridMatchesPage({ isLogged }) {
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
 
+  // =======================
+  // MOBILE — NOTE + PLUS UNIFICATI
+  // =======================
+
+  // apre ENTRAMBI i modali (NOTE + PLUS)
+  const openMobileBoth = useCallback((letter) => {
+    // chiudi altre UI mobile
+    setMobileRankOpen(false);
+    setMobileGroup(null);
+    setMobileCutoff(null);
+
+    // assegna lo stesso gruppo a entrambi
+    setMobileNotesGroup(letter);
+    setMobilePlusGroup(letter);
+
+    // apri entrambi
+    setMobileNotesOpen(true);
+    setMobilePlusOpen(true);
+  }, []);
+
+  // chiude ENTRAMBI i modali
+  const closeMobileBoth = useCallback(() => {
+    setMobileNotesOpen(false);
+    setMobileNotesGroup(null);
+
+    setMobilePlusOpen(false);
+    setMobilePlusGroup(null);
+  }, []);
+
   //------------------------------------------------------------------------
 
   useEffect(() => {
@@ -526,7 +555,6 @@ export default function GridMatchesPage({ isLogged }) {
                   {/* LETTERA + MESSAGE */}
                   <div className="relative w-8 md:w-10 flex items-center justify-center p-0 m-0">
                     {/* ================= ICONE AZIONI GRUPPO (MOBILE + DESKTOP) ================= */}
-
                     {showPronostics && (
                       <div
                         className="
@@ -549,23 +577,18 @@ export default function GridMatchesPage({ isLogged }) {
                             setHoverModal(null);
                           }}
                           onClick={(e) => {
-                            // mobile: apre le note
                             if (isDesktopNow) return;
-
                             e.stopPropagation();
-                            setMobileRankOpen(false);
-                            setMobileGroup(null);
-                            setMobileCutoff(null);
-                            setMobileNotesGroup(letter);
-                            setMobileNotesOpen(true);
+                            openMobileBoth(letter); // ✅ apre NOTE + PLUS insieme
                           }}
                           className="
+                            md:flex hidden
                             w-8 h-8 
                             md:w-10 md:h-10
                             md:text-[20px] text-[12px]
                             rounded- full
                             text-sky-300
-                            flex items-center justify-center
+                            items-center justify-center
                             cursor-pointer
                             hover:bg-red-600
                             transition
@@ -584,20 +607,9 @@ export default function GridMatchesPage({ isLogged }) {
                             setHoverPlusModal(null);
                           }}
                           onClick={(e) => {
-                            // mobile: apre modale "+" (vuoto per ora)
-                            if (isDesktopNow) return;
-
+                            if (isDesktopNow) return; // desktop: niente, resta hover
                             e.stopPropagation();
-                            // chiudi altre UI mobile eventualmente aperte
-                            setMobileRankOpen(false);
-                            setMobileGroup(null);
-                            setMobileCutoff(null);
-
-                            setMobileNotesOpen(false);
-                            setMobileNotesGroup(null);
-
-                            setMobilePlusGroup(letter);
-                            setMobilePlusOpen(true);
+                            openMobileBoth(letter); // ✅ apre NOTE + PLUS insieme
                           }}
                           className="
                             w-8 h-8
@@ -620,6 +632,276 @@ export default function GridMatchesPage({ isLogged }) {
                       </div>
                     )}
 
+                    {/* ================= MOBILE ONLY — OVERLAY UNICO (NOTE + PLUS) ================= */}
+                    {(mobileNotesOpen || mobilePlusOpen) &&
+                      (mobileNotesGroup || mobilePlusGroup) && (
+                        <>
+                          {/* BACKDROP UNICO */}
+                          <div
+                            className="md:hidden fixed inset-0 z-[9998] bg-black/80"
+                            onClick={closeMobileBoth}
+                          />
+
+                          {/* ✅ 1) MODALE RIS/PRON — SOPRA */}
+                          {mobilePlusOpen && mobilePlusGroup && (
+                            <div
+                              className="
+                                md:hidden fixed z-[22003]
+                                top-0 left-0
+                                w-[90vw] max-w-[22rem]
+                                h-[42vh]
+                                rounded-2xl
+                                bg-slate-900 text-white
+                                shadow-2xl
+                                p-0
+                                overflow-hidden
+                              "
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {(() => {
+                                const letterP = mobilePlusGroup;
+                                const resolveName =
+                                  buildNameResolver(flagsMond);
+
+                                const groupKey = `group_${letterP}`;
+                                const matchesFlatP = getFlatMatchesForGroup(
+                                  groupMatches?.[groupKey]
+                                );
+
+                                const findTeamP = (rawName) => {
+                                  const name = resolveName(rawName);
+                                  if (!name) return null;
+                                  return (
+                                    (flagsMond ?? []).find(
+                                      (t) => resolveName(t.name) === name
+                                    ) ?? null
+                                  );
+                                };
+
+                                const computeResP = (m, idx) => {
+                                  const official = (m?.results ?? "").trim();
+                                  if (official.includes("-")) return official;
+
+                                  const a = String(
+                                    matchesState?.[letterP]?.plusRis?.[idx]
+                                      ?.a ?? ""
+                                  ).trim();
+                                  const b = String(
+                                    matchesState?.[letterP]?.plusRis?.[idx]
+                                      ?.b ?? ""
+                                  ).trim();
+                                  if (a !== "" && b !== "") return `${a}-${b}`;
+                                  return "";
+                                };
+
+                                return (
+                                  <>
+                                    <div className="font-extrabold text-center p-2">
+                                      EDIT RIS/PRONOSTICI - Gruppo {letterP}
+                                    </div>
+
+                                    <div className="p-2 pl-6">
+                                      <div className="space-y-0 [&_input]:text-xl [&_input]:font-extrabold [&_input]:leading-none [&_input]:text-center">
+                                        {matchesFlatP.map((m, idx) => {
+                                          const t1 = findTeamP(m.team1);
+                                          const t2 = findTeamP(m.team2);
+                                          const res = computeResP(m, idx);
+
+                                          const [baseA, baseB] = String(
+                                            res ?? ""
+                                          ).includes("-")
+                                            ? String(res)
+                                                .split("-")
+                                                .map((x) => x.trim())
+                                            : ["", ""];
+
+                                          const savedA =
+                                            matchesState?.[letterP]?.plusRis?.[
+                                              idx
+                                            ]?.a;
+                                          const savedB =
+                                            matchesState?.[letterP]?.plusRis?.[
+                                              idx
+                                            ]?.b;
+
+                                          const norm = (x) =>
+                                            String(x ?? "").trim();
+                                          const valueA = norm(savedA);
+                                          const valueB = norm(savedB);
+
+                                          return (
+                                            <div
+                                              key={`plus-mob-${letterP}-${idx}`}
+                                              className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] items-center justify-center gap-x-1 text-[12px] leading-none"
+                                            >
+                                              <span className="font-extrabold text-right whitespace-nowrap mr-1">
+                                                {toCode3(t1) || "\u00A0"}
+                                              </span>
+
+                                              <div className="flex items-center justify-center h-full min-h-[2.5rem]">
+                                                <div className="scale-[0.45] origin-center">
+                                                  <Quadrato
+                                                    teamName={t1?.name ?? ""}
+                                                    flag={t1?.flag ?? null}
+                                                    phase="round32"
+                                                    advanced={false}
+                                                    label={null}
+                                                    highlightType="none"
+                                                  />
+                                                </div>
+                                              </div>
+
+                                              <EditableScore
+                                                pathA={`${letterP}.plusRis.${idx}.a`}
+                                                pathB={`${letterP}.plusRis.${idx}.b`}
+                                                valueA={valueA}
+                                                valueB={valueB}
+                                                placeholderA={
+                                                  user?.email?.toLowerCase() ===
+                                                  ADMIN_EMAIL.toLowerCase()
+                                                    ? baseA
+                                                    : ""
+                                                }
+                                                placeholderB={
+                                                  user?.email?.toLowerCase() ===
+                                                  ADMIN_EMAIL.toLowerCase()
+                                                    ? baseB
+                                                    : ""
+                                                }
+                                                onChange={handleEditChange}
+                                                className="min-w-[3.5rem] plus-score text-sm"
+                                              />
+
+                                              <div className="flex items-center justify-center h-full min-h-[2.5rem]">
+                                                <div className="scale-[0.45] origin-center">
+                                                  <Quadrato
+                                                    teamName={t2?.name ?? ""}
+                                                    flag={t2?.flag ?? null}
+                                                    phase="round32"
+                                                    advanced={false}
+                                                    label={null}
+                                                    highlightType="none"
+                                                  />
+                                                </div>
+                                              </div>
+
+                                              <span className="font-extrabold text-left whitespace-nowrap ml-1">
+                                                {toCode3(t2) || "\u00A0"}
+                                              </span>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+
+                                      <div className="absolute bottom-0 right-0">
+                                        <AdminEditToggle
+                                          onExit={saveAllEdits}
+                                        />
+                                      </div>
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
+
+                          {/* ✅ 2) MODALE NOTE — SOTTO */}
+                          {mobileNotesOpen && mobileNotesGroup && (
+                            <div
+                              className="
+                                md:hidden fixed z-[22002]
+                                top-[43vh] left-0
+                                w-[90vw] max-w-[22rem]
+                                h-[42vh]
+                                rounded-2xl
+                                bg-slate-900 text-white
+                                shadow-2xl
+                                p-0
+                                overflow-hidden
+                              "
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="relative h-full flex flex-col">
+                                {(() => {
+                                  const data = notes?.[mobileNotesGroup];
+                                  if (!data) return null;
+
+                                  return (
+                                    <>
+                                      <div className="font-extrabold text-center p-2 text-sm">
+                                        EDIT NOTE - Gruppo {mobileNotesGroup}
+                                      </div>
+
+                                      <div className="flex-1 overflow-auto p-2 pb-16 text-sm">
+                                        {[data.day1, data.day2, data.day3].map(
+                                          (day, i) =>
+                                            day && (
+                                              <div key={i}>
+                                                <div className="font-bold text-red-900 pl-2">
+                                                  {Array.isArray(day.title)
+                                                    ? day.title[0]
+                                                    : day.title}
+                                                </div>
+                                                <div className="pl-2">
+                                                  <EditableText
+                                                    path={`${mobileNotesGroup}.day${i + 1}.items`}
+                                                    value={day.items}
+                                                    onChange={handleEditChange}
+                                                    textareaClassName="
+                                                      !h-[1.25rem]
+                                                      !min-h-[1rem]
+                                                      !max-h-[1.25rem]
+                                                      p-0 pt-0
+                                                      leading-[1rem]
+                                                      overflow-hidden
+                                                      resize-none
+                                                      align-top
+                                                    "
+                                                  />
+                                                </div>
+                                              </div>
+                                            )
+                                        )}
+
+                                        {data.notes && (
+                                          <div>
+                                            <div className="font-bold text-red-900 pl-2">
+                                              {PinSymbol}
+                                            </div>
+                                            <div className="mt-0 pl-2">
+                                              <EditableText
+                                                path={`${mobileNotesGroup}.notes.text`}
+                                                value={data.notes.text}
+                                                onChange={handleEditChange}
+                                                textareaClassName="
+                                                  !h-[6.25rem]
+                                                  !min-h-[6.25rem]
+                                                  !max-h-[6.25rem]
+                                                  leading-[1.25rem]
+                                                  overflow-hidden
+                                                  resize-none
+                                                  align-top
+                                                "
+                                              />
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* <div className="absolute bottom-0 right-0">
+                                        <AdminEditToggle
+                                          onExit={saveAllEdits}
+                                        />
+                                      </div> */}
+                                    </>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+
                     {/* Lettera */}
                     <span
                       className={`mt-0 ${CssGroupLetter.Text} font-extrabold text-xl md:text-3xl leading-none`}
@@ -628,7 +910,6 @@ export default function GridMatchesPage({ isLogged }) {
                     </span>
                     {/* ================= DESKTOP ONLY — HOVER PLUS ================= */}
                     {/* ===== DESKTOP HOVER NOTE (TOOLTIP LATERALE) ===== */}
-
                     {hoverModal === letter && (
                       <div
                         className="
@@ -750,7 +1031,6 @@ export default function GridMatchesPage({ isLogged }) {
                       </div>
                     )}
                     {/* ===== DESKTOP HOVER PLUS ➕(RIS PRONOSTICI) ===== */}
-
                     {hoverPlusModal === letter && (
                       <div
                         className="
@@ -1176,282 +1456,8 @@ export default function GridMatchesPage({ isLogged }) {
               </section>
             );
           })}
-          {/* ================= MOBILE ONLY — MODAL NOTE ================= */}
-          {/* ===== MOBILE MODAL NOTE (MESSAGGI) ===== */}
-          {mobileNotesOpen && mobileNotesGroup && (
-            <>
-              {/* BACKDROP */}
-              <div
-                className="md:hidden fixed inset-0 z-[9998] bg-black/80"
-                onClick={() => {
-                  setMobileNotesOpen(false);
-                  setMobileNotesGroup(null);
-                }}
-              />
-
-              {/* MODALE NOTE — MOBILE */}
-              <div
-                className="
-                overflow-hidden
-                  md:hidden fixed z-[22002]
-                  top-0 left-0
-                  w-[82vw] max-w- [20rem]
-                  h-[42vh]
-                  rounded-2xl
-                  bg-slate-900 text-white
-                  shadow-2xl
-                  p-0
-                "
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* INNER: relativo SOLO per i children absolute */}
-                <div className="relative h-full flex flex-col">
-                  {/* CONTENUTO NOTE */}
-                  {(() => {
-                    const data = notes?.[mobileNotesGroup];
-                    if (!data) return null;
-
-                    return (
-                      <>
-                        <div className="font-extrabold text-center p-2 text-sm">
-                          EDIT NOTE - Gruppo {mobileNotesGroup}
-                        </div>
-
-                        {/* contenuto scrollabile (lascia spazio al bottone) */}
-                        <div className="flex-1 overflow-auto p-2 pb-16 text-sm">
-                          {[data.day1, data.day2, data.day3].map(
-                            (day, i) =>
-                              day && (
-                                <div key={i}>
-                                  <div className="font-bold text-red-900 pl-2">
-                                    {Array.isArray(day.title)
-                                      ? day.title[0]
-                                      : day.title}
-                                  </div>
-                                  <div className="pl-2">
-                                    <EditableText
-                                      path={`${mobileNotesGroup}.day${i + 1}.items`}
-                                      value={day.items}
-                                      onChange={handleEditChange}
-                                      textareaClassName="
-                                      !h-[1.25rem] 
-                                      !min-h-[1rem] 
-                                      !max-h-[1.25rem]
-                                      p-0 pt-0
-                                      leading-[1rem]
-                                      overflow-hidden
-                                      resize-none
-                                      align-top
-                                    "
-                                    />
-                                  </div>
-                                </div>
-                              )
-                          )}
-
-                          {data.notes && (
-                            <div>
-                              <div className="font-bold text-red-900 pl-2">
-                                {PinSymbol}
-                              </div>
-                              <div className="mt-0 pl-2">
-                                <EditableText
-                                  path={`${mobileNotesGroup}.notes.text`}
-                                  value={data.notes.text}
-                                  onChange={handleEditChange}
-                                  textareaClassName="
-                                  !h-[6.25rem]
-                                  !min-h-[6.25rem]
-                                  !max-h-[6.25rem]
-                                  leading-[1.25rem]
-                                  overflow-hidden
-                                  resize-none
-                                  align-top
-                                "
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* bottone sempre bottom-right */}
-                        <div className="absolute bottom-0 right-0">
-                          <AdminEditToggle onExit={saveAllEdits} />
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-            </>
-          )}
         </div>
-        {/* ================= MOBILE ONLY — MODAL PLUS ================= */}
-        {/* ===== MOBILE MODAL PLUS (PRONOSTICI) ===== */}
-        {mobilePlusOpen && mobilePlusGroup && (
-          <>
-            {/* BACKDROP (uguale a NOTE mobile) */}
-            <div
-              className="md:hidden fixed inset-0 z-[9998]  bg-black/80"
-              onClick={() => {
-                setMobilePlusOpen(false);
-                setMobilePlusGroup(null);
-              }}
-            />
 
-            {/* MODALE (uguale a NOTE mobile) */}
-            <div
-              className="
-                md:hidden fixed z-[22002]
-                top-0 left-0
-                w-[82vw] max-w-[20rem]
-                h-[42vh]
-                rounded-2xl
-                bg-slate-900 text-white
-                shadow-2xl
-                p-0
-                overflow-hidden
-              "
-              onClick={(e) => e.stopPropagation()}
-            >
-              {(() => {
-                const letterP = mobilePlusGroup;
-                const resolveName = buildNameResolver(flagsMond);
-
-                const groupKey = `group_${letterP}`;
-                const matchesFlatP = getFlatMatchesForGroup(
-                  groupMatches?.[groupKey]
-                );
-
-                const findTeamP = (rawName) => {
-                  const name = resolveName(rawName);
-                  if (!name) return null;
-                  return (
-                    (flagsMond ?? []).find(
-                      (t) => resolveName(t.name) === name
-                    ) ?? null
-                  );
-                };
-
-                const computeResP = (m, idx) => {
-                  const official = (m?.results ?? "").trim();
-                  if (official.includes("-")) return official;
-
-                  const a = String(
-                    matchesState?.[letterP]?.plusRis?.[idx]?.a ?? ""
-                  ).trim();
-                  const b = String(
-                    matchesState?.[letterP]?.plusRis?.[idx]?.b ?? ""
-                  ).trim();
-
-                  if (a !== "" && b !== "") return `${a}-${b}`;
-                  return "";
-                };
-
-                return (
-                  <>
-                    {/* 🔹 TITOLO */}
-                    <div className="font-extrabold text-center p-2">
-                      EDIT RIS/PRONOSTICI - Gruppo {letterP}
-                    </div>
-
-                    {/* CONTENUTO PLUS */}
-                    <div className="p-2  pl-6">
-                      <div className="space-y-0 [&_input]:text-xl [&_input]:font-extrabold [&_input]:leading-none [&_input]:text-center">
-                        {matchesFlatP.map((m, idx) => {
-                          const t1 = findTeamP(m.team1);
-                          const t2 = findTeamP(m.team2);
-                          const res = computeResP(m, idx);
-
-                          const [baseA, baseB] = String(res ?? "").includes("-")
-                            ? String(res)
-                                .split("-")
-                                .map((x) => x.trim())
-                            : ["", ""];
-
-                          const savedA =
-                            matchesState?.[letterP]?.plusRis?.[idx]?.a;
-                          const savedB =
-                            matchesState?.[letterP]?.plusRis?.[idx]?.b;
-
-                          const norm = (x) => String(x ?? "").trim();
-                          const valueA = norm(savedA);
-                          const valueB = norm(savedB);
-
-                          return (
-                            <div
-                              key={`plus-mob-${letterP}-${idx}`}
-                              className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] items-center justify-center gap-x-1 text-[12px] leading-none"
-                            >
-                              <span className="font-extrabold text-right whitespace-nowrap mr-1">
-                                {toCode3(t1) || "\u00A0"}
-                              </span>
-
-                              <div className="flex items-center justify-center h-full min-h-[2.5rem]">
-                                <div className="scale-[0.45] origin-center">
-                                  <Quadrato
-                                    teamName={t1?.name ?? ""}
-                                    flag={t1?.flag ?? null}
-                                    phase="round32"
-                                    advanced={false}
-                                    label={null}
-                                    highlightType="none"
-                                  />
-                                </div>
-                              </div>
-
-                              <EditableScore
-                                pathA={`${letterP}.plusRis.${idx}.a`}
-                                pathB={`${letterP}.plusRis.${idx}.b`}
-                                valueA={valueA}
-                                valueB={valueB}
-                                placeholderA={
-                                  user?.email?.toLowerCase() ===
-                                  ADMIN_EMAIL.toLowerCase()
-                                    ? baseA
-                                    : ""
-                                }
-                                placeholderB={
-                                  user?.email?.toLowerCase() ===
-                                  ADMIN_EMAIL.toLowerCase()
-                                    ? baseB
-                                    : ""
-                                }
-                                onChange={handleEditChange}
-                                className="min-w-[3.5rem] plus-score text-sm"
-                              />
-
-                              <div className="flex items-center justify-center h-full min-h-[2.5rem]">
-                                <div className="scale-[0.45] origin-center">
-                                  <Quadrato
-                                    teamName={t2?.name ?? ""}
-                                    flag={t2?.flag ?? null}
-                                    phase="round32"
-                                    advanced={false}
-                                    label={null}
-                                    highlightType="none"
-                                  />
-                                </div>
-                              </div>
-
-                              <span className="font-extrabold text-left whitespace-nowrap ml-1">
-                                {toCode3(t2) || "\u00A0"}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <div className="absolute bottom-0 right-0">
-                        <AdminEditToggle onExit={saveAllEdits} />
-                      </div>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-          </>
-        )}
         {/* ================= MOBILE ONLY — DRAWER CLASSIFICA ================= */}
         {/* ===== MOBILE DRAWER RANKING (CLASSIFICA GRUPPO) ===== */}
 
