@@ -35,9 +35,9 @@ const RettDatSemif = ({
       className={`
     relative
     ${color}
-    md:-top-[6.4rem] -top-[8rem]
+    md:-top-[6.4rem] -top-[6.5rem]
     md:w-32 w-32
-    md:h-40 h-32
+    md:h-40 h-40
     rounded-[16px]
     shadow-xl
     overflow-hidden
