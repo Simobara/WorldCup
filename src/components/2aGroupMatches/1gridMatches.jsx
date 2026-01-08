@@ -575,7 +575,6 @@ export default function GridMatchesPage({ isLogged }) {
               user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
                 ? computeResAdmin
                 : computeResUser;
-
             {
               {
                 /* ================= GROUP CARD (MOBILE + DESKTOP) ================= */
