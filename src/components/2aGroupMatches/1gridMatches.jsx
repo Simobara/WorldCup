@@ -658,7 +658,7 @@ export default function GridMatchesPage({ isLogged }) {
                               bg-slate-900 text-white
                               shadow-2xl
                               p-0
-                              overflow-hidden
+                              !overflow-hidden
                             "
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -709,7 +709,7 @@ export default function GridMatchesPage({ isLogged }) {
                                   </div>
 
                                   {/* CONTENUTO SCORRIBILE */}
-                                  <div className="flex-1 overflow-auto px-2 pb-16 space-y-4">
+                                  <div className="flex-1 overflow-hidden px-2 pb-16 space-y-4">
                                     {/* --- SEZIONE RIS/PRON --- */}
                                     <div className="pl-4">
                                       <div className="space-y-0 [&_input]:text-xl [&_input]:font-extrabold [&_input]:leading-none [&_input]:text-center">
