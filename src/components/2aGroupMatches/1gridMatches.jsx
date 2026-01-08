@@ -653,7 +653,7 @@ export default function GridMatchesPage({ isLogged }) {
                               md:hidden fixed z-[22003]
                               top-0 left-0
                               w-[86vw] max-w-[22rem]
-                              h-[70vh]
+                              h-[75vh]
                               rounded-2xl
                               bg-slate-900 text-white
                               shadow-2xl
@@ -1441,7 +1441,7 @@ export default function GridMatchesPage({ isLogged }) {
           <>
             {/* BACKDROP — mobile only */}
             <div
-              className="md:hidden fixed inset-0 z-[22003]  bg-black/80"
+              className="md:hidden fixed inset-0 z-[9998] bg-black/80"
               onClick={() => {
                 setMobileRankOpen(false);
                 setMobileGroup(null);
