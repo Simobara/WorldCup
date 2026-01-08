@@ -211,5 +211,5 @@ export const DATA_SOURCE = REMOTE; // oppure LOCAL
 export const PinSymbol = '📍'
 // export const ChjSymbol = '☑️'
 // export const ChkSymbol = '✅'
-// export const DelSymbol = '🔄'
+export const DelSymbol = '🔄'
 // -------------------------------------------------------------------------------------- -------------------------------------------

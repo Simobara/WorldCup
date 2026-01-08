@@ -13,6 +13,7 @@ import { useAuth } from "../../Services/supabase/AuthProvider";
 import {
   ADMIN_EMAIL,
   DATA_SOURCE,
+  DelSymbol,
   flagsMond,
   PinSymbol,
 } from "../../START/app/0main";
@@ -462,17 +463,17 @@ export default function GridMatchesPage({ isLogged }) {
                 : "Show pronostics highlights"
             }
             className={`
-      select-none
-      absolute
-      md:w-8 md:h-8
-      md:py-0 py-2
-      md:px-1 px-2
-      rounded-full font-extrabold text-sm 
-      transition-all duration-300 
-      
-      bg-transparent text-slate-900
-      z-[11000]
-    `}
+              select-none
+              absolute
+              md:w-8 md:h-8
+              md:py-0 py-2
+              md:px-1 px-2
+              rounded-full font-extrabold text-sm 
+              transition-all duration-300 
+              
+              bg-transparent text-slate-900
+              z-[11000]
+            `}
             style={{
               top: btnPos.top,
               left: btnPos.left,
@@ -775,7 +776,13 @@ export default function GridMatchesPage({ isLogged }) {
                                           const isOfficial = (m?.results ?? "")
                                             .trim()
                                             .includes("-");
-
+                                          // DelSymbol attivo solo se sei in modalità edit (✅) e non c'è risultato ufficiale
+                                          const canUseDel =
+                                            editMode && !isOfficial;
+                                          const delDisabled = !canUseDel;
+                                          const delClassBase = delDisabled
+                                            ? "opacity-30 cursor-not-allowed"
+                                            : "text-slate-600 cursor-pointer";
                                           // 🔢 valori base da mostrare (risultato ufficiale o plusRis)
                                           const [baseA, baseB] = String(
                                             res ?? ""
@@ -829,26 +836,49 @@ export default function GridMatchesPage({ isLogged }) {
                                                   }
 
                                                   // se NON ufficiale → mostra P cliccabile
+                                                  // se NON ufficiale → mostra P cliccabile
                                                   return (
                                                     <button
                                                       type="button"
                                                       onClick={() => {
+                                                        if (!canUseDel) return; // fuori da edit mode → niente
+
+                                                        const isChecked =
+                                                          !!matchesState?.[
+                                                            letterP
+                                                          ]?.plusCheck?.[idx];
+                                                        const nextChecked =
+                                                          !isChecked;
+
+                                                        // toggla P
                                                         handleEditChange(
                                                           `${letterP}.plusCheck.${idx}`,
-                                                          !isChecked
+                                                          nextChecked
                                                         );
+
+                                                        // se sto ATTIVANDO la P → svuoto i numeri
+                                                        if (nextChecked) {
+                                                          handleEditChange(
+                                                            `${letterP}.plusRis.${idx}.a`,
+                                                            ""
+                                                          );
+                                                          handleEditChange(
+                                                            `${letterP}.plusRis.${idx}.b`,
+                                                            ""
+                                                          );
+                                                        }
                                                       }}
+                                                      disabled={delDisabled}
                                                       className={`
-        flex items-center justify-center
-        transition
-        bg-transparent border-none
-        text-[14px] font-extrabold
-        text-slate-600
-        cursor-pointer
-      `}
+                                                        flex items-center justify-center
+                                                        transition
+                                                        bg-transparent border-none
+                                                        text-[14px] font-extrabold
+                                                        ${delClassBase}
+                                                      `}
                                                       aria-label="Pronostico P"
                                                     >
-                                                      P
+                                                      {DelSymbol}
                                                     </button>
                                                   );
                                                 })()}
@@ -892,10 +922,10 @@ export default function GridMatchesPage({ isLogged }) {
                                                     readOnly={isOfficial}
                                                     onChange={handleEditChange}
                                                     className={`
-    w-[3.2rem]
-    justify-center
-    ${isOfficial ? "opacity-50 text-gray-300" : ""}
-  `}
+                                                      w-[3.2rem]
+                                                      justify-center
+                                                      ${isOfficial ? "opacity-50 text-gray-300" : ""}
+                                                    `}
                                                   />
                                                 </div>
                                                 {/* FLAG 2 */}
@@ -1225,12 +1255,17 @@ export default function GridMatchesPage({ isLogged }) {
                                       const isOfficial = (m?.results ?? "")
                                         .trim()
                                         .includes("-");
-
+                                      // DelSymbol attivo solo se sei in modalità edit (✅) e non c'è risultato ufficiale
+                                      const canUseDel = editMode && !isOfficial;
+                                      const delDisabled = !canUseDel;
+                                      const delClassBase = delDisabled
+                                        ? "opacity-30 cursor-not-allowed"
+                                        : "cursor-pointer text-slate-500";
                                       return (
                                         <button
                                           type="button"
                                           onClick={() => {
-                                            if (isOfficial) return;
+                                            if (!canUseDel) return; // se non sei in edit mode, non fare nulla
 
                                             const nextChecked = !isChecked;
 
@@ -1240,7 +1275,7 @@ export default function GridMatchesPage({ isLogged }) {
                                               nextChecked
                                             );
 
-                                            // ✨ se sto ATTIVANDO la P → svuoto i numeri del risultato
+                                            // se sto ATTIVANDO la P → svuoto i numeri del risultato
                                             if (nextChecked) {
                                               handleEditChange(
                                                 `${letter}.plusRis.${idx}.a`,
@@ -1252,20 +1287,20 @@ export default function GridMatchesPage({ isLogged }) {
                                               );
                                             }
                                           }}
-                                          disabled={isOfficial}
+                                          disabled={delDisabled}
                                           className={`
-        w-5 h-5
-        flex items-center justify-center
-        transition
-        bg-transparent border-none
-        ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-        ${isOfficial ? "opacity-0 pointer-events-none" : "cursor-pointer"}
-        text-slate-500 font-bold
-      `}
+      w-5 h-5
+      flex items-center justify-center
+      transition
+      bg-transparent border-none
+      ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+      ${delClassBase}
+      font-bold
+    `}
                                           aria-hidden={isOfficial}
                                           aria-label="Pronostico P"
                                         >
-                                          P
+                                          {DelSymbol}
                                         </button>
                                       );
                                     })()}
@@ -1715,7 +1750,7 @@ export default function GridMatchesPage({ isLogged }) {
 function Header7() {
   const headers = [
     { mobile: "D ", desktop: "DATA" },
-    { mobile: "CIT ", desktop: "CITTA'" },
+    { mobile: "C ", desktop: "CITTA'" },
     { mobile: "SQ1", desktop: "TEAM 1" },
     { mobile: "RIS", desktop: "RIS" },
     { mobile: "SQ2", desktop: "TEAM 2" },
@@ -1740,7 +1775,7 @@ function Header7() {
                 h?.desktop === "TEAM 1"
                   ? "justify-start pl-2 md:pl-4"
                   : h?.desktop === "CITTA'"
-                    ? "justify-start -pl-2"
+                    ? "justify-center pl-1"
                     : h?.desktop === "TEAM 2"
                       ? "justify-start pl-1 md:pl-4"
                       : "justify-center"
