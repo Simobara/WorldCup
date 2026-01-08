@@ -6,7 +6,7 @@ export const citiesOsp = [
   { name: 'Vancouver',    abbr: 'VANCOUVER',      color: CssCities.Sky },
   { name: 'Seattle',      abbr: 'SEATTLE',        color: CssCities.Sky },
   { name: 'SanFrancisco', abbr: 'SAN FRANCISCO',  color: CssCities.Sky },
-  { name: 'LAngeles',     abbr: 'LOS ANGELES',    color: CssCities.Sky },
+  { name: 'LosAngeles',     abbr: 'LOS ANGELES',    color: CssCities.Sky },
 
   // 🟢 GREEN – SUCCESSIVE 6
   { name: 'Guadalajara',  abbr: 'GUADALAJARA',    color: CssCities.Green },

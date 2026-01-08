@@ -1301,7 +1301,11 @@ export default function GridMatchesPage({ isLogged }) {
                                                   bg-slate-500
                                                   rounded-full
                                                   transition-all duration-100 ease-out ml-[1rem] mr-0
-                                                  ${editMode ? "w-[calc(100%+10.5rem)] -ml-[4rem]" : "w-full"}
+                                                  ${
+                                                    editMode
+                                                      ? "md:w-[calc(100%+14rem)] md:-ml-[4rem] w-full"
+                                                      : "w-full"
+                                                  }
                                                 `}
                                           />
                                         </div>

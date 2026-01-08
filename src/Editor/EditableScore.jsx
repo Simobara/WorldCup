@@ -103,12 +103,12 @@ export default function EditableScore({
         type="button"
         disabled={!editMode}
         onClick={() => onChange?.(`${basePath}.plusPron`, "X")}
-        className={`
-          w-[12px]
-          h-2 md:h-7
+        className={`        
+          md:w-[3.5rem] w-[12px]      /* desktop più largo */
+          md:h-[2rem] h-2          /* desktop più basso */
           rounded-sm
-          bg-slate-700
-          hover:bg-sky-600 !px-2
+        bg-slate-700
+        hover:bg-sky-600 !px-2 
           transition
           flex items-center justify-center
           ${!editMode ? "opacity-40 cursor-default" : "cursor-pointer"}
