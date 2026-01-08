@@ -332,7 +332,7 @@ const TableBlock = ({ isLogged }) => {
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
             {renderMatchBlock(mA7, Rett.A, "quarter")}
           </div>
-          <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -ml-8">
+          <div className="md:mt-[26rem] mt-[22rem] md:ml-0 -ml-8">
             {renderMatchBlock(mB7, Rett.B, "quarter")}
           </div>
         </div>
@@ -383,7 +383,7 @@ const TableBlock = ({ isLogged }) => {
 
             return (
               <div
-                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[20rem] z-10 "
+                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[22rem] z-10 "
                 style={{
                   transform: `translateX(calc(-50% - ${SEMI_OFFSET_DESKTOP}))`,
                 }}
@@ -422,7 +422,7 @@ const TableBlock = ({ isLogged }) => {
 
             return (
               <div
-                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[20rem] z-10"
+                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[22rem] z-10"
                 style={{
                   transform: `translateX(calc(-50% + ${SEMI_OFFSET_DESKTOP}))`,
                 }}
@@ -459,7 +459,7 @@ const TableBlock = ({ isLogged }) => {
           <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -mr-8">
             {renderMatchBlock(mC7, Rett.C, "quarter")}
           </div>
-          <div className="md:mt-[26rem] mt-[20rem] md:ml-0 -mr-8">
+          <div className="md:mt-[26rem] mt-[22rem] md:ml-0 -mr-8">
             {renderMatchBlock(mD7, Rett.D, "quarter")}
           </div>
         </div>
