@@ -648,7 +648,7 @@ export default function GridMatchesPage({ isLogged }) {
                               className="
                                 md:hidden fixed z-[22003]
                                 top-0 left-0
-                                w-[90vw] max-w-[22rem]
+                                w-[86vw] max-w-[22rem]
                                 h-[42vh]
                                 rounded-2xl
                                 bg-slate-900 text-white
@@ -809,9 +809,9 @@ export default function GridMatchesPage({ isLogged }) {
                           {mobileNotesOpen && mobileNotesGroup && (
                             <div
                               className="
-                                md:hidden fixed z-[22002]
-                                top-[43vh] left-0
-                                w-[90vw] max-w-[22rem]
+                                md:hidden fixed z-[22003]
+                                top-[42vh] left-0
+                                w-[86vw] max-w-[22rem]
                                 h-[42vh]
                                 rounded-2xl
                                 bg-slate-900 text-white
