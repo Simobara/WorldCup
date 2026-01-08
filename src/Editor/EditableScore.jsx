@@ -3,8 +3,9 @@ import { useEditMode } from "../Providers/EditModeProvider";
 
 /**
  * EditableScore
- * - editMode=false: mostra "a-b"
- * - editMode=true:
+ * - editMode=false: mostra "a-b" (solo testo, compatto)
+ * - editMode=true & readOnly=true: mostra a - b nella stessa posizione degli input, senza quadrato
+ * - editMode=true & readOnly=false:
  *   - 2 input numerici
  *   - rettangolo centrale cliccabile (pareggio / X)
  */
@@ -19,6 +20,7 @@ export default function EditableScore({
   maxLen = 2,
   placeholderA = "",
   placeholderB = "",
+  readOnly = false,
 }) {
   const { editMode } = useEditMode();
 
@@ -48,6 +50,9 @@ export default function EditableScore({
   // 🧠 path base (serve per scrivere il pronostico X)
   const basePath = pathA.split(".").slice(0, -1).join(".");
 
+  // ==============
+  // SOLO TESTO (VIEW MODE, COME PRIMA)
+  // ==============
   if (!editMode) {
     const left = String(valueA ?? "").trim();
     const right = String(valueB ?? "").trim();
@@ -57,7 +62,7 @@ export default function EditableScore({
       <div
         className={[
           "text-center font-black leading-none tabular-nums",
-          "text-lg md:text-lg", // 👈 QUI li fai grossi
+          "text-lg md:text-lg",
           className,
         ].join(" ")}
       >
@@ -66,11 +71,66 @@ export default function EditableScore({
     );
   }
 
+  // =========================
+  // EDIT MODE + RISULTATI UFFICIALI (READ-ONLY)
+  // posizione IDENTICA agli input + quadrato
+  // =========================
+  if (readOnly) {
+    const left = String(valueA ?? "").trim();
+    const right = String(valueB ?? "").trim();
+
+    return (
+      <div
+        className={[
+          "flex items-center gap-[3px] transition-transform duration-200 ease-out",
+          "justify-start md:-translate-x-[2.5rem]", // stessa posizione
+          className,
+        ].join(" ")}
+      >
+        {/* SLOT A — SAME AS INPUT A */}
+        <div
+          className={[
+            "w-6 md:w-7 h-full md:ml-[1.2rem] ml-0",
+            "flex items-center justify-center", // ⬅️ match input positioning
+            "text-sm md:text-lg font-extrabold tabular-nums",
+          ].join(" ")}
+        >
+          {left || "\u00A0"}
+        </div>
+
+        {/* CENTRAL SLOT — SAME WIDTH AS QUADRATO */}
+        <div
+          className={`
+          md:w-[3.5rem] w-0
+          md:h-[2rem] h-2
+          flex items-center justify-center
+        `}
+        >
+          <span className="text-sm md:text-lg font-extrabold">-</span>
+        </div>
+
+        {/* SLOT B — SAME AS INPUT B */}
+        <div
+          className={[
+            "w-6 md:w-7 h-full",
+            "flex items-center justify-center", // ⬅️ same as input
+            "text-sm md:text-lg font-extrabold tabular-nums",
+          ].join(" ")}
+        >
+          {right || "\u00A0"}
+        </div>
+      </div>
+    );
+  }
+
+  // =========================
+  // EDIT MODE NORMALE (INPUT + QUADRATO X)
+  // =========================
   return (
     <div
       className={[
         "flex items-center gap-[3px] transition-transform duration-200 ease-out",
-        editMode ? "justify-start md:-translate-x-[2.5rem]" : "justify-center",
+        "justify-start md:-translate-x-[2.5rem]",
         className,
       ].join(" ")}
     >
@@ -103,12 +163,12 @@ export default function EditableScore({
         type="button"
         disabled={!editMode}
         onClick={() => onChange?.(`${basePath}.plusPron`, "X")}
-        className={`        
-          md:w-[3.5rem] w-[12px]      /* desktop più largo */
-          md:h-[2rem] h-2          /* desktop più basso */
+        className={`
+          md:w-[3.5rem] w-[12px]
+          md:h-[2rem] h-2
           rounded-sm
-        bg-slate-700
-        hover:bg-sky-600 !px-2 
+          bg-slate-700
+          hover:bg-sky-600 !px-2 
           transition
           flex items-center justify-center
           ${!editMode ? "opacity-40 cursor-default" : "cursor-pointer"}

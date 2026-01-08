@@ -29,7 +29,7 @@ export default function AdminEditToggle({ className = "", onExit }) {
           setEditMode(true);
         }
       }}
-      className={`px-3 py-2  bg-red-600 text-white text-xs shadow-lg disabled:opacity-60 ${className}  md:text-[20px] text-[12px]`}
+      className={`px-3 py-[0.7rem]  bg-red-600 text-white text-xs shadow-lg disabled:opacity-60 ${className}  md:text-[20px] text-[12px]`}
     >
       {saving ? "💾" : editMode ? "✅" : "☑️"}
     </button>

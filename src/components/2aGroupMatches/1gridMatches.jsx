@@ -616,6 +616,39 @@ export default function GridMatchesPage({ isLogged }) {
                           pointer-events-auto
                         "
                       >
+                        {/* ➕ — QUESTO MANCAVA */}
+                        <div
+                          onMouseEnter={() => {
+                            if (!isDesktopNow) return;
+                            setHoverPlusModal(letter);
+                          }}
+                          onMouseLeave={() => {
+                            if (!isDesktopNow) return;
+                            setHoverPlusModal(null);
+                          }}
+                          onClick={(e) => {
+                            if (isDesktopNow) return; // desktop: niente, resta hover
+                            e.stopPropagation();
+                            openMobileBoth(letter); // ✅ apre NOTE + PLUS insieme
+                          }}
+                          className="
+                            w-8 h-8
+                            md:w-10 md:h-10
+                            translate-y-2
+                            md:text-[20px] text-[12px]
+                            rounded- full                            
+                            text-white
+                            flex items-center justify-center
+                            cursor-pointer
+                            hover:bg-red-600
+                            transition
+                             z-[12000]
+                            
+                          "
+                        >
+                          {/* ➕ */}
+                          #️⃣
+                        </div>
                         {/* 🗨️ — SOLO QUESTO FA HOVER */}
                         <div
                           onMouseEnter={() => {
@@ -645,39 +678,6 @@ export default function GridMatchesPage({ isLogged }) {
                           "
                         >
                           ℹ️
-                        </div>
-                        {/* ➕ — QUESTO MANCAVA */}
-                        <div
-                          onMouseEnter={() => {
-                            if (!isDesktopNow) return;
-                            setHoverPlusModal(letter);
-                          }}
-                          onMouseLeave={() => {
-                            if (!isDesktopNow) return;
-                            setHoverPlusModal(null);
-                          }}
-                          onClick={(e) => {
-                            if (isDesktopNow) return; // desktop: niente, resta hover
-                            e.stopPropagation();
-                            openMobileBoth(letter); // ✅ apre NOTE + PLUS insieme
-                          }}
-                          className="
-                            w-8 h-8
-                            md:w-10 md:h-10
-                            -translate-y-2
-                            md:text-[20px] text-[12px]
-                            rounded- full                            
-                            text-white
-                            flex items-center justify-center
-                            cursor-pointer
-                            hover:bg-red-600
-                            transition
-                             z-[12000]
-                            
-                          "
-                        >
-                          {/* ➕ */}
-                          #️⃣
                         </div>
                       </div>
                     )}
@@ -763,6 +763,12 @@ export default function GridMatchesPage({ isLogged }) {
                                           const t2 = findTeamP(m.team2);
                                           const res = computeResP(m, idx);
 
+                                          // 👉 risultati ufficiali sì/no
+                                          const isOfficial = (m?.results ?? "")
+                                            .trim()
+                                            .includes("-");
+
+                                          // 🔢 valori base da mostrare (risultato ufficiale o plusRis)
                                           const [baseA, baseB] = String(
                                             res ?? ""
                                           ).includes("-")
@@ -786,70 +792,93 @@ export default function GridMatchesPage({ isLogged }) {
                                           const valueB = norm(savedB);
 
                                           return (
-                                            <div
+                                            <React.Fragment
                                               key={`plus-mob-${letterP}-${idx}`}
-                                              className="
-                                                grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
-                                                items-center justify-center gap-x-1
-                                                text-[12px] leading-none
-                                                h-[2.75rem] md:h-auto
-                                              "
                                             >
-                                              <span className="font-extrabold text-right whitespace-nowrap mr-1">
-                                                {toCode3(t1) || "\u00A0"}
-                                              </span>
+                                              {/* RIGA PARTITA */}
+                                              <div
+                                                className="
+          grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
+          items-center justify-center gap-x-1
+          text-[12px] leading-none
+          h-[2.75rem] md:h-auto
+        "
+                                              >
+                                                <span className="font-extrabold text-right whitespace-nowrap mr-1">
+                                                  {toCode3(t1) || "\u00A0"}
+                                                </span>
 
-                                              <div className="flex items-center justify-center h-full min-h-[2.5rem]">
-                                                <div className="scale-[0.45] origin-center">
-                                                  <Quadrato
-                                                    teamName={t1?.name ?? ""}
-                                                    flag={t1?.flag ?? null}
-                                                    phase="round32"
-                                                    advanced={false}
-                                                    label={null}
-                                                    highlightType="none"
-                                                  />
+                                                <div className="flex items-center justify-center h-full min-h-[2.5rem]">
+                                                  <div className="scale-[0.45] origin-center">
+                                                    <Quadrato
+                                                      teamName={t1?.name ?? ""}
+                                                      flag={t1?.flag ?? null}
+                                                      phase="round32"
+                                                      advanced={false}
+                                                      label={null}
+                                                      highlightType="none"
+                                                    />
+                                                  </div>
                                                 </div>
+
+                                                <EditableScore
+                                                  pathA={`${letter}.plusRis.${idx}.a`}
+                                                  pathB={`${letter}.plusRis.${idx}.b`}
+                                                  valueA={
+                                                    isOfficial ? baseA : valueA
+                                                  }
+                                                  valueB={
+                                                    isOfficial ? baseB : valueB
+                                                  }
+                                                  placeholderA={
+                                                    user?.email?.toLowerCase() ===
+                                                    ADMIN_EMAIL.toLowerCase()
+                                                      ? baseA
+                                                      : ""
+                                                  }
+                                                  placeholderB={
+                                                    user?.email?.toLowerCase() ===
+                                                    ADMIN_EMAIL.toLowerCase()
+                                                      ? baseB
+                                                      : ""
+                                                  }
+                                                  readOnly={isOfficial}
+                                                  onChange={handleEditChange}
+                                                  className={`
+                                                    min-w-[2.5rem]
+                                                    ${isOfficial ? "opacity-50 text-gray-300" : ""}
+                                                  `}
+                                                />
+
+                                                <div className="flex items-center justify-center h-full min-h-[2.5rem]">
+                                                  <div className="scale-[0.45] origin-center">
+                                                    <Quadrato
+                                                      teamName={t2?.name ?? ""}
+                                                      flag={t2?.flag ?? null}
+                                                      phase="round32"
+                                                      advanced={false}
+                                                      label={null}
+                                                      highlightType="none"
+                                                    />
+                                                  </div>
+                                                </div>
+
+                                                <span className="font-extrabold text-left whitespace-nowrap ml-1">
+                                                  {toCode3(t2) || "\u00A0"}
+                                                </span>
                                               </div>
 
-                                              <EditableScore
-                                                pathA={`${letterP}.plusRis.${idx}.a`}
-                                                pathB={`${letterP}.plusRis.${idx}.b`}
-                                                valueA={valueA}
-                                                valueB={valueB}
-                                                placeholderA={
-                                                  user?.email?.toLowerCase() ===
-                                                  ADMIN_EMAIL.toLowerCase()
-                                                    ? baseA
-                                                    : ""
-                                                }
-                                                placeholderB={
-                                                  user?.email?.toLowerCase() ===
-                                                  ADMIN_EMAIL.toLowerCase()
-                                                    ? baseB
-                                                    : ""
-                                                }
-                                                onChange={handleEditChange}
-                                                className="min-w-[3.5rem] plus-score text-sm"
-                                              />
-
-                                              <div className="flex items-center justify-center h-full min-h-[2.5rem]">
-                                                <div className="scale-[0.45] origin-center">
-                                                  <Quadrato
-                                                    teamName={t2?.name ?? ""}
-                                                    flag={t2?.flag ?? null}
-                                                    phase="round32"
-                                                    advanced={false}
-                                                    label={null}
-                                                    highlightType="none"
-                                                  />
-                                                </div>
-                                              </div>
-
-                                              <span className="font-extrabold text-left whitespace-nowrap ml-1">
-                                                {toCode3(t2) || "\u00A0"}
-                                              </span>
-                                            </div>
+                                              {/* LINEA OGNI 2 PARTITE (dopo 2ª e 4ª) */}
+                                              {(idx + 1) % 2 === 0 &&
+                                                idx !==
+                                                  matchesFlatP.length - 1 && (
+                                                  <div className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]">
+                                                    <div className="col-span-5 flex justify-center">
+                                                      <div className="mt-[0.4rem] h-[3px] bg-slate-500 rounded-full w-[70%]" />
+                                                    </div>
+                                                  </div>
+                                                )}
+                                            </React.Fragment>
                                           );
                                         })}
                                       </div>
@@ -959,7 +988,7 @@ export default function GridMatchesPage({ isLogged }) {
                         </div> */}
 
                         {/* ✅ CONTENUTO AGGANCIATO A groupNotes */}
-                        <div className="w-[3rem] flex items-start justify-center pt-1">
+                        <div className="w-[3rem] flex items-start justify-center pt-10">
                           <AdminEditToggle onExit={saveAllEdits} />
                         </div>
                         <div className="mt-0 space-y-0 text-sm text-white flex-1 min-w-0 pr-2">
@@ -1101,10 +1130,6 @@ export default function GridMatchesPage({ isLogged }) {
                               const isChecked =
                                 !!matchesState?.[letter]?.plusCheck?.[idx];
 
-                              const isOfficial = (m?.results ?? "")
-                                .trim()
-                                .includes("-");
-
                               const seed = String(m?.ris ?? "").trim();
                               // ✅ baseA/baseB dal risultato corrente (res)
                               const [baseA, baseB] = String(res ?? "").includes(
@@ -1120,6 +1145,9 @@ export default function GridMatchesPage({ isLogged }) {
                               const savedB =
                                 matchesState?.[letter]?.plusRis?.[idx]?.b;
 
+                              const isOfficial = (m?.results ?? "")
+                                .trim()
+                                .includes("-");
                               // ✅ valore finale mostrato
                               const norm = (x) => String(x ?? "").trim();
 
@@ -1200,12 +1228,31 @@ export default function GridMatchesPage({ isLogged }) {
                                       <button
                                         type="button"
                                         disabled={!editMode}
-                                        onClick={() =>
-                                          handleEditChange(
-                                            `${letter}.plusPron.${idx}`,
-                                            "1"
-                                          )
-                                        }
+                                        onClick={() => {
+                                          if (!editMode) return;
+
+                                          if (selectedPron === "1") {
+                                            // 🔁 se era già selezionato → RESET tutto
+                                            handleEditChange(
+                                              `${letter}.plusPron.${idx}`,
+                                              ""
+                                            );
+                                            handleEditChange(
+                                              `${letter}.plusRis.${idx}.a`,
+                                              ""
+                                            );
+                                            handleEditChange(
+                                              `${letter}.plusRis.${idx}.b`,
+                                              ""
+                                            );
+                                          } else {
+                                            // ✅ altrimenti seleziona 1
+                                            handleEditChange(
+                                              `${letter}.plusPron.${idx}`,
+                                              "1"
+                                            );
+                                          }
+                                        }}
                                         className={`scale-[0.45] md:scale-[0.65] origin-center ${
                                           editMode
                                             ? "cursor-pointer"
@@ -1232,8 +1279,8 @@ export default function GridMatchesPage({ isLogged }) {
                                     <EditableScore
                                       pathA={`${letter}.plusRis.${idx}.a`}
                                       pathB={`${letter}.plusRis.${idx}.b`}
-                                      valueA={valueA}
-                                      valueB={valueB}
+                                      valueA={isOfficial ? baseA : valueA} // ⬅️ se ufficiale, mostra il risultato ufficiale
+                                      valueB={isOfficial ? baseB : valueB}
                                       placeholderA={
                                         user?.email?.toLowerCase() ===
                                         ADMIN_EMAIL.toLowerCase()
@@ -1246,8 +1293,12 @@ export default function GridMatchesPage({ isLogged }) {
                                           ? baseB
                                           : ""
                                       }
+                                      readOnly={isOfficial} // ⬅️ QUI: blocca input + QUADRATO
                                       onChange={handleEditChange}
-                                      className="min-w-[2.5rem]"
+                                      className={`
+                                        min-w-[2.5rem]
+                                        ${isOfficial ? "opacity-50 text-gray-300" : ""}
+                                      `}
                                     />
 
                                     {/* FLAG 2 */}
@@ -1255,12 +1306,31 @@ export default function GridMatchesPage({ isLogged }) {
                                       <button
                                         type="button"
                                         disabled={!editMode}
-                                        onClick={() =>
-                                          handleEditChange(
-                                            `${letter}.plusPron.${idx}`,
-                                            "2"
-                                          )
-                                        }
+                                        onClick={() => {
+                                          if (!editMode) return;
+
+                                          if (selectedPron === "2") {
+                                            // 🔁 se era già selezionato → RESET tutto
+                                            handleEditChange(
+                                              `${letter}.plusPron.${idx}`,
+                                              ""
+                                            );
+                                            handleEditChange(
+                                              `${letter}.plusRis.${idx}.a`,
+                                              ""
+                                            );
+                                            handleEditChange(
+                                              `${letter}.plusRis.${idx}.b`,
+                                              ""
+                                            );
+                                          } else {
+                                            // ✅ altrimenti seleziona 2
+                                            handleEditChange(
+                                              `${letter}.plusPron.${idx}`,
+                                              "2"
+                                            );
+                                          }
+                                        }}
                                         className={`scale-[0.45] md:scale-[0.65] origin-center ${
                                           editMode
                                             ? "cursor-pointer"
@@ -1321,14 +1391,14 @@ export default function GridMatchesPage({ isLogged }) {
                         {/* ADMIN TOGGLE – CENTRATO */}
                         <div
                           className="
-                                absolute inset-0 -top-[2rem]  md:-top-[12rem]  
+                                absolute inset-0 md:-top-[1rem]  -top-[2rem]
                                 flex items-center justify-center
                                 z-[10002]
                                 pointer-events-none
                               "
                         >
                           <div className="pointer-events-auto">
-                            <div className="absolute left-1 pointer-events-auto">
+                            <div className="absolute left-0 pointer-events-auto">
                               <AdminEditToggle onExit={saveAllEdits} />
                             </div>
                           </div>
@@ -1457,6 +1527,7 @@ export default function GridMatchesPage({ isLogged }) {
                             team2={toCode3(t2)}
                             result={res}
                             isProvisional={isProvisional}
+                            hasOfficial={hasOfficial}
                             flag1={
                               <Quadrato
                                 teamName={t1?.name ?? ""}
@@ -1669,6 +1740,7 @@ function Row7({
   bottomBorder = false,
   result,
   isProvisional,
+  hasOfficial,
 }) {
   const bottom = bottomBorder ? "border-b-4 border-b-gray-700" : "border-b";
   const common = `border-t border-l border-r ${bottom}`;
@@ -1950,9 +2022,11 @@ function Row7({
         `}
       >
         <span
-          className={`text-sm md:text-lg leading-none font-extrabold ${
-            isProvisional ? "text-purple-300/40" : ""
-          }`}
+          className={`
+    text-sm md:text-lg leading-none font-extrabold
+    ${isProvisional ? "text-purple-300/40" : ""}
+    ${hasOfficial ? "opacity-50 text-gray-300" : ""}
+  `}
         >
           {result || "\u00A0"}
         </span>
