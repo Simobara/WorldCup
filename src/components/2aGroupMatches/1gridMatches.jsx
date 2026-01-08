@@ -798,16 +798,59 @@ export default function GridMatchesPage({ isLogged }) {
                                               {/* RIGA PARTITA */}
                                               <div
                                                 className="
-          grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
-          items-center justify-center gap-x-1
-          text-[12px] leading-none
-          h-[2.75rem] md:h-auto
-        "
+                                                  grid
+                                                  grid-cols-[1.8rem_3rem_2.2rem_3.2rem_2.2rem_3rem]
+                                                  items-center justify-center gap-x-1
+                                                  text-[12px] leading-none
+                                                  h-[2.75rem]
+                                                "
                                               >
+                                                {/* COLONNA “P” (solo se NON ufficiale) */}
+                                                {(() => {
+                                                  const isChecked =
+                                                    !!matchesState?.[letterP]
+                                                      ?.plusCheck?.[idx];
+
+                                                  // se ufficiale → colonna vuota (nessuna P)
+                                                  if (isOfficial) {
+                                                    return (
+                                                      <span className="flex items-center justify-center text-[14px]">
+                                                        &nbsp;
+                                                      </span>
+                                                    );
+                                                  }
+
+                                                  // se NON ufficiale → mostra P cliccabile
+                                                  return (
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => {
+                                                        handleEditChange(
+                                                          `${letterP}.plusCheck.${idx}`,
+                                                          !isChecked
+                                                        );
+                                                      }}
+                                                      className={`
+        flex items-center justify-center
+        transition
+        bg-transparent border-none
+        text-[14px] font-extrabold
+        text-slate-600
+        cursor-pointer
+      `}
+                                                      aria-label="Pronostico P"
+                                                    >
+                                                      P
+                                                    </button>
+                                                  );
+                                                })()}
+
+                                                {/* TEAM 1 SHORT */}
                                                 <span className="font-extrabold text-right whitespace-nowrap mr-1">
                                                   {toCode3(t1) || "\u00A0"}
                                                 </span>
 
+                                                {/* FLAG 1 */}
                                                 <div className="flex items-center justify-center h-full min-h-[2.5rem]">
                                                   <div className="scale-[0.45] origin-center">
                                                     <Quadrato
@@ -821,35 +864,33 @@ export default function GridMatchesPage({ isLogged }) {
                                                   </div>
                                                 </div>
 
-                                                <EditableScore
-                                                  pathA={`${letter}.plusRis.${idx}.a`}
-                                                  pathB={`${letter}.plusRis.${idx}.b`}
-                                                  valueA={
-                                                    isOfficial ? baseA : valueA
-                                                  }
-                                                  valueB={
-                                                    isOfficial ? baseB : valueB
-                                                  }
-                                                  placeholderA={
-                                                    user?.email?.toLowerCase() ===
-                                                    ADMIN_EMAIL.toLowerCase()
-                                                      ? baseA
-                                                      : ""
-                                                  }
-                                                  placeholderB={
-                                                    user?.email?.toLowerCase() ===
-                                                    ADMIN_EMAIL.toLowerCase()
-                                                      ? baseB
-                                                      : ""
-                                                  }
-                                                  readOnly={isOfficial}
-                                                  onChange={handleEditChange}
-                                                  className={`
-                                                    min-w-[2.5rem]
-                                                    ${isOfficial ? "opacity-50 text-gray-300" : ""}
-                                                  `}
-                                                />
-
+                                                {/* EDITABLE SCORE */}
+                                                <div className="flex justify-center">
+                                                  <EditableScore
+                                                    pathA={`${letterP}.plusRis.${idx}.a`}
+                                                    pathB={`${letterP}.plusRis.${idx}.b`}
+                                                    valueA={
+                                                      isOfficial
+                                                        ? baseA
+                                                        : valueA
+                                                    }
+                                                    valueB={
+                                                      isOfficial
+                                                        ? baseB
+                                                        : valueB
+                                                    }
+                                                    placeholderA=""
+                                                    placeholderB=""
+                                                    readOnly={isOfficial}
+                                                    onChange={handleEditChange}
+                                                    className={`
+    w-[3.2rem]
+    justify-center
+    ${isOfficial ? "opacity-50 text-gray-300" : ""}
+  `}
+                                                  />
+                                                </div>
+                                                {/* FLAG 2 */}
                                                 <div className="flex items-center justify-center h-full min-h-[2.5rem]">
                                                   <div className="scale-[0.45] origin-center">
                                                     <Quadrato
@@ -863,6 +904,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                   </div>
                                                 </div>
 
+                                                {/* TEAM 2 SHORT */}
                                                 <span className="font-extrabold text-left whitespace-nowrap ml-1">
                                                   {toCode3(t2) || "\u00A0"}
                                                 </span>
@@ -1177,32 +1219,46 @@ export default function GridMatchesPage({ isLogged }) {
                                         .includes("-");
 
                                       return (
-                                        <div
+                                        <button
+                                          type="button"
                                           onClick={() => {
                                             if (isOfficial) return;
+
+                                            const nextChecked = !isChecked;
+
+                                            // toggla la P
                                             handleEditChange(
                                               `${letter}.plusCheck.${idx}`,
-                                              !isChecked
+                                              nextChecked
                                             );
+
+                                            // ✨ se sto ATTIVANDO la P → svuoto i numeri del risultato
+                                            if (nextChecked) {
+                                              handleEditChange(
+                                                `${letter}.plusRis.${idx}.a`,
+                                                ""
+                                              );
+                                              handleEditChange(
+                                                `${letter}.plusRis.${idx}.b`,
+                                                ""
+                                              );
+                                            }
                                           }}
+                                          disabled={isOfficial}
                                           className={`
-                                                w-5 h-5
-                                                rounded-sm
-                                                border-2
-                                                flex items-center justify-center
-                                                transition
-                                                ${isChecked ? "bg-sky-800 border-sky-800" : "bg-slate-800 border-slate-800"}
-                                                ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-                                                ${isOfficial ? "opacity-0 pointer-events-none" : "cursor-pointer"}
-                                              `}
+        w-5 h-5
+        flex items-center justify-center
+        transition
+        bg-transparent border-none
+        ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+        ${isOfficial ? "opacity-0 pointer-events-none" : "cursor-pointer"}
+        text-slate-500 font-bold
+      `}
                                           aria-hidden={isOfficial}
+                                          aria-label="Pronostico P"
                                         >
-                                          {isChecked && (
-                                            <span className="text-white text-xs font-extrabold">
-                                              ✔
-                                            </span>
-                                          )}
-                                        </div>
+                                          P
+                                        </button>
                                       );
                                     })()}
 
@@ -1391,7 +1447,7 @@ export default function GridMatchesPage({ isLogged }) {
                         {/* ADMIN TOGGLE – CENTRATO */}
                         <div
                           className="
-                                absolute inset-0 md:-top-[1rem]  -top-[2rem]
+                                absolute inset-0 md:-top-[15.8rem]  -top-[2rem]
                                 flex items-center justify-center
                                 z-[10002]
                                 pointer-events-none

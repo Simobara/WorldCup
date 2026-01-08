@@ -73,7 +73,6 @@ export default function EditableScore({
 
   // =========================
   // EDIT MODE + RISULTATI UFFICIALI (READ-ONLY)
-  // posizione IDENTICA agli input + quadrato
   // =========================
   if (readOnly) {
     const left = String(valueA ?? "").trim();
@@ -82,39 +81,43 @@ export default function EditableScore({
     return (
       <div
         className={[
-          "flex items-center gap-[3px] transition-transform duration-200 ease-out",
-          "justify-start md:-translate-x-[2.5rem]", // stessa posizione
+          // mobile: numeri vicini e centrati, desktop: come prima
+          "flex items-center gap-[1px] md:gap-[3px] transition-transform duration-200 ease-out",
+          "justify-center md:justify-start md:-translate-x-[2.5rem]",
           className,
         ].join(" ")}
       >
-        {/* SLOT A — SAME AS INPUT A */}
+        {/* SLOT A */}
         <div
           className={[
-            "w-6 md:w-7 h-full md:ml-[1.2rem] ml-0",
-            "flex items-center justify-center", // ⬅️ match input positioning
-            "text-sm md:text-lg font-extrabold tabular-nums",
+            "w-5 md:w-7 h-full md:ml-[1.2rem] ml-0",
+            "flex items-center justify-center",
+            // numeri più grandi anche su mobile
+            "text-lg md:text-lg font-extrabold tabular-nums",
           ].join(" ")}
         >
           {left || "\u00A0"}
         </div>
 
-        {/* CENTRAL SLOT — SAME WIDTH AS QUADRATO */}
+        {/* CENTRAL SLOT — trattino compatto su mobile */}
         <div
           className={`
-          md:w-[3.5rem] w-0
-          md:h-[2rem] h-2
-          flex items-center justify-center
-        `}
+            w-auto md:w-[3.5rem]
+            md:h-[2rem] h-2
+            flex items-center justify-center
+          `}
         >
-          <span className="text-sm md:text-lg font-extrabold">-</span>
+          <span className="text-lg md:text-lg font-extrabold tabular-nums">
+            -
+          </span>
         </div>
 
-        {/* SLOT B — SAME AS INPUT B */}
+        {/* SLOT B */}
         <div
           className={[
-            "w-6 md:w-7 h-full",
-            "flex items-center justify-center", // ⬅️ same as input
-            "text-sm md:text-lg font-extrabold tabular-nums",
+            "w-5 md:w-7 h-full",
+            "flex items-center justify-center",
+            "text-lg md:text-lg font-extrabold tabular-nums",
           ].join(" ")}
         >
           {right || "\u00A0"}
