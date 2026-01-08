@@ -540,7 +540,11 @@ export default function GridMatchesPage({ isLogged }) {
               return "";
             };
 
-            // NON-ADMIN: legge il seed SOLO quando il toggle "," (showPronostics) è attivo
+            // NON-ADMIN:
+            // - se c'è results ufficiale → lo mostra sempre
+            // - se l'utente ha messo plusRis → mostra quelli
+            // - se NON è loggato e toggle pronostici ON → può vedere i seed m.ris
+            // - se è loggato (non admin) → NIENTE seed hardcoded, mai
             const computeResUser = (m, letter, idx) => {
               const official = (m?.results ?? "").trim();
               if (official.includes("-")) return official;
@@ -554,7 +558,12 @@ export default function GridMatchesPage({ isLogged }) {
 
               if (a !== "" && b !== "") return `${a}-${b}`;
 
-              // ✅ seed solo con pronostics ON
+              // 👉 SE È LOGGATO (ma non admin) NON MOSTRA MAI I SEED
+              if (isLogged) {
+                return "";
+              }
+
+              // 👻 SOLO UTENTE NON LOGGATO PUÒ VEDERE I SEED CON PRONOSTICI ON
               const seed = String(m?.ris ?? "").trim();
               if (showPronostics && seed.includes("-")) return seed;
 
