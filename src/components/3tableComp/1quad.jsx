@@ -50,7 +50,7 @@ const Quadrato = ({
   return (
     <div
       className={`
-      relative w-16 md:h-16 h-12
+      relative w-16 md:h-16 h-16
       ${bgColor}
       border-x-2 border-y-4 ${borderColor}
       ${pronRing}

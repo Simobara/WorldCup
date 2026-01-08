@@ -90,8 +90,10 @@ export default function EditableScore({
           "w-6 md:w-7 h-full",
           "text-[12px] md:text-[13px]",
           "text-center leading-none p-0",
-          "font-extrabold bg-slate-800 text-white",
-          "rounded-sm appearance-none",
+          "font-extrabold text-white",
+          "bg-transparent border-none outline-none",
+          "focus:outline-none focus:ring-0 focus:border-none",
+          "appearance-none",
           inputClassName,
         ].join(" ")}
       />
@@ -103,7 +105,7 @@ export default function EditableScore({
         onClick={() => onChange?.(`${basePath}.plusPron`, "X")}
         className={`
           w-[12px]
-          h-6 md:h-7
+          h-2 md:h-7
           rounded-sm
           bg-slate-700
           hover:bg-sky-600 !px-2
@@ -130,8 +132,10 @@ export default function EditableScore({
           "w-6 md:w-7 h-full",
           "text-[12px] md:text-[13px]",
           "text-center leading-none p-0",
-          "font-extrabold bg-slate-800 text-white",
-          "rounded-sm appearance-none",
+          "font-extrabold text-white",
+          "bg-transparent border-none outline-none",
+          "focus:outline-none focus:ring-0 focus:border-none",
+          "appearance-none",
           inputClassName,
         ].join(" ")}
       />

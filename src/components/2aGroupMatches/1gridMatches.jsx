@@ -742,7 +742,12 @@ export default function GridMatchesPage({ isLogged }) {
                                           return (
                                             <div
                                               key={`plus-mob-${letterP}-${idx}`}
-                                              className="grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem] items-center justify-center gap-x-1 text-[12px] leading-none"
+                                              className="
+                                                grid grid-cols-[3rem_2.2rem_auto_2.2rem_3rem]
+                                                items-center justify-center gap-x-1
+                                                text-[12px] leading-none
+                                                h-[2.75rem] md:h-auto
+                                              "
                                             >
                                               <span className="font-extrabold text-right whitespace-nowrap mr-1">
                                                 {toCode3(t1) || "\u00A0"}
