@@ -265,8 +265,8 @@ const TableBlock = ({ isLogged }) => {
       className="
         w-full h-screen
         relative
-        overflow-x-auto overflow-y-hidden
-        md:overflow-x-auto md:overflow-y-hidden
+        overflow-x-auto overflow-y-auto
+        md:overflow-x-auto md:overflow-y-auto
         [background-image:linear-gradient(to_right,theme(colors.slate.400),theme(colors.sky.300),theme(colors.sky.900)),linear-gradient(to_bottom,theme(colors.slate.900),theme(colors.sky.300),theme(colors.sky.900))]
         bg-blend-multiply
       "
@@ -340,39 +340,43 @@ const TableBlock = ({ isLogged }) => {
         {/* ✅ COLONNA SEMIFINALI + FINALE */}
         <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
           {/* ✅ FINALE F1 */}
-          <div className="relative md:-top-12 -top-28 flex items-center justify-center">
-            <div className="relative md:-top-12 -top-30 flex items-center justify-center">
-              <img
-                src="/assts/WCOfficial.png"
-                alt="World Cup"
-                className="absolute 
-                  md:left-18 left-1/2 
-                  md:top-36 top-24 
-                  md:w-[400px] w-[360px]
-                  -translate-x-1/2 -translate-y-1/2
-                  max-w-none pointer-events-none"
-              />
+          {/* Contenitore centrale che riempie tutta la colonna */}
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* 🏆 Coppa centrata con posizione proporzionale */}
+            <img
+              src="/assts/WCOfficial.png"
+              alt="World Cup"
+              className="
+        absolute
+        left-1/2
+        -translate-x-1/2 -translate-y-1/2
+        md:w-[300px] w-[200px]
+        max-w-none pointer-events-none
+      "
+              style={{ top: "50%" }} // 👈 regola questa percentuale se la vuoi più alta o più bassa
+            />
 
-              <div className="relative z-10">
+            {/* ✅ Blocco FINALE F1, centrato sopra la coppa */}
+            <div className="relative z-10 flex items-center justify-center">
+              <div className="relative">
                 {renderMatchBlock(mF1, Rett.Final, "final")}
-              </div>
 
-              <button
-                onClick={() => setShowPron((prev) => !prev)}
-                className="
-                  select-none
-                  absolute left-1/2 
-                  md:-top-[1.75rem] -top-[1.8rem]
-                  md:translate-x-2 translate-x-4
-                  bg-transparent border-0 border-yellow-400
-                  text-yellow-500 font-bold
-                  text-xs md:text-sm
-                  px-0 py-0
-                  rounded-full z-50
-                "
-              >
-                {showPron ? "," : "."}
-              </button>
+                <button
+                  onClick={() => setShowPron((prev) => !prev)}
+                  className="
+            select-none
+            absolute right-0
+            -top-5
+            bg-transparent
+            text-yellow-500 font-bold
+            text-xs md:text-sm
+            px-0 py-0
+            rounded-full z-50
+          "
+                >
+                  {showPron ? "," : "."}
+                </button>
+              </div>
             </div>
           </div>
 
