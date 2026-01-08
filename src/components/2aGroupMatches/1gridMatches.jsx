@@ -1603,7 +1603,7 @@ function Header7() {
                   : h?.desktop === "CITTA'"
                     ? "justify-start -pl-2"
                     : h?.desktop === "TEAM 2"
-                      ? "justify-start ml-0"
+                      ? "justify-start pl-1 md:pl-4"
                       : "justify-center"
               }
               text-[12px] font-extrabold
