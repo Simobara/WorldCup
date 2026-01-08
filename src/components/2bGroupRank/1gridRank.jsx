@@ -279,7 +279,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
       setBtnPos({ top: "-3rem", left: "45%" }); //OKK
     } else {
       who = "mobile/small";
-      setBtnPos({ top: "-3rem", left: "42%" });
+      setBtnPos({ top: "1rem", left: "30rem" });
     }
 
     // console.log("update btnPos: w =", w, "→", who);
