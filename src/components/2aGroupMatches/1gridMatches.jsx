@@ -704,8 +704,7 @@ export default function GridMatchesPage({ isLogged }) {
                                 <div className="relative h-full flex flex-col">
                                   {/* TITOLI */}
                                   <div className="font-extrabold text-center p-2 text-xs">
-                                    EDIT RIS/PRONOSTICI & NOTE - Gruppo{" "}
-                                    {letterP}
+                                    PRONOSTICI & NOTE - Gruppo {letterP}
                                   </div>
 
                                   {/* CONTENUTO SCORRIBILE */}
