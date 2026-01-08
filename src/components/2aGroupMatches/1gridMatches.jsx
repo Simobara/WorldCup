@@ -637,74 +637,81 @@ export default function GridMatchesPage({ isLogged }) {
                     )}
 
                     {/* ================= MOBILE ONLY — OVERLAY UNICO (NOTE + PLUS) ================= */}
-                    {(mobileNotesOpen || mobilePlusOpen) &&
+                    {mobileNotesOpen &&
+                      mobilePlusOpen &&
                       (mobileNotesGroup || mobilePlusGroup) && (
                         <>
                           {/* BACKDROP UNICO */}
                           <div
-                            className="md:hidden fixed inset-0 z-[22003]  bg-black/80"
+                            className="md:hidden fixed inset-0 z-[22003] bg-black/80"
                             onClick={closeMobileBoth}
                           />
 
-                          {/* ✅ 1) MODALE RIS/PRON — SOPRA */}
-                          {mobilePlusOpen && mobilePlusGroup && (
-                            <div
-                              className="
-                                md:hidden fixed z-[22003]
-                                top-0 left-0
-                                w-[86vw] max-w-[22rem]
-                                h-[42vh]
-                                rounded-2xl
-                                bg-slate-900 text-white
-                                shadow-2xl
-                                p-0
-                                overflow-hidden
-                              "
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {(() => {
-                                const letterP = mobilePlusGroup;
-                                const resolveName =
-                                  buildNameResolver(flagsMond);
+                          {/* MODALE UNICO RIS/PRON + NOTE */}
+                          <div
+                            className="
+                              md:hidden fixed z-[22003]
+                              top-0 left-0
+                              w-[86vw] max-w-[22rem]
+                              h-[70vh]
+                              rounded-2xl
+                              bg-slate-900 text-white
+                              shadow-2xl
+                              p-0
+                              overflow-hidden
+                            "
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {(() => {
+                              const letterP =
+                                mobilePlusGroup || mobileNotesGroup;
+                              const resolveName = buildNameResolver(flagsMond);
 
-                                const groupKey = `group_${letterP}`;
-                                const matchesFlatP = getFlatMatchesForGroup(
-                                  groupMatches?.[groupKey]
-                                );
+                              const groupKey = `group_${letterP}`;
+                              const matchesFlatP = getFlatMatchesForGroup(
+                                groupMatches?.[groupKey]
+                              );
 
-                                const findTeamP = (rawName) => {
-                                  const name = resolveName(rawName);
-                                  if (!name) return null;
-                                  return (
-                                    (flagsMond ?? []).find(
-                                      (t) => resolveName(t.name) === name
-                                    ) ?? null
-                                  );
-                                };
-
-                                const computeResP = (m, idx) => {
-                                  const official = (m?.results ?? "").trim();
-                                  if (official.includes("-")) return official;
-
-                                  const a = String(
-                                    matchesState?.[letterP]?.plusRis?.[idx]
-                                      ?.a ?? ""
-                                  ).trim();
-                                  const b = String(
-                                    matchesState?.[letterP]?.plusRis?.[idx]
-                                      ?.b ?? ""
-                                  ).trim();
-                                  if (a !== "" && b !== "") return `${a}-${b}`;
-                                  return "";
-                                };
-
+                              const findTeamP = (rawName) => {
+                                const name = resolveName(rawName);
+                                if (!name) return null;
                                 return (
-                                  <>
-                                    <div className="font-extrabold text-center p-2">
-                                      EDIT RIS/PRONOSTICI - Gruppo {letterP}
-                                    </div>
+                                  (flagsMond ?? []).find(
+                                    (t) => resolveName(t.name) === name
+                                  ) ?? null
+                                );
+                              };
 
-                                    <div className="p-2 pl-6">
+                              const computeResP = (m, idx) => {
+                                const official = (m?.results ?? "").trim();
+                                if (official.includes("-")) return official;
+
+                                const a = String(
+                                  matchesState?.[letterP]?.plusRis?.[idx]?.a ??
+                                    ""
+                                ).trim();
+                                const b = String(
+                                  matchesState?.[letterP]?.plusRis?.[idx]?.b ??
+                                    ""
+                                ).trim();
+                                if (a !== "" && b !== "") return `${a}-${b}`;
+                                return "";
+                              };
+
+                              const data = notes?.[letterP];
+
+                              return (
+                                <div className="relative h-full flex flex-col">
+                                  {/* TITOLI */}
+                                  <div className="font-extrabold text-center p-2 text-xs">
+                                    EDIT RIS/PRONOSTICI & NOTE - Gruppo{" "}
+                                    {letterP}
+                                  </div>
+
+                                  {/* CONTENUTO SCORRIBILE */}
+                                  <div className="flex-1 overflow-auto px-2 pb-16 space-y-4">
+                                    {/* --- SEZIONE RIS/PRON --- */}
+                                    <div className="pl-4">
                                       <div className="space-y-0 [&_input]:text-xl [&_input]:font-extrabold [&_input]:leading-none [&_input]:text-center">
                                         {matchesFlatP.map((m, idx) => {
                                           const t1 = findTeamP(m.team1);
@@ -796,47 +803,11 @@ export default function GridMatchesPage({ isLogged }) {
                                           );
                                         })}
                                       </div>
-
-                                      <div className="absolute bottom-0 right-0">
-                                        <AdminEditToggle
-                                          onExit={saveAllEdits}
-                                        />
-                                      </div>
                                     </div>
-                                  </>
-                                );
-                              })()}
-                            </div>
-                          )}
 
-                          {/* ✅ 2) MODALE NOTE — SOTTO */}
-                          {mobileNotesOpen && mobileNotesGroup && (
-                            <div
-                              className="
-                                md:hidden fixed z-[22003]
-                                top-[42vh] left-0
-                                w-[86vw] max-w-[22rem]
-                                h-[42vh]
-                                rounded-2xl
-                                bg-slate-900 text-white
-                                shadow-2xl
-                                p-0
-                                overflow-hidden
-                              "
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <div className="relative h-full flex flex-col">
-                                {(() => {
-                                  const data = notes?.[mobileNotesGroup];
-                                  if (!data) return null;
-
-                                  return (
-                                    <>
-                                      <div className="font-extrabold text-center p-2 text-sm">
-                                        EDIT NOTE - Gruppo {mobileNotesGroup}
-                                      </div>
-
-                                      <div className="flex-1 overflow-auto p-2 pb-16 text-sm">
+                                    {/* --- SEZIONE NOTE --- */}
+                                    {data && (
+                                      <div className="text-sm">
                                         {[data.day1, data.day2, data.day3].map(
                                           (day, i) =>
                                             day && (
@@ -848,7 +819,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                 </div>
                                                 <div className="pl-2">
                                                   <EditableText
-                                                    path={`${mobileNotesGroup}.day${i + 1}.items`}
+                                                    path={`${letterP}.day${i + 1}.items`}
                                                     value={day.items}
                                                     onChange={handleEditChange}
                                                     textareaClassName="
@@ -874,7 +845,7 @@ export default function GridMatchesPage({ isLogged }) {
                                             </div>
                                             <div className="mt-0 pl-2">
                                               <EditableText
-                                                path={`${mobileNotesGroup}.notes.text`}
+                                                path={`${letterP}.notes.text`}
                                                 value={data.notes.text}
                                                 onChange={handleEditChange}
                                                 textareaClassName="
@@ -891,18 +862,17 @@ export default function GridMatchesPage({ isLogged }) {
                                           </div>
                                         )}
                                       </div>
+                                    )}
+                                  </div>
 
-                                      {/* <div className="absolute bottom-0 right-0">
-                                        <AdminEditToggle
-                                          onExit={saveAllEdits}
-                                        />
-                                      </div> */}
-                                    </>
-                                  );
-                                })()}
-                              </div>
-                            </div>
-                          )}
+                                  {/* ADMIN TOGGLE */}
+                                  <div className="absolute bottom-0 right-0">
+                                    <AdminEditToggle onExit={saveAllEdits} />
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </div>
                         </>
                       )}
 
