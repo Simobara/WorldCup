@@ -236,19 +236,64 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
 
   // ✅ come “Matches”: card strette in mobile, grandi in desktop
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
-  const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
+  const GROUP_HEIGHT_DESKTOP = "md:h-[296px]";
 
   const GROUP_WIDTH_MOBILE = "w-[9.5rem]";
-  const GROUP_HEIGHT_MOBILE = "h-[11.5rem]";
+  const GROUP_HEIGHT_MOBILE = "h-[188px]";
 
-  const headerHDesktop = "1rem";
+  const headerHDesktop = "16px";
   const rowHDesktop = 70;
 
-  const headerHMobile = "1rem";
+  const headerHMobile = "16px";
   const rowHMobile = 43;
 
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
+  const [btnPos, setBtnPos] = useState({ top: "", left: "" });
+
+
+
+  useEffect(() => {
+  const update = () => {
+    const w = window.innerWidth;
+
+    let who = "";
+
+    if (w >= 1500) {
+      who = "100% branch (>=1500)";
+      setBtnPos({ top: "-3rem", left: "67%" });
+    } else if (w >= 1350) {
+      who = "90% branch (>=1350)";
+      setBtnPos({ top: "-3rem", left: "65%" });//OKK
+    } else if (w >= 1200) {
+      who = "80% branch (>=1200)";
+      setBtnPos({ top: "-3rem", left: "59%" });
+    } else if (w >= 1100) {
+      who = "75% branch (>=1100)";
+      setBtnPos({ top: "-3rem", left: "55%" });//OKK 
+    } else if (w >= 1000) {
+      who = "67% branch (>=1000)";
+      setBtnPos({ top: "-3rem", left: "50%" });
+    } else if (w >= 800) {
+      who = "50% branch (>=800)";
+      setBtnPos({ top: "-3rem", left: "45%" }); //OKK
+    } else {
+      who = "mobile/small";
+      setBtnPos({ top: "-3rem", left: "42%" });
+    }
+
+    // console.log("update btnPos: w =", w, "→", who);
+  };
+
+  update();
+  window.addEventListener("resize", update);
+  return () => window.removeEventListener("resize", update);
+}, []);
+
+
+
+
+
 
   useEffect(() => {
     if (isLogged) {
@@ -296,29 +341,33 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
         }
       >
         {!isTooltip && (
-          <button
-            onClick={() => setShowPronostics((v) => !v)}
-            aria-pressed={showPronostics}
-            aria-label={
-              showPronostics
-                ? "Hide pronostics highlights"
-                : "Show pronostics highlights"
-            }
-            className={`
-               select-none
-            absolute 
-            md:w-8 md:h-8
-            md:-top-11 top-[1rem]
-            md:right-[30rem] -right-10 
-            md:py-0 py-2
-            md:px-1 px-2
-            rounded-full font-extrabold text-sm 
-            transition-all duration-300 
-            bg-slate -900 text-slate-900 z-[11000]`}
-        >
-            {/* md:z-0 z-[999] */}
-            {showPronostics ? "," : "."}
-          </button>
+  <button
+    onClick={() => setShowPronostics((v) => !v)}
+    aria-pressed={showPronostics}
+    aria-label={
+      showPronostics
+        ? "Hide pronostics highlights"
+        : "Show pronostics highlights"
+    }
+    className={`
+      select-none
+      absolute
+      md:w-8 md:h-8
+      md:py-0 py-2
+      md:px-1 px-2
+      rounded-full font-extrabold text-sm 
+      transition-all duration-300 
+      bg-transparent text-slate-900
+      z-[11000]
+    `}
+   
+   style={{
+    top: btnPos.top,
+    left: btnPos.left,
+    // se nei casi piccoli usi "50%" come left:
+    transform: btnPos.left.includes("%") ? "translateX(-50%)" : undefined,
+  }}
+  > </button>
         )}
         {/* ✅ come Matches: in mobile 3 colonne, desktop 4 */}
         <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-max">
@@ -446,6 +495,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
                           return (
                           <Row7
                             key={row}
+                            isLastRow={row === 3}
                             code={team?.id ?? ""}
                             pt={safeStats?.pt ?? 0}
                             showPronostics={showPronostics}
@@ -574,6 +624,7 @@ function Row7({
   showZero,
   showPronostics,
   isSim,
+  isLastRow,
 }) {
   return (
     <>
@@ -608,7 +659,15 @@ function Row7({
 
 
       {/* GOL: testo CENTRATO */}
-      <div className={`${CssRow7.GolBg} border ${CssRow7.CellBorder} border-l-0 border-b-4 border-t-0 ${CssRow7.BottomLine} ${CssRow7.GolText} flex items-center justify-center md:pl-1 pl-0`}>
+      <div
+        className={`
+          ${CssRow7.GolBg} border ${CssRow7.CellBorder}
+          border-l-0 border-t-0
+          ${!isLastRow ? `border-b-4 ${CssRow7.BottomLine}` : ""}
+          ${CssRow7.GolText}
+          flex items-center justify-center md:pl-1 pl-0
+        `}
+      >
        <span
         className={`text-[12px] md:text-[15px] font-extrabold ${
         isSim ? "text-purple-400/80" : ""
@@ -620,21 +679,43 @@ function Row7({
 
 
       {/* W: CENTRO */}
-      <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} border-b-4 ${CssRow7.BottomLine} ${CssRow7.WxpText} flex items-center justify-center`}>
+      
+      <div
+        className={`
+          ${CssRow7.CellBg} border ${CssRow7.CellBorder}
+          ${!isLastRow ? `border-b-4 ${CssRow7.BottomLine}` : ""}
+          ${CssRow7.WxpText}
+          flex items-center justify-center
+        `}
+      >
         <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(w, { zeroAllowed: false })}
         </span>
       </div>
 
         {/* X: CENTRO */}
-      <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} border-b-4 ${CssRow7.BottomLine} ${CssRow7.WxpText} flex items-center justify-center`}>
+      <div
+        className={`
+          ${CssRow7.CellBg} border ${CssRow7.CellBorder}
+          ${!isLastRow ? `border-b-4 ${CssRow7.BottomLine}` : ""}
+          ${CssRow7.WxpText}
+          flex items-center justify-center
+        `}
+      >
         <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(x, { zeroAllowed: false })}
         </span>
       </div>
 
         {/* P: CENTRO */}
-      <div className={`${CssRow7.CellBg} border ${CssRow7.CellBorder} border-b-4 ${CssRow7.BottomLine} ${CssRow7.WxpText} flex items-center justify-center`}>
+      <div
+        className={`
+          ${CssRow7.CellBg} border ${CssRow7.CellBorder}
+          ${!isLastRow ? `border-b-4 ${CssRow7.BottomLine}` : ""}
+          ${CssRow7.WxpText}
+          flex items-center justify-center
+        `}
+      >
         <span className="font-extrabold text-center text-[12px] md:text-[15px]">
           {show(p, { zeroAllowed: false })}
         </span>

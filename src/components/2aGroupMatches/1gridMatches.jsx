@@ -78,12 +78,12 @@ export default function GridMatchesPage({ isLogged }) {
   const SHIFT_RIGHT_MOBILE_GROUPS = new Set(["A", "D", "G", "J"]);
 
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
-  const GROUP_HEIGHT_DESKTOP = "md:h-[18rem]";
+  const GROUP_HEIGHT_DESKTOP = "md:h-[286px]";
 
   const GROUP_WIDTH_MOBILE = "w-[9.5rem]";
   const GROUP_HEIGHT_MOBILE = "h-[11.5rem]";
 
-  const headerHDesktop = "1rem";
+  const headerHDesktop = "16px";
   const rowHDesktop = 45;
 
   const headerHMobile = "1rem";
@@ -233,6 +233,7 @@ export default function GridMatchesPage({ isLogged }) {
   const [mobileTop, setMobileTop] = useState(0);
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
+  const [btnPos, setBtnPos] = useState({ top: "", left: "" });
 
   // =======================
   // MOBILE — NOTE + PLUS UNIFICATI
@@ -264,6 +265,43 @@ export default function GridMatchesPage({ isLogged }) {
   }, []);
 
   //------------------------------------------------------------------------
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+
+      let who = "";
+
+      if (w >= 1500) {
+        who = "100% branch (>=1500)";
+        setBtnPos({ top: "-3rem", left: "67%" });
+      } else if (w >= 1350) {
+        who = "90% branch (>=1350)";
+        setBtnPos({ top: "-3rem", left: "65%" }); //OKK
+      } else if (w >= 1200) {
+        who = "80% branch (>=1200)";
+        setBtnPos({ top: "-3rem", left: "59%" });
+      } else if (w >= 1100) {
+        who = "75% branch (>=1100)";
+        setBtnPos({ top: "-3rem", left: "55%" }); //OKK
+      } else if (w >= 1000) {
+        who = "67% branch (>=1000)";
+        setBtnPos({ top: "-3rem", left: "50%" });
+      } else if (w >= 800) {
+        who = "50% branch (>=800)";
+        setBtnPos({ top: "-3rem", left: "45%" }); //OKK
+      } else {
+        who = "mobile/small";
+        setBtnPos({ top: "-3rem", left: "42%" });
+      }
+
+      // console.log("update btnPos: w =", w, "→", who);
+    };
+
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   useEffect(() => {
     saveAllEditsRef.current = saveAllEdits;
@@ -424,19 +462,26 @@ export default function GridMatchesPage({ isLogged }) {
                 : "Show pronostics highlights"
             }
             className={`
-              select-none
-              absolute 
-              md:w-8 md:h-8
-              md:-top-11 top-[1rem]
-              md:right-[30rem] -right-10 
-              md:py-0 py-2
-              md:px-1 px-2
-              rounded-full font-extrabold text-sm 
-              transition-all duration-300 
-              bg-slate -900 text-slate-900 z-[11000]
-            `}
+      select-none
+      absolute
+      md:w-8 md:h-8
+      md:py-0 py-2
+      md:px-1 px-2
+      rounded-full font-extrabold text-sm 
+      transition-all duration-300 
+      bg-transparent text-slate-900
+      z-[11000]
+    `}
+            style={{
+              top: btnPos.top,
+              left: btnPos.left,
+              // se nei casi piccoli usi "50%" come left:
+              transform: btnPos.left.includes("%")
+                ? "translateX(-50%)"
+                : undefined,
+            }}
           >
-            {showPronostics ? "," : "."}
+            {" "}
           </button>
         )}
 
@@ -1473,7 +1518,7 @@ export default function GridMatchesPage({ isLogged }) {
                       : "right-[6rem]"
                 }
               `}
-              style={{ top: mobileTop }}
+              style={{ top: mobileTop - 7 }}
               onClick={(e) => e.stopPropagation()}
             >
               <GridRankPage
@@ -1501,8 +1546,8 @@ export default function GridMatchesPage({ isLogged }) {
 
             {/* BOX CLASSIFICA */}
             <div
-              className="hidden md:block fixed z-[9999] p-2 rounded-2xl bg-sky-800 shadow-2xl w-[23rem]"
-              style={{ top: `${top}px`, left: `${left}px` }}
+              className="hidden md:block fixed z-[9999] md:p-2 md:py-0 p-2 rounded-2xl bg-sky-800 shadow-2xl w-[23rem]"
+              style={{ top: `${top - 5}px`, left: `${left}px` }}
               onMouseEnter={() => {
                 if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
               }}
