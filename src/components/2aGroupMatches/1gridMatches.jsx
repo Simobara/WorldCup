@@ -165,12 +165,16 @@ export default function GridMatchesPage({ isLogged }) {
     // chiudi UI aperte
     setHoverPlusModal(null);
     setHoverModal(null);
+
     setMobileNotesOpen(false);
     setMobileNotesGroup(null);
+
+    setMobilePlusOpen(false);
+    setMobilePlusGroup(null);
+
     setMobileRankOpen(false);
     setMobileGroup(null);
     setMobileCutoff(null);
-
     // ripristina i dati salvati/caricati
     setNotes(lastSavedRef.current.notes ?? {});
     setMatchesState(lastSavedRef.current.matches ?? {});
@@ -638,7 +642,7 @@ export default function GridMatchesPage({ isLogged }) {
                         <>
                           {/* BACKDROP UNICO */}
                           <div
-                            className="md:hidden fixed inset-0 z-[9998] bg-black/80"
+                            className="md:hidden fixed inset-0 z-[22003]  bg-black/80"
                             onClick={closeMobileBoth}
                           />
 
@@ -1467,7 +1471,7 @@ export default function GridMatchesPage({ isLogged }) {
           <>
             {/* BACKDROP — mobile only */}
             <div
-              className="md:hidden fixed inset-0 z-[9998] bg-black/80"
+              className="md:hidden fixed inset-0 z-[22003]  bg-black/80"
               onClick={() => {
                 setMobileRankOpen(false);
                 setMobileGroup(null);
@@ -1792,8 +1796,8 @@ function Row7({
               // ✅ CHIUDI LE NOTE SE APERTE (mobile)
               setMobileNotesOpen(false);
               setMobileNotesGroup(null);
-                setMobilePlusOpen(false);
-      setMobilePlusGroup(null);
+              setMobilePlusOpen(false);
+              setMobilePlusGroup(null);
 
               const groupEl = e.currentTarget.closest(".group-card");
               const rect =
