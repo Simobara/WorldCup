@@ -1419,6 +1419,8 @@ export default function GridMatchesPage({ isLogged }) {
                             mobileCutoff={mobileCutoff}
                             setMobileNotesOpen={setMobileNotesOpen}
                             setMobileNotesGroup={setMobileNotesGroup}
+                            setMobilePlusOpen={setMobilePlusOpen}
+                            setMobilePlusGroup={setMobilePlusGroup}
                             //------------------------------
                             bottomBorder={redBottom}
                             day={m?.day ?? ""}
@@ -1627,6 +1629,8 @@ function Row7({
   mobileCutoff,
   setMobileNotesOpen,
   setMobileNotesGroup,
+  setMobilePlusOpen,
+  setMobilePlusGroup,
   //-----
   day,
   city,
@@ -1788,6 +1792,8 @@ function Row7({
               // ✅ CHIUDI LE NOTE SE APERTE (mobile)
               setMobileNotesOpen(false);
               setMobileNotesGroup(null);
+                setMobilePlusOpen(false);
+      setMobilePlusGroup(null);
 
               const groupEl = e.currentTarget.closest(".group-card");
               const rect =
