@@ -5,8 +5,8 @@ export const citiesOsp = [
   // 🔵 SKY – PRIME 4
   { name: 'Vancouver',    abbr: 'VANCOUVER',      color: CssCities.Sky },
   { name: 'Seattle',      abbr: 'SEATTLE',        color: CssCities.Sky },
-  { name: 'SanFrancisco', abbr: 'SAN FRANCISCO',  color: CssCities.Sky },
-  { name: 'Los Angeles',     abbr: 'LOS ANGELES',    color: CssCities.Sky },
+  { name: 'SFrancisco', abbr: 'SAN FRANCISCO',  color: CssCities.Sky },
+  { name: 'LAngeles',     abbr: 'LAngeles',    color: CssCities.Sky },
 
   // 🟢 GREEN – SUCCESSIVE 6
   { name: 'Guadalajara',  abbr: 'GUADALAJARA',    color: CssCities.Green },
@@ -22,5 +22,5 @@ export const citiesOsp = [
   { name: 'Toronto',      abbr: 'TORONTO',        color: CssCities.Rose },
   { name: 'Boston',       abbr: 'BOSTON',         color: CssCities.Rose },
   { name: 'Philadelphia', abbr: 'PHILADELPHIA',   color: CssCities.Rose },
-  { name: 'New York',      abbr: 'NEW YORK',        color: CssCities.Rose },
+  { name: 'NewYork',      abbr: 'NewYork',        color: CssCities.Rose },
 ];

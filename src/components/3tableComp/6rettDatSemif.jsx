@@ -48,7 +48,7 @@ const RettDatSemif = ({
   `}
     >
       {/* ✅ DATA + ORARIO + CITTÀ — UNA SOLA RIGA */}
-      <div className="w-full flex items-center gap-2 whitespace-nowrap overflow-hidden">
+      <div className="w-full flex items-center gap-1 whitespace-nowrap overflow-hidden">
         {/* DATA */}
         <span className="font-extrabold text-[12px] leading-none text-gray-900 shrink-0">
           {dateFixed}
