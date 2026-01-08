@@ -945,7 +945,7 @@ export default function GridMatchesPage({ isLogged }) {
                           overflow-x-hidden
                           rounded-2xl
                           bg-slate-900 text-white
-                          border-2 border-white
+                          border-4
                           overscroll-contain
                           scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
                         "
@@ -1066,7 +1066,7 @@ export default function GridMatchesPage({ isLogged }) {
                           overflow-x-hidden
                           rounded-2xl
                           bg-slate-900 text-white
-                          border-2 border-white
+                          border-4 border-white
                           overscroll-contain
                           scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
                         "
@@ -1599,7 +1599,7 @@ function Header7() {
               flex items-center
               ${
                 h?.desktop === "TEAM 1"
-                  ? "justify-start pl-4"
+                  ? "justify-start pl-2 md:pl-4"
                   : h?.desktop === "CITTA'"
                     ? "justify-start -pl-2"
                     : h?.desktop === "TEAM 2"
