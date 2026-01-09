@@ -864,85 +864,14 @@ export default function GridMatchesPage({ isLogged }) {
                                               <div
                                                 className="
                                                   grid
-                                                  grid-cols-[1.8rem_3rem_2.2rem_3.2rem_2.2rem_3rem]
+                                                   grid-cols-[1rem_3rem_2.2rem_3.2rem_2.2rem_0rem]
                                                   items-center justify-center gap-x-1
                                                   text-[12px] leading-none
                                                   h-[2.75rem]
                                                 "
                                               >
-                                                {/* COLONNA “P” (solo se NON ufficiale) */}
-                                                {(() => {
-                                                  const isChecked =
-                                                    !!matchesState?.[letterP]
-                                                      ?.plusCheck?.[idx];
-
-                                                  // se ufficiale → colonna vuota (nessuna P)
-                                                  if (isOfficial) {
-                                                    return (
-                                                      <span className="flex items-center justify-center text-[14px]">
-                                                        &nbsp;
-                                                      </span>
-                                                    );
-                                                  }
-
-                                                  const canUseDel =
-                                                    editMode && !isOfficial;
-                                                  const delDisabled =
-                                                    !canUseDel;
-                                                  const delClassBase =
-                                                    delDisabled
-                                                      ? "opacity-30 cursor-not-allowed"
-                                                      : "text-slate-600 cursor-pointer";
-
-                                                  // 👉 adesso: RESET immediato, niente più “secondo click”
-                                                  return (
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => {
-                                                        if (!canUseDel) return;
-
-                                                        // 1) togli P
-                                                        handleEditChange(
-                                                          `${letterP}.plusCheck.${idx}`,
-                                                          false
-                                                        );
-
-                                                        // 2) azzera i gol
-                                                        handleEditChange(
-                                                          `${letterP}.plusRis.${idx}.a`,
-                                                          ""
-                                                        );
-                                                        handleEditChange(
-                                                          `${letterP}.plusRis.${idx}.b`,
-                                                          ""
-                                                        );
-
-                                                        // 3) azzera anche il pronostico 1/X/2
-                                                        handleEditChange(
-                                                          `${letterP}.plusPron.${idx}`,
-                                                          ""
-                                                        );
-                                                      }}
-                                                      disabled={delDisabled}
-                                                      className={`
-        w-5 h-5
-        flex items-center justify-center
-        transition
-        bg-transparent border-none
-        ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-        ${delClassBase}
-        font-bold
-      `}
-                                                      aria-hidden={isOfficial}
-                                                      aria-label="Reset risultato"
-                                                    >
-                                                      {DelSymbol}
-                                                    </button>
-                                                  );
-                                                })()}
-
                                                 {/* TEAM 1 SHORT */}
-                                                <span className="font-extrabold text-right whitespace-nowrap mr-1">
+                                                <span className="font-extrabold text-right whitespace-nowrap mr-1 justify-end ">
                                                   {toCode3(t1) || "\u00A0"}
                                                 </span>
 
@@ -1070,9 +999,79 @@ export default function GridMatchesPage({ isLogged }) {
                                                 </div>
 
                                                 {/* TEAM 2 SHORT */}
-                                                <span className="font-extrabold text-left whitespace-nowrap ml-1">
+                                                <span className="font-extrabold text-left whitespace-nowrap -ml-[0.8rem]">
                                                   {toCode3(t2) || "\u00A0"}
                                                 </span>
+                                                {/* COLONNA “P” (solo se NON ufficiale) */}
+                                                {(() => {
+                                                  const isChecked =
+                                                    !!matchesState?.[letterP]
+                                                      ?.plusCheck?.[idx];
+
+                                                  // se ufficiale → colonna vuota (nessuna P)
+                                                  if (isOfficial) {
+                                                    return (
+                                                      <span className="flex items-center justify-center text-[14px]">
+                                                        &nbsp;
+                                                      </span>
+                                                    );
+                                                  }
+
+                                                  const canUseDel =
+                                                    editMode && !isOfficial;
+                                                  const delDisabled =
+                                                    !canUseDel;
+                                                  const delClassBase =
+                                                    delDisabled
+                                                      ? "opacity-30 cursor-not-allowed"
+                                                      : "text-slate-600 cursor-pointer";
+
+                                                  // 👉 adesso: RESET immediato, niente più “secondo click”
+                                                  return (
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => {
+                                                        if (!canUseDel) return;
+
+                                                        // 1) togli P
+                                                        handleEditChange(
+                                                          `${letterP}.plusCheck.${idx}`,
+                                                          false
+                                                        );
+
+                                                        // 2) azzera i gol
+                                                        handleEditChange(
+                                                          `${letterP}.plusRis.${idx}.a`,
+                                                          ""
+                                                        );
+                                                        handleEditChange(
+                                                          `${letterP}.plusRis.${idx}.b`,
+                                                          ""
+                                                        );
+
+                                                        // 3) azzera anche il pronostico 1/X/2
+                                                        handleEditChange(
+                                                          `${letterP}.plusPron.${idx}`,
+                                                          ""
+                                                        );
+                                                      }}
+                                                      disabled={delDisabled}
+                                                      className={`
+                                                        w-5 h-5
+                                                        flex items-center justify-center
+                                                        transition
+                                                        bg-transparent border-none
+                                                        "translate-x-0"
+                                                        ${delClassBase}
+                                                        font-bold
+                                                      `}
+                                                      aria-hidden={isOfficial}
+                                                      aria-label="Reset risultato"
+                                                    >
+                                                      {DelSymbol}
+                                                    </button>
+                                                  );
+                                                })()}
                                               </div>
 
                                               {/* LINEA OGNI 2 PARTITE (dopo 2ª e 4ª) */}
@@ -1406,16 +1405,16 @@ export default function GridMatchesPage({ isLogged }) {
                                   {/* RIGA INCONTRO */}
                                   <div
                                     className={`
-          grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
-          w-full
-          items-center justify-center
-          h-[4em]
-          gap-x-0
-          px-1 pl-[8rem] py-0
-          text-[12px] leading-[0]
-          bg-transparent
-          pb-0 mb-0
-        `}
+                                      grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
+                                      w-full
+                                      items-center justify-center
+                                      h-[4em]
+                                      gap-x-0
+                                      px-1 pl-[8rem] py-0
+                                      text-[12px] leading-[0]
+                                      bg-transparent
+                                      pb-0 mb-0
+                                    `}
                                   >
                                     {/* COLONNA P (già sistemata per official) */}
                                     {(() => {
@@ -1462,14 +1461,14 @@ export default function GridMatchesPage({ isLogged }) {
                                           }}
                                           disabled={delDisabled}
                                           className={`
-        w-5 h-5
-        flex items-center justify-center
-        transition
-        bg-transparent border-none
-        ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-        ${delClassBase}
-        font-bold
-      `}
+                                            w-5 h-5
+                                            flex items-center justify-center
+                                            transition
+                                            bg-transparent border-none
+                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                            ${delClassBase}
+                                            font-bold
+                                          `}
                                           aria-label="Reset pronostico"
                                         >
                                           {DelSymbol}
@@ -1480,10 +1479,10 @@ export default function GridMatchesPage({ isLogged }) {
                                     {/* SQ1 */}
                                     <span
                                       className={`
-            font-extrabold text-right whitespace-nowrap mr-1
-            transition-transform duration-200 ease-out
-            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-          `}
+                                        font-extrabold text-right whitespace-nowrap mr-1
+                                        transition-transform duration-200 ease-out
+                                        ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                      `}
                                     >
                                       {toCode3(t1) || "\u00A0"}
                                     </span>
@@ -1491,10 +1490,10 @@ export default function GridMatchesPage({ isLogged }) {
                                     {/* FLAG 1 */}
                                     <div
                                       className={`
-            flex items-center justify-center p-0 m-0 leading-none h-full
-            transition-transform duration-200 ease-out
-            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-          `}
+                                        flex items-center justify-center p-0 m-0 leading-none h-full
+                                        transition-transform duration-200 ease-out
+                                        ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                      `}
                                     >
                                       <button
                                         type="button"
@@ -1555,9 +1554,9 @@ export default function GridMatchesPage({ isLogged }) {
                                       readOnly={isOfficial}
                                       onChange={handleEditChange}
                                       className={`
-            min-w-[2.5rem]
-            ${isOfficial ? "opacity-50 text-gray-300" : ""}
-          `}
+                                        min-w-[2.5rem]
+                                        ${isOfficial ? "opacity-50 text-gray-300" : ""}
+                                      `}
                                     />
 
                                     {/* FLAG 2 */}
@@ -1611,17 +1610,17 @@ export default function GridMatchesPage({ isLogged }) {
                                         <div className="col-span-5 flex justify-center">
                                           <div
                                             className={`
-                mt-[0.5rem]
-                h-[4px]
-                bg-slate-500
-                rounded-full
-                transition-all duration-100 ease-out ml-[1rem] mr-0
-                ${
-                  editMode
-                    ? "md:w-[calc(100%+14rem)] md:-ml-[4rem] w-full"
-                    : "w-full"
-                }
-              `}
+                                              mt-[0.5rem]
+                                              h-[4px]
+                                              bg-slate-500
+                                              rounded-full
+                                              transition-all duration-100 ease-out ml-[1rem] mr-0
+                                              ${
+                                                editMode
+                                                  ? "md:w-[calc(100%+14rem)] md:-ml-[4rem] w-full"
+                                                  : "w-full"
+                                              }
+                                            `}
                                           />
                                         </div>
                                       </div>

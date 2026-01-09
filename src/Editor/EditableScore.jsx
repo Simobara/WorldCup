@@ -18,7 +18,7 @@ export default function EditableScore({
   onChange,
   className = "",
   inputClassName = "",
-  maxLen = 2,
+  maxLen = 1,
   placeholderA = "",
   placeholderB = "",
   readOnly = false,
@@ -28,6 +28,7 @@ export default function EditableScore({
   const [a, setA] = useState(valueA ?? "");
   const [b, setB] = useState(valueB ?? "");
   const dirtyRef = useRef(false);
+  const inputBRef = useRef(null);
 
   const sanitize = (v) =>
     String(v ?? "")
@@ -35,24 +36,39 @@ export default function EditableScore({
       .slice(0, maxLen);
 
   useEffect(() => {
+    const extA = valueA ?? "";
+    const extB = valueB ?? "";
+
+    // fuori editMode: sync diretto con i valori esterni
     if (!editMode) {
       dirtyRef.current = false;
-      setA(valueA ?? "");
-      setB(valueB ?? "");
+      setA(extA);
+      setB(extB);
       return;
     }
 
-    if (!dirtyRef.current) {
-      setA(valueA ?? "");
-      setB(valueB ?? "");
-    }
-  }, [editMode, valueA, valueB]);
+    // 🔴 caso speciale: il parent ha forzato un reset (es. click su P / due frecce)
+    const externalEmpty =
+      String(extA).trim() === "" && String(extB).trim() === "";
+    const localNotEmpty = String(a).trim() !== "" || String(b).trim() !== "";
 
-  // 🧠 path base (serve per scrivere il pronostico X)
-  //const basePath = pathA.split(".").slice(0, -1).join(".");
+    if (externalEmpty && localNotEmpty) {
+      // 👉 reset immediato anche nei campi locali
+      dirtyRef.current = false;
+      setA("");
+      setB("");
+      return;
+    }
+
+    // caso normale: quando non hai digitato nulla localmente
+    if (!dirtyRef.current) {
+      setA(extA);
+      setB(extB);
+    }
+  }, [editMode, valueA, valueB, a, b]);
 
   // ==============
-  // SOLO TESTO (VIEW MODE, COME PRIMA)
+  // SOLO TESTO (VIEW MODE)
   // ==============
   if (!editMode) {
     const left = String(valueA ?? "").trim();
@@ -82,7 +98,6 @@ export default function EditableScore({
     return (
       <div
         className={[
-          // mobile: numeri vicini e centrati, desktop: come prima
           "flex items-center gap-[1px] md:gap-[3px] transition-transform duration-200 ease-out",
           "justify-center md:justify-start md:-translate-x-[2.5rem]",
           className,
@@ -93,14 +108,13 @@ export default function EditableScore({
           className={[
             "w-5 md:w-7 h-full md:ml-[1.2rem] ml-0",
             "flex items-center justify-center",
-            // numeri più grandi anche su mobile
             "text-lg md:text-lg font-extrabold tabular-nums",
           ].join(" ")}
         >
           {left || "\u00A0"}
         </div>
 
-        {/* CENTRAL SLOT — trattino compatto su mobile */}
+        {/* CENTRAL SLOT */}
         <div
           className={`
             w-auto md:w-[3.5rem]
@@ -130,11 +144,20 @@ export default function EditableScore({
   // =========================
   // EDIT MODE NORMALE (INPUT + QUADRATO X)
   // =========================
+  const hasAnyScoreHere =
+    String(a ?? "").trim() !== "" || String(b ?? "").trim() !== "";
+
+  // 👉 logica centrale per bloccare il bottone X
+  const isDisabledCenter = !editMode || !pathPron || hasAnyScoreHere;
+
   return (
     <div
       className={[
-        "flex items-center gap-[3px] transition-transform duration-200 ease-out",
-        "justify-start md:-translate-x-[2.5rem]",
+        "flex items-center transition-transform duration-200 ease-out",
+        // MOBILE: numeri vicini e centrati
+        "justify-center px-1",
+        // DESKTOP: allineato come la versione readOnly
+        "md:justify-start md:px-1 md:-translate-x-[2.5rem]",
         className,
       ].join(" ")}
     >
@@ -149,13 +172,19 @@ export default function EditableScore({
           const v = sanitize(e.target.value);
           setA(v);
           onChange?.(pathA, v);
+
+          // 🎯 auto-focus sulla seconda casella quando hai finito di scrivere
+          if (v && v.length === maxLen) {
+            inputBRef.current?.focus();
+          }
         }}
         className={[
           "w-6 md:w-7 h-full",
           "text-[12px] md:text-[13px]",
           "text-center leading-none p-0",
           "font-extrabold text-white",
-          "bg-transparent border-none outline-none",
+          "bg-transparent justify-end pr-0 pl-2",
+          "border-none outline-none",
           "focus:outline-none focus:ring-0 focus:border-none",
           "appearance-none",
           inputClassName,
@@ -165,29 +194,29 @@ export default function EditableScore({
       {/* 🔲 RETTANGOLO CENTRALE (X) */}
       <button
         type="button"
-        disabled={!editMode || !pathPron}
+        disabled={isDisabledCenter}
         onClick={() => {
-          if (!editMode || !pathPron) return;
-          // imposta pronostico di pareggio
+          if (isDisabledCenter) return;
           onChange?.(pathPron, "X");
         }}
-        className={`
-    md:w-[3.5rem] w-[12px]
-    md:h-[2rem] h-2
-    rounded-sm
-    bg-slate-700
-    hover:bg-sky-600 !px-2 
-    transition
-    flex items-center justify-center
-    ${!editMode ? "opacity-40 cursor-default" : "cursor-pointer"}
-  `}
+        className={[
+          "md:w-[3.5rem] w-[12px]",
+          "md:h-[2rem] h-2",
+          "rounded-sm",
+          "transition flex items-center justify-center",
+          isDisabledCenter
+            ? "bg-slate-700/30 opacity-40 cursor-default"
+            : "bg-slate-700 hover:bg-sky-600 cursor-pointer",
+          "!px-2",
+        ].join(" ")}
         aria-label="Pareggio"
       >
-        {/* puoi lasciare vuoto oppure mettere una X, come preferisci */}
+        {/* volendo puoi mettere una X visiva qui */}
       </button>
 
       {/* INPUT B */}
       <input
+        ref={inputBRef}
         value={b}
         placeholder={placeholderB}
         inputMode="numeric"
@@ -203,7 +232,8 @@ export default function EditableScore({
           "text-[12px] md:text-[13px]",
           "text-center leading-none p-0",
           "font-extrabold text-white",
-          "bg-transparent border-none outline-none",
+          "bg-transparent justify-start pl-0 pr-2",
+          "border-none outline-none",
           "focus:outline-none focus:ring-0 focus:border-none",
           "appearance-none",
           inputClassName,
