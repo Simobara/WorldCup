@@ -836,47 +836,35 @@ export default function GridMatchesPage({ isLogged }) {
                                                   }
 
                                                   // se NON ufficiale → mostra P cliccabile
-                                                  // se NON ufficiale → mostra P cliccabile
+
                                                   return (
                                                     <button
                                                       type="button"
                                                       onClick={() => {
                                                         if (!canUseDel) return; // fuori da edit mode → niente
 
-                                                        const isChecked =
-                                                          !!matchesState?.[
-                                                            letterP
-                                                          ]?.plusCheck?.[idx];
-                                                        const nextChecked =
-                                                          !isChecked;
-
-                                                        // toggla P
+                                                        // 🔁 AZZERA SOLO IL RISULTATO (gol) DI QUELLA PARTITA NEL MODALE
                                                         handleEditChange(
-                                                          `${letterP}.plusCheck.${idx}`,
-                                                          nextChecked
+                                                          `${letter}.plusRis.${idx}.a`,
+                                                          ""
                                                         );
-
-                                                        // se sto ATTIVANDO la P → svuoto i numeri
-                                                        if (nextChecked) {
-                                                          handleEditChange(
-                                                            `${letterP}.plusRis.${idx}.a`,
-                                                            ""
-                                                          );
-                                                          handleEditChange(
-                                                            `${letterP}.plusRis.${idx}.b`,
-                                                            ""
-                                                          );
-                                                        }
+                                                        handleEditChange(
+                                                          `${letter}.plusRis.${idx}.b`,
+                                                          ""
+                                                        );
                                                       }}
                                                       disabled={delDisabled}
                                                       className={`
-                                                        flex items-center justify-center
-                                                        transition
-                                                        bg-transparent border-none
-                                                        text-[14px] font-extrabold
-                                                        ${delClassBase}
-                                                      `}
-                                                      aria-label="Pronostico P"
+    w-5 h-5
+    flex items-center justify-center
+    transition
+    bg-transparent border-none
+    ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+    ${delClassBase}
+    font-bold
+  `}
+                                                      aria-hidden={isOfficial}
+                                                      aria-label="Reset risultato"
                                                     >
                                                       {DelSymbol}
                                                     </button>
@@ -1210,7 +1198,6 @@ export default function GridMatchesPage({ isLogged }) {
                               const isChecked =
                                 !!matchesState?.[letter]?.plusCheck?.[idx];
 
-                              const seed = String(m?.ris ?? "").trim();
                               // ✅ baseA/baseB dal risultato corrente (res)
                               const [baseA, baseB] = String(res ?? "").includes(
                                 "-"
@@ -1219,7 +1206,8 @@ export default function GridMatchesPage({ isLogged }) {
                                     .split("-")
                                     .map((x) => x.trim())
                                 : ["", ""];
-                              // ✅ valori salvati (override)
+
+                              // ✅ valori salvati (override) per l'input
                               const savedA =
                                 matchesState?.[letter]?.plusRis?.[idx]?.a;
                               const savedB =
@@ -1228,34 +1216,72 @@ export default function GridMatchesPage({ isLogged }) {
                               const isOfficial = (m?.results ?? "")
                                 .trim()
                                 .includes("-");
-                              // ✅ valore finale mostrato
                               const norm = (x) => String(x ?? "").trim();
-
                               const valueA = norm(savedA);
                               const valueB = norm(savedB);
+
+                              // 🎯 LOGICA BORDO IN MODALE (win/draw in base a res)
+                              let highlightModal1 = "none";
+                              let highlightModal2 = "none";
+
+                              if (res && res.includes("-")) {
+                                const [na, nb] = res
+                                  .split("-")
+                                  .map((n) => Number(String(n).trim()));
+
+                                if (
+                                  Number.isFinite(na) &&
+                                  Number.isFinite(nb)
+                                ) {
+                                  const winType = isOfficial
+                                    ? "win"
+                                    : "win-provisional";
+                                  const drawType = isOfficial
+                                    ? "draw"
+                                    : "draw-provisional";
+
+                                  if (na === nb) {
+                                    highlightModal1 = drawType;
+                                    highlightModal2 = drawType;
+                                  } else if (na > nb) {
+                                    highlightModal1 = winType;
+                                  } else {
+                                    highlightModal2 = winType;
+                                  }
+                                }
+                              } else {
+                                // Nessun risultato inserito → usa PRON come prima
+                                if (selectedPron === "X") {
+                                  highlightModal1 = "pron-draw";
+                                  highlightModal2 = "pron-draw";
+                                } else if (selectedPron === "1") {
+                                  highlightModal1 = "pron";
+                                } else if (selectedPron === "2") {
+                                  highlightModal2 = "pron";
+                                }
+                              }
 
                               return (
                                 <React.Fragment key={`plus-${letter}-${idx}`}>
                                   {/* RIGA INCONTRO */}
                                   <div
                                     className={`
-                                      grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
-                                      w-full
-                                      items-center justify-center
-                                      h-[4em]                                          
-                                      gap-x-0
-                                      px-1 pl-[8rem] py-0
-                                      text-[12px] leading-[0]
-                                      bg-transparent
-                                      pb-0 mb-0
-                                    `}
+          grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
+          w-full
+          items-center justify-center
+          h-[4em]
+          gap-x-0
+          px-1 pl-[8rem] py-0
+          text-[12px] leading-[0]
+          bg-transparent
+          pb-0 mb-0
+        `}
                                   >
-                                    {/* RIGA INCONTRO */}
+                                    {/* COLONNA P (già sistemata per official) */}
                                     {(() => {
                                       const isOfficial = (m?.results ?? "")
                                         .trim()
                                         .includes("-");
-                                      // 👇 SE È UFFICIALE → NON MOSTRARE NIENTE (NESSUN BOTTONE, NESSUNA ICONA)
                                       if (isOfficial) {
                                         return (
                                           <span className="w-5 h-5 flex items-center justify-center">
@@ -1264,7 +1290,6 @@ export default function GridMatchesPage({ isLogged }) {
                                         );
                                       }
 
-                                      // 👇 SE NON È UFFICIALE → MOSTRA IL BOTTONE CON DELSYMBOL (🔄 / P)
                                       const canUseDel = editMode && !isOfficial;
                                       const delDisabled = !canUseDel;
                                       const delClassBase = delDisabled
@@ -1275,17 +1300,14 @@ export default function GridMatchesPage({ isLogged }) {
                                         <button
                                           type="button"
                                           onClick={() => {
-                                            if (!canUseDel) return; // se non sei in edit mode, non fare nulla
+                                            if (!canUseDel) return;
 
                                             const nextChecked = !isChecked;
-
-                                            // toggla la P
                                             handleEditChange(
                                               `${letter}.plusCheck.${idx}`,
                                               nextChecked
                                             );
 
-                                            // se sto ATTIVANDO la P → svuoto i numeri del risultato
                                             if (nextChecked) {
                                               handleEditChange(
                                                 `${letter}.plusRis.${idx}.a`,
@@ -1299,15 +1321,14 @@ export default function GridMatchesPage({ isLogged }) {
                                           }}
                                           disabled={delDisabled}
                                           className={`
-      w-5 h-5
-      flex items-center justify-center
-      transition
-      bg-transparent border-none
-      ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-      ${delClassBase}
-      font-bold
-    `}
-                                          aria-hidden={isOfficial}
+                w-5 h-5
+                flex items-center justify-center
+                transition
+                bg-transparent border-none
+                ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                ${delClassBase}
+                font-bold
+              `}
                                           aria-label="Pronostico P"
                                         >
                                           {DelSymbol}
@@ -1318,10 +1339,10 @@ export default function GridMatchesPage({ isLogged }) {
                                     {/* SQ1 */}
                                     <span
                                       className={`
-                                            font-extrabold text-right whitespace-nowrap mr-1
-                                            transition-transform duration-200 ease-out
-                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-                                          `}
+            font-extrabold text-right whitespace-nowrap mr-1
+            transition-transform duration-200 ease-out
+            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+          `}
                                     >
                                       {toCode3(t1) || "\u00A0"}
                                     </span>
@@ -1329,10 +1350,10 @@ export default function GridMatchesPage({ isLogged }) {
                                     {/* FLAG 1 */}
                                     <div
                                       className={`
-                                            flex items-center justify-center p-0 m-0 leading-none h-full
-                                            transition-transform duration-200 ease-out
-                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-                                          `}
+            flex items-center justify-center p-0 m-0 leading-none h-full
+            transition-transform duration-200 ease-out
+            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+          `}
                                     >
                                       <button
                                         type="button"
@@ -1341,7 +1362,6 @@ export default function GridMatchesPage({ isLogged }) {
                                           if (!editMode) return;
 
                                           if (selectedPron === "1") {
-                                            // 🔁 se era già selezionato → RESET tutto
                                             handleEditChange(
                                               `${letter}.plusPron.${idx}`,
                                               ""
@@ -1355,7 +1375,6 @@ export default function GridMatchesPage({ isLogged }) {
                                               ""
                                             );
                                           } else {
-                                            // ✅ altrimenti seleziona 1
                                             handleEditChange(
                                               `${letter}.plusPron.${idx}`,
                                               "1"
@@ -1375,11 +1394,7 @@ export default function GridMatchesPage({ isLogged }) {
                                           phase="round32"
                                           advanced={false}
                                           label={null}
-                                          highlightType={
-                                            selectedPron === "1"
-                                              ? "pron"
-                                              : "none"
-                                          }
+                                          highlightType={highlightModal1}
                                         />
                                       </button>
                                     </div>
@@ -1388,7 +1403,7 @@ export default function GridMatchesPage({ isLogged }) {
                                     <EditableScore
                                       pathA={`${letter}.plusRis.${idx}.a`}
                                       pathB={`${letter}.plusRis.${idx}.b`}
-                                      valueA={isOfficial ? baseA : valueA} // ⬅️ se ufficiale, mostra il risultato ufficiale
+                                      valueA={isOfficial ? baseA : valueA}
                                       valueB={isOfficial ? baseB : valueB}
                                       placeholderA={
                                         user?.email?.toLowerCase() ===
@@ -1402,12 +1417,12 @@ export default function GridMatchesPage({ isLogged }) {
                                           ? baseB
                                           : ""
                                       }
-                                      readOnly={isOfficial} // ⬅️ QUI: blocca input + QUADRATO
+                                      readOnly={isOfficial}
                                       onChange={handleEditChange}
                                       className={`
-                                        min-w-[2.5rem]
-                                        ${isOfficial ? "opacity-50 text-gray-300" : ""}
-                                      `}
+            min-w-[2.5rem]
+            ${isOfficial ? "opacity-50 text-gray-300" : ""}
+          `}
                                     />
 
                                     {/* FLAG 2 */}
@@ -1419,7 +1434,6 @@ export default function GridMatchesPage({ isLogged }) {
                                           if (!editMode) return;
 
                                           if (selectedPron === "2") {
-                                            // 🔁 se era già selezionato → RESET tutto
                                             handleEditChange(
                                               `${letter}.plusPron.${idx}`,
                                               ""
@@ -1433,7 +1447,6 @@ export default function GridMatchesPage({ isLogged }) {
                                               ""
                                             );
                                           } else {
-                                            // ✅ altrimenti seleziona 2
                                             handleEditChange(
                                               `${letter}.plusPron.${idx}`,
                                               "2"
@@ -1453,11 +1466,7 @@ export default function GridMatchesPage({ isLogged }) {
                                           phase="round32"
                                           advanced={false}
                                           label={null}
-                                          highlightType={
-                                            selectedPron === "2"
-                                              ? "pron"
-                                              : "none"
-                                          }
+                                          highlightType={highlightModal2}
                                         />
                                       </button>
                                     </div>
@@ -1475,17 +1484,17 @@ export default function GridMatchesPage({ isLogged }) {
                                         <div className="col-span-5 flex justify-center">
                                           <div
                                             className={`
-                                                  mt-[0.5rem]
-                                                  h-[4px]
-                                                  bg-slate-500
-                                                  rounded-full
-                                                  transition-all duration-100 ease-out ml-[1rem] mr-0
-                                                  ${
-                                                    editMode
-                                                      ? "md:w-[calc(100%+14rem)] md:-ml-[4rem] w-full"
-                                                      : "w-full"
-                                                  }
-                                                `}
+                mt-[0.5rem]
+                h-[4px]
+                bg-slate-500
+                rounded-full
+                transition-all duration-100 ease-out ml-[1rem] mr-0
+                ${
+                  editMode
+                    ? "md:w-[calc(100%+14rem)] md:-ml-[4rem] w-full"
+                    : "w-full"
+                }
+              `}
                                           />
                                         </div>
                                       </div>
