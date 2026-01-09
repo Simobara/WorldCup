@@ -772,18 +772,21 @@ export default function GridMatchesPage({ isLogged }) {
                                           const t2 = findTeamP(m.team2);
                                           const res = computeResP(m, idx);
 
-                                          // 👉 risultati ufficiali sì/no
+                                          // risultati ufficiali sì/no
                                           const isOfficial = (m?.results ?? "")
                                             .trim()
                                             .includes("-");
-                                          // DelSymbol attivo solo se sei in modalità edit (✅) e non c'è risultato ufficiale
-                                          const canUseDel =
-                                            editMode && !isOfficial;
-                                          const delDisabled = !canUseDel;
-                                          const delClassBase = delDisabled
-                                            ? "opacity-30 cursor-not-allowed"
-                                            : "text-slate-600 cursor-pointer";
-                                          // 🔢 valori base da mostrare (risultato ufficiale o plusRis)
+
+                                          // pron selezionato per quella partita
+                                          const selectedPron = String(
+                                            matchesState?.[letterP]?.plusPron?.[
+                                              idx
+                                            ] ?? ""
+                                          )
+                                            .trim()
+                                            .toUpperCase();
+
+                                          // valori base da mostrare (risultato ufficiale o plusRis)
                                           const [baseA, baseB] = String(
                                             res ?? ""
                                           ).includes("-")
@@ -805,6 +808,49 @@ export default function GridMatchesPage({ isLogged }) {
                                             String(x ?? "").trim();
                                           const valueA = norm(savedA);
                                           const valueB = norm(savedB);
+
+                                          // 🎯 LOGICA BORDI (come nel modale desktop)
+                                          let highlightModal1 = "none";
+                                          let highlightModal2 = "none";
+
+                                          if (res && res.includes("-")) {
+                                            const [na, nb] = res
+                                              .split("-")
+                                              .map((n) =>
+                                                Number(String(n).trim())
+                                              );
+
+                                            if (
+                                              Number.isFinite(na) &&
+                                              Number.isFinite(nb)
+                                            ) {
+                                              const winType = isOfficial
+                                                ? "win"
+                                                : "win-provisional";
+                                              const drawType = isOfficial
+                                                ? "draw"
+                                                : "draw-provisional";
+
+                                              if (na === nb) {
+                                                highlightModal1 = drawType;
+                                                highlightModal2 = drawType;
+                                              } else if (na > nb) {
+                                                highlightModal1 = winType;
+                                              } else {
+                                                highlightModal2 = winType;
+                                              }
+                                            }
+                                          } else {
+                                            // nessun risultato inserito → usa PRON (1 / X / 2)
+                                            if (selectedPron === "X") {
+                                              highlightModal1 = "pron-draw";
+                                              highlightModal2 = "pron-draw";
+                                            } else if (selectedPron === "1") {
+                                              highlightModal1 = "pron";
+                                            } else if (selectedPron === "2") {
+                                              highlightModal2 = "pron";
+                                            }
+                                          }
 
                                           return (
                                             <React.Fragment
@@ -898,16 +944,54 @@ export default function GridMatchesPage({ isLogged }) {
 
                                                 {/* FLAG 1 */}
                                                 <div className="flex items-center justify-center h-full min-h-[2.5rem]">
-                                                  <div className="scale-[0.45] origin-center">
+                                                  <button
+                                                    type="button"
+                                                    disabled={!editMode}
+                                                    onClick={() => {
+                                                      if (!editMode) return;
+
+                                                      if (
+                                                        selectedPron === "1"
+                                                      ) {
+                                                        // se riclicchi, azzero tutto
+                                                        handleEditChange(
+                                                          `${letterP}.plusPron.${idx}`,
+                                                          ""
+                                                        );
+                                                        handleEditChange(
+                                                          `${letterP}.plusRis.${idx}.a`,
+                                                          ""
+                                                        );
+                                                        handleEditChange(
+                                                          `${letterP}.plusRis.${idx}.b`,
+                                                          ""
+                                                        );
+                                                      } else {
+                                                        // imposta pronostico: vince squadra 1
+                                                        handleEditChange(
+                                                          `${letterP}.plusPron.${idx}`,
+                                                          "1"
+                                                        );
+                                                      }
+                                                    }}
+                                                    className={`scale-[0.40] origin-center ${
+                                                      editMode
+                                                        ? "cursor-pointer"
+                                                        : "cursor-default opacity-60"
+                                                    }`}
+                                                    aria-label={`Pronostico: vince ${t1?.name ?? "team1"}`}
+                                                  >
                                                     <Quadrato
                                                       teamName={t1?.name ?? ""}
                                                       flag={t1?.flag ?? null}
                                                       phase="round32"
                                                       advanced={false}
                                                       label={null}
-                                                      highlightType="none"
+                                                      highlightType={
+                                                        highlightModal1
+                                                      }
                                                     />
-                                                  </div>
+                                                  </button>
                                                 </div>
 
                                                 {/* EDITABLE SCORE */}
@@ -939,16 +1023,54 @@ export default function GridMatchesPage({ isLogged }) {
                                                 </div>
                                                 {/* FLAG 2 */}
                                                 <div className="flex items-center justify-center h-full min-h-[2.5rem]">
-                                                  <div className="scale-[0.45] origin-center">
+                                                  <button
+                                                    type="button"
+                                                    disabled={!editMode}
+                                                    onClick={() => {
+                                                      if (!editMode) return;
+
+                                                      if (
+                                                        selectedPron === "2"
+                                                      ) {
+                                                        // toggle off
+                                                        handleEditChange(
+                                                          `${letterP}.plusPron.${idx}`,
+                                                          ""
+                                                        );
+                                                        handleEditChange(
+                                                          `${letterP}.plusRis.${idx}.a`,
+                                                          ""
+                                                        );
+                                                        handleEditChange(
+                                                          `${letterP}.plusRis.${idx}.b`,
+                                                          ""
+                                                        );
+                                                      } else {
+                                                        // imposta pronostico: vince squadra 2
+                                                        handleEditChange(
+                                                          `${letterP}.plusPron.${idx}`,
+                                                          "2"
+                                                        );
+                                                      }
+                                                    }}
+                                                    className={`scale-[0.40] origin-center ${
+                                                      editMode
+                                                        ? "cursor-pointer"
+                                                        : "cursor-default opacity-60"
+                                                    }`}
+                                                    aria-label={`Pronostico: vince ${t2?.name ?? "team2"}`}
+                                                  >
                                                     <Quadrato
                                                       teamName={t2?.name ?? ""}
                                                       flag={t2?.flag ?? null}
                                                       phase="round32"
                                                       advanced={false}
                                                       label={null}
-                                                      highlightType="none"
+                                                      highlightType={
+                                                        highlightModal2
+                                                      }
                                                     />
-                                                  </div>
+                                                  </button>
                                                 </div>
 
                                                 {/* TEAM 2 SHORT */}
@@ -1403,7 +1525,7 @@ export default function GridMatchesPage({ isLogged }) {
                                             );
                                           }
                                         }}
-                                        className={`scale-[0.45] md:scale-[0.65] origin-center ${
+                                        className={`scale-[0.40] md:scale-[0.65] origin-center ${
                                           editMode
                                             ? "cursor-pointer"
                                             : "cursor-default opacity-60"
@@ -1476,7 +1598,7 @@ export default function GridMatchesPage({ isLogged }) {
                                             );
                                           }
                                         }}
-                                        className={`scale-[0.45] md:scale-[0.65] origin-center ${
+                                        className={`scale-[0.40] md:scale-[0.65] origin-center ${
                                           editMode
                                             ? "cursor-pointer"
                                             : "cursor-default opacity-60"
@@ -2137,7 +2259,7 @@ function Row7({
       >
         <div
           className={`
-          scale-[0.45] md:scale-[0.65] origin-center
+          scale-[0.40] md:scale-[0.65] origin-center
           ${
             // DESKTOP
             flagsGrayOnDesktop
@@ -2191,7 +2313,7 @@ function Row7({
       >
         <div
           className={`
-          scale-[0.45] md:scale-[0.65] origin-center
+          scale-[0.40] md:scale-[0.65] origin-center
            ${
              // DESKTOP
              flagsGrayOnDesktop
