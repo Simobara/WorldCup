@@ -146,7 +146,7 @@
   --quad-bg-final:        var(--c-yellow-500);
 
   --quad-border-win:      var(--c-rose-700);
-  --quad-border-draw:     var(--c-yellow-400);
+  --quad-border-draw:     var(--c-slate-400);
   --quad-border-pron:     var(--c-purple-500);
   --quad-border-pron-draw:var(--c-green-500);
   --quad-border-default:  var(--c-slate-900);

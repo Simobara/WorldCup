@@ -1255,12 +1255,22 @@ export default function GridMatchesPage({ isLogged }) {
                                       const isOfficial = (m?.results ?? "")
                                         .trim()
                                         .includes("-");
-                                      // DelSymbol attivo solo se sei in modalità edit (✅) e non c'è risultato ufficiale
+                                      // 👇 SE È UFFICIALE → NON MOSTRARE NIENTE (NESSUN BOTTONE, NESSUNA ICONA)
+                                      if (isOfficial) {
+                                        return (
+                                          <span className="w-5 h-5 flex items-center justify-center">
+                                            {/* hidden when official */}
+                                          </span>
+                                        );
+                                      }
+
+                                      // 👇 SE NON È UFFICIALE → MOSTRA IL BOTTONE CON DELSYMBOL (🔄 / P)
                                       const canUseDel = editMode && !isOfficial;
                                       const delDisabled = !canUseDel;
                                       const delClassBase = delDisabled
                                         ? "opacity-30 cursor-not-allowed"
                                         : "cursor-pointer text-slate-500";
+
                                       return (
                                         <button
                                           type="button"
@@ -1558,9 +1568,12 @@ export default function GridMatchesPage({ isLogged }) {
                             Number.isFinite(a) && Number.isFinite(b);
 
                           if (valid) {
-                            const winType = isProvisional
+                            const winTypeHome = isProvisional
                               ? "win-provisional"
                               : "win";
+                            const winTypeAway = isProvisional
+                              ? "win2-provisional"
+                              : "win2"; // 👈 nuovo tipo per team2
                             const drawType = isProvisional
                               ? "draw-provisional"
                               : "draw";
@@ -1569,10 +1582,12 @@ export default function GridMatchesPage({ isLogged }) {
                               highlightType1 = drawType;
                               highlightType2 = drawType;
                             } else if (a > b) {
-                              highlightType1 = winType;
+                              // vince TEAM 1 (home) → stile standard
+                              highlightType1 = winTypeHome;
                               highlightType2 = "none";
                             } else {
-                              highlightType2 = winType;
+                              // vince TEAM 2 (away) → stile purple
+                              highlightType2 = winTypeAway;
                               highlightType1 = "none";
                             }
                           }

@@ -357,23 +357,24 @@ const TableBlock = ({ isLogged }) => {
             />
 
             {/* ✅ Blocco FINALE F1, centrato sopra la coppa */}
-            <div className="relative z-10 flex items-center justify-center">
+            <div className="relative z-10 flex items-center justify-center ">
               <div className="relative">
                 {renderMatchBlock(mF1, Rett.Final, "final")}
 
                 <button
                   onClick={() => setShowPron((prev) => !prev)}
                   className="
-            select-none
-            absolute 
-            md:right-12 right-0 
-            md:-top-8 -top-5 
-            bg-transparent
-            text-yellow-500 font-bold
-            text-xs md:text-sm
-            px-0 py-0
-            rounded-full z-50
-          "
+                    select-none
+                    absolute 
+                    md:right-10 right-0 
+                    md:-top-8 -top-5 
+                    bg-transparent
+                    text-yellow-500 font-bold
+                    text-xs md:text-sm
+                    px-3 py-0
+                    rounded-full z-50 
+                    "
+                  // bg-white
                 >
                   {showPron ? "," : "."}
                 </button>

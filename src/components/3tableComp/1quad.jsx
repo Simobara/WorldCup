@@ -23,11 +23,15 @@ const Quadrato = ({
     isPronTeamTable && highlightType === "none" ? "pron" : highlightType;
 
   const borderByHighlight = {
-    win: CssQuad.BorderWin,
+    // ✅ UFFICIALE: vittoria team1 o team2 → pink-900
+    win: "border-pink-900",
+    win2: "border-pink-900",
+
     draw: CssQuad.BorderDraw,
 
-    // ✅ provvisorio (ris)
+    // ✅ PROVVISORIO (ris / pronostici): uso ancora il bordo purple che già hai
     "win-provisional": CssQuad.BorderWinProvisional, // purple
+    "win2-provisional": CssQuad.BorderWinProvisional, // purple
     "draw-provisional": CssQuad.BorderDrawProvisional, // green
 
     pron: CssQuad.BorderPron,
