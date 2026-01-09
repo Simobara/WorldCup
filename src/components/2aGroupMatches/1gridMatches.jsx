@@ -835,34 +835,54 @@ export default function GridMatchesPage({ isLogged }) {
                                                     );
                                                   }
 
-                                                  // se NON ufficiale → mostra P cliccabile
+                                                  const canUseDel =
+                                                    editMode && !isOfficial;
+                                                  const delDisabled =
+                                                    !canUseDel;
+                                                  const delClassBase =
+                                                    delDisabled
+                                                      ? "opacity-30 cursor-not-allowed"
+                                                      : "text-slate-600 cursor-pointer";
 
+                                                  // 👉 adesso: RESET immediato, niente più “secondo click”
                                                   return (
                                                     <button
                                                       type="button"
                                                       onClick={() => {
-                                                        if (!canUseDel) return; // fuori da edit mode → niente
+                                                        if (!canUseDel) return;
 
-                                                        // 🔁 AZZERA SOLO IL RISULTATO (gol) DI QUELLA PARTITA NEL MODALE
+                                                        // 1) togli P
                                                         handleEditChange(
-                                                          `${letter}.plusRis.${idx}.a`,
+                                                          `${letterP}.plusCheck.${idx}`,
+                                                          false
+                                                        );
+
+                                                        // 2) azzera i gol
+                                                        handleEditChange(
+                                                          `${letterP}.plusRis.${idx}.a`,
                                                           ""
                                                         );
                                                         handleEditChange(
-                                                          `${letter}.plusRis.${idx}.b`,
+                                                          `${letterP}.plusRis.${idx}.b`,
+                                                          ""
+                                                        );
+
+                                                        // 3) azzera anche il pronostico 1/X/2
+                                                        handleEditChange(
+                                                          `${letterP}.plusPron.${idx}`,
                                                           ""
                                                         );
                                                       }}
                                                       disabled={delDisabled}
                                                       className={`
-    w-5 h-5
-    flex items-center justify-center
-    transition
-    bg-transparent border-none
-    ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-    ${delClassBase}
-    font-bold
-  `}
+        w-5 h-5
+        flex items-center justify-center
+        transition
+        bg-transparent border-none
+        ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+        ${delClassBase}
+        font-bold
+      `}
                                                       aria-hidden={isOfficial}
                                                       aria-label="Reset risultato"
                                                     >
@@ -895,6 +915,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                   <EditableScore
                                                     pathA={`${letterP}.plusRis.${idx}.a`}
                                                     pathB={`${letterP}.plusRis.${idx}.b`}
+                                                    pathPron={`${letterP}.plusPron.${idx}`}
                                                     valueA={
                                                       isOfficial
                                                         ? baseA
@@ -1302,34 +1323,35 @@ export default function GridMatchesPage({ isLogged }) {
                                           onClick={() => {
                                             if (!canUseDel) return;
 
-                                            const nextChecked = !isChecked;
+                                            // RESET COMPLETO come su mobile
                                             handleEditChange(
                                               `${letter}.plusCheck.${idx}`,
-                                              nextChecked
+                                              false
                                             );
-
-                                            if (nextChecked) {
-                                              handleEditChange(
-                                                `${letter}.plusRis.${idx}.a`,
-                                                ""
-                                              );
-                                              handleEditChange(
-                                                `${letter}.plusRis.${idx}.b`,
-                                                ""
-                                              );
-                                            }
+                                            handleEditChange(
+                                              `${letter}.plusRis.${idx}.a`,
+                                              ""
+                                            );
+                                            handleEditChange(
+                                              `${letter}.plusRis.${idx}.b`,
+                                              ""
+                                            );
+                                            handleEditChange(
+                                              `${letter}.plusPron.${idx}`,
+                                              ""
+                                            );
                                           }}
                                           disabled={delDisabled}
                                           className={`
-                w-5 h-5
-                flex items-center justify-center
-                transition
-                bg-transparent border-none
-                ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-                ${delClassBase}
-                font-bold
-              `}
-                                          aria-label="Pronostico P"
+        w-5 h-5
+        flex items-center justify-center
+        transition
+        bg-transparent border-none
+        ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+        ${delClassBase}
+        font-bold
+      `}
+                                          aria-label="Reset pronostico"
                                         >
                                           {DelSymbol}
                                         </button>
@@ -1403,6 +1425,7 @@ export default function GridMatchesPage({ isLogged }) {
                                     <EditableScore
                                       pathA={`${letter}.plusRis.${idx}.a`}
                                       pathB={`${letter}.plusRis.${idx}.b`}
+                                      pathPron={`${letter}.plusPron.${idx}`}
                                       valueA={isOfficial ? baseA : valueA}
                                       valueB={isOfficial ? baseB : valueB}
                                       placeholderA={

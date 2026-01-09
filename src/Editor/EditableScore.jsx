@@ -12,6 +12,7 @@ import { useEditMode } from "../Providers/EditModeProvider";
 export default function EditableScore({
   pathA,
   pathB,
+  pathPron,
   valueA,
   valueB,
   onChange,
@@ -48,7 +49,7 @@ export default function EditableScore({
   }, [editMode, valueA, valueB]);
 
   // 🧠 path base (serve per scrivere il pronostico X)
-  const basePath = pathA.split(".").slice(0, -1).join(".");
+  //const basePath = pathA.split(".").slice(0, -1).join(".");
 
   // ==============
   // SOLO TESTO (VIEW MODE, COME PRIMA)
@@ -164,20 +165,26 @@ export default function EditableScore({
       {/* 🔲 RETTANGOLO CENTRALE (X) */}
       <button
         type="button"
-        disabled={!editMode}
-        onClick={() => onChange?.(`${basePath}.plusPron`, "X")}
+        disabled={!editMode || !pathPron}
+        onClick={() => {
+          if (!editMode || !pathPron) return;
+          // imposta pronostico di pareggio
+          onChange?.(pathPron, "X");
+        }}
         className={`
-          md:w-[3.5rem] w-[12px]
-          md:h-[2rem] h-2
-          rounded-sm
-          bg-slate-700
-          hover:bg-sky-600 !px-2 
-          transition
-          flex items-center justify-center
-          ${!editMode ? "opacity-40 cursor-default" : "cursor-pointer"}
-        `}
+    md:w-[3.5rem] w-[12px]
+    md:h-[2rem] h-2
+    rounded-sm
+    bg-slate-700
+    hover:bg-sky-600 !px-2 
+    transition
+    flex items-center justify-center
+    ${!editMode ? "opacity-40 cursor-default" : "cursor-pointer"}
+  `}
         aria-label="Pareggio"
-      />
+      >
+        {/* puoi lasciare vuoto oppure mettere una X, come preferisci */}
+      </button>
 
       {/* INPUT B */}
       <input
