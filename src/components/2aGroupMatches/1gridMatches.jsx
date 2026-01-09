@@ -808,6 +808,10 @@ export default function GridMatchesPage({ isLogged }) {
                                             String(x ?? "").trim();
                                           const valueA = norm(savedA);
                                           const valueB = norm(savedB);
+                                          const hasAnyScore =
+                                            isOfficial ||
+                                            valueA !== "" ||
+                                            valueB !== "";
 
                                           // 🎯 LOGICA BORDI (come nel modale desktop)
                                           let highlightModal1 = "none";
@@ -946,35 +950,31 @@ export default function GridMatchesPage({ isLogged }) {
                                                 <div className="flex items-center justify-center h-full min-h-[2.5rem]">
                                                   <button
                                                     type="button"
-                                                    disabled={!editMode}
+                                                    disabled={
+                                                      !editMode || hasAnyScore
+                                                    }
                                                     onClick={() => {
-                                                      if (!editMode) return;
+                                                      if (
+                                                        !editMode ||
+                                                        hasAnyScore
+                                                      )
+                                                        return;
 
                                                       if (
                                                         selectedPron === "1"
                                                       ) {
-                                                        // se riclicchi, azzero tutto
                                                         handleEditChange(
                                                           `${letterP}.plusPron.${idx}`,
                                                           ""
                                                         );
-                                                        handleEditChange(
-                                                          `${letterP}.plusRis.${idx}.a`,
-                                                          ""
-                                                        );
-                                                        handleEditChange(
-                                                          `${letterP}.plusRis.${idx}.b`,
-                                                          ""
-                                                        );
                                                       } else {
-                                                        // imposta pronostico: vince squadra 1
                                                         handleEditChange(
                                                           `${letterP}.plusPron.${idx}`,
                                                           "1"
                                                         );
                                                       }
                                                     }}
-                                                    className={`scale-[0.40] origin-center ${
+                                                    className={`scale-[0.45] origin-center ${
                                                       editMode
                                                         ? "cursor-pointer"
                                                         : "cursor-default opacity-60"
@@ -1025,35 +1025,31 @@ export default function GridMatchesPage({ isLogged }) {
                                                 <div className="flex items-center justify-center h-full min-h-[2.5rem]">
                                                   <button
                                                     type="button"
-                                                    disabled={!editMode}
+                                                    disabled={
+                                                      !editMode || hasAnyScore
+                                                    }
                                                     onClick={() => {
-                                                      if (!editMode) return;
+                                                      if (
+                                                        !editMode ||
+                                                        hasAnyScore
+                                                      )
+                                                        return;
 
                                                       if (
                                                         selectedPron === "2"
                                                       ) {
-                                                        // toggle off
                                                         handleEditChange(
                                                           `${letterP}.plusPron.${idx}`,
                                                           ""
                                                         );
-                                                        handleEditChange(
-                                                          `${letterP}.plusRis.${idx}.a`,
-                                                          ""
-                                                        );
-                                                        handleEditChange(
-                                                          `${letterP}.plusRis.${idx}.b`,
-                                                          ""
-                                                        );
                                                       } else {
-                                                        // imposta pronostico: vince squadra 2
                                                         handleEditChange(
                                                           `${letterP}.plusPron.${idx}`,
                                                           "2"
                                                         );
                                                       }
                                                     }}
-                                                    className={`scale-[0.40] origin-center ${
+                                                    className={`scale-[0.45] origin-center ${
                                                       editMode
                                                         ? "cursor-pointer"
                                                         : "cursor-default opacity-60"
@@ -1362,7 +1358,8 @@ export default function GridMatchesPage({ isLogged }) {
                               const norm = (x) => String(x ?? "").trim();
                               const valueA = norm(savedA);
                               const valueB = norm(savedB);
-
+                              const hasAnyScore =
+                                isOfficial || valueA !== "" || valueB !== "";
                               // 🎯 LOGICA BORDO IN MODALE (win/draw in base a res)
                               let highlightModal1 = "none";
                               let highlightModal2 = "none";
@@ -1501,21 +1498,14 @@ export default function GridMatchesPage({ isLogged }) {
                                     >
                                       <button
                                         type="button"
-                                        disabled={!editMode}
+                                        disabled={!editMode || hasAnyScore}
                                         onClick={() => {
-                                          if (!editMode) return;
+                                          if (!editMode || hasAnyScore) return;
 
+                                          // solo pronostico, NON toccare plusRis
                                           if (selectedPron === "1") {
                                             handleEditChange(
                                               `${letter}.plusPron.${idx}`,
-                                              ""
-                                            );
-                                            handleEditChange(
-                                              `${letter}.plusRis.${idx}.a`,
-                                              ""
-                                            );
-                                            handleEditChange(
-                                              `${letter}.plusRis.${idx}.b`,
                                               ""
                                             );
                                           } else {
@@ -1525,7 +1515,7 @@ export default function GridMatchesPage({ isLogged }) {
                                             );
                                           }
                                         }}
-                                        className={`scale-[0.40] md:scale-[0.65] origin-center ${
+                                        className={`scale-[0.45] md:scale-[0.65] origin-center ${
                                           editMode
                                             ? "cursor-pointer"
                                             : "cursor-default opacity-60"
@@ -1574,21 +1564,13 @@ export default function GridMatchesPage({ isLogged }) {
                                     <div className="flex items-center justify-center p-0 m-0 leading-none h-full">
                                       <button
                                         type="button"
-                                        disabled={!editMode}
+                                        disabled={!editMode || hasAnyScore}
                                         onClick={() => {
-                                          if (!editMode) return;
+                                          if (!editMode || hasAnyScore) return;
 
                                           if (selectedPron === "2") {
                                             handleEditChange(
                                               `${letter}.plusPron.${idx}`,
-                                              ""
-                                            );
-                                            handleEditChange(
-                                              `${letter}.plusRis.${idx}.a`,
-                                              ""
-                                            );
-                                            handleEditChange(
-                                              `${letter}.plusRis.${idx}.b`,
                                               ""
                                             );
                                           } else {
@@ -1598,7 +1580,7 @@ export default function GridMatchesPage({ isLogged }) {
                                             );
                                           }
                                         }}
-                                        className={`scale-[0.40] md:scale-[0.65] origin-center ${
+                                        className={`scale-[0.45] md:scale-[0.65] origin-center ${
                                           editMode
                                             ? "cursor-pointer"
                                             : "cursor-default opacity-60"
