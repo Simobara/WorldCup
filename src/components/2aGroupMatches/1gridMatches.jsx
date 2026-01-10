@@ -654,7 +654,6 @@ export default function GridMatchesPage({ isLogged }) {
                             text-white
                             flex items-center justify-center
                             cursor-pointer
-                            hover:bg-red-600
                             transition
                              z-[12000]
                             ${hoverPlusModal === letter ? "bg-red-600" : "hover:bg-red-600"}

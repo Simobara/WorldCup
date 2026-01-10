@@ -166,6 +166,7 @@ export default function EditableScore({
         value={a}
         placeholder={placeholderA}
         inputMode="numeric"
+        type="tel"
         pattern="[0-9]*"
         onFocus={(e) => {
           // porta sempre il cursore all'inizio
@@ -175,7 +176,7 @@ export default function EditableScore({
         }}
         onClick={(e) => {
           // anche se clicchi in mezzo, forza il cursore all'inizio
-          e.preventDefault();
+          //e.preventDefault();
           requestAnimationFrame(() => {
             e.target.setSelectionRange(0, 0);
           });
@@ -233,6 +234,7 @@ export default function EditableScore({
         value={b}
         placeholder={placeholderB}
         inputMode="numeric"
+        type="tel"
         pattern="[0-9]*"
         onFocus={(e) => {
           // porta il cursore sempre all'inizio
@@ -242,7 +244,7 @@ export default function EditableScore({
         }}
         onClick={(e) => {
           // anche se clicchi in mezzo, forza all'inizio
-          e.preventDefault();
+          //e.preventDefault();
           requestAnimationFrame(() => {
             e.target.setSelectionRange(0, 0);
           });
