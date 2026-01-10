@@ -295,11 +295,10 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
 
 
 
-  useEffect(() => {
+   useEffect(() => {
     if (isLogged) {
-      setShowPronostics(true);
-    } else {
-      setShowPronostics(false); // opzionale
+      // se loggato, disattiva sempre i pronostici
+      setShowPronostics(false);
     }
   }, [isLogged]);
 
@@ -340,7 +339,7 @@ export default function GridRankPage({ onlyGroup, maxMatches = null, isLogged })
             : "relative flex justify-center items-start min-w-max"
         }
       >
-        {!isTooltip && (
+        {!isTooltip && !isLogged && (
   <button
     onClick={() => setShowPronostics((v) => !v)}
     aria-pressed={showPronostics}

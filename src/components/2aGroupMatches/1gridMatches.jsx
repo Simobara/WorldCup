@@ -8,6 +8,8 @@ import React, {
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
 import { createMatchesRepo } from "../../Services/repo/repoMatch";
+import { loadMatchStructureFromDb } from "../../Services/repo/repoMatchStructure";
+
 import { createNotesRepo } from "../../Services/repo/repoNote";
 import { useAuth } from "../../Services/supabase/AuthProvider";
 import {
@@ -58,7 +60,9 @@ export default function GridMatchesPage({ isLogged }) {
   );
 
   const STORAGE_KEY = "gridMatches_showPronostics";
-
+  // ✅ struttura “flat” che arriva da Supabase (wc_match_structure)
+  const [structureByGroup, setStructureByGroup] = useState(null);
+  const [structureLoading, setStructureLoading] = useState(true);
   const [showPronostics, setShowPronostics] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -271,6 +275,28 @@ export default function GridMatchesPage({ isLogged }) {
   }, [editMode, setEditMode]);
 
   //------------------------------------------------------------------------
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const byGroup = await loadMatchStructureFromDb();
+        if (!cancelled) {
+          setStructureByGroup(byGroup);
+        }
+      } catch (err) {
+        console.error("Errore caricando struttura da DB:", err);
+      } finally {
+        if (!cancelled) {
+          setStructureLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const update = () => {
@@ -503,9 +529,10 @@ export default function GridMatchesPage({ isLogged }) {
             const resolveName = buildNameResolver(flagsMond);
 
             const groupKey = `group_${letter}`;
-            const matchesFlat = getFlatMatchesForGroup(
-              groupMatches?.[groupKey]
-            );
+            const matchesFlat =
+              structureByGroup?.[letter]?.length
+                ? structureByGroup[letter]
+                : getFlatMatchesForGroup(groupMatches?.[groupKey]);
             const rowsCount = matchesFlat.length;
 
             const findTeam = (rawName) => {
@@ -727,8 +754,11 @@ export default function GridMatchesPage({ isLogged }) {
                               const resolveName = buildNameResolver(flagsMond);
 
                               const groupKey = `group_${letterP}`;
-                              const matchesFlatP = getFlatMatchesForGroup(
-                                groupMatches?.[groupKey]
+                              const matchesFlatP =
+                                structureByGroup?.[letterP]?.length
+                                  ? structureByGroup[letterP]
+                                  : getFlatMatchesForGroup(
+                                      groupMatches?.[groupKey]
                               );
 
                               const findTeamP = (rawName) => {

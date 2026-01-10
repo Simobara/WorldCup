@@ -16,6 +16,7 @@ Note:
 import { useEffect, useState } from "react";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { supabase } from "../Services/supabase/supabaseClient";
+import SeedMatchStructure from "../START/app/admin/seedMatchesStructure";
 
 import TopInfo from "../Ap/TopInfo";
 import StandingsPage from "../Body/1standingsPage";
@@ -48,7 +49,9 @@ function AppRoutes() {
       <Route path="/standingsPage" element={<StandingsPage />} />
       <Route path="/groupRankPage" element={<GroupRankPage/>} />
       <Route path="/groupMatchesPage" element={<GroupMatchesPage />} />
-      <Route path="/tablePage" element={<TablePage />} />
+      <Route path="/tablePage" element={<TablePage />} /> 
+      {/* ✅ route admin per il seed */}
+      <Route path="/admin/seed-structure" element={<SeedMatchStructure />} />
     </Routes>
   );
 }
