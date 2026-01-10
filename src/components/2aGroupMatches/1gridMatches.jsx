@@ -2232,7 +2232,7 @@ function Row7({
           ${common}
           border-transparent
           ${CssMatchGrid.CellBg} ${CssMatchGrid.CellText}
-          flex items-center justify-start
+          flex items-center justify-end
           ${activeDesk}
           ${activeMob}
         `}
