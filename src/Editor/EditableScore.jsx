@@ -167,6 +167,19 @@ export default function EditableScore({
         placeholder={placeholderA}
         inputMode="numeric"
         pattern="[0-9]*"
+        onFocus={(e) => {
+          // porta sempre il cursore all'inizio
+          requestAnimationFrame(() => {
+            e.target.setSelectionRange(0, 0);
+          });
+        }}
+        onClick={(e) => {
+          // anche se clicchi in mezzo, forza il cursore all'inizio
+          e.preventDefault();
+          requestAnimationFrame(() => {
+            e.target.setSelectionRange(0, 0);
+          });
+        }}
         onChange={(e) => {
           dirtyRef.current = true;
           const v = sanitize(e.target.value);
@@ -221,6 +234,19 @@ export default function EditableScore({
         placeholder={placeholderB}
         inputMode="numeric"
         pattern="[0-9]*"
+        onFocus={(e) => {
+          // porta il cursore sempre all'inizio
+          requestAnimationFrame(() => {
+            e.target.setSelectionRange(0, 0);
+          });
+        }}
+        onClick={(e) => {
+          // anche se clicchi in mezzo, forza all'inizio
+          e.preventDefault();
+          requestAnimationFrame(() => {
+            e.target.setSelectionRange(0, 0);
+          });
+        }}
         onChange={(e) => {
           dirtyRef.current = true;
           const v = sanitize(e.target.value);

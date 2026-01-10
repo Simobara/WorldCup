@@ -263,7 +263,12 @@ export default function GridMatchesPage({ isLogged }) {
 
     setMobilePlusOpen(false);
     setMobilePlusGroup(null);
-  }, []);
+    // 👉 se sono in edit (flag verde), salva e torna in grigio
+    if (editMode) {
+      void saveAllEditsRef.current?.();
+      setEditMode(false);
+    }
+  }, [editMode, setEditMode]);
 
   //------------------------------------------------------------------------
 
@@ -640,7 +645,7 @@ export default function GridMatchesPage({ isLogged }) {
                             e.stopPropagation();
                             openMobileBoth(letter); // ✅ apre NOTE + PLUS insieme
                           }}
-                          className="
+                          className={`
                             w-8 h-8
                             md:w-10 md:h-10
                             translate-y-2
@@ -652,8 +657,8 @@ export default function GridMatchesPage({ isLogged }) {
                             hover:bg-red-600
                             transition
                              z-[12000]
-                            
-                          "
+                            ${hoverPlusModal === letter ? "bg-red-600" : "hover:bg-red-600"}
+                          `}
                         >
                           {/* ➕ */}
                           #️⃣
@@ -673,18 +678,18 @@ export default function GridMatchesPage({ isLogged }) {
                             e.stopPropagation();
                             openMobileBoth(letter); // ✅ apre NOTE + PLUS insieme
                           }}
-                          className="
+                          className={`
                             md:flex hidden
                             w-8 h-8 
                             md:w-10 md:h-10
-                            md:text-[20px] text-[12px]
-                            rounded- full
+                            md:text-[20px] text-[12px]                            
                             text-sky-300
                             items-center justify-center
                             cursor-pointer
-                            hover:bg-red-600
                             transition
-                          "
+                            z-[12000]
+                            ${hoverModal === letter ? "bg-red-600" : "hover:bg-red-600"}
+                          `}
                         >
                           ℹ️
                         </div>
@@ -871,7 +876,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                 "
                                               >
                                                 {/* TEAM 1 SHORT */}
-                                                <span className="font-extrabold text-right whitespace-nowrap mr-1 justify-end ">
+                                                <span className="font-extrabold whitespace-nowrap flex items-center justify-end text-right w-full ml-[0.7rem]">
                                                   {toCode3(t1) || "\u00A0"}
                                                 </span>
 
@@ -1185,7 +1190,13 @@ export default function GridMatchesPage({ isLogged }) {
                           scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
                         "
                         onMouseEnter={() => setHoverModal(letter)}
-                        onMouseLeave={() => setHoverModal(null)}
+                        onMouseLeave={() => {
+                          setHoverModal(null);
+                          if (editMode) {
+                            void saveAllEditsRef.current?.();
+                            setEditMode(false);
+                          }
+                        }}
                       >
                         {/* <div className="flex items-center justify-between">
                           <div className="font-extrabold text-slate-900">
@@ -1307,7 +1318,13 @@ export default function GridMatchesPage({ isLogged }) {
                         "
                         // pl-24
                         onMouseEnter={() => setHoverPlusModal(letter)}
-                        onMouseLeave={() => setHoverPlusModal(null)}
+                        onMouseLeave={() => {
+                          setHoverPlusModal(null);
+                          if (editMode) {
+                            void saveAllEditsRef.current?.();
+                            setEditMode(false);
+                          }
+                        }}
                       >
                         <div className="p-0">
                           {/* <div className="font-extrabold text-center text-sm mb-0">
