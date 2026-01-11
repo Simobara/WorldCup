@@ -32,7 +32,6 @@ function stripComments(base) {
 }
 
 export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
-  // ✅ DATA_SOURCE deve essere "remote" o "local"
   const isRemote = source === DATA_SOURCE;
 
   const userId = opts.userId;
@@ -55,17 +54,22 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
         }
       }
 
+      // se non ho userEmail, considero come non loggato
+      if (!userEmail) {
+        return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
+      }
+
       // ---------- REMOTE ----------
       // non loggato → admin vede base completa, altri base pulita
       if (!userId) {
         return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
       }
 
-      // 1) Leggi DB user
+      // 1) Leggi DB user (per email, NON più per user_id)
       let { data, error } = await supabase
         .from("notes_base")
         .select("key, data")
-        .eq("user_id", userId);
+        .eq("user_email", userEmail); // 🟢 CAMBIATO
 
       if (error) {
         console.error("LOAD ERROR:", error);
@@ -76,17 +80,17 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
       if (isAdmin && (!data || data.length === 0)) {
         const payload = Object.keys(groupNotes ?? {}).map((k) => ({
           user_id: userId,
+          user_email: userEmail, // 🟢 AGGIUNTO
           key: k,
-          data: groupNotes?.[k] ?? null, // 👈 COPIA PARI PARI DAL FILE
+          data: groupNotes?.[k] ?? null,
         }));
 
         const { error: seedAdminErr } = await supabase
           .from("notes_base")
-          .upsert(payload, { onConflict: "user_id,key" });
+          .upsert(payload, { onConflict: "key,user_email" }); // 🟢 CAMBIATO
 
         if (seedAdminErr) {
           console.warn("ADMIN SEED WARN:", seedAdminErr);
-          // fallback: almeno vedi il locale completo
           return groupNotes ?? {};
         }
 
@@ -94,7 +98,7 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
         const res2 = await supabase
           .from("notes_base")
           .select("key, data")
-          .eq("user_id", userId);
+          .eq("user_email", userEmail); // 🟢 CAMBIATO
 
         if (res2.error) {
           console.error("LOAD AFTER ADMIN SEED ERROR:", res2.error);
@@ -104,19 +108,20 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
         data = res2.data;
       }
 
-      // 3) NON-ADMIN: se è la prima volta → seed nel DB con BASE PULITA (senza commenti)
+      // 3) NON-ADMIN: prima volta → seed con BASE PULITA
       if (!isAdmin && (!data || data.length === 0)) {
         const cleanBase = stripComments(groupNotes);
 
         const payload = Object.keys(cleanBase ?? {}).map((k) => ({
           user_id: userId,
+          user_email: userEmail, // 🟢 AGGIUNTO
           key: k,
           data: cleanBase?.[k] ?? null,
         }));
 
         const { error: seedCleanErr } = await supabase
           .from("notes_base")
-          .upsert(payload, { onConflict: "user_id,key" });
+          .upsert(payload, { onConflict: "key,user_email" }); // 🟢 CAMBIATO
 
         if (seedCleanErr) {
           console.warn("NON-ADMIN SEED CLEAN WARN:", seedCleanErr);
@@ -125,7 +130,7 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
         const res3 = await supabase
           .from("notes_base")
           .select("key, data")
-          .eq("user_id", userId);
+          .eq("user_email", userEmail); // 🟢 CAMBIATO
 
         if (!res3.error) data = res3.data;
       }
@@ -135,16 +140,13 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
       for (const row of data ?? []) out[row.key] = row.data;
 
       // 5) base:
-      // - admin: groupNotes (DB comunque vince dopo merge)
-      // - non-admin: base pulita (struttura + commenti vuoti)
       const base = isAdmin ? groupNotes : stripComments(groupNotes);
 
       // 6) merge (DB vince)
       const merged = clone(base);
-
       for (const k of Object.keys(out ?? {})) {
         if (!out[k]) continue;
-        merged[k] = out[k]; // DB vince sempre (admin incluso)
+        merged[k] = out[k];
       }
 
       // 7) NON-ADMIN: nascondi i commenti seed se uguali al file principale
@@ -193,7 +195,7 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
     async save({ notes, keysTouched }) {
       if (!keysTouched?.size) return;
 
-      // ✅ NON-ADMIN: marca i gruppi modificati dall’utente
+      // ✅ NON-ADMIN: marca i gruppi modificati
       if (!isAdmin && notes) {
         for (const k of keysTouched) {
           notes[k] = notes[k] ?? {};
@@ -217,18 +219,18 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
       }
 
       // ---------- REMOTE ----------
-      if (!userId) return;
+      if (!userId || !userEmail) return; // 🟢 ora richiedo anche email
 
-      // ✅ ADMIN + NON-ADMIN: overwrite (nessun append)
       const payload = Array.from(keysTouched).map((k) => ({
         user_id: userId,
+        user_email: userEmail, // 🟢 AGGIUNTO
         key: k,
         data: notes?.[k] ?? null,
       }));
 
       const { error } = await supabase
         .from("notes_base")
-        .upsert(payload, { onConflict: "user_id,key" });
+        .upsert(payload, { onConflict: "key,user_email" }); // 🟢 CAMBIATO
 
       if (error) console.error("SAVE ERROR:", error);
     },

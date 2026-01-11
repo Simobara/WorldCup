@@ -16,7 +16,6 @@ function clone(x) {
 function stripForNonAdmin(fileBase) {
   const out = {};
   for (const k of Object.keys(fileBase ?? {})) {
-    // calcolo quante partite ci sono nel gruppo (non-admin)
     const matchesCount = Object.values(fileBase[k] ?? {})
       .filter((v) => v?.matches)
       .reduce((acc, g) => acc + g.matches.length, 0);
@@ -35,22 +34,18 @@ function stripForNonAdmin(fileBase) {
 function buildBaseFromFile(fileBase) {
   const out = {};
   for (const letter of Object.keys(fileBase ?? {})) {
-    // prendo tutte le partite del gruppo nello stesso ordine del file
     const matchesFlat = Object.values(fileBase[letter] ?? {})
       .filter((v) => v?.matches)
       .flatMap((g) => g.matches ?? []);
 
     const matchesCount = matchesFlat.length;
 
-    // ✅ seed pron dal file (può essere "1" | "2" | "X" | "")
     const plusPronFromFile = matchesFlat.map((m) =>
       String(m?.pron ?? "").trim()
     );
 
-    // ✅ seed ris dal file (es. "0-1") → {a:"0", b:"1"}
-    // se ris è vuoto/spazio → {a:"", b:""}
     const plusRisFromFile = matchesFlat.map((m) => {
-      const raw = String(m?.ris ?? "").trim(); // es: "0-1"
+      const raw = String(m?.ris ?? "").trim();
       const parts = raw.split("-").map((s) => s.trim());
       const a = parts?.[0] && /^\d+$/.test(parts[0]) ? parts[0] : "";
       const b = parts?.[1] && /^\d+$/.test(parts[1]) ? parts[1] : "";
@@ -66,16 +61,22 @@ function buildBaseFromFile(fileBase) {
   }
   return out;
 }
+
 let MEMORY_CACHE_BY_USER = new Map();
+
 export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
   const isRemote = source === DATA_SOURCE;
 
   const userId = opts.userId;
   const userEmail = opts.userEmail;
   const isAdmin = (userEmail || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
-  const cacheKey = userId ? `${userId}:${isAdmin ? "admin" : "user"}` : null;
 
-  // base dal file
+  // usiamo l'email come chiave di cache (coerente con il vincolo DB)
+  const cacheKey =
+    userEmail && userEmail.length
+      ? `${userEmail}:${isAdmin ? "admin" : "user"}`
+      : null;
+
   const fileBaseAdmin = buildBaseFromFile(groupMatches);
   const fileBaseNonAdmin = stripForNonAdmin(groupMatches);
 
@@ -83,7 +84,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
     source,
 
     // ---------- LOAD ----------
-    async load() {
+    async load({ forceRefresh = false } = {}) {
       // ===== LOCAL =====
       if (!isRemote) {
         try {
@@ -95,21 +96,26 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         }
       }
 
+      // se non ho email → tratto come non loggato
+      if (!userEmail) {
+        return isAdmin ? fileBaseAdmin : fileBaseNonAdmin;
+      }
+
       // ===== REMOTE =====
-      // non loggato
       if (!userId) {
         return isAdmin ? fileBaseAdmin : fileBaseNonAdmin;
       }
-      // ✅ CACHE: se ho già dati in memoria per questo user, li ritorno subito
 
-      const cached = cacheKey ? MEMORY_CACHE_BY_USER.get(cacheKey) : null;
-      if (cached) return cached;
+      if (!forceRefresh && cacheKey) {
+        const cached = MEMORY_CACHE_BY_USER.get(cacheKey);
+        if (cached) return cached;
+      }
 
-      // 1) leggi DB
+      // 1) leggi DB per email
       let { data, error } = await supabase
         .from("matches_pron")
         .select("key, data")
-        .eq("user_id", userId);
+        .eq("user_email", userEmail);
 
       if (error) {
         console.error("MATCHES LOAD ERROR:", error);
@@ -120,13 +126,14 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       if (isAdmin && (!data || data.length === 0)) {
         const payload = Object.keys(fileBaseAdmin).map((k) => ({
           user_id: userId,
+          user_email: userEmail,
           key: k,
           data: fileBaseAdmin[k],
         }));
 
         const { error: seedErr } = await supabase
           .from("matches_pron")
-          .upsert(payload, { onConflict: "user_id,key" });
+          .upsert(payload, { onConflict: "key,user_email" });
 
         if (seedErr) {
           console.warn("ADMIN MATCHES SEED WARN:", seedErr);
@@ -136,7 +143,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         const res2 = await supabase
           .from("matches_pron")
           .select("key, data")
-          .eq("user_id", userId);
+          .eq("user_email", userEmail);
 
         data = res2.data ?? [];
       }
@@ -145,18 +152,19 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       if (!isAdmin && (!data || data.length === 0)) {
         const payload = Object.keys(fileBaseNonAdmin).map((k) => ({
           user_id: userId,
+          user_email: userEmail,
           key: k,
           data: fileBaseNonAdmin[k],
         }));
 
         await supabase
           .from("matches_pron")
-          .upsert(payload, { onConflict: "user_id,key" });
+          .upsert(payload, { onConflict: "key,user_email" });
 
         const res3 = await supabase
           .from("matches_pron")
           .select("key, data")
-          .eq("user_id", userId);
+          .eq("user_email", userEmail);
 
         data = res3.data ?? [];
       }
@@ -178,9 +186,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       let didFix = false;
       const keysFixed = new Set();
 
-      // ✅ FIX A: plusRisEdited deve esistere per TUTTI
-      // - Se manca, la creo
-      // - Se nel DB ci sono già numeri in plusRis, segno edited=true su quegli indici
+      // FIX A: plusRisEdited
       for (const k of Object.keys(merged ?? {})) {
         const obj = merged[k] ?? {};
 
@@ -200,7 +206,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         }
       }
 
-      // ✅ FIX B: plusPron seed dal file SOLO admin (per retro-compatibilità)
+      // FIX B: plusPron seed dal file per admin
       if (isAdmin) {
         for (const k of Object.keys(fileBaseAdmin)) {
           const obj = merged[k] ?? {};
@@ -215,21 +221,23 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         }
       }
 
-      // ✅ se ho riparato, salvo subito su DB (remote)
-      if (didFix && isRemote && userId && keysFixed.size) {
+      // salva eventuali fix
+      if (didFix && isRemote && userId && userEmail && keysFixed.size) {
         const payload = Array.from(keysFixed).map((k) => ({
           user_id: userId,
+          user_email: userEmail,
           key: k,
           data: merged?.[k] ?? null,
         }));
 
         const { error: fixSaveErr } = await supabase
           .from("matches_pron")
-          .upsert(payload, { onConflict: "user_id,key" });
+          .upsert(payload, { onConflict: "key,user_email" });
 
         if (fixSaveErr) console.warn("MATCHES FIX SAVE WARN:", fixSaveErr);
       }
-      MEMORY_CACHE_BY_USER.set(cacheKey, merged);
+
+      if (cacheKey) MEMORY_CACHE_BY_USER.set(cacheKey, merged);
 
       return merged;
     },
@@ -262,23 +270,28 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       }
 
       // ===== REMOTE =====
-      if (!userId) return;
-      // ✅ aggiorna cache locale subito (se possibile)
+      if (!userId || !userEmail) return;
+
+      // aggiorna cache
       try {
-        const prev = cacheKey ? MEMORY_CACHE_BY_USER.get(cacheKey) || {} : {};
-        const next = { ...prev };
-        for (const k of keysTouched) next[k] = matches?.[k] ?? null;
-        if (cacheKey) MEMORY_CACHE_BY_USER.set(cacheKey, next);
+        if (cacheKey) {
+          const prev = MEMORY_CACHE_BY_USER.get(cacheKey) || {};
+          const next = { ...prev };
+          for (const k of keysTouched) next[k] = matches?.[k] ?? null;
+          MEMORY_CACHE_BY_USER.set(cacheKey, next);
+        }
       } catch {}
+
       const payload = Array.from(keysTouched).map((k) => ({
         user_id: userId,
+        user_email: userEmail,
         key: k,
         data: matches?.[k] ?? null,
       }));
 
       const { error } = await supabase
         .from("matches_pron")
-        .upsert(payload, { onConflict: "user_id,key" });
+        .upsert(payload, { onConflict: "key,user_email" });
 
       if (error) console.error("MATCHES SAVE ERROR:", error);
     },

@@ -13,7 +13,7 @@ function mapRowToFlatMatch(row) {
     ris: row.seed_ris ?? "",
     pron: row.seed_pron ?? "",
     // results ufficiale per ora lo lasciamo vuoto (lo gestirai in un'altra tabella eventualmente)
-    results: "",
+    results: row.results_official?.trim() || row.results?.trim() || "",
   };
 }
 
