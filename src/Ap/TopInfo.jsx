@@ -35,7 +35,12 @@ export default function TopInfo() {
 
   const [phase, setPhase] = useState("idle"); // idle | expand | snap
   const [activePath, setActivePath] = useState(location.pathname);
-  const [slider, setSlider] = useState({ left: 0, top: 0, width: 0, height: 0 });
+  const [slider, setSlider] = useState({
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0,
+  });
 
   const [session, setSession] = useState(null);
   const [authReady, setAuthReady] = useState(false);
@@ -55,9 +60,9 @@ export default function TopInfo() {
   };
 
   const handleAuthButton = () => {
-  if (isLogged) return logout(); // logout SEMPRE possibile
-  setOpenLogin(true);
-};
+    if (isLogged) return logout(); // logout SEMPRE possibile
+    setOpenLogin(true);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -72,16 +77,18 @@ export default function TopInfo() {
       }
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (!alive) return;
-      setSession(newSession);
-      setAuthReady(true);
-      if (!newSession) setOpenLogin(false); // sessione persa → torna a 🔐
-      if (newSession) {
-      // setOpenLogin(false); // NON chiudere automaticamente
-        setPendingEmail(null); // ✅ se arriva sessione valida, resetta pending
+    const { data: sub } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        if (!alive) return;
+        setSession(newSession);
+        setAuthReady(true);
+        if (!newSession) setOpenLogin(false); // sessione persa → torna a 🔐
+        if (newSession) {
+          // setOpenLogin(false); // NON chiudere automaticamente
+          setPendingEmail(null); // ✅ se arriva sessione valida, resetta pending
+        }
       }
-    });
+    );
 
     return () => {
       alive = false;
@@ -99,7 +106,12 @@ export default function TopInfo() {
     if (!btn || !cont) return null;
     const b = btn.getBoundingClientRect();
     const c = cont.getBoundingClientRect();
-    return { left: b.left - c.left, top: b.top - c.top, width: b.width, height: b.height };
+    return {
+      left: b.left - c.left,
+      top: b.top - c.top,
+      width: b.width,
+      height: b.height,
+    };
   };
 
   const unionBox = (a, b) => {
@@ -159,9 +171,12 @@ export default function TopInfo() {
         setSlider(to);
       }, EXPAND_MS);
 
-      setTimeout(() => {
-        navigate(path);
-      }, EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET));
+      setTimeout(
+        () => {
+          navigate(path);
+        },
+        EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET)
+      );
 
       setTimeout(() => {
         setPhase("idle");
@@ -170,7 +185,13 @@ export default function TopInfo() {
   };
 
   // ✅ NEW: icona auth con priorità "pending"
-  const authIcon = isLogged ? "🔑" : pendingEmail ? "✉️" : authReady ? "🔐" : "⏳";
+  const authIcon = isLogged
+    ? "🔑"
+    : pendingEmail
+      ? "✉️"
+      : authReady
+        ? "🔐"
+        : "⏳";
 
   return (
     <div
@@ -207,8 +228,13 @@ export default function TopInfo() {
           height: slider.height,
           transitionProperty: "left, top, width, height",
           transitionDuration:
-            phase === "expand" ? `${EXPAND_MS}ms` : phase === "snap" ? `${SNAP_MS}ms` : "0ms",
-          transitionTimingFunction: phase === "snap" ? EASE_ELASTIC : "ease-out",
+            phase === "expand"
+              ? `${EXPAND_MS}ms`
+              : phase === "snap"
+                ? `${SNAP_MS}ms`
+                : "0ms",
+          transitionTimingFunction:
+            phase === "snap" ? EASE_ELASTIC : "ease-out",
         }}
       />
 
@@ -247,7 +273,13 @@ export default function TopInfo() {
           ${isLogged ? "text-white hover:bg-white/10" : "grayscale brightness-75 opacity-80"}
           disabled:opacity-60
         `}
-        title={pendingEmail ? "Conferma email richiesta" : isLogged ? "Logout" : "Login"}
+        title={
+          pendingEmail
+            ? "Conferma email richiesta"
+            : isLogged
+              ? "Logout"
+              : "Login"
+        }
       >
         {authIcon}
       </button>
@@ -267,13 +299,16 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
   const [mode, setMode] = useState("login"); // "login" | "signup"
   const [email, setEmail] = useState(pendingEmail ?? "");
   const PW_KEY_PREFIX = "wc26_pw:";
-  const normEmail = (s) => String(s || "").trim().toLowerCase();
+  const normEmail = (s) =>
+    String(s || "")
+      .trim()
+      .toLowerCase();
 
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [showPw, setShowPw] = useState(false);
   const emailRef = useRef(null);
 
   useEffect(() => {
@@ -281,10 +316,10 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
   }, []);
 
   useEffect(() => {
-  const key = PW_KEY_PREFIX + normEmail(email);
-  const savedPw = localStorage.getItem(key) || "";
-  if (savedPw) setPassword(savedPw);
-}, [email]);
+    const key = PW_KEY_PREFIX + normEmail(email);
+    const savedPw = localStorage.getItem(key) || "";
+    if (savedPw) setPassword(savedPw);
+  }, [email]);
 
   const isPending = !!pendingEmail;
 
@@ -313,7 +348,9 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
       if (msg.includes("email not confirmed")) {
         setPendingEmail(email);
         setErr("");
-        setInfo("✉️ Revisa la tua email per confermare. Poi torna qui e fai Login.");
+        setInfo(
+          "✉️ Revisa la tua email per confermare. Poi torna qui e fai Login."
+        );
         return;
       }
 
@@ -329,7 +366,7 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
     }
 
     localStorage.setItem(PW_KEY_PREFIX + normEmail(email), password);
-  onClose();
+    onClose();
   };
 
   // ✅ NEW: reinvia email conferma
@@ -368,7 +405,9 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
                 type="button"
                 onClick={() => setMode("login")}
                 className={`px-2 py-1 text-xs rounded-md ${
-                  mode === "login" ? "bg-white/15 text-white" : "text-white/60 hover:text-white"
+                  mode === "login"
+                    ? "bg-white/15 text-white"
+                    : "text-white/60 hover:text-white"
                 }`}
               >
                 Login
@@ -377,7 +416,9 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
                 type="button"
                 onClick={() => setMode("signup")}
                 className={`px-2 py-1 text-xs rounded-md ${
-                  mode === "signup" ? "bg-white/15 text-white" : "text-white/60 hover:text-white"
+                  mode === "signup"
+                    ? "bg-white/15 text-white"
+                    : "text-white/60 hover:text-white"
                 }`}
               >
                 Sign up
@@ -385,12 +426,20 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
             </div>
           </div>
 
-          <button onClick={onClose} className="text-white/70 hover:text-white" type="button">
+          <button
+            onClick={onClose}
+            className="text-white/70 hover:text-white"
+            type="button"
+          >
             ✕
           </button>
         </div>
 
-        <form onSubmit={submit} autoComplete="on" className="flex flex-col gap-2">
+        <form
+          onSubmit={submit}
+          autoComplete="on"
+          className="flex flex-col gap-2"
+        >
           <input
             ref={emailRef}
             id="email"
@@ -406,24 +455,37 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete={mode === "login" ? "current-password" : "new-password"}
-            autoCapitalize="none"
-            spellCheck={false}
-            inputMode="password"
-            className="rounded-md bg-slate-800 border border-white/10 px-3 py-2 text-white text-sm"
-            placeholder="password"
-            value={password}
-            onChange={(e) => {
-              const v = e.target.value;
-              setPassword(v);
-              const key = PW_KEY_PREFIX + normEmail(email);
-              if (normEmail(email)) localStorage.setItem(key, v);
-            }}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPw ? "text" : "password"}
+              autoComplete={
+                mode === "login" ? "current-password" : "new-password"
+              }
+              autoCapitalize="none"
+              spellCheck={false}
+              inputMode="text"
+              className="w-full rounded-md bg-slate-800 border border-white/10 px-3 py-2 pr-10 text-white text-sm"
+              placeholder="password"
+              value={password}
+              onChange={(e) => {
+                const v = e.target.value;
+                setPassword(v);
+                const key = PW_KEY_PREFIX + normEmail(email);
+                if (normEmail(email)) localStorage.setItem(key, v);
+              }}
+            />
+
+            {/* 👁️ toggle show/hide password */}
+            <button
+              type="button"
+              onClick={() => setShowPw((v) => !v)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+            >
+              {showPw ? "🗨" : "👁️‍🗨️"}
+            </button>
+          </div>
 
           {info && <div className="text-xs text-emerald-300 mt-1">{info}</div>}
           {err && <div className="text-xs text-red-300 mt-1">{err}</div>}
@@ -438,8 +500,8 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
                 ? "Logging in..."
                 : "Creating account..."
               : mode === "login"
-              ? "Login"
-              : "Create account"}
+                ? "Login"
+                : "Create account"}
           </button>
 
           {/* ✅ NEW: se pending, offri resend */}
