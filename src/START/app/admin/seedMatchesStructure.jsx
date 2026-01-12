@@ -107,7 +107,7 @@ function SeedMatchStructure() {
   }, []);
 
   return (
-    <div className="p-4 max-w-lg mx-auto text-slate-100">
+    <div className="p-4 max-w-lg mx-auto text-slate-100 mt-20">
       <h1 className="text-xl font-bold mb-2">
         Seed struttura Mondiale → Supabase
       </h1>
@@ -118,6 +118,7 @@ function SeedMatchStructure() {
         riaprirla ogni volta che aggiorni la struttura: il seed usa un{" "}
         <code>upsert</code> su <code>(group_letter, match_index)</code>, quindi
         aggiorna senza creare duplicati.
+        <div>LOGIN - simobara@hotmail.it SIba2410!!</div>
       </p>
 
       <p className="text-sm mt-2">
