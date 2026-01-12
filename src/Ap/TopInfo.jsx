@@ -69,6 +69,20 @@ export default function TopInfo() {
     setOpenLogin(true);
   };
 
+  // ROTTE VISIBILI NELLO SLIDER NAV
+  const baseRoutes = [
+    { path: "/standingsPage", icon: "🗓️" },
+    { path: "/groupMatchesPage", icon: "⏱️" },
+    { path: "/groupRankPage", icon: "📊" },
+    { path: "/tablePage", icon: "📈" },
+  ];
+
+  // Se admin → aggiungi anche il tab 🛠️ nello slider
+  const routes = isAdmin
+    ? [...baseRoutes, { path: "/admin/seed-structure", icon: "🛠️" }]
+    : baseRoutes;
+
+  //---------------------------------------------------------
   useEffect(() => {
     let alive = true;
 
@@ -319,7 +333,7 @@ export default function TopInfo() {
       </button>
       {/* ADMIN BUTTON: solo per simobara@hotmail.it */}
       {/* ADMIN BUTTON: solo per simobara@hotmail.it */}
-      {isAdmin && (
+      {/* {isAdmin && (
         <button
           type="button"
           onClick={() => navigate("/admin/seed-structure")}
@@ -335,7 +349,7 @@ export default function TopInfo() {
         >
           🛠️
         </button>
-      )}
+      )} */}
 
       {openLogin && !isLogged && (
         <LoginModal
