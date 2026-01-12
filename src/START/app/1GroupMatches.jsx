@@ -6,8 +6,8 @@ group_A: {
             'GIU/11',
         ],
         matches: [
-            { numero: 1, city: 'CDMX',             time: '19:00',      team1: 'Mexico',         team2: 'SAfrica',           pron:'1', ris: ' ' ,  results:' ' },
-            { numero: 2, city: 'Guadalajara',      time: '02:00',      team1: 'Korea',          team2: 'IRL',               pron:'X', ris: ' ' ,  results:' ' },
+            { numero: 1, city: 'CDMX',             time: '19:00',      team1: 'Mexico',         team2: 'SAfrica',           pron:'1', ris: ' ' ,  results:'1-0 ' },
+            { numero: 2, city: 'Guadalajara',      time: '02:00',      team1: 'Korea',          team2: 'IRL',               pron:'X', ris: ' ' ,  results:'1-0 ' },
         ],
     },
     giornata_2:{
@@ -47,7 +47,7 @@ group_B: {
         ],
         matches: [
             { numero: 3, city: 'LAngeles',          time: '20:00',     team1: 'Svizzera',        team2: 'Italia',          pron:'X', ris: '1-1 ' ,  results:'1-1 ' },
-            { numero: 4, city: 'Vancouver',         time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', ris: '3-0 ' ,  results:' ' },
+            { numero: 4, city: 'Vancouver',         time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', ris: '3-0 ' ,  results:'3-0 ' },
         ],
     },
     giornata_3: {
@@ -248,7 +248,7 @@ group_I: {
             'GIU/16',
         ],
         matches: [
-            { numero: 1, city: 'NewYork',          time: '01:00', team1: 'Francia',            team2: 'Senegal',            pron:'X', ris: '1-1 ' ,  results:' ' },
+            { numero: 1, city: 'NewYork',          time: '01:00', team1: 'Francia',            team2: 'Senegal',            pron:'X', ris: '1-1 ' ,  results:'1-1 ' },
             { numero: 2, city: 'Boston',           time: '04:00', team1: 'BOL',                team2: 'Norvegia',           pron:'2', ris: '0-4 ' ,  results:' ' },
         ],
     },

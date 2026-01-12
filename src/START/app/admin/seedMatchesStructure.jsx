@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 
 // ⬇️ Seed hardcoded (la struttura che hai incollato tu)
-import { groupMatches } from "../1GroupMatches";
 
 // ⬇️ Funzione che appiattisce le giornate in un array di match
-import { getFlatMatchesForGroup } from "../../../components/2aGroupMatches/zExternal/getFlatMatchesForGroup";
 
 // ⬇️ Client Supabase (usa lo stesso che usi in App.jsx)
+import { getFlatMatchesForGroup } from "../../../components/2aGroupMatches/zExternal/getFlatMatchesForGroup";
 import { supabase } from "../../../Services/supabase/supabaseClient";
+import { groupMatches } from "../1GroupMatches";
 
 function SeedMatchStructure() {
   const [status, setStatus] = useState("In attesa di avviare il seed...");
@@ -19,6 +19,9 @@ function SeedMatchStructure() {
     try {
       setLoading(true);
       setStatus("Avvio seed struttura...");
+      console.log(
+        "🔄 [SeedMatchStructure] Avvio seed struttura Mondiale → Supabase..."
+      );
 
       // 1️⃣ Costruisco un array con TUTTE le partite (da seed hardcoded)
       const payload = [];
@@ -29,7 +32,10 @@ function SeedMatchStructure() {
         const matchesFlat = getFlatMatchesForGroup(groupMatches?.[groupKey]);
 
         if (!matchesFlat || !Array.isArray(matchesFlat)) {
-          console.warn("Nessun match trovato per", groupKey);
+          console.warn(
+            "⚠️ [SeedMatchStructure] Nessun match trovato per",
+            groupKey
+          );
           continue;
         }
 
@@ -41,24 +47,30 @@ function SeedMatchStructure() {
             city: m?.city ?? "",
             team1: m?.team1 ?? "",
             team2: m?.team2 ?? "",
-            // seed interni già esistenti
             seed_ris: m?.ris ?? null,
             seed_pron: m?.pron ?? null,
-
-            // 👇 NUOVO campo ufficiale
             results_official: (m?.results ?? "").trim() || null,
           });
         });
       }
 
+      console.log(
+        "ℹ️ [SeedMatchStructure] Payload costruito, partite totali:",
+        payload.length
+      );
+
       if (payload.length === 0) {
         setStatus("Nessuna partita trovata nel seed (payload vuoto).");
+        console.warn(
+          "⚠️ [SeedMatchStructure] Payload vuoto, nessun seed eseguito."
+        );
         return;
       }
 
       setStatus(
         `Trovate ${payload.length} partite dal seed, invio a Supabase...`
       );
+      console.log("📤 [SeedMatchStructure] Invio a Supabase...");
 
       // 2️⃣ Upsert su wc_match_structure (per non creare duplicati)
       const { data, error } = await supabase
@@ -66,19 +78,23 @@ function SeedMatchStructure() {
         .upsert(payload, {
           onConflict: "group_letter,match_index",
         })
-        .select("id, group_letter, match_index");
+        .select("group_letter, match_index");
 
       if (error) {
-        console.error(error);
+        console.error("❌ [SeedMatchStructure] Errore Supabase:", error);
         setStatus(`Errore Supabase: ${error.message}`);
         return;
       }
+
+      console.log(
+        `✅ [SeedMatchStructure] Seed completato: ${data?.length ?? 0} righe inserite/aggiornate in wc_match_structure.`
+      );
 
       setStatus(
         `✅ Seed completato: ${data?.length ?? 0} righe inserite/aggiornate in wc_match_structure.`
       );
     } catch (err) {
-      console.error(err);
+      console.error("❌ [SeedMatchStructure] Errore inatteso:", err);
       setStatus(`Errore inatteso: ${err.message}`);
     } finally {
       setLoading(false);
