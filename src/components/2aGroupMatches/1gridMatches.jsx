@@ -1091,13 +1091,15 @@ export default function GridMatchesPage({ isLogged }) {
                                                       }}
                                                       disabled={delDisabled}
                                                       className={`
-                                                        w-5 h-5
+                                                        w-8 h-8
                                                         flex items-center justify-center
                                                         transition
                                                         bg-transparent border-none
                                                         "translate-x-0"
                                                         ${delClassBase}
                                                         font-bold
+                                                        active:rotate-90
+                                                        active:scale-125
                                                       `}
                                                       aria-hidden={isOfficial}
                                                       aria-label="Reset risultato"
@@ -1507,13 +1509,15 @@ export default function GridMatchesPage({ isLogged }) {
                                           }}
                                           disabled={delDisabled}
                                           className={`
-                                            w-5 h-5
+                                            w-8 h-8
                                             flex items-center justify-center
                                             transition
                                             bg-transparent border-none
                                             ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
                                             ${delClassBase}
                                             font-bold
+                                            active:rotate-90
+                                            active:scale-125
                                           `}
                                           aria-label="Reset pronostico"
                                         >
@@ -1896,6 +1900,7 @@ export default function GridMatchesPage({ isLogged }) {
                 onlyGroup={mobileGroup}
                 maxMatches={mobileCutoff}
                 isLogged={isLogged}
+                userEmail={user?.email}
               />
             </div>
           </>
@@ -1934,6 +1939,7 @@ export default function GridMatchesPage({ isLogged }) {
                 onlyGroup={hoverGroup}
                 maxMatches={hoverCutoff}
                 isLogged={isLogged}
+                userEmail={user?.email}
               />
             </div>
           </>

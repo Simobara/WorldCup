@@ -739,7 +739,8 @@ export default function GridRankPage({
                 teams.map((t) => resolveName(t.name))
               );
 
-              // 🔹 se loggato: nessun "ris" nella classifica ufficiale, solo results_official
+              // 🔹 se loggato (Supabase): usa anche i "ris" come risultati provvisori
+              //    (prima results_official, se mancano allora ris)
               const allowRis = useSupabase ? false : showPronostics;
 
               const tableByTeam = computeTableForGroup(
