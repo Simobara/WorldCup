@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../../Services/supabase/supabaseClient";
 import { groupMatches } from "../1GroupMatches";
@@ -84,6 +84,51 @@ export default function AdminSeedStructurePage() {
   //     alert(`Struttura ${groupKey} loggata in console`);
   //   };
 
+  useEffect(() => {
+    (async () => {
+      const { data: rows, error } = await supabase
+        .from("wc_match_structure")
+        .select(
+          "group_letter, match_index, city, team1, team2, seed_pron, seed_ris, results_official"
+        );
+
+      if (error) {
+        console.error("Errore caricando struttura da Supabase:", error);
+        return;
+      }
+
+      setData((prev) => {
+        const next = structuredClone(prev);
+
+        for (const row of rows ?? []) {
+          const groupKey = `group_${row.group_letter}`;
+          const group = next[groupKey];
+          if (!group) continue;
+
+          // flatten matches del gruppo
+          const allGiornate = Object.values(group); // giornata_1, giornata_2...
+          const flat = [];
+          for (const g of allGiornate) {
+            for (const m of g.matches) flat.push(m);
+          }
+
+          const match = flat[row.match_index];
+          if (!match) continue;
+
+          // sovrascrivo i campi che arrivano dal DB
+          if (row.city) match.city = row.city;
+          if (row.team1) match.team1 = row.team1;
+          if (row.team2) match.team2 = row.team2;
+          if (row.seed_pron) match.pron = row.seed_pron;
+          if (row.seed_ris) match.ris = row.seed_ris;
+          if (row.results_official) match.results = row.results_official;
+        }
+
+        return next;
+      });
+    })();
+  }, []);
+
   return (
     <div className="flex-1 min-h-[100svh] bg-slate-950 relative overflow-x-hidden overflow-y-auto md:overflow-y-hidden text-white p-4 md:p-6">
       {/* LETTERE A–L, cliccabili */}
@@ -111,18 +156,24 @@ export default function AdminSeedStructurePage() {
         })}
       </div>
 
-      {/* TITOLO */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-3">
         <h1 className="text-lg md:text-xl font-semibold">
-          Admin – Seed Structure (group {activeGroup})
+          Admin -- Seed Structure (group {activeGroup})
         </h1>
-        <button
-          type="button"
-          onClick={() => navigate("/admin/run-seed")}
-          className="rounded-md bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-xs md:text-sm"
-        >
-          Seed su Supabase
-        </button>
+
+        <div className="flex items-center gap-0 mt-0">
+          <button
+            type="button"
+            onClick={() => navigate("/admin/run-seed")}
+            className="rounded-md bg-emerald- 600 hover:bg-emerald- 500 px-4 py-0 text-xs md:text-sm"
+          >
+            ❕
+          </button>
+
+          <span className="text-xs md:text-sm text-white/50">
+            SeedSupabase-Campi ai valori hardcoded
+          </span>
+        </div>
       </div>
 
       {/* Nessun gruppo definito */}
@@ -286,20 +337,40 @@ export default function AdminSeedStructurePage() {
                     }}
                   />
 
-                  <Field
-                    label="results"
-                    width="70px"
-                    value={match.results}
-                    onChange={(v) =>
-                      handleMatchChange(
-                        giornataKey,
-                        idx,
-                        "results",
-                        v,
-                        match.numero
-                      )
-                    }
-                  />
+                  <div className="flex items-center gap-1">
+                    <Field
+                      label="results"
+                      width="70px"
+                      value={match.results}
+                      onChange={(v) =>
+                        handleMatchChange(
+                          giornataKey,
+                          idx,
+                          "results",
+                          v,
+                          match.numero
+                        )
+                      }
+                    />
+
+                    {/* 🔄 RESET → manda "" quindi Supabase salva NULL */}
+                    <button
+                      type="button"
+                      className="text-xs px-1 py-[2px] rounded bg-slate-700 border border-white/20 hover:bg-red-600 transition text-white"
+                      onClick={() =>
+                        handleMatchChange(
+                          giornataKey,
+                          idx,
+                          "results",
+                          "",
+                          match.numero
+                        )
+                      }
+                      title="Azzera results"
+                    >
+                      🔄
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
