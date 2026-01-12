@@ -145,7 +145,7 @@ export default function AdminSeedStructurePage() {
   text-base md:text-xl font-md
                 ${
                   isActive
-                    ? "bg-pink-700 border-pink-700 text-white"
+                    ? "bg-pink-800 border-pink-800 text-white"
                     : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
                 }
               `}
@@ -189,11 +189,16 @@ export default function AdminSeedStructurePage() {
         Object.entries(group).map(([giornataKey, giornata]) => (
           <div
             key={giornataKey}
-            className="mb-8 border border-white/10 rounded-lg p-3 md:p-4 bg-slate-900/60"
+            className="
+    mb-8 border border-white/10 rounded-lg p-3 md:p-4 
+    bg-slate-900              /* rosso su mobile */
+    md:bg-slate-900      /* torna scuro su desktop */
+    w-full
+  "
           >
             {/* HEADER GIORNATA */}
             <div className="flex flex-wrap items-center gap-3 mb-4">
-              <div className="font-bold uppercase text-pink-500 text-base md:text-2xl">
+              <div className="font-bold uppercase text-pink-800 text-base md:text-2xl">
                 {giornataKey}
               </div>
 
@@ -219,125 +224,138 @@ export default function AdminSeedStructurePage() {
               {giornata.matches.map((match, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-wrap items-center gap-2 md:gap-3 p-2 border border-white/10 rounded bg-slate-950/70"
+                  className="flex flex-wrap items-center gap-2 md:gap-3 p-0 border border-white/10 rounded bg-slate-950/70"
                 >
-                  {/* ordine fisso: numero, city, time, team1, team2, pron, ris, results */}
-                  <div className="flex items-center gap-1 text-xs md:text-sm w-[60px]">
+                  {/* numero → solo DESKTOP */}
+                  <div className="hidden md:flex items-center gap-2 text-md md:text-xl w-[60px] md:mr-24">
                     <span className="text-white/70">numero:</span>
-                    <span className="text-pink-400 font-semibold">
+                    <span className="text-pink-800 font-semibold">
                       {match.numero}
                     </span>
                   </div>
-                  {/* DATE per match */}
-                  <Field
-                    label="day"
-                    width="60px"
-                    value={giornata.dates[0] || ""}
-                    onChange={(v) => handleDateChange(giornataKey, 0, v)}
-                  />
-                  <Field
-                    label="city"
-                    width="120px"
-                    value={match.city}
-                    onChange={(v) =>
-                      handleMatchChange(
-                        giornataKey,
-                        idx,
-                        "city",
-                        v,
-                        match.numero
-                      )
-                    }
-                  />
 
-                  <Field
-                    label="time"
-                    width="70px"
-                    value={match.time}
-                    onChange={(v) =>
-                      handleMatchChange(
-                        giornataKey,
-                        idx,
-                        "time",
-                        v,
-                        match.numero
-                      )
-                    }
-                  />
-
-                  <div className="px-2 py-1 rounded bg-pink-700 border border-pink-700">
+                  {/* day + city + time → in linea su mobile */}
+                  <div className="flex items-center gap-2 w-full md:w-auto">
                     <Field
-                      label="team1"
-                      width="130px"
-                      value={match.team1}
+                      label="day" // 👈 visibile SOLO su desktop
+                      labelMobile="" // 👈 mobile: etichetta vuota → non mostra “day:”
+                      width="70px"
+                      className="!bg-pink-800"
+                      value={giornata.dates[0] || ""}
+                      onChange={(v) => handleDateChange(giornataKey, 0, v)}
+                    />
+
+                    <Field
+                      label="city"
+                      width="80px" // mobile più stretto
+                      mdWidth="120px" // desktop come prima
+                      value={match.city}
                       onChange={(v) =>
                         handleMatchChange(
                           giornataKey,
                           idx,
-                          "team1",
+                          "city",
                           v,
                           match.numero
                         )
                       }
                     />
+
+                    <div className="md:mr-24">
+                      <Field
+                        label="time"
+                        width="50px"
+                        value={match.time}
+                        onChange={(v) =>
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "time",
+                            v,
+                            match.numero
+                          )
+                        }
+                      />
+                    </div>
                   </div>
 
-                  <div className="px-2 py-1 rounded bg-pink-700 border border-pink-700">
+                  {/* TEAM1 + TEAM2 */}
+                  <div className="flex w-full md:w-auto gap-2">
+                    {/* TEAM 1 */}
+                    <div className="flex-1 px-1 py-1 rounded ">
+                      <Field
+                        labelMobile="T1"
+                        label="team1"
+                        width="100px" // mobile corto
+                        mdWidth="130px" // desktop largo
+                        className="!bg-sky-900"
+                        value={match.team1}
+                        onChange={(v) =>
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "team1",
+                            v,
+                            match.numero
+                          )
+                        }
+                      />
+                    </div>
+
+                    {/* TEAM 2 */}
+                    <div className="flex-1 px-1 py-1 rounded md:mr-24 ">
+                      <Field
+                        labelMobile="T2"
+                        label="team2"
+                        width="100px"
+                        mdWidth="130px"
+                        className="!bg-sky-900"
+                        value={match.team2}
+                        onChange={(v) =>
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "team2",
+                            v,
+                            match.numero
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* --- DESKTOP (come prima, non toccato) --- */}
+                  <div className="hidden md:flex items-center gap-2">
                     <Field
-                      label="team2"
-                      width="130px"
-                      value={match.team2}
+                      label="pron"
+                      width="50px"
+                      value={match.pron}
                       onChange={(v) =>
-                        handleMatchChange(
-                          giornataKey,
-                          idx,
-                          "team2",
-                          v,
-                          match.numero
-                        )
-                      }
-                    />
-                  </div>
-
-                  <Field
-                    label="pron"
-                    width="40px"
-                    maxLength={2}
-                    value={match.pron}
-                    onChange={(v) => {
-                      // accetta solo numeri e max 2 cifre
-                      if (/^\d{0,2}$/.test(v)) {
                         handleMatchChange(
                           giornataKey,
                           idx,
                           "pron",
                           v,
                           match.numero
-                        );
+                        )
                       }
-                    }}
-                  />
+                    />
 
-                  <Field
-                    label="ris"
-                    width="55px"
-                    maxLength={3}
-                    value={match.ris}
-                    onChange={(v) => {
-                      // formato: numero - numero, massimo 3 caratteri totali
-                      if (/^[0-9-]{0,3}$/.test(v)) {
+                    <Field
+                      label="ris"
+                      width="70px"
+                      value={match.ris}
+                      onChange={(v) =>
                         handleMatchChange(
                           giornataKey,
                           idx,
                           "ris",
                           v,
                           match.numero
-                        );
+                        )
                       }
-                    }}
-                  />
+                    />
 
-                  <div className="flex items-center gap-1">
                     <Field
                       label="results"
                       width="70px"
@@ -353,10 +371,9 @@ export default function AdminSeedStructurePage() {
                       }
                     />
 
-                    {/* 🔄 RESET → manda "" quindi Supabase salva NULL */}
+                    {/* 🔄 reset results */}
                     <button
                       type="button"
-                      className="text-xs px-1 py-[2px] rounded bg-slate-700 border border-white/20 hover:bg-red-600 transition text-white"
                       onClick={() =>
                         handleMatchChange(
                           giornataKey,
@@ -366,7 +383,71 @@ export default function AdminSeedStructurePage() {
                           match.numero
                         )
                       }
-                      title="Azzera results"
+                      className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
+                    >
+                      🔄
+                    </button>
+                  </div>
+
+                  {/* --- MOBILE: una sola riga per i 3 campi --- */}
+                  <div className="flex md:hidden w-full items-center gap-2 mt-1">
+                    <Field
+                      label="pron"
+                      width="38px"
+                      value={match.pron}
+                      onChange={(v) =>
+                        handleMatchChange(
+                          giornataKey,
+                          idx,
+                          "pron",
+                          v,
+                          match.numero
+                        )
+                      }
+                    />
+
+                    <Field
+                      label="ris"
+                      width="52px"
+                      value={match.ris}
+                      onChange={(v) =>
+                        handleMatchChange(
+                          giornataKey,
+                          idx,
+                          "ris",
+                          v,
+                          match.numero
+                        )
+                      }
+                    />
+
+                    <Field
+                      label="results"
+                      width="65px"
+                      value={match.results}
+                      onChange={(v) =>
+                        handleMatchChange(
+                          giornataKey,
+                          idx,
+                          "results",
+                          v,
+                          match.numero
+                        )
+                      }
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleMatchChange(
+                          giornataKey,
+                          idx,
+                          "results",
+                          "",
+                          match.numero
+                        )
+                      }
+                      className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
                     >
                       🔄
                     </button>
@@ -380,19 +461,37 @@ export default function AdminSeedStructurePage() {
   );
 }
 
-function Field({ label, value, onChange, width, type = "text" }) {
+function Field({
+  label,
+  labelMobile, // 👈 etichetta abbreviata per mobile
+  value,
+  onChange,
+  width = "100px",
+  mdWidth = null,
+  type = "text",
+  className = "", // 👈 nuovo: permette override stile singolo campo (es: day)
+}) {
   return (
     <div className="flex items-center gap-1 text-base md:text-xl">
-      <span className="text-white/70">{label}:</span>
+      {/* LABEL desktop */}
+      <span className="hidden md:inline text-white/70">{label}:</span>
+
+      {/* LABEL mobile */}
+      <span className="md:hidden text-white/70">{labelMobile ?? label}</span>
+
       <input
         type={type}
-        className="
-    bg-slate-800 border border-white/20 rounded 
-    px-3 py-2 
-    text-white text-sm md:text-lg font-semibold
-  "
+        className={`
+          bg-slate-800 border border-white/20 rounded 
+          px-3 py-2 
+          text-white text-sm md:text-lg font-semibold
+          ${className}    /* 👈 permette modifiche mirate */
+        `}
         style={{
-          width: `calc(${width} + 10px)`, // 👉 Aumenta TUTTI i campi di +20px
+          width: `calc(${width} + 10px)`,
+          ...(mdWidth
+            ? { ["@media (min-width: 768px)"]: { width: mdWidth } }
+            : {}),
         }}
         value={value}
         onChange={(e) => onChange(e.target.value)}
