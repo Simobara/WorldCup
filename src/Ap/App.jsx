@@ -16,7 +16,6 @@ Note:
 import { useEffect, useState } from "react";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { supabase } from "../Services/supabase/supabaseClient";
-import SeedMatchStructure from "../START/app/admin/seedMatchesStructure";
 
 import TopInfo from "../Ap/TopInfo";
 import StandingsPage from "../Body/1standingsPage";
@@ -25,6 +24,9 @@ import GroupRankPage from "../Body/2bGroupRankPage";
 import TablePage from "../Body/3TablePageX";
 import { EditModeProvider } from "../Providers/EditModeProvider";
 import { AuthProvider } from "../Services/supabase/AuthProvider";
+
+import SeedMatchStructure from "../START/app/admin/seedMatchesStructure";
+import AdminSeedStructurePage from "../START/app/admin/seedStructure";
 
 function AppRoutes() {
   const [isLogged, setIsLogged] = useState(false);
@@ -50,8 +52,12 @@ function AppRoutes() {
       <Route path="/groupRankPage" element={<GroupRankPage/>} />
       <Route path="/groupMatchesPage" element={<GroupMatchesPage />} />
       <Route path="/tablePage" element={<TablePage />} /> 
-      {/* ✅ route admin per il seed */}
-      <Route path="/admin/seed-structure" element={<SeedMatchStructure />} />
+             {/* ADMIN */}
+         {/* 👇 Editor struttura: QUI vedi la pagina che hai incollato */}
+      <Route path="/admin/seed-structure" element={<AdminSeedStructurePage />} />
+      {/* 👇 Pagina che fa effettivamente il seed su Supabase */}
+      <Route path="/admin/run-seed" element={<SeedMatchStructure />} />
+
     </Routes>
   );
 }

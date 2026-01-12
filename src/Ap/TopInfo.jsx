@@ -54,6 +54,11 @@ export default function TopInfo() {
   const containerRef = useRef(null);
   const btnRefs = useRef([]);
 
+  // ADMIN: visibile solo se loggato come simobara@hotmail.it
+  const isAdmin =
+    isLogged &&
+    (session?.user?.email || "").trim().toLowerCase() === "simobara@hotmail.it";
+
   const logout = async () => {
     await supabase.auth.signOut();
     setOpenLogin(false);
@@ -218,6 +223,35 @@ export default function TopInfo() {
         outline-none focus:outline-none focus-visible:outline-none active:outline-none
       "
     >
+      {/* RED BORDER EXACT OVERLAY */}
+      <div
+        className="
+    pointer-events-none
+    absolute
+    md:w-[38%] md:max-w-[1200px]
+    left-64
+    top-0
+    bottom-0
+    z-[]     /* 👉 sopra al grigio */
+
+    /* bordi identici */
+    border-l-2 border-red-800
+    border-b-4
+
+    /* stessi rounded del container */
+    rounded-tl-xl rounded-bl-xl
+    rounded-tr-none rounded-br-none
+
+    /* versione desktop */
+    md:border-t-0
+    md:border-b-4
+    md:rounded-tl-none
+    md:rounded-tr-none
+    md:rounded-bl-xl
+    md:rounded-br-xl
+  "
+      />
+
       {/* SLIDER */}
       <div
         className="absolute bg-red-900 rounded-md pointer-events-none h-8 md:h-12"
@@ -283,6 +317,25 @@ export default function TopInfo() {
       >
         {authIcon}
       </button>
+      {/* ADMIN BUTTON: solo per simobara@hotmail.it */}
+      {/* ADMIN BUTTON: solo per simobara@hotmail.it */}
+      {isAdmin && (
+        <button
+          type="button"
+          onClick={() => navigate("/admin/seed-structure")}
+          className="
+      relative z-10
+      w-8 h-8 md:w-12 md:h-12
+      flex items-center justify-center
+      text-base md:text-2xl
+      text-yellow-300
+      hover:bg-white/10
+    "
+          title=""
+        >
+          🛠️
+        </button>
+      )}
 
       {openLogin && !isLogged && (
         <LoginModal

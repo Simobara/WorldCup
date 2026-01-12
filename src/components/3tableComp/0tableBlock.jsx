@@ -35,7 +35,7 @@ const TableBlock = ({ isLogged }) => {
   });
 
   useEffect(() => {
-    if (isLogged) setShowPron(true);
+    if (isLogged) setShowPron(false);
     else setShowPron(false); // opzionale
   }, [isLogged]);
 
