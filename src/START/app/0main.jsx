@@ -181,7 +181,7 @@ export const flagsMond26 = {
   ],
 
   L: [
-    { id: 'ING', name: 'Inghilterra',group: 'L', flag: FlagInghilterra },
+    { id: 'ENG', name: 'Inghilterra',group: 'L', flag: FlagInghilterra },
     { id: 'CRO', name: 'Croazia',    group: 'L', flag: FlagCroazia },
     { id: 'GHA', name: 'Ghana',      group: 'L', flag: FlagGhana },
     { id: 'PAN', name: 'Panama',     group: 'L', flag: FlagPanama },

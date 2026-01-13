@@ -25,7 +25,7 @@ import TablePage from "../Body/3TablePageX";
 import { EditModeProvider } from "../Providers/EditModeProvider";
 import { AuthProvider } from "../Services/supabase/AuthProvider";
 
-import SeedMatchStructure from "../START/app/admin/seedMatchesStructure";
+import SeedMatchStructure from "../START/app/admin/resetSeed";
 import AdminSeedStructurePage from "../START/app/admin/seedStructure";
 
 function AppRoutes() {

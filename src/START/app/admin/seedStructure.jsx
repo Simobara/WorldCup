@@ -16,28 +16,32 @@ const fieldToDbColumn = {
 };
 // quali campi dell'editor FINAL corrispondono a quali colonne nel DB wc_final_structure
 const finalFieldToDbColumn = {
+  day: "day",
   city: "city",
   time: "time",
-
+  //---
   pos1: "pos1",
   pos2: "pos2",
   goto: "goto",
   fg: "fg",
   pronsq: "pronsq",
-
+  //---
   team1: "team1",
   team2: "team2",
 
-  "results.ris": "results_ris",
+  "results.RES": "results_res",
   "results.TS": "results_ts",
   "results.R": "results_r",
 };
 
-async function updateFinalMatchFieldInDb(phaseKey, matchNumero, field, value) {
+async function updateFinalMatchFieldInDb(
+  phaseKey,
+  matchIndex, // <-- ora passo direttamente il match_index del DB
+  field,
+  value
+) {
   const column = finalFieldToDbColumn[field];
-  if (!column) return; // se il campo non è mappato (es. numero), non fare nulla
-
-  const matchIndex = matchNumero - 1; // numero parte da 1, match_index è 0-based
+  if (!column) return;
 
   const payload = {
     [column]: value === "" ? null : value,
@@ -108,7 +112,7 @@ export default function AdminSeedStructurePage() {
     { key: "round16", label: "R16" },
     { key: "quarterFinals", label: "QF" },
     { key: "semifinals", label: "SF" },
-    { key: "final34", label: "3°/4°" },
+    // { key: "final34", label: "3°/4°" },
     { key: "final", label: "Final" },
   ];
   const [activeFinalKey, setActiveFinalKey] = useState("round32");
@@ -130,11 +134,40 @@ export default function AdminSeedStructurePage() {
   };
 
   const handleDateChange = (giornataKey, dateIndex, value) => {
+    // 1) aggiorno lo state
     updateData((prev) => {
       const next = structuredClone(prev);
       next[groupKey][giornataKey].dates[dateIndex] = value;
       return next;
     });
+
+    // 2) se sono in FASE FINALE, salvo nel DB
+    if (!isGroupsMode) {
+      // prendo TUTTI i match della fase corrente (round32, round16, ecc.)
+      const phase = currentData[groupKey];
+      if (!phase) return;
+
+      // flatten giornate → stesso ordine usato nel useEffect
+      const allGiornate = Object.values(phase);
+      const flat = [];
+      for (const g of allGiornate) {
+        for (const m of g.matches) flat.push(m);
+      }
+
+      // trova il primo match di quella giornata (stessa logica dei tuoi seed)
+      const firstMatch =
+        flat.find((m) => m.giornataKey === giornataKey) || flat[0];
+
+      if (!firstMatch?.numero) return;
+
+      // usa updateFinalMatchFieldInDb per salvare il day legato a quel match
+      void updateFinalMatchFieldInDb(
+        activeFinalKey,
+        firstMatch.numero,
+        "day",
+        value
+      );
+    }
   };
 
   const handleMatchChange = (
@@ -154,7 +187,7 @@ export default function AdminSeedStructurePage() {
         const key = field.split(".")[1]; // "ris" | "TS" | "R"
 
         if (!match.results) {
-          match.results = { ris: "", TS: "", R: "" };
+          match.results = { RES: "", TS: "", R: "" };
         }
 
         match.results[key] = value;
@@ -167,13 +200,40 @@ export default function AdminSeedStructurePage() {
     });
 
     // 2️⃣ aggiorno il DB
+    // 2️⃣ aggiorno il DB
     if (typeof numero === "number") {
       if (isGroupsMode) {
-        // GIRONI A–L
+        // GIRONI A–L (qui puoi tenere il tuo matchNumero -1 perché i numeri sono globali)
         void updateMatchFieldInDb(activeGroup, numero, field, value);
       } else {
         // FASE FINALE
-        void updateFinalMatchFieldInDb(activeFinalKey, numero, field, value);
+        // calcolo il match_index nel DB flattenando le giornate, nello stesso ordine
+        // che usi nel useEffect
+
+        const phase = dataFinals[activeFinalKey]; // es. round32, round16, ecc.
+        if (!phase) return;
+
+        let globalIndex = 0;
+
+        for (const [gKey, g] of Object.entries(phase)) {
+          if (gKey === giornataKey) {
+            // siamo arrivati alla giornata corrente:
+            // aggiungo l'indice locale del match (idx)
+            globalIndex += matchIndexLocal;
+            break;
+          }
+
+          // altrimenti sommo tutti i match delle giornate precedenti
+          globalIndex += g.matches.length;
+        }
+
+        // ora globalIndex è esattamente il match_index del DB
+        void updateFinalMatchFieldInDb(
+          activeFinalKey,
+          globalIndex,
+          field,
+          value
+        );
       }
     }
   };
@@ -235,6 +295,7 @@ export default function AdminSeedStructurePage() {
       ).select(`
         phase_key,
         match_index,
+        day,      
         city,
         time,
         pos1,
@@ -244,7 +305,7 @@ export default function AdminSeedStructurePage() {
         pronsq,
         team1,
         team2,
-        results_ris,
+        results_res,
         results_ts,
         results_r
       `);
@@ -275,24 +336,31 @@ export default function AdminSeedStructurePage() {
           const match = flat[row.match_index];
           if (!match) continue;
 
-          if (row.city) match.city = row.city;
+          if (row.day) {
+            // prendo la giornata giusta e sovrascrivo la data
+            const phase = next[phaseKey];
+            const giornate = Object.entries(phase);
+            // qui puoi scegliere tu la logica per associare row.day alla giornata corretta
+            // per esempio, se sai che match_index 0-3 = giornata_1, 4-7 = giornata_2, ecc.
+          }
           if (row.time) match.time = row.time;
-
+          if (row.city) match.city = row.city;
+          //---
           if (row.pos1) match.pos1 = row.pos1;
           if (row.pos2) match.pos2 = row.pos2;
           if (row.goto) match.goto = row.goto;
           if (row.fg) match.fg = row.fg;
           if (row.pronsq) match.pronsq = row.pronsq;
-
+          //---
           if (row.team1) match.team1 = row.team1;
           if (row.team2) match.team2 = row.team2;
 
           // risultati annidati
           if (row.results_ris || row.results_ts || row.results_r) {
             if (!match.results) {
-              match.results = { ris: "", TS: "", R: "" };
+              match.results = { RES: "", TS: "", R: "" };
             }
-            if (row.results_ris) match.results.ris = row.results_ris;
+            if (row.results_res) match.results.ris = row.results_ris;
             if (row.results_ts) match.results.TS = row.results_ts;
             if (row.results_r) match.results.R = row.results_r;
           }
@@ -302,7 +370,7 @@ export default function AdminSeedStructurePage() {
       });
     })();
   }, []);
-
+  //-----------------------------------------------------------------------------------
   return (
     <div
       className={`
@@ -313,7 +381,7 @@ export default function AdminSeedStructurePage() {
       `}
     >
       {/* TOGGLE modalità */}
-      <div className="mt-12 mb-4 flex justify-center gap-3">
+      <div className="mt-3 mb-4 flex justify-center gap-3">
         <button
           type="button"
           onClick={() => setMode("groups")}
@@ -341,7 +409,7 @@ export default function AdminSeedStructurePage() {
 
       {/* LETTERE A–L oppure Fasi Finali */}
       {isGroupsMode ? (
-        <div className="mb-6 flex justify-center flex-wrap gap-2">
+        <div className="!mb-12 flex justify-center flex-wrap gap-2">
           {Array.from("ABCDEFGHIJKL").map((letter) => {
             const isActive = letter === activeGroup;
             return (
@@ -390,13 +458,13 @@ export default function AdminSeedStructurePage() {
         </div>
       )}
 
-      <div className="mb-3">
-        <h1 className="text-lg md:text-xl font-semibold">
-          Admin -- Seed Structure (
+      <div className="mb-3 ">
+        <h1 className="text-lg md:text-xl font-semibold  md:mt-0 !mt-6 text-center justify-center">
+          Admin Mode - Seed Structure (
           {isGroupsMode ? `group ${activeGroup}` : `fase ${activeFinalKey}`})
         </h1>
 
-        <div className="flex items-center gap-0 mt-0">
+        <div className="flex items-center gap-0 mt-0 ml-1">
           <button
             type="button"
             onClick={() => navigate("/admin/run-seed")}
@@ -406,7 +474,7 @@ export default function AdminSeedStructurePage() {
           </button>
 
           <span className="text-xs md:text-sm text-white/50">
-            SeedSupabase-Campi ai valori hardcoded
+            SeedSupabase - Campi ai valori hardcoded
           </span>
         </div>
       </div>
@@ -484,8 +552,8 @@ export default function AdminSeedStructurePage() {
                     <Field
                       label="city"
                       labelMobile="city"
-                      widthMobile="80px"
-                      widthDesktop="130px"
+                      widthMobile="85px"
+                      widthDesktop={isGroupsMode ? "220px" : "120px"}
                       value={match.city}
                       onChange={(v) =>
                         handleMatchChange(
@@ -523,7 +591,7 @@ export default function AdminSeedStructurePage() {
                           <Field
                             label="pronsq"
                             labelMobile="pSq"
-                            widthMobile="70px"
+                            widthMobile="100px"
                             widthDesktop="110px"
                             value={match.pronsq ?? ""}
                             onChange={(v) =>
@@ -544,9 +612,9 @@ export default function AdminSeedStructurePage() {
                   {/* TEAM1 + TEAM2 */}
                   <div
                     className={`
-    w-full md:w-auto gap-1 ml-2
-    ${!isGroupsMode ? "hidden md:flex" : "flex"}
-  `}
+                      w-full md:w-auto gap-1 ml-2
+                      ${!isGroupsMode ? "hidden md:flex" : "flex"}
+                    `}
                   >
                     {/* TEAM 1 */}
                     <div className="flex-1 px-1 py-1 rounded">
@@ -576,7 +644,7 @@ export default function AdminSeedStructurePage() {
                         labelMobile="T2"
                         widthMobile="80px"
                         widthDesktop="130px"
-                        className="!bg-sky-900"
+                        className="!bg-sky-900 md:ml-0 ml-1"
                         value={match.team2}
                         onChange={(v) =>
                           handleMatchChange(
@@ -595,17 +663,17 @@ export default function AdminSeedStructurePage() {
                   {!isGroupsMode && (
                     <div className="hidden md:flex items-center gap-2">
                       <Field
-                        label="ris"
-                        labelMobile="ris"
-                        widthMobile="55px"
-                        widthDesktop="55px"
+                        label="RES"
+                        labelMobile="RES"
+                        widthMobile="50px"
+                        widthDesktop="50px"
                         value={match.results?.ris ?? ""}
                         className="!bg-sky-900"
                         onChange={(v) =>
                           handleMatchChange(
                             giornataKey,
                             idx,
-                            "results.ris",
+                            "results.RES",
                             v,
                             match.numero
                           )
@@ -617,6 +685,7 @@ export default function AdminSeedStructurePage() {
                         widthMobile="60px"
                         widthDesktop="55px"
                         value={match.results?.TS ?? ""}
+                        className="!bg-sky-950"
                         onChange={(v) =>
                           handleMatchChange(
                             giornataKey,
@@ -633,6 +702,7 @@ export default function AdminSeedStructurePage() {
                         widthMobile="55px"
                         widthDesktop="55px"
                         value={match.results?.R ?? ""}
+                        className="!bg-gray-800"
                         onChange={(v) =>
                           handleMatchChange(
                             giornataKey,
@@ -651,7 +721,7 @@ export default function AdminSeedStructurePage() {
                           handleMatchChange(
                             giornataKey,
                             idx,
-                            "results.ris",
+                            "results.RES",
                             "",
                             match.numero
                           );
@@ -679,7 +749,7 @@ export default function AdminSeedStructurePage() {
 
                   {/* SOLO FASE FINALE: posizioni e collegamenti (SOLO DESKTOP) */}
                   {!isGroupsMode && (
-                    <div className="hidden md:flex flex-wrap w-full md:w-auto gap-2 px-1 py-1 md:ml-24">
+                    <div className="hidden md:flex flex-wrap w-full md:w-auto md:gap-1 gap-0 md:px-1 px-0 py-1 md:ml-24 ml-0">
                       <Field
                         label="pos1"
                         labelMobile="pos1"
@@ -774,8 +844,8 @@ export default function AdminSeedStructurePage() {
                         <Field
                           label="ris"
                           labelMobile="ris"
-                          widthMobile="55px"
-                          widthDesktop="55px"
+                          widthMobile="50px"
+                          widthDesktop="50px"
                           value={match.ris ?? ""}
                           onChange={(v) =>
                             handleMatchChange(
@@ -791,7 +861,7 @@ export default function AdminSeedStructurePage() {
                         <Field
                           label="results"
                           labelMobile="results"
-                          widthMobile="70px"
+                          widthMobile="55px"
                           widthDesktop="55px"
                           className="!bg-sky-900"
                           value={match.results}
@@ -840,11 +910,11 @@ export default function AdminSeedStructurePage() {
                   {/* --- MOBILE: layout diverso per Gironi vs Fase Finale --- */}
                   {isGroupsMode ? (
                     // 🔹 GIRONI A–L → come prima
-                    <div className="flex md:hidden w-full items-center gap-2 mt-1">
+                    <div className="flex md:hidden w-full items-center gap-1 mt-1">
                       <Field
                         label="pronsq"
                         labelMobile="pSq"
-                        widthMobile="45px"
+                        widthMobile="90px"
                         widthDesktop="110px"
                         value={match.pronsq ?? ""}
                         onChange={(v) =>
@@ -862,8 +932,8 @@ export default function AdminSeedStructurePage() {
                       <Field
                         label="ris"
                         labelMobile="ris"
-                        widthMobile="55px"
-                        widthDesktop="55px"
+                        widthMobile="50px"
+                        widthDesktop="50px"
                         value={match.ris ?? ""}
                         onChange={(v) =>
                           handleMatchChange(
@@ -878,8 +948,8 @@ export default function AdminSeedStructurePage() {
 
                       <Field
                         label="results"
-                        labelMobile="results"
-                        widthMobile="65px"
+                        labelMobile="RES"
+                        widthMobile="55px"
                         widthDesktop="55px"
                         className="!bg-sky-900 !text-black"
                         value={match.results}
@@ -919,7 +989,7 @@ export default function AdminSeedStructurePage() {
                     </div>
                   ) : (
                     // 🔹 FASE FINALE MOBILE → ordine: pos1 pos2 goto fg pSq T1 T2 ris TS R
-                    <div className="flex md:hidden w-full flex-wrap md:gap-2 gap-3 mt-1">
+                    <div className="flex md:hidden w-full flex-wrap md:gap-2 gap-[0.9rem] mt-1">
                       {/* pos1, pos2, goto, fg */}
                       <Field
                         label="pos1"
@@ -972,9 +1042,10 @@ export default function AdminSeedStructurePage() {
                       <Field
                         label="fg"
                         labelMobile="fg"
-                        widthMobile="60px"
+                        widthMobile="50px"
                         widthDesktop="50px"
                         value={match.fg}
+                        className="!mr-5"
                         onChange={(v) =>
                           handleMatchChange(
                             giornataKey,
@@ -990,9 +1061,10 @@ export default function AdminSeedStructurePage() {
                       <Field
                         label="pronsq"
                         labelMobile="pSq"
-                        widthMobile="110px"
-                        widthDesktop="110px"
+                        widthMobile="100px"
+                        widthDesktop="120px"
                         value={match.pronsq ?? ""}
+                        className=" !mr-24"
                         onChange={(v) =>
                           handleMatchChange(
                             giornataKey,
@@ -1008,9 +1080,9 @@ export default function AdminSeedStructurePage() {
                       <Field
                         label="T1"
                         labelMobile="T1"
-                        widthMobile="80px"
+                        widthMobile="90px"
                         widthDesktop="130px"
-                        className="!bg-sky-900 ml-[1rem]"
+                        className="!bg-sky-900 mr-2"
                         value={match.team1}
                         onChange={(v) =>
                           handleMatchChange(
@@ -1042,17 +1114,17 @@ export default function AdminSeedStructurePage() {
                       <div className="flex items-center gap-2 ml-[0]">
                         {/* ris, TS, R */}
                         <Field
-                          label="ris"
-                          labelMobile="ris"
-                          widthMobile="55px"
-                          widthDesktop="55px"
+                          label="RES"
+                          labelMobile="RES"
+                          widthMobile="50px"
+                          widthDesktop="50px"
                           value={match.results?.ris ?? ""}
                           className="!bg-sky-900"
                           onChange={(v) =>
                             handleMatchChange(
                               giornataKey,
                               idx,
-                              "results.ris",
+                              "results.RES",
                               v,
                               match.numero
                             )
@@ -1065,6 +1137,7 @@ export default function AdminSeedStructurePage() {
                           widthMobile="45px"
                           widthDesktop="55px"
                           value={match.results?.TS ?? ""}
+                          className="!bg-sky-950"
                           onChange={(v) =>
                             handleMatchChange(
                               giornataKey,
@@ -1081,6 +1154,7 @@ export default function AdminSeedStructurePage() {
                           widthMobile="55px"
                           widthDesktop="55px"
                           value={match.results?.R ?? ""}
+                          className="!bg-gray-800"
                           onChange={(v) =>
                             handleMatchChange(
                               giornataKey,
@@ -1098,7 +1172,7 @@ export default function AdminSeedStructurePage() {
                             handleMatchChange(
                               giornataKey,
                               idx,
-                              "results.ris",
+                              "results.RES",
                               "",
                               match.numero
                             );
@@ -1148,37 +1222,168 @@ function Field({
   const handleInputChange = (e) => {
     let raw = e.target.value;
 
-    // CAMPI: ris, TS, R → formattazione tipo 1-2
-    if (["ris", "results", "TS", "R"].includes(label)) {
-      // tieni solo numeri
-      let digits = raw.replace(/\D/g, "");
-
-      // massimo 2 cifre
-      digits = digits.slice(0, 2);
+    //
+    // ⏱ CAMPO TIME → solo numeri, formato HH:MM
+    //
+    if (label === "time") {
+      let digits = raw.replace(/\D/g, ""); // solo cifre
+      digits = digits.slice(0, 4); // HHMM
 
       let formatted = "";
 
       if (digits.length === 0) {
         formatted = "";
-      } else if (digits.length === 1) {
-        formatted = `${digits[0]}-`; // primo numero
+      } else if (digits.length <= 2) {
+        // 1 cifra → "0"
+        // 2 cifre → "04:"
+        formatted = digits.length === 2 ? `${digits}:` : digits;
       } else {
-        formatted = `${digits[0]}-${digits[1]}`; // due numeri
+        // 3–4 cifre → "04:0", "04:00"
+        const hh = digits.slice(0, 2);
+        const mm = digits.slice(2); // 1–2 cifre
+        formatted = `${hh}:${mm}`;
       }
 
       onChange(formatted);
       return;
     }
 
-    // LOGICA GENERICA (pron, city, ecc.)
+    //
+    // 📅 CAMPO DAY → formato LLL/DD (es. GIU/28)
+    //
+    if (label === "day") {
+      const upper = raw.toUpperCase();
+
+      // prendo *solo* lettere e *solo* numeri
+      const lettersOnly = upper.replace(/[^A-Z]/g, "");
+      const digitsOnly = upper.replace(/[^0-9]/g, "");
+
+      const month = lettersOnly.slice(0, 3); // max 3 lettere
+      const dayNum = digitsOnly.slice(0, 2); // max 2 numeri
+
+      let formatted = "";
+
+      if (month.length === 0) {
+        formatted = "";
+      } else if (month.length < 3) {
+        // sto ancora scrivendo il mese
+        formatted = month;
+      } else {
+        // 3 lettere già pronte
+        formatted = dayNum.length > 0 ? `${month}/${dayNum}` : `${month}/`;
+      }
+
+      onChange(formatted);
+      return;
+    }
+
+    //
+    // 🔢 CAMPI POSIZIONE: pos1 / pos2
+    //
+    if (label === "pos1" || label === "pos2") {
+      let v = raw.toUpperCase().replace(/[^0-9A-Z]/g, ""); // solo 0–9 e A–Z
+
+      if (!v) {
+        onChange("");
+        return;
+      }
+
+      const first = v[0];
+
+      // il primo DEVE essere 1, 2 o 3
+      if (!["1", "2", "3"].includes(first)) {
+        return; // input bloccato
+      }
+
+      // CASO 1 o 2 → NUMERO + UNA LETTERA (es. 1A, 2F)
+      if (first === "1" || first === "2") {
+        const letter = v.slice(1).replace(/[^A-Z]/g, "")[0] || "";
+        onChange(first + letter);
+        return;
+      }
+
+      // CASO 3 → NUMERO + LETTERE (lunghezza variabile, es. 3A/B/C/D/F)
+      if (first === "3") {
+        const letters = v.slice(1).replace(/[^A-Z]/g, "");
+        onChange(first + letters);
+        return;
+      }
+    }
+
+    //
+    // ⚽ CAMPI RISULTATO: ris / TS / R / results → formato 1-2
+    //
+    if (["ris", "RES", "results", "TS", "R"].includes(label)) {
+      let digits = raw.replace(/\D/g, "");
+      digits = digits.slice(0, 2);
+      let formatted = "";
+      if (!digits.length) formatted = "";
+      else if (digits.length === 1) formatted = `${digits[0]}-`;
+      else formatted = `${digits[0]}-${digits[1]}`;
+      onChange(formatted);
+      return;
+    }
+
+    //
+    // 🇵🇹 CAMPO PRONSQ → SOLO LETTERE, formato AAA-BBB
+    //
+    if (label === "pronsq") {
+      let letters = raw.toUpperCase().replace(/[^A-Z]/g, ""); // solo A–Z
+      letters = letters.slice(0, 6); // 3 + 3
+
+      let formatted = "";
+
+      if (letters.length === 0) {
+        formatted = "";
+      } else if (letters.length <= 3) {
+        // 1–2 lettere → "K", "KO"
+        // 3 lettere → "KOR-"
+        formatted = letters.length === 3 ? `${letters}-` : letters;
+      } else {
+        // 4–6 lettere → "KOR-I", "KOR-IT", "KOR-ITA"
+        const first = letters.slice(0, 3);
+        const second = letters.slice(3);
+        formatted = `${first}-${second}`;
+      }
+
+      onChange(formatted);
+      return;
+    }
+
+    //
+    // LOGICA GENERICA (city, team1, team2, pron, ecc.)
+    //
     let v = raw.toUpperCase();
 
     if (maxLength) v = v.slice(0, maxLength);
 
+    // per campi con valori ammessi (es. pron 1/X/2)
     if (allowedValues && v !== "" && !allowedValues.includes(v)) return;
 
     onChange(v);
   };
+
+  //
+  // 🎯 LARGHEZZA DINAMICA per pos1 / pos2 (mobile + desktop)
+  //
+  const isPosField = label === "pos1" || label === "pos2";
+
+  const mobileWidth = isPosField
+    ? value?.startsWith("3")
+      ? "80px" // es. "3ABCDF"
+      : "50px" // "1A", "2B"
+    : widthMobile;
+
+  const desktopWidth =
+    label === "pos1"
+      ? value?.startsWith("3")
+        ? "160px"
+        : "50px"
+      : label === "pos2"
+        ? value?.startsWith("2") || value?.startsWith("3")
+          ? "90px"
+          : "90px" // se vuoi diversificare per "1", dimmelo
+        : widthDesktop;
 
   return (
     <div className="flex items-center gap-1 text-base md:text-xl">
@@ -1198,17 +1403,33 @@ function Field({
           ${className}
         `}
         style={{
-          width: widthMobile,
+          width: mobileWidth,
         }}
         value={value}
-        maxLength={label === "ris" ? 3 : maxLength}
+        // limiti fissi per i campi "speciali"
+        maxLength={
+          label === "ris" ||
+          label === "RES" ||
+          label === "TS" ||
+          label === "R" ||
+          label === "results"
+            ? 3 // "1-2"
+            : label === "pronsq"
+              ? 7
+              : label === "time"
+                ? 5
+                : label === "day"
+                  ? 6
+                  : maxLength
+        }
         onChange={handleInputChange}
       />
 
+      {/* Override larghezza in DESKTOP */}
       <style>{`
         @media (min-width: 768px) {
           input[data-field="${label}"] {
-            width: ${widthDesktop} !important;
+            width: ${desktopWidth} !important;
           }
         }
       `}</style>

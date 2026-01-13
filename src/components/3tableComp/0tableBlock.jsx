@@ -6,6 +6,51 @@ import { Rett } from "../../START/styles/0CssGsTs";
 import BlokQuadRett from "./4blokQuadRett";
 import BlokQuadRettSemi from "./5blokQuadRettSemi";
 
+// 👉 Adesso è esattamente così:
+
+// Admin
+
+// vede pronsq dal DB (che parte dal seed, ma poi puoi cambiarlo).
+
+// Non loggato
+
+// senza bottone → niente.
+
+// con bottone showPron → vede sempre i pronsq dal file hardcoded, indipendenti da cosa hai cambiato nel DB.
+
+// Loggato non admin
+
+// continua a usare wc_final_user_pron + squadre reali del DB.
+
+// 🔹 Costruisco una mappa fg -> pronsq **DAL FILE HARDCODED**
+const buildSeedPronByFg = () => {
+  const map = {};
+
+  const collectFromStage = (stage) => {
+    Object.values(stage).forEach((giornata) => {
+      giornata.matches.forEach((m) => {
+        const fg = (m.fg || "").trim();
+        const pronsq = (m.pronsq || "").trim();
+        if (fg && pronsq) {
+          map[fg] = pronsq;
+        }
+      });
+    });
+  };
+
+  collectFromStage(groupFinal.round32);
+  collectFromStage(groupFinal.round16);
+  collectFromStage(groupFinal.quarterFinals);
+  collectFromStage(groupFinal.semifinals);
+  collectFromStage(groupFinal.final34);
+  collectFromStage(groupFinal.final);
+
+  return map;
+};
+
+// 👇 mappa globale, sempre uguale: viene SOLO dal file hardcoded
+const seedPronByFg = buildSeedPronByFg();
+
 // 🔹 flatten delle squadre (A, B, C, ... → un solo array)
 const tutteLeSquadre = Object.values(flagsMond).flat();
 
@@ -21,21 +66,95 @@ const getFlag = (code) => {
 };
 
 const TableBlock = ({ isLogged }) => {
+  // 🔹 stato locale per la fase finale: parte dall'hardcoded,
+  // poi viene sovrascritto con i dati di Supabase
+  const [finalData, setFinalData] = useState(() => structuredClone(groupFinal));
+
+  // destrutturo dal LO STATO, non più dal file statico
   const { round32, round16, quarterFinals, semifinals, final34, final } =
-    groupFinal;
-  // 🔎 ottengo l'utente loggato da Supabase
+    finalData;
 
-  // ogni volta che cambia login, resetta a false
-
+  // 🔹 stato pron / utente (come prima)
   const [showPron, setShowPron] = useState(false);
-  // pronostici utente loggato, mappati per FG → "KOR-ITA"
   const [userPronByFg, setUserPronByFg] = useState({});
-
-  // 🔹 Stato per l'utente attuale
   const [currentUser, setCurrentUser] = useState(null);
 
-  // 🔹 Ottieni user correttamente (async)
-  // 🔹 Carica user da Supabase (modo corretto)
+  // 🔹 carica FINALI da Supabase e sovrascrive l'hardcoded
+  useEffect(() => {
+    const loadFinalsFromDb = async () => {
+      const { data: finalRows, error } = await supabase.from(
+        "wc_final_structure"
+      ).select(`
+          phase_key,
+          match_index,
+          city,
+          time,
+          pos1,
+          pos2,
+          goto,
+          fg,
+          pronsq,
+          team1,
+          team2,
+          results_ris,
+          results_ts,
+          results_r
+        `);
+
+      if (error) {
+        console.error("Errore caricando struttura FINALI (TableBlock):", error);
+        return;
+      }
+
+      setFinalData((prev) => {
+        const next = structuredClone(prev);
+
+        for (const row of finalRows ?? []) {
+          const phaseKey = row.phase_key; // es. "round32", "round16", ...
+          const phase = next[phaseKey];
+          if (!phase) continue;
+
+          // flatten delle giornate della fase
+          const allGiornate = Object.values(phase);
+          const flat = [];
+          for (const g of allGiornate) {
+            for (const m of g.matches) flat.push(m);
+          }
+
+          const match = flat[row.match_index];
+          if (!match) continue;
+
+          if (row.city) match.city = row.city;
+          if (row.time) match.time = row.time;
+
+          if (row.pos1) match.pos1 = row.pos1;
+          if (row.pos2) match.pos2 = row.pos2;
+          if (row.goto) match.goto = row.goto;
+          if (row.fg) match.fg = row.fg;
+          if (row.pronsq) match.pronsq = row.pronsq;
+
+          if (row.team1) match.team1 = row.team1;
+          if (row.team2) match.team2 = row.team2;
+
+          // risultati annidati
+          if (row.results_ris || row.results_ts || row.results_r) {
+            if (!match.results) {
+              match.results = { ris: "", TS: "", R: "" };
+            }
+            if (row.results_ris) match.results.ris = row.results_ris;
+            if (row.results_ts) match.results.TS = row.results_ts;
+            if (row.results_r) match.results.R = row.results_r;
+          }
+        }
+
+        return next;
+      });
+    };
+
+    loadFinalsFromDb();
+  }, []); // 👈 parte una volta sola, per tutti (loggati e non)
+
+  // 🔹 Ottieni user da Supabase (come prima)
   useEffect(() => {
     const loadUser = async () => {
       const { data, error } = await supabase.auth.getUser();
@@ -50,7 +169,6 @@ const TableBlock = ({ isLogged }) => {
     loadUser();
   }, [isLogged]);
 
-  // 🔹 Admin check
   const isAdmin = currentUser?.email === "simobara@hotmail.it";
 
   useEffect(() => {
@@ -62,14 +180,13 @@ const TableBlock = ({ isLogged }) => {
     console.log("IS ADMIN:", isAdmin);
   }, [currentUser, isAdmin]);
 
+  // 🔹 carica pronostici utente loggato (come prima)
   useEffect(() => {
-    // se non è loggato → reset e stop
     if (!isLogged) {
       setUserPronByFg({});
       return;
     }
 
-    // se l'utente non è ancora caricato, non chiamare il db
     if (!currentUser?.id) {
       return;
     }
@@ -77,7 +194,7 @@ const TableBlock = ({ isLogged }) => {
     const fetchUserPron = async () => {
       const { data, error } = await supabase
         .from("wc_final_user_pron")
-        .select("fg, pronsq") // 👈 NOME ESATTO DELLA COLONNA
+        .select("fg, pronsq")
         .eq("user_id", currentUser.id);
 
       if (error) {
@@ -88,7 +205,7 @@ const TableBlock = ({ isLogged }) => {
       const map = {};
       for (const row of data ?? []) {
         if (!row.fg || !row.pronsq) continue;
-        map[row.fg] = row.pronsq.trim(); // 👈 usa pronsq
+        map[row.fg] = row.pronsq.trim();
       }
 
       setUserPronByFg(map);
@@ -97,30 +214,9 @@ const TableBlock = ({ isLogged }) => {
     fetchUserPron();
   }, [isLogged, currentUser]);
 
-  // const STORAGE_KEY = "tablePage_showPron";
+  // 🔹 squadre REALI e PRON, didTeamAdvance, collectMatchesWithDate
+  // (tutto identico, solo che usano round32/round16/... dallo stato)
 
-  // const [showPron, setShowPron] = useState(() => {
-  //   try {
-  //     const saved = localStorage.getItem(STORAGE_KEY);
-  //     return saved ? JSON.parse(saved) : false;
-  //   } catch {
-  //     return true;
-  //   }
-  // });
-
-  // useEffect(() => {
-  //   setShowPron(false);
-  // }, [isLogged]);
-
-  // useEffect(() => {
-  //   try {
-  //     localStorage.setItem(STORAGE_KEY, JSON.stringify(showPron));
-  //   } catch {
-  //     // ignore
-  //   }
-  // }, [showPron]);
-
-  // 🔹 squadre REALI che compaiono in una fase (solo team1/team2)
   const collectRealTeamsFromStage = (stage) =>
     new Set(
       Object.values(stage)
@@ -133,13 +229,12 @@ const TableBlock = ({ isLogged }) => {
         .filter(Boolean)
     );
 
-  // 🔹 squadre da PRON che compaiono in una fase (solo pron "AAA-BBB")
   const collectPronTeamsFromStage = (stage) =>
     new Set(
       Object.values(stage)
         .flatMap((giornata) =>
           giornata.matches.flatMap((m) => {
-            const pron = (m.pronsq || m.pron || "").trim(); // 👈 usa pronsq
+            const pron = (m.pronsq || m.pron || "").trim();
             if (!pron) return [];
             const [p1, p2] = pron.split("-").map((s) => s.trim());
             return [p1 || "", p2 || ""];
@@ -148,19 +243,16 @@ const TableBlock = ({ isLogged }) => {
         .filter(Boolean)
     );
 
-  // 🔹 REALI
   const realTeamsInRound16 = collectRealTeamsFromStage(round16);
   const realTeamsInQuarter = collectRealTeamsFromStage(quarterFinals);
   const realTeamsInSemi = collectRealTeamsFromStage(semifinals);
   const realTeamsInFinalStages = new Set([...collectRealTeamsFromStage(final)]);
 
-  // 🔹 PRON
   const pronTeamsInRound16 = collectPronTeamsFromStage(round16);
   const pronTeamsInQuarter = collectPronTeamsFromStage(quarterFinals);
   const pronTeamsInSemi = collectPronTeamsFromStage(semifinals);
   const pronTeamsInFinalStages = new Set([...collectPronTeamsFromStage(final)]);
 
-  // helper: la squadra avanza alla fase successiva?
   const didTeamAdvance = (teamCode, phase, isPron = false) => {
     if (!teamCode) return false;
 
@@ -189,7 +281,6 @@ const TableBlock = ({ isLogged }) => {
     }
   };
 
-  // helper: aggiunge la data ai match di uno "stage"
   const collectMatchesWithDate = (stage) =>
     Object.values(stage).flatMap((giornata) =>
       giornata.matches.map((match) => ({
@@ -198,7 +289,6 @@ const TableBlock = ({ isLogged }) => {
       }))
     );
 
-  // 👇 tutte le partite di tutte le fasi
   const allMatches = [
     ...collectMatchesWithDate(round32),
     ...collectMatchesWithDate(round16),
@@ -208,7 +298,6 @@ const TableBlock = ({ isLogged }) => {
     ...collectMatchesWithDate(final),
   ];
 
-  // cerca per fg
   const getMatchByFg = (fgCode) =>
     allMatches.find((m) => m.fg === fgCode) || null;
 
@@ -264,41 +353,65 @@ const TableBlock = ({ isLogged }) => {
   // ✅ team visualizzati (reali, oppure PRON se showPron e reali vuoti)
   const getDisplayTeamsFromMatch = (match) => {
     if (!match) {
-      // console.log("ADMIN DEBUG: match mancante");
       return { code1: "", code2: "", isPron1: false, isPron2: false };
     }
 
     const team1 = (match.team1 || "").trim();
     const team2 = (match.team2 || "").trim();
 
-    // seed hardcoded tipo "KOR-ITA"
-    const seedPron = (match.pronsq || match.pron || "").trim();
+    // pronsq DAL DB (finalData) → usato per ADMIN / fallback
+    const dbPron = (match.pronsq || match.pron || "").trim();
 
-    // 🟢 AGGIUNTO BLOCCO ADMIN
-    if (isAdmin) {
-      if (seedPron) {
-        const [p1, p2] = seedPron.split("-").map((s) => s.trim());
-        return { code1: p1, code2: p2, isPron1: true, isPron2: true };
-      }
+    // pronsq DAL FILE HARDCODED → usato per NON LOGGATO con showPron
+    const seedPron = (seedPronByFg[match.fg] || "").trim();
+
+    // 🔵 0) REGOLA BASE: SE CI SONO SQUADRE UFFICIALI, VINCONO SEMPRE
+    //    (per TUTTI: admin, loggati, non loggati)
+    if (team1 || team2) {
+      return {
+        code1: team1,
+        code2: team2,
+        isPron1: false, // bordo bianco
+        isPron2: false,
+      };
     }
 
-    // 👤 NON LOGGATO → usa SOLO i seed hardcoded quando showPron = true
+    // 🟣 1) ADMIN → usa pronsq del DB (perché lui lo modifica)
+    if (isAdmin) {
+      if (dbPron) {
+        const [p1, p2] = dbPron.split("-").map((s) => s.trim());
+        return { code1: p1, code2: p2, isPron1: true, isPron2: true };
+      }
+
+      // niente ufficiali e niente pronsq → vuoto
+      return { code1: "", code2: "", isPron1: false, isPron2: false };
+    }
+
+    // 🟡 2) NON LOGGATO (ospite)
     if (!isLogged) {
-      if (showPron && seedPron) {
+      // se NON ha cliccato il bottone → non vede niente
+      if (!showPron) {
+        return { code1: "", code2: "", isPron1: false, isPron2: false };
+      }
+
+      // se ha cliccato il bottone → usa SEMPRE i seed dal file hardcoded
+      if (seedPron) {
         const [p1, p2] = seedPron.split("-").map((s) => s.trim());
         return {
           code1: p1 || "",
           code2: p2 || "",
-          isPron1: !!p1,
+          isPron1: !!p1, // bordo viola
           isPron2: !!p2,
         };
       }
 
-      // guest + showPron = false → niente
+      // se per qualche motivo non c'è seed → niente
       return { code1: "", code2: "", isPron1: false, isPron2: false };
     }
 
-    // 👤 LOGGATO → prova prima i PRON UTENTE da Supabase
+    // 🧑‍💻 3) UTENTE LOGGATO NON ADMIN
+
+    // prima i pronostici personali da wc_final_user_pron
     const userPronStr = userPronByFg[match.fg]; // es. "KOR-ITA"
 
     if (userPronStr) {
@@ -311,13 +424,14 @@ const TableBlock = ({ isLogged }) => {
       };
     }
 
-    // se per quel match non c'è pronostico utente → fallback: squadre reali
-    if (team1 || team2) {
+    // niente ufficiali (già gestito sopra) e niente pron utente → opzionale: mostra pronsq admin dal DB
+    if (dbPron) {
+      const [p1, p2] = dbPron.split("-").map((s) => s.trim());
       return {
-        code1: team1,
-        code2: team2,
-        isPron1: false,
-        isPron2: false,
+        code1: p1 || "",
+        code2: p2 || "",
+        isPron1: !!p1,
+        isPron2: !!p2,
       };
     }
 
