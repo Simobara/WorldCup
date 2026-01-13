@@ -240,30 +240,31 @@ export default function TopInfo() {
       {/* RED BORDER EXACT OVERLAY */}
       <div
         className="
-    pointer-events-none
-    absolute
-    md:w-[38%] md:max-w-[1200px]
-    left-64
-    top-0
-    bottom-0
-    z-[]     /* 👉 sopra al grigio */
+          absolute
+          pointer-events-none
+        
+          md:w-[35%]
+          left-[16.9rem]
+          md:top-[2rem], top-0
+        
+          bottom-0
+          
+          
+          border-red-800
+        
+          rounded-tl-xl rounded-bl-xl
+          rounded-tr-none rounded-br-none
 
-    /* bordi identici */
-    border-l-2 border-red-800
-    border-b-4
+          border-l-4
+          
 
-    /* stessi rounded del container */
-    rounded-tl-xl rounded-bl-xl
-    rounded-tr-none rounded-br-none
-
-    /* versione desktop */
-    md:border-t-0
-    md:border-b-4
-    md:rounded-tl-none
-    md:rounded-tr-none
-    md:rounded-bl-xl
-    md:rounded-br-xl
-  "
+          md:border-t-0
+          md:border-b-2, border-b-4
+          md:rounded-tl-none
+          md:rounded-tr-none
+          md:rounded-bl-xl
+          md:rounded-br-xl
+        "
       />
 
       {/* SLIDER */}
