@@ -1,29 +1,19 @@
-// src/Admin/SeedMatchStructure.jsx  (adatta il percorso se diverso)
-
-import { useEffect, useState } from "react";
-
-// ⬇️ Seed hardcoded (la struttura che hai incollato tu)
-
-// ⬇️ Funzione che appiattisce le giornate in un array di match
-
-// ⬇️ Client Supabase (usa lo stesso che usi in App.jsx)
+import { useState } from "react";
 import { getFlatMatchesForGroup } from "../../../components/2aGroupMatches/zExternal/getFlatMatchesForGroup";
 import { supabase } from "../../../Services/supabase/supabaseClient";
 import { groupMatches } from "../1GroupMatches";
+import { groupFinal } from "../2GroupFinal";
 
-function SeedMatchStructure() {
-  const [status, setStatus] = useState("In attesa di avviare il seed...");
+export default function RunSeedPage() {
+  const [status, setStatus] = useState("Nessuna operazione in corso.");
   const [loading, setLoading] = useState(false);
 
-  const handleSeed = async () => {
+  // 🔵 SEED GIRONI A–L → wc_match_structure
+  async function seedGroups() {
     try {
       setLoading(true);
-      setStatus("Avvio seed struttura...");
-      console.log(
-        "🔄 [SeedMatchStructure] Avvio seed struttura Mondiale → Supabase..."
-      );
+      setStatus("Avvio seed GIRONI A–L...");
 
-      // 1️⃣ Costruisco un array con TUTTE le partite (da seed hardcoded)
       const payload = [];
       const groups = "ABCDEFGHIJKL".split("");
 
@@ -32,10 +22,7 @@ function SeedMatchStructure() {
         const matchesFlat = getFlatMatchesForGroup(groupMatches?.[groupKey]);
 
         if (!matchesFlat || !Array.isArray(matchesFlat)) {
-          console.warn(
-            "⚠️ [SeedMatchStructure] Nessun match trovato per",
-            groupKey
-          );
+          console.warn("⚠️ Nessun match trovato per", groupKey);
           continue;
         }
 
@@ -54,81 +41,145 @@ function SeedMatchStructure() {
         });
       }
 
-      console.log(
-        "ℹ️ [SeedMatchStructure] Payload costruito, partite totali:",
-        payload.length
-      );
-
       if (payload.length === 0) {
-        setStatus("Nessuna partita trovata nel seed (payload vuoto).");
-        console.warn(
-          "⚠️ [SeedMatchStructure] Payload vuoto, nessun seed eseguito."
+        setStatus("⚠️ Nessuna partita trovata nei gironi (payload vuoto).");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("wc_match_structure")
+        .upsert(payload, {
+          onConflict: "group_letter,match_index",
+        });
+
+      if (error) {
+        console.error("❌ Errore seed GIRONI:", error);
+        setStatus(`❌ Errore seed gironi: ${error.message}`);
+        return;
+      }
+
+      setStatus(
+        `✅ Seed GIRONI completato: ${payload.length} partite inserite/aggiornate in wc_match_structure.`
+      );
+    } catch (err) {
+      console.error("❌ Errore inatteso seed GIRONI:", err);
+      setStatus(`❌ Errore inatteso seed gironi: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 🟣 SEED FASE FINALE → wc_final_structure
+  async function seedFinals() {
+    try {
+      setLoading(true);
+      setStatus("Avvio seed FASE FINALE...");
+
+      const rowsToInsert = [];
+
+      for (const [phaseKey, phaseData] of Object.entries(groupFinal)) {
+        const giornate = Object.values(phaseData);
+        let matchIndex = 0;
+
+        for (const giornata of giornate) {
+          for (const match of giornata.matches) {
+            rowsToInsert.push({
+              phase_key: phaseKey,
+              match_index: matchIndex,
+
+              city: match.city ?? null,
+              time: match.time ?? null,
+
+              pos1: match.pos1 ?? null,
+              pos2: match.pos2 ?? null,
+              goto: match.goto ?? null,
+              fg: match.fg ?? null,
+              pron_sq: match.pronSq ?? null,
+
+              team1: match.team1 ?? null,
+              team2: match.team2 ?? null,
+
+              results_ris: match.results?.ris ?? null,
+              results_ts: match.results?.TS ?? null,
+              results_r: match.results?.R ?? null,
+            });
+
+            matchIndex += 1;
+          }
+        }
+      }
+
+      if (rowsToInsert.length === 0) {
+        setStatus(
+          "⚠️ Nessuna partita trovata nella fase finale (payload vuoto)."
         );
         return;
       }
 
-      setStatus(
-        `Trovate ${payload.length} partite dal seed, invio a Supabase...`
-      );
-      console.log("📤 [SeedMatchStructure] Invio a Supabase...");
-
-      // 2️⃣ Upsert su wc_match_structure (per non creare duplicati)
-      const { data, error } = await supabase
-        .from("wc_match_structure")
-        .upsert(payload, {
-          onConflict: "group_letter,match_index",
-        })
-        .select("group_letter, match_index");
+      const { error } = await supabase
+        .from("wc_final_structure")
+        .upsert(rowsToInsert, {
+          onConflict: "phase_key,match_index",
+        });
 
       if (error) {
-        console.error("❌ [SeedMatchStructure] Errore Supabase:", error);
-        setStatus(`Errore Supabase: ${error.message}`);
+        console.error("❌ Errore seed FINALI:", error);
+        setStatus(`❌ Errore seed finali: ${error.message}`);
         return;
       }
 
-      console.log(
-        `✅ [SeedMatchStructure] Seed completato: ${data?.length ?? 0} righe inserite/aggiornate in wc_match_structure.`
-      );
-
       setStatus(
-        `✅ Seed completato: ${data?.length ?? 0} righe inserite/aggiornate in wc_match_structure.`
+        `✅ Seed FASE FINALE completato: ${rowsToInsert.length} partite inserite/aggiornate in wc_final_structure.`
       );
     } catch (err) {
-      console.error("❌ [SeedMatchStructure] Errore inatteso:", err);
-      setStatus(`Errore inatteso: ${err.message}`);
+      console.error("❌ Errore inatteso seed FINALI:", err);
+      setStatus(`❌ Errore inatteso seed finali: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  };
-
-  // ⬇️ Parte in automatico quando carichi la pagina /admin/seed-structure
-  useEffect(() => {
-    void handleSeed();
-  }, []);
+  }
 
   return (
     <div className="p-4 max-w-lg mx-auto text-slate-100 mt-20">
-      <h1 className="text-xl font-bold mb-2">
-        Seed struttura Mondiale → Supabase
+      <h1 className="text-xl font-bold mb-3">
+        Seed strutture Mondiale → Supabase
       </h1>
+
       <p className="text-sm mb-4">
-        Questa pagina legge il seed hardcoded (<code>groupMatches</code>) e
-        popola la tabella <code>wc_match_structure</code> in Supabase.
-        L’operazione parte automaticamente quando apri questa pagina. Puoi
-        riaprirla ogni volta che aggiorni la struttura: il seed usa un{" "}
-        <code>upsert</code> su <code>(group_letter, match_index)</code>, quindi
-        aggiorna senza creare duplicati.
-        <div>LOGIN - simobara@hotmail.it SIba2410!!</div>
+        Da qui puoi aggiornare i dati hardcoded nei seed (
+        <code>groupMatches</code> e <code>groupFinal</code>) sulle tabelle{" "}
+        <code>wc_match_structure</code> (gironi) e{" "}
+        <code>wc_final_structure</code> (fase finale).
       </p>
 
-      <p className="text-sm mt-2">
-        <strong>Stato:</strong>{" "}
-        <span className="font-mono">
-          {loading ? "Lavoro in corso..." : status}
-        </span>
+      <p className="text-sm mb-4">
+        Usa i bottoni sotto per lanciare il seed solo dei gironi o solo della
+        fase finale.
+      </p>
+
+      <div className="flex flex-col gap-3 mb-4">
+        <button
+          type="button"
+          onClick={seedGroups}
+          className="px-4 py-2 rounded-md bg-sky-700 hover:bg-sky-600 disabled:opacity-50"
+          disabled={loading}
+        >
+          🔵 Seed Gironi A–L
+        </button>
+
+        <button
+          type="button"
+          onClick={seedFinals}
+          className="px-4 py-2 rounded-md bg-pink-700 hover:bg-pink-600 disabled:opacity-50"
+          disabled={loading}
+        >
+          🟣 Seed Fase Finale
+        </button>
+      </div>
+
+      <p className="text-sm whitespace-pre-line">
+        <strong>Stato:</strong> {status}
       </p>
     </div>
   );
 }
-
-export default SeedMatchStructure;

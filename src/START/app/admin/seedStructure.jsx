@@ -14,6 +14,51 @@ const fieldToDbColumn = {
   results: "results_official",
   // numero e time non stanno in wc_match_structure
 };
+// quali campi dell'editor FINAL corrispondono a quali colonne nel DB wc_final_structure
+const finalFieldToDbColumn = {
+  city: "city",
+  time: "time",
+
+  pos1: "pos1",
+  pos2: "pos2",
+  goto: "goto",
+  fg: "fg",
+  pronSq: "pron_sq",
+
+  team1: "team1",
+  team2: "team2",
+
+  "results.ris": "results_ris",
+  "results.TS": "results_ts",
+  "results.R": "results_r",
+};
+
+async function updateFinalMatchFieldInDb(phaseKey, matchNumero, field, value) {
+  const column = finalFieldToDbColumn[field];
+  if (!column) return; // se il campo non è mappato (es. numero), non fare nulla
+
+  const matchIndex = matchNumero - 1; // numero parte da 1, match_index è 0-based
+
+  const payload = {
+    [column]: value === "" ? null : value,
+  };
+
+  const { error } = await supabase
+    .from("wc_final_structure")
+    .update(payload)
+    .eq("phase_key", phaseKey)
+    .eq("match_index", matchIndex);
+
+  if (error) {
+    console.error("❌ Errore aggiornando Supabase FINAL:", error);
+  } else {
+    console.log(
+      `✅ FINAL: aggiornato ${column} per phase=${phaseKey}, match_index=${matchIndex} →`,
+      value
+    );
+  }
+}
+
 async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
   const column = fieldToDbColumn[field];
   if (!column) return; // se field non è mappato (es. "numero" o "time"), non fare nulla
@@ -104,39 +149,32 @@ export default function AdminSeedStructurePage() {
       const next = structuredClone(prev);
       const match = next[groupKey][giornataKey].matches[matchIndexLocal];
 
-      // per le finali: campi annidati results.ris / results.TS / results.R
+      // FINALI → campi annidati results.ris / results.TS / results.R
       if (!isGroupsMode && field.startsWith("results.")) {
         const key = field.split(".")[1]; // "ris" | "TS" | "R"
+
         if (!match.results) {
-          match.results = { ris: " ", TS: " ", R: " " };
+          match.results = { ris: "", TS: "", R: "" };
         }
+
         match.results[key] = value;
       } else {
-        // tutti gli altri campi normali
+        // tutti gli altri campi normali (gironi + altri campi finali)
         match[field] = field === "numero" ? Number(value) || 0 : value;
       }
 
       return next;
     });
 
-    // 2️⃣ aggiorno il DB SOLO per i gironi A–L (le finali stanno solo in memoria)
-
-    if (!isGroupsMode) {
-      if (field === "pronSq") {
-        match.pronSq = value;
-        return next;
-      }
-
-      if (field.startsWith("results.")) {
-        const key = field.split(".")[1];
-        if (!match.results) match.results = { ris: " ", TS: " ", R: " " };
-        match.results[key] = value;
-        return next;
-      }
-    }
-
+    // 2️⃣ aggiorno il DB
     if (typeof numero === "number") {
-      void updateMatchFieldInDb(activeGroup, numero, field, value);
+      if (isGroupsMode) {
+        // GIRONI A–L
+        void updateMatchFieldInDb(activeGroup, numero, field, value);
+      } else {
+        // FASE FINALE
+        void updateFinalMatchFieldInDb(activeFinalKey, numero, field, value);
+      }
     }
   };
 
@@ -147,6 +185,9 @@ export default function AdminSeedStructurePage() {
 
   useEffect(() => {
     (async () => {
+      //
+      // 1️⃣ CARICO GIRONI A–L
+      //
       const { data: rows, error } = await supabase
         .from("wc_match_structure")
         .select(
@@ -154,20 +195,79 @@ export default function AdminSeedStructurePage() {
         );
 
       if (error) {
-        console.error("Errore caricando struttura da Supabase:", error);
+        console.error("Errore caricando struttura GIRONI da Supabase:", error);
+      } else {
+        setDataGroups((prev) => {
+          const next = structuredClone(prev);
+
+          for (const row of rows ?? []) {
+            const groupKey = `group_${row.group_letter}`;
+            const group = next[groupKey];
+            if (!group) continue;
+
+            // flatten delle giornate
+            const allGiornate = Object.values(group);
+            const flat = [];
+            for (const g of allGiornate) {
+              for (const m of g.matches) flat.push(m);
+            }
+
+            const match = flat[row.match_index];
+            if (!match) continue;
+
+            if (row.city) match.city = row.city;
+            if (row.team1) match.team1 = row.team1;
+            if (row.team2) match.team2 = row.team2;
+            if (row.seed_pron) match.pron = row.seed_pron;
+            if (row.seed_ris) match.ris = row.seed_ris;
+            if (row.results_official) match.results = row.results_official;
+          }
+
+          return next;
+        });
+      }
+
+      //
+      // 2️⃣ CARICO FASE FINALE
+      //
+      const { data: finalRows, error: finalError } = await supabase.from(
+        "wc_final_structure"
+      ).select(`
+        phase_key,
+        match_index,
+        city,
+        time,
+        pos1,
+        pos2,
+        goto,
+        fg,
+        pron_sq,
+        team1,
+        team2,
+        results_ris,
+        results_ts,
+        results_r,
+        results_r
+      `);
+
+      if (finalError) {
+        console.error(
+          "Errore caricando struttura FINALI da Supabase:",
+          finalError
+        );
         return;
       }
 
-      setDataGroups((prev) => {
+      setDataFinals((prev) => {
         const next = structuredClone(prev);
 
-        for (const row of rows ?? []) {
-          const groupKey = `group_${row.group_letter}`;
-          const group = next[groupKey];
-          if (!group) continue;
+        for (const row of finalRows ?? []) {
+          const phaseKey = row.phase_key; // es. "round16", "quarterFinals", ecc.
+          const phase = next[phaseKey];
+          if (!phase) continue;
 
-          // flatten matches del gruppo
-          const allGiornate = Object.values(group); // giornata_1, giornata_2...
+          // flatten giornate della fase
+          const allGiornate = Object.values(phase);
           const flat = [];
           for (const g of allGiornate) {
             for (const m of g.matches) flat.push(m);
@@ -176,13 +276,27 @@ export default function AdminSeedStructurePage() {
           const match = flat[row.match_index];
           if (!match) continue;
 
-          // sovrascrivo i campi che arrivano dal DB
           if (row.city) match.city = row.city;
+          if (row.time) match.time = row.time;
+
+          if (row.pos1) match.pos1 = row.pos1;
+          if (row.pos2) match.pos2 = row.pos2;
+          if (row.goto) match.goto = row.goto;
+          if (row.fg) match.fg = row.fg;
+          if (row.pron_sq) match.pronSq = row.pron_sq;
+
           if (row.team1) match.team1 = row.team1;
           if (row.team2) match.team2 = row.team2;
-          if (row.seed_pron) match.pron = row.seed_pron;
-          if (row.seed_ris) match.ris = row.seed_ris;
-          if (row.results_official) match.results = row.results_official;
+
+          // risultati annidati
+          if (row.results_ris || row.results_ts || row.results_r) {
+            if (!match.results) {
+              match.results = { ris: "", TS: "", R: "" };
+            }
+            if (row.results_ris) match.results.ris = row.results_ris;
+            if (row.results_ts) match.results.TS = row.results_ts;
+            if (row.results_r) match.results.R = row.results_r;
+          }
         }
 
         return next;
@@ -321,7 +435,7 @@ export default function AdminSeedStructurePage() {
           >
             {/* HEADER GIORNATA */}
             <div className="flex flex-wrap items-center gap-3 mb-4">
-              <div className="font-bold uppercase text-pink-800 text-base md:text-2xl">
+              <div className="font-bold uppercase bg-pink-800 text-white text-base md:text-2xl px-3 py-1 rounded-md">
                 {giornataKey}
               </div>
 
@@ -343,7 +457,6 @@ export default function AdminSeedStructurePage() {
             </div>
 
             {/* MATCHES */}
-            {/* MATCHES */}
             <div className="space-y-3">
               {giornata.matches.map((match, idx) => (
                 <div
@@ -353,7 +466,7 @@ export default function AdminSeedStructurePage() {
                   {/* numero → solo DESKTOP */}
                   <div className="hidden md:flex items-center gap-2 text-md md:text-xl w-[60px] md:mr-6">
                     <span className="text-white/70">numero:</span>
-                    <span className="text-pink-800 font-semibold">
+                    <span className="text-white/70 font-semibold">
                       {match.numero}
                     </span>
                   </div>
@@ -365,7 +478,7 @@ export default function AdminSeedStructurePage() {
                       labelMobile=""
                       widthMobile="70px"
                       widthDesktop="90px"
-                      className="!bg-pink-800"
+                      className="!bg-pink-900"
                       value={giornata.dates[0] || ""}
                       onChange={(v) => handleDateChange(giornataKey, 0, v)}
                     />
@@ -387,7 +500,7 @@ export default function AdminSeedStructurePage() {
                       }
                     />
 
-                    <div className="md:mr-6">
+                    <div className=" flex items-center gap-2">
                       <Field
                         label="time"
                         labelMobile="time"
@@ -404,15 +517,35 @@ export default function AdminSeedStructurePage() {
                           )
                         }
                       />
+
+                      {/* SOLO FINALE → pronSq DOPO TIME (senza rimuoverlo altrove) */}
+                      {!isGroupsMode && (
+                        <Field
+                          label="pronSq"
+                          labelMobile="pSq"
+                          widthMobile="70px"
+                          widthDesktop="110px"
+                          value={match.pronSq ?? ""}
+                          onChange={(v) =>
+                            handleMatchChange(
+                              giornataKey,
+                              idx,
+                              "pronSq",
+                              v,
+                              match.numero
+                            )
+                          }
+                        />
+                      )}
                     </div>
                   </div>
 
                   {/* TEAM1 + TEAM2 */}
                   <div className="flex w-full md:w-auto gap-2">
                     {/* TEAM 1 */}
-                    <div className="flex-1 px-1 py-1 rounded ">
+                    <div className="flex-1 px-1 py-1 rounded">
                       <Field
-                        label="team1"
+                        label={isGroupsMode ? "team1" : "T1"} // 👈 qui cambia
                         labelMobile="T1"
                         widthMobile="100px"
                         widthDesktop="130px"
@@ -431,9 +564,9 @@ export default function AdminSeedStructurePage() {
                     </div>
 
                     {/* TEAM 2 */}
-                    <div className="flex-1 px-1 py-1 rounded md:mr-6 ">
+                    <div className="flex-1 px-1 py-1 rounded">
                       <Field
-                        label="team2"
+                        label={isGroupsMode ? "team2" : "T2"} // 👈 e qui
                         labelMobile="T2"
                         widthMobile="100px"
                         widthDesktop="130px"
@@ -452,14 +585,100 @@ export default function AdminSeedStructurePage() {
                     </div>
                   </div>
 
+                  {/* FINALI: ris / TS / R subito dopo le squadre (solo DESKTOP) */}
+                  {!isGroupsMode && (
+                    <div className="hidden md:flex items-center gap-2">
+                      <Field
+                        label="ris"
+                        labelMobile="ris"
+                        widthMobile="55px"
+                        widthDesktop="55px"
+                        value={match.results?.ris ?? ""}
+                        className="!bg-sky-900"
+                        onChange={(v) =>
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "results.ris",
+                            v,
+                            match.numero
+                          )
+                        }
+                      />
+                      <Field
+                        label="TS"
+                        labelMobile="TS"
+                        widthMobile="60px"
+                        widthDesktop="55px"
+                        value={match.results?.TS ?? ""}
+                        onChange={(v) =>
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "results.TS",
+                            v,
+                            match.numero
+                          )
+                        }
+                      />
+                      <Field
+                        label="R"
+                        labelMobile="R"
+                        widthMobile="55px"
+                        widthDesktop="55px"
+                        value={match.results?.R ?? ""}
+                        onChange={(v) =>
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "results.R",
+                            v,
+                            match.numero
+                          )
+                        }
+                      />
+
+                      {/* 🔄 reset solo FINALI desktop, subito dopo R */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "results.ris",
+                            "",
+                            match.numero
+                          );
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "results.TS",
+                            "",
+                            match.numero
+                          );
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "results.R",
+                            "",
+                            match.numero
+                          );
+                        }}
+                        className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
+                      >
+                        🔄
+                      </button>
+                    </div>
+                  )}
+
                   {/* SOLO FASE FINALE: posizioni e collegamenti */}
                   {!isGroupsMode && (
-                    <div className="flex flex-wrap w-full md:w-auto gap-2 px-1 py-1">
+                    <div className="flex flex-wrap w-full md:w-auto gap-2 px-1 py-1 md:ml-24">
                       <Field
                         label="pos1"
                         labelMobile="pos1"
-                        widthMobile="70px"
-                        widthDesktop="80px"
+                        widthMobile="50px"
+                        widthDesktop="50px"
                         value={match.pos1}
                         onChange={(v) =>
                           handleMatchChange(
@@ -474,8 +693,8 @@ export default function AdminSeedStructurePage() {
                       <Field
                         label="pos2"
                         labelMobile="pos2"
-                        widthMobile="70px"
-                        widthDesktop="80px"
+                        widthMobile="50px"
+                        widthDesktop="50px"
                         value={match.pos2}
                         onChange={(v) =>
                           handleMatchChange(
@@ -490,8 +709,8 @@ export default function AdminSeedStructurePage() {
                       <Field
                         label="goto"
                         labelMobile="goto"
-                        widthMobile="70px"
-                        widthDesktop="80px"
+                        widthMobile="50px"
+                        widthDesktop="50px"
                         value={match.goto}
                         onChange={(v) =>
                           handleMatchChange(
@@ -506,8 +725,8 @@ export default function AdminSeedStructurePage() {
                       <Field
                         label="fg"
                         labelMobile="fg"
-                        widthMobile="70px"
-                        widthDesktop="80px"
+                        widthMobile="50px"
+                        widthDesktop="50px"
                         value={match.fg}
                         onChange={(v) =>
                           handleMatchChange(
@@ -530,9 +749,11 @@ export default function AdminSeedStructurePage() {
                         <Field
                           label="pron"
                           labelMobile="pr"
-                          widthMobile="70px"
-                          widthDesktop="70px"
+                          widthMobile="50px"
+                          widthDesktop="40px"
                           value={match.pron ?? ""}
+                          maxLength={1}
+                          allowedValues={["1", "X", "2"]}
                           onChange={(v) =>
                             handleMatchChange(
                               giornataKey,
@@ -547,9 +768,9 @@ export default function AdminSeedStructurePage() {
                         <Field
                           label="ris"
                           labelMobile="ris"
-                          widthMobile="70px"
-                          widthDesktop="70px"
-                          value={match.ris}
+                          widthMobile="55px"
+                          widthDesktop="55px"
+                          value={match.ris ?? ""}
                           onChange={(v) =>
                             handleMatchChange(
                               giornataKey,
@@ -565,7 +786,8 @@ export default function AdminSeedStructurePage() {
                           label="results"
                           labelMobile="results"
                           widthMobile="70px"
-                          widthDesktop="70px"
+                          widthDesktop="55px"
+                          className="!bg-sky-900"
                           value={match.results}
                           onChange={(v) =>
                             handleMatchChange(
@@ -577,120 +799,36 @@ export default function AdminSeedStructurePage() {
                             )
                           }
                         />
+
+                        {/* 🔄 reset SOLO per gironi */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleMatchChange(
+                              giornataKey,
+                              idx,
+                              "ris",
+                              "",
+                              match.numero
+                            );
+                            handleMatchChange(
+                              giornataKey,
+                              idx,
+                              "results",
+                              "",
+                              match.numero
+                            );
+                          }}
+                          className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
+                        >
+                          🔄
+                        </button>
                       </>
                     ) : (
                       <>
-                        {/* FASE FINALE → pronSq + results annidato (ris/TS/R) */}
-                        <Field
-                          label="pronSq"
-                          labelMobile="pSq"
-                          widthMobile="70px"
-                          widthDesktop="70px"
-                          value={match.pronSq ?? ""}
-                          onChange={(v) =>
-                            handleMatchChange(
-                              giornataKey,
-                              idx,
-                              "pronSq",
-                              v,
-                              match.numero
-                            )
-                          }
-                        />
-
-                        <Field
-                          label="ris"
-                          labelMobile="ris"
-                          widthMobile="60px"
-                          widthDesktop="60px"
-                          value={match.results?.ris ?? ""}
-                          onChange={(v) =>
-                            handleMatchChange(
-                              giornataKey,
-                              idx,
-                              "results.ris",
-                              v,
-                              match.numero
-                            )
-                          }
-                        />
-
-                        <Field
-                          label="TS"
-                          labelMobile="TS"
-                          widthMobile="60px"
-                          widthDesktop="60px"
-                          value={match.results?.TS ?? ""}
-                          onChange={(v) =>
-                            handleMatchChange(
-                              giornataKey,
-                              idx,
-                              "results.TS",
-                              v,
-                              match.numero
-                            )
-                          }
-                        />
-
-                        <Field
-                          label="R"
-                          labelMobile="R"
-                          widthMobile="60px"
-                          widthDesktop="60px"
-                          value={match.results?.R ?? ""}
-                          onChange={(v) =>
-                            handleMatchChange(
-                              giornataKey,
-                              idx,
-                              "results.R",
-                              v,
-                              match.numero
-                            )
-                          }
-                        />
+                        {/* FASE FINALE → qui niente, gestito sopra vicino a ris/TS/R */}
                       </>
                     )}
-
-                    {/* 🔄 reset risultati */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isGroupsMode) {
-                          handleMatchChange(
-                            giornataKey,
-                            idx,
-                            "results",
-                            "",
-                            match.numero
-                          );
-                        } else {
-                          handleMatchChange(
-                            giornataKey,
-                            idx,
-                            "results.ris",
-                            "",
-                            match.numero
-                          );
-                          handleMatchChange(
-                            giornataKey,
-                            idx,
-                            "results.TS",
-                            "",
-                            match.numero
-                          );
-                          handleMatchChange(
-                            giornataKey,
-                            idx,
-                            "results.R",
-                            "",
-                            match.numero
-                          );
-                        }
-                      }}
-                      className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
-                    >
-                      🔄
-                    </button>
                   </div>
 
                   {/* --- MOBILE: pron + risultati --- */}
@@ -699,7 +837,7 @@ export default function AdminSeedStructurePage() {
                       label="pronSq"
                       labelMobile="pSq"
                       widthMobile="45px"
-                      widthDesktop="45px"
+                      widthDesktop="110px"
                       value={match.pronSq ?? ""}
                       onChange={(v) =>
                         handleMatchChange(
@@ -714,12 +852,13 @@ export default function AdminSeedStructurePage() {
 
                     {isGroupsMode ? (
                       <>
+                        {/* GIRONI A–L mobile */}
                         <Field
                           label="ris"
                           labelMobile="ris"
-                          widthMobile="52px"
-                          widthDesktop="52px"
-                          value={match.ris}
+                          widthMobile="55px"
+                          widthDesktop="55px"
+                          value={match.ris ?? ""}
                           onChange={(v) =>
                             handleMatchChange(
                               giornataKey,
@@ -735,7 +874,8 @@ export default function AdminSeedStructurePage() {
                           label="results"
                           labelMobile="results"
                           widthMobile="65px"
-                          widthDesktop="65px"
+                          widthDesktop="55px"
+                          className="!bg-sky-900 !text-black"
                           value={match.results}
                           onChange={(v) =>
                             handleMatchChange(
@@ -750,11 +890,12 @@ export default function AdminSeedStructurePage() {
                       </>
                     ) : (
                       <>
+                        {/* FASE FINALE mobile */}
                         <Field
                           label="ris"
                           labelMobile="ris"
-                          widthMobile="45px"
-                          widthDesktop="45px"
+                          widthMobile="55px"
+                          widthDesktop="55px"
                           value={match.results?.ris ?? ""}
                           onChange={(v) =>
                             handleMatchChange(
@@ -770,7 +911,7 @@ export default function AdminSeedStructurePage() {
                           label="TS"
                           labelMobile="TS"
                           widthMobile="45px"
-                          widthDesktop="45px"
+                          widthDesktop="55px"
                           value={match.results?.TS ?? ""}
                           onChange={(v) =>
                             handleMatchChange(
@@ -785,8 +926,8 @@ export default function AdminSeedStructurePage() {
                         <Field
                           label="R"
                           labelMobile="R"
-                          widthMobile="35px"
-                          widthDesktop="35px"
+                          widthMobile="55px"
+                          widthDesktop="55px"
                           value={match.results?.R ?? ""}
                           onChange={(v) =>
                             handleMatchChange(
@@ -805,6 +946,13 @@ export default function AdminSeedStructurePage() {
                       type="button"
                       onClick={() => {
                         if (isGroupsMode) {
+                          handleMatchChange(
+                            giornataKey,
+                            idx,
+                            "ris",
+                            "",
+                            match.numero
+                          );
                           handleMatchChange(
                             giornataKey,
                             idx,
@@ -859,7 +1007,44 @@ function Field({
   widthDesktop = "120px",
   type = "text",
   className = "",
+  maxLength,
+  allowedValues,
 }) {
+  const handleInputChange = (e) => {
+    let raw = e.target.value;
+
+    // CAMPI: ris, TS, R → formattazione tipo 1-2
+    if (["ris", "results", "TS", "R"].includes(label)) {
+      // tieni solo numeri
+      let digits = raw.replace(/\D/g, "");
+
+      // massimo 2 cifre
+      digits = digits.slice(0, 2);
+
+      let formatted = "";
+
+      if (digits.length === 0) {
+        formatted = "";
+      } else if (digits.length === 1) {
+        formatted = `${digits[0]}-`; // primo numero
+      } else {
+        formatted = `${digits[0]}-${digits[1]}`; // due numeri
+      }
+
+      onChange(formatted);
+      return;
+    }
+
+    // LOGICA GENERICA (pron, city, ecc.)
+    let v = raw.toUpperCase();
+
+    if (maxLength) v = v.slice(0, maxLength);
+
+    if (allowedValues && v !== "" && !allowedValues.includes(v)) return;
+
+    onChange(v);
+  };
+
   return (
     <div className="flex items-center gap-1 text-base md:text-xl">
       {/* LABEL DESKTOP */}
@@ -878,10 +1063,11 @@ function Field({
           ${className}
         `}
         style={{
-          width: widthMobile, // MOBILE WIDTH
+          width: widthMobile,
         }}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        maxLength={label === "ris" ? 3 : maxLength}
+        onChange={handleInputChange}
       />
 
       <style>{`

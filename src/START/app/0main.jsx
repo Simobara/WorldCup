@@ -212,4 +212,6 @@ export const PinSymbol = '📍'
 // export const ChjSymbol = '☑️'
 // export const ChkSymbol = '✅'
 export const DelSymbol = '🔄'
+
+//http://localhost:3000/admin/run-seed
 // -------------------------------------------------------------------------------------- -------------------------------------------
