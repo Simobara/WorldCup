@@ -72,13 +72,24 @@ export default function TopInfo() {
     setOpenLogin(true);
   };
 
-  // ROTTE VISIBILI NELLO SLIDER NAV (SOLO UTENTE)
-  const routes = [
+  // ROTTE BASE (4 TAB UTENTE)
+  const baseRoutes = [
     { path: "/standingsPage", icon: "🗓️" },
     { path: "/groupMatchesPage", icon: "⏱️" },
     { path: "/groupRankPage", icon: "📊" },
     { path: "/tablePage", icon: "📈" },
   ];
+
+  // ROTTE USATE DALLO SLIDER (4 + slot admin fisso)
+  const routesWithAdmin = isAdmin
+    ? [
+        ...baseRoutes,
+        { path: "/admin/seed-structure", icon: "🛠️", isAdminRoute: true },
+      ]
+    : [
+        ...baseRoutes,
+        { path: "__admin_placeholder__", icon: null, isPlaceholder: true },
+      ];
 
   // // Se admin → aggiungi anche il tab 🛠️ nello slider
   // const routes = isAdmin
@@ -186,7 +197,7 @@ export default function TopInfo() {
 
   useLayoutEffect(() => {
     if (phase !== "idle") return;
-    const idx = routes.findIndex((r) => r.path === activePath);
+    const idx = routesWithAdmin.findIndex((r) => r.path === activePath);
     const data = readBtn(idx);
     if (!data) return;
     setSlider(data);
@@ -195,7 +206,7 @@ export default function TopInfo() {
   useEffect(() => {
     const onResize = () => {
       if (phase !== "idle") return;
-      const idx = routes.findIndex((r) => r.path === activePath);
+      const idx = routesWithAdmin.findIndex((r) => r.path === activePath);
       const data = readBtn(idx);
       if (!data) return;
       setSlider(data);
@@ -208,8 +219,8 @@ export default function TopInfo() {
     if (phase !== "idle") return;
     if (path === activePath) return;
 
-    const fromIdx = routes.findIndex((r) => r.path === activePath);
-    const toIdx = routes.findIndex((r) => r.path === path);
+    const fromIdx = routesWithAdmin.findIndex((r) => r.path === activePath);
+    const toIdx = routesWithAdmin.findIndex((r) => r.path === path);
     if (toIdx === -1) return;
 
     const from = readBtn(fromIdx);
@@ -217,18 +228,23 @@ export default function TopInfo() {
     if (!from || !to) return;
 
     setActivePath(path);
+
+    // 1️⃣ parti dalla tab corrente
     const u = unionBox(from, to);
     setSlider(from);
     setPhase("expand");
 
     requestAnimationFrame(() => {
+      // 2️⃣ fase di "allungo" (barra che si estende)
       setSlider(u);
 
+      // 3️⃣ dopo EXPAND_MS → fase di snap sulla nuova tab
       setTimeout(() => {
         setPhase("snap");
         setSlider(to);
       }, EXPAND_MS);
 
+      // 4️⃣ poco dopo fai la navigate
       setTimeout(
         () => {
           navigate(path);
@@ -236,6 +252,7 @@ export default function TopInfo() {
         EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET)
       );
 
+      // 5️⃣ alla fine riporti la fase su idle
       setTimeout(() => {
         setPhase("idle");
       }, EXPAND_MS + SNAP_MS);
@@ -255,23 +272,33 @@ export default function TopInfo() {
     <div
       ref={containerRef}
       className="
+        /* MOBILE → barra laterale DESTRA */
         absolute top-[54%] right-0 -translate-y-1/2
+        flex flex-col items-center justify-center gap-2
+
+        /* DESKTOP → barra in alto CENTRATA */
         md:top-0 md:right-auto md:left-1/2 md:-translate-x-1/2 md:translate-y-0
+        md:flex-row md:gap-2
+
         w-auto md:w-[100%] md:max-w-[420px]
         bg-slate-900 border-gray-400 shadow-lg
+
         border-l-4 
         border-t-none 
         border-b-4 b
         border-white-800
+
         rounded-tl-xl rounded-bl-xl
         rounded-tr-none rounded-br-none
+
         md:border-t-0
         md:border-b-4
         md:rounded-tl-none 
         md:rounded-tr-none
         md:rounded-bl-xl md:rounded-br-xl
+
         md:px-4 px-0 md:py-0 py-0
-        flex flex-col md:flex-row items-center justify-center md:gap-2 gap-2
+
         z-[999]
         outline-none focus:outline-none focus-visible:outline-none active:outline-none
       "
@@ -308,7 +335,10 @@ export default function TopInfo() {
 
       {/* SLIDER */}
       <div
-        className="absolute bg-red-900 rounded-md pointer-events-none h-8 md:h-12"
+        className={`
+          absolute rounded-md pointer-events-none h-8 md:h-12
+          ${activePath === "/admin/seed-structure" ? "bg-yellow-400" : "bg-red-900"}
+        `}
         style={{
           left: slider.left - 4,
           top: slider.top,
@@ -326,56 +356,59 @@ export default function TopInfo() {
         }}
       />
 
-      {/* NAV + ADMIN SLOT + LOGIN */}
-      <div className="flex items-center gap-2">
-        {/* NAV BUTTONS (slider) */}
-        {routes.map((r, i) => (
-          <button
-            key={r.path}
-            ref={(el) => (btnRefs.current[i] = el)}
-            onClick={() => handleClick(r.path)}
-            className={`
-              relative z-10
-              w-8 h-8 md:w-12 md:h-12
-              flex items-center justify-center
-              text-base md:text-2xl
-              cursor-pointer select-none
-              ${activePath === r.path ? "text-white" : "text-gray-900"}
-            `}
-            type="button"
-          >
-            {r.icon}
-          </button>
-        ))}
+      {/* NAV + ADMIN (route o placeholder) + LOGIN */}
+      <div className="flex flex-col md:flex-row items-center gap-2">
+        {/* NAV BUTTONS (slider, inclusa posizione admin/placeholder) */}
+        {routesWithAdmin.map((r, i) => {
+          const isPlaceholder = r.path === "__admin_placeholder__";
 
-        {/* SLOT FISSO PER ADMIN (stessa larghezza SEMPRE) */}
-        <div
-          className="
-            relative z-10
-            w-8 h-8 md:w-12 md:h-12
-            flex items-center justify-center
-          "
-        >
-          {isAdmin && (
+          // placeholder: solo spazio vuoto, stessa misura, nessun click
+          if (isPlaceholder) {
+            return (
+              <div
+                key={r.path}
+                ref={(el) => (btnRefs.current[i] = el)}
+                className="
+                  relative z-10
+                  w-8 h-8 md:w-12 md:h-12
+                  flex items-center justify-center
+                "
+              />
+            );
+          }
+
+          const isAdminRoute = r.path === "/admin/seed-structure";
+
+          // route normale o admin
+          return (
             <button
-              type="button"
-              onClick={() => navigate("/admin/seed-structure")}
-              className="
+              key={r.path}
+              ref={(el) => (btnRefs.current[i] = el)}
+              onClick={() => handleClick(r.path)}
+              className={`
+                relative z-10
                 w-8 h-8 md:w-12 md:h-12
                 flex items-center justify-center
                 text-base md:text-2xl
-                text-yellow-300
-                hover:bg-white/10
-                rounded-md
-              "
-              title="Admin"
+                cursor-pointer select-none
+                ${
+                  activePath === r.path
+                    ? "text-white"
+                    : isAdminRoute
+                      ? "text-yellow-300"
+                      : "text-gray-900"
+                }
+              `}
+              type="button"
             >
-              🛠️
+              {/* icona admin forzata su 🛠️ */}
+              {isAdminRoute ? "🛠️" : r.icon}
             </button>
-          )}
-        </div>
+          );
+        })}
 
         {/* AUTH BUTTON (sempre l’ULTIMO) */}
+
         <button
           type="button"
           onClick={handleAuthButton}
