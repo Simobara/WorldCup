@@ -39,13 +39,16 @@ const TableBlock = ({ isLogged }) => {
   useEffect(() => {
     const loadUser = async () => {
       const { data, error } = await supabase.auth.getUser();
+
       if (!error && data?.user) {
         setCurrentUser(data.user);
+      } else {
+        setCurrentUser(null);
       }
     };
 
     loadUser();
-  }, []);
+  }, [isLogged]);
 
   // 🔹 Admin check
   const isAdmin = currentUser?.email === "simobara@hotmail.it";

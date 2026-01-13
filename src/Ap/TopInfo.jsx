@@ -46,6 +46,9 @@ export default function TopInfo() {
   const [authReady, setAuthReady] = useState(false);
   const [openLogin, setOpenLogin] = useState(false);
 
+  // ✅ NEW: per rilevare cambi login/logout
+  const prevLoggedRef = useRef(null);
+
   // ✅ NEW: stato “email non confermata”
   const [pendingEmail, setPendingEmail] = useState(null); // string | null
 
@@ -69,20 +72,56 @@ export default function TopInfo() {
     setOpenLogin(true);
   };
 
-  // ROTTE VISIBILI NELLO SLIDER NAV
-  const baseRoutes = [
+  // ROTTE VISIBILI NELLO SLIDER NAV (SOLO UTENTE)
+  const routes = [
     { path: "/standingsPage", icon: "🗓️" },
     { path: "/groupMatchesPage", icon: "⏱️" },
     { path: "/groupRankPage", icon: "📊" },
     { path: "/tablePage", icon: "📈" },
   ];
 
-  // Se admin → aggiungi anche il tab 🛠️ nello slider
-  const routes = isAdmin
-    ? [...baseRoutes, { path: "/admin/seed-structure", icon: "🛠️" }]
-    : baseRoutes;
+  // // Se admin → aggiungi anche il tab 🛠️ nello slider
+  // const routes = isAdmin
+  //   ? [...baseRoutes, { path: "/admin/seed-structure", icon: "🛠️" }]
+  //   : baseRoutes;
 
   //---------------------------------------------------------
+  // ✅ ogni volta che cambia login/logout → reset su standings
+  // ✅ ogni volta che cambia login/logout → reset su standings
+  useEffect(() => {
+    // primo render: inizializza e basta
+    if (prevLoggedRef.current === null) {
+      prevLoggedRef.current = isLogged;
+      return;
+    }
+
+    // se è cambiato (login → logout o logout → login)
+    if (prevLoggedRef.current !== isLogged) {
+      prevLoggedRef.current = isLogged;
+
+      // forza la tab attiva
+      setActivePath("/standingsPage");
+      setPhase("idle");
+
+      // ⬇️ reset immediato dello slider sulla prima icona
+      const btn0 = btnRefs.current[0];
+      const cont = containerRef.current;
+      if (btn0 && cont) {
+        const b = btn0.getBoundingClientRect();
+        const c = cont.getBoundingClientRect();
+        setSlider({
+          left: b.left - c.left,
+          top: b.top - c.top,
+          width: b.width,
+          height: b.height,
+        });
+      }
+
+      // naviga alla pagina standings
+      navigate("/standingsPage", { replace: true });
+    }
+  }, [isLogged, navigate]);
+
   useEffect(() => {
     let alive = true;
 
@@ -250,7 +289,7 @@ export default function TopInfo() {
           bottom-0
           
           
-          border-red-800
+          border-gray-400
         
           rounded-tl-xl rounded-bl-xl
           rounded-tr-none rounded-br-none
@@ -271,7 +310,7 @@ export default function TopInfo() {
       <div
         className="absolute bg-red-900 rounded-md pointer-events-none h-8 md:h-12"
         style={{
-          left: slider.left,
+          left: slider.left - 4,
           top: slider.top,
           width: slider.width,
           height: slider.height,
@@ -287,51 +326,81 @@ export default function TopInfo() {
         }}
       />
 
-      {/* NAV BUTTONS */}
-      {routes.map((r, i) => (
+      {/* NAV + ADMIN SLOT + LOGIN */}
+      <div className="flex items-center gap-2">
+        {/* NAV BUTTONS (slider) */}
+        {routes.map((r, i) => (
+          <button
+            key={r.path}
+            ref={(el) => (btnRefs.current[i] = el)}
+            onClick={() => handleClick(r.path)}
+            className={`
+              relative z-10
+              w-8 h-8 md:w-12 md:h-12
+              flex items-center justify-center
+              text-base md:text-2xl
+              cursor-pointer select-none
+              ${activePath === r.path ? "text-white" : "text-gray-900"}
+            `}
+            type="button"
+          >
+            {r.icon}
+          </button>
+        ))}
+
+        {/* SLOT FISSO PER ADMIN (stessa larghezza SEMPRE) */}
+        <div
+          className="
+            relative z-10
+            w-8 h-8 md:w-12 md:h-12
+            flex items-center justify-center
+          "
+        >
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate("/admin/seed-structure")}
+              className="
+                w-8 h-8 md:w-12 md:h-12
+                flex items-center justify-center
+                text-base md:text-2xl
+                text-yellow-300
+                hover:bg-white/10
+                rounded-md
+              "
+              title="Admin"
+            >
+              🛠️
+            </button>
+          )}
+        </div>
+
+        {/* AUTH BUTTON (sempre l’ULTIMO) */}
         <button
-          key={r.path}
-          ref={(el) => (btnRefs.current[i] = el)}
-          onClick={() => handleClick(r.path)}
+          type="button"
+          onClick={handleAuthButton}
           className={`
             relative z-10
             w-8 h-8 md:w-12 md:h-12
             flex items-center justify-center
             text-base md:text-2xl
-            cursor-pointer select-none
-            ${activePath === r.path ? "text-white" : "text-gray-900"}
+            rounded-md
+            transition-colors
+            ${isLogged ? "text-white hover:bg-white/10" : "grayscale brightness-75 opacity-80"}
+            disabled:opacity-60
           `}
-          type="button"
+          title={
+            pendingEmail
+              ? "Conferma email richiesta"
+              : isLogged
+                ? "Logout"
+                : "Login"
+          }
         >
-          {r.icon}
+          {authIcon}
         </button>
-      ))}
+      </div>
 
-      {/* AUTH BUTTON */}
-      <button
-        type="button"
-        onClick={handleAuthButton}
-        className={`
-          relative z-10
-          -md:ml-2
-          w-8 h-8 md:w-12 md:h-12
-          flex items-center justify-center
-          text-base md:text-2xl
-          rounded-md
-          transition-colors
-          ${isLogged ? "text-white hover:bg-white/10" : "grayscale brightness-75 opacity-80"}
-          disabled:opacity-60
-        `}
-        title={
-          pendingEmail
-            ? "Conferma email richiesta"
-            : isLogged
-              ? "Logout"
-              : "Login"
-        }
-      >
-        {authIcon}
-      </button>
       {/* ADMIN BUTTON: solo per simobara@hotmail.it */}
       {/* ADMIN BUTTON: solo per simobara@hotmail.it */}
       {/* {isAdmin && (
