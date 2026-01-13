@@ -543,7 +543,7 @@ export default function GridRankPage({
     console.log(
       "EFFECT: loggato come",
       userEmail,
-      "→ carico gruppi A-L con pronostici reali"
+      "→ carico gruppi A-L con pronostici hardcoded"
     );
 
     let cancelled = false;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { supabase } from "../../Services/supabase/supabaseClient";
 import { flagsMond } from "../../START/app/0main";
 import { groupFinal } from "../../START/app/2GroupFinal";
 import { Rett } from "../../START/styles/0CssGsTs";
@@ -22,30 +23,99 @@ const getFlag = (code) => {
 const TableBlock = ({ isLogged }) => {
   const { round32, round16, quarterFinals, semifinals, final34, final } =
     groupFinal;
+  // 🔎 ottengo l'utente loggato da Supabase
 
-  const STORAGE_KEY = "tablePage_showPron";
+  // ogni volta che cambia login, resetta a false
 
-  const [showPron, setShowPron] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : false;
-    } catch {
-      return true;
-    }
-  });
+  const [showPron, setShowPron] = useState(false);
+  // pronostici utente loggato, mappati per FG → "KOR-ITA"
+  const [userPronByFg, setUserPronByFg] = useState({});
+
+  // 🔹 Stato per l'utente attuale
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // 🔹 Ottieni user correttamente (async)
+  // 🔹 Carica user da Supabase (modo corretto)
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!error && data?.user) {
+        setCurrentUser(data.user);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  // 🔹 Admin check
+  const isAdmin = currentUser?.email === "simobara@hotmail.it";
 
   useEffect(() => {
-    if (isLogged) setShowPron(false);
-    else setShowPron(false); // opzionale
+    setShowPron(false);
   }, [isLogged]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(showPron));
-    } catch {
-      // ignore
+    console.log("CURRENT USER:", currentUser);
+    console.log("IS ADMIN:", isAdmin);
+  }, [currentUser, isAdmin]);
+
+  useEffect(() => {
+    // se non è loggato → reset e stop
+    if (!isLogged) {
+      setUserPronByFg({});
+      return;
     }
-  }, [showPron]);
+
+    // se l'utente non è ancora caricato, non chiamare il db
+    if (!currentUser?.id) {
+      return;
+    }
+
+    const fetchUserPron = async () => {
+      const { data, error } = await supabase
+        .from("wc_final_user_pron")
+        .select("fg, pronsq") // 👈 NOME ESATTO DELLA COLONNA
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        console.error("Errore caricando pronostici utente:", error);
+        return;
+      }
+
+      const map = {};
+      for (const row of data ?? []) {
+        if (!row.fg || !row.pronsq) continue;
+        map[row.fg] = row.pronsq.trim(); // 👈 usa pronsq
+      }
+
+      setUserPronByFg(map);
+    };
+
+    fetchUserPron();
+  }, [isLogged, currentUser]);
+
+  // const STORAGE_KEY = "tablePage_showPron";
+
+  // const [showPron, setShowPron] = useState(() => {
+  //   try {
+  //     const saved = localStorage.getItem(STORAGE_KEY);
+  //     return saved ? JSON.parse(saved) : false;
+  //   } catch {
+  //     return true;
+  //   }
+  // });
+
+  // useEffect(() => {
+  //   setShowPron(false);
+  // }, [isLogged]);
+
+  // useEffect(() => {
+  //   try {
+  //     localStorage.setItem(STORAGE_KEY, JSON.stringify(showPron));
+  //   } catch {
+  //     // ignore
+  //   }
+  // }, [showPron]);
 
   // 🔹 squadre REALI che compaiono in una fase (solo team1/team2)
   const collectRealTeamsFromStage = (stage) =>
@@ -66,7 +136,7 @@ const TableBlock = ({ isLogged }) => {
       Object.values(stage)
         .flatMap((giornata) =>
           giornata.matches.flatMap((m) => {
-            const pron = (m.pron || "").trim();
+            const pron = (m.pronsq || m.pron || "").trim(); // 👈 usa pronsq
             if (!pron) return [];
             const [p1, p2] = pron.split("-").map((s) => s.trim());
             return [p1 || "", p2 || ""];
@@ -190,24 +260,29 @@ const TableBlock = ({ isLogged }) => {
 
   // ✅ team visualizzati (reali, oppure PRON se showPron e reali vuoti)
   const getDisplayTeamsFromMatch = (match) => {
-    if (!match) return { code1: "", code2: "", isPron1: false, isPron2: false };
-
-    const logicalTeam1 = (match.team1 || "").trim();
-    const logicalTeam2 = (match.team2 || "").trim();
-
-    if (logicalTeam1 || logicalTeam2) {
-      return {
-        code1: logicalTeam1,
-        code2: logicalTeam2,
-        isPron1: false,
-        isPron2: false,
-      };
+    if (!match) {
+      // console.log("ADMIN DEBUG: match mancante");
+      return { code1: "", code2: "", isPron1: false, isPron2: false };
     }
 
-    if (showPron) {
-      const pron = (match.pron || "").trim();
-      if (pron) {
-        const [p1, p2] = pron.split("-").map((s) => s.trim());
+    const team1 = (match.team1 || "").trim();
+    const team2 = (match.team2 || "").trim();
+
+    // seed hardcoded tipo "KOR-ITA"
+    const seedPron = (match.pronsq || match.pron || "").trim();
+
+    // 🟢 AGGIUNTO BLOCCO ADMIN
+    if (isAdmin) {
+      if (seedPron) {
+        const [p1, p2] = seedPron.split("-").map((s) => s.trim());
+        return { code1: p1, code2: p2, isPron1: true, isPron2: true };
+      }
+    }
+
+    // 👤 NON LOGGATO → usa SOLO i seed hardcoded quando showPron = true
+    if (!isLogged) {
+      if (showPron && seedPron) {
+        const [p1, p2] = seedPron.split("-").map((s) => s.trim());
         return {
           code1: p1 || "",
           code2: p2 || "",
@@ -215,6 +290,32 @@ const TableBlock = ({ isLogged }) => {
           isPron2: !!p2,
         };
       }
+
+      // guest + showPron = false → niente
+      return { code1: "", code2: "", isPron1: false, isPron2: false };
+    }
+
+    // 👤 LOGGATO → prova prima i PRON UTENTE da Supabase
+    const userPronStr = userPronByFg[match.fg]; // es. "KOR-ITA"
+
+    if (userPronStr) {
+      const [u1, u2] = userPronStr.split("-").map((s) => s.trim());
+      return {
+        code1: u1 || "",
+        code2: u2 || "",
+        isPron1: !!u1,
+        isPron2: !!u2,
+      };
+    }
+
+    // se per quel match non c'è pronostico utente → fallback: squadre reali
+    if (team1 || team2) {
+      return {
+        code1: team1,
+        code2: team2,
+        isPron1: false,
+        isPron2: false,
+      };
     }
 
     return { code1: "", code2: "", isPron1: false, isPron2: false };
@@ -233,6 +334,7 @@ const TableBlock = ({ isLogged }) => {
       isPron1,
       isPron2,
     } = getDisplayTeamsFromMatch(match);
+    // console.log("isLogged:", isLogged, "showPron:", showPron);
 
     return (
       <BlokQuadRett
@@ -362,7 +464,10 @@ const TableBlock = ({ isLogged }) => {
                 {renderMatchBlock(mF1, Rett.Final, "final")}
 
                 <button
-                  onClick={() => setShowPron((prev) => !prev)}
+                  onClick={() => {
+                    if (!isLogged) setShowPron((prev) => !prev);
+                  }}
+                  disabled={isLogged}
                   className="
                     select-none
                     absolute 

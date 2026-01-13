@@ -23,7 +23,7 @@ const finalFieldToDbColumn = {
   pos2: "pos2",
   goto: "goto",
   fg: "fg",
-  pronSq: "pron_sq",
+  pronsq: "pronsq",
 
   team1: "team1",
   team2: "team2",
@@ -241,12 +241,11 @@ export default function AdminSeedStructurePage() {
         pos2,
         goto,
         fg,
-        pron_sq,
+        pronsq,
         team1,
         team2,
         results_ris,
         results_ts,
-        results_r,
         results_r
       `);
 
@@ -283,7 +282,7 @@ export default function AdminSeedStructurePage() {
           if (row.pos2) match.pos2 = row.pos2;
           if (row.goto) match.goto = row.goto;
           if (row.fg) match.fg = row.fg;
-          if (row.pron_sq) match.pronSq = row.pron_sq;
+          if (row.pronsq) match.pronsq = row.pronsq;
 
           if (row.team1) match.team1 = row.team1;
           if (row.team2) match.team2 = row.team2;
@@ -518,20 +517,20 @@ export default function AdminSeedStructurePage() {
                         }
                       />
 
-                      {/* SOLO FINALE → pronSq DOPO TIME (SOLO DESKTOP) */}
+                      {/* SOLO FINALE → pronsq DOPO TIME (SOLO DESKTOP) */}
                       {!isGroupsMode && (
                         <div className="hidden md:block">
                           <Field
-                            label="pronSq"
+                            label="pronsq"
                             labelMobile="pSq"
                             widthMobile="70px"
                             widthDesktop="110px"
-                            value={match.pronSq ?? ""}
+                            value={match.pronsq ?? ""}
                             onChange={(v) =>
                               handleMatchChange(
                                 giornataKey,
                                 idx,
-                                "pronSq",
+                                "pronsq",
                                 v,
                                 match.numero
                               )
@@ -843,16 +842,16 @@ export default function AdminSeedStructurePage() {
                     // 🔹 GIRONI A–L → come prima
                     <div className="flex md:hidden w-full items-center gap-2 mt-1">
                       <Field
-                        label="pronSq"
+                        label="pronsq"
                         labelMobile="pSq"
                         widthMobile="45px"
                         widthDesktop="110px"
-                        value={match.pronSq ?? ""}
+                        value={match.pronsq ?? ""}
                         onChange={(v) =>
                           handleMatchChange(
                             giornataKey,
                             idx,
-                            "pronSq",
+                            "pronsq",
                             v,
                             match.numero
                           )
@@ -989,16 +988,16 @@ export default function AdminSeedStructurePage() {
 
                       {/* pSq */}
                       <Field
-                        label="pronSq"
+                        label="pronsq"
                         labelMobile="pSq"
                         widthMobile="110px"
                         widthDesktop="110px"
-                        value={match.pronSq ?? ""}
+                        value={match.pronsq ?? ""}
                         onChange={(v) =>
                           handleMatchChange(
                             giornataKey,
                             idx,
-                            "pronSq",
+                            "pronsq",
                             v,
                             match.numero
                           )

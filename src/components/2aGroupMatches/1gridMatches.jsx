@@ -650,7 +650,7 @@ export default function GridMatchesPage({ isLogged }) {
                       <div
                         className="
                           absolute
-                          md:top-4 top-4
+                          md:top-4 top-[3.3rem]
                           left-1/2 -translate-x-1/2
                           flex flex-col items-center gap-1
                           z-[12000]
@@ -674,9 +674,9 @@ export default function GridMatchesPage({ isLogged }) {
                           }}
                           className={`
                             w-8 h-8
-                            md:w-10 md:h-10
+                            md:w-10 md:h-10                            
                             translate-y-2
-                            md:text-[20px] text-[12px]
+                            md:text-[20px] text-[15px]
                             rounded- full                            
                             text-white
                             flex items-center justify-center
@@ -2181,7 +2181,7 @@ function Row7({
               md:border-none bordr border-whit
 
               flex items-center justify-center
-              text-[12px] leading-none
+              md:ml-0 ml-[0.1rem] text-[15px] leading-none
               pointer-events-auto
             `}
             aria-label="show ranking"
