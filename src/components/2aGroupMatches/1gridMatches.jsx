@@ -675,7 +675,7 @@ export default function GridMatchesPage({ isLogged }) {
                           className={`                          
                             w-8 h-8
                             md:w-10 md:h-10                            
-                            md:translate-y-6 translate-y-[0.5rem]
+                            md:translate-y-6 translate-y-[1rem]
                             md:text-[20px] text-[15px]
                             rounded- full                              
                             text-white

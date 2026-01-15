@@ -749,16 +749,16 @@ export default function GridRankPage({
                 : "Show pronostics highlights"
             }
             className={`
-      select-none
-      absolute
-      md:w-8 md:h-8
-      md:py-0 py-2
-      md:px-1 px-2
-      rounded-full font-extrabold text-sm 
-      transition-all duration-300 
-      bg-transparent text-slate-900
-      z-[11000]
-    `}
+              select-none
+              absolute
+              md:w-8 md:h-8
+              md:py-0 py-2
+              md:px-1 px-2
+              rounded-full font-extrabold text-sm 
+              transition-all duration-300 
+              bg-transparent text-slate-900
+              z-[11000]
+            `}
             style={{
               top: btnPos.top,
               left: btnPos.left,
