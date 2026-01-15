@@ -384,7 +384,7 @@ export default function AdminSeedStructurePage() {
       {/* HEADER STICKY: toggle + gruppi/fasi */}
       <div
         className="
-          sticky -top-2 z-40 bg-yellow-500
+          sticky -top-4 z-40 bg-yellow-500
           md:static md:bg-slate-950 py-6
         "
       >
@@ -416,16 +416,17 @@ export default function AdminSeedStructurePage() {
         </div>
 
         {/* LETTERE A–L oppure Fasi Finali */}
-        {isGroupsMode ? (
-          <div className="flex justify-center flex-wrap gap-2 mb-10 md:mb-12">
-            {Array.from("ABCDEFGHIJKL").map((letter) => {
-              const isActive = letter === activeGroup;
-              return (
-                <button
-                  key={letter}
-                  type="button"
-                  onClick={() => setActiveGroup(letter)}
-                  className={`
+        <div className="flex justify-center flex-wrap gap-2 md:mb-0 mb-10 ">
+          {isGroupsMode ? (
+            <div className="flex justify-center flex-wrap gap-2">
+              {Array.from("ABCDEFGHIJKL").map((letter) => {
+                const isActive = letter === activeGroup;
+                return (
+                  <button
+                    key={letter}
+                    type="button"
+                    onClick={() => setActiveGroup(letter)}
+                    className={`
                     px-5 py-2 rounded-md 
                     text-base md:text-xl font-md
                     ${
@@ -434,22 +435,22 @@ export default function AdminSeedStructurePage() {
                         : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
                     }
                   `}
-                >
-                  {letter}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex justify-center flex-wrap gap-2 mb-10 md:mb-0">
-            {FINAL_PHASES.map((phase) => {
-              const isActive = phase.key === activeFinalKey;
-              return (
-                <button
-                  key={phase.key}
-                  type="button"
-                  onClick={() => setActiveFinalKey(phase.key)}
-                  className={`
+                  >
+                    {letter}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex justify-center flex-wrap gap-2">
+              {FINAL_PHASES.map((phase) => {
+                const isActive = phase.key === activeFinalKey;
+                return (
+                  <button
+                    key={phase.key}
+                    type="button"
+                    onClick={() => setActiveFinalKey(phase.key)}
+                    className={`
                     px-3 py-1 md:px-4 md:py-2
                     rounded-md 
                     text-xs md:text-lg font-md
@@ -459,22 +460,23 @@ export default function AdminSeedStructurePage() {
                         : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
                     }
                   `}
-                >
-                  {phase.label}
-                </button>
-              );
-            })}
-          </div>
-        )}
+                  >
+                    {phase.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="md:mb-3 mb-0">
-        <h1 className="text-lg md:text-xl font-semibold  md:mt-0 !mt-0 md:ml-6 items-start justify-start">
+        <h1 className="text-lg md:text-xl font-semibold  md:mt-0 !mt-0 md:ml-2 items-start justify-start">
           Admin Mode - Seed Structure (
           {isGroupsMode ? `group ${activeGroup}` : `fase ${activeFinalKey}`})
         </h1>
 
-        <div className="flex items-center gap-0 mt-0 ml-1">
+        <div className="flex items-center gap-0 mt-0 md:-ml-2 ml-1 ">
           <button
             type="button"
             onClick={() => navigate("/admin/run-seed")}
@@ -484,7 +486,7 @@ export default function AdminSeedStructurePage() {
           </button>
 
           <span className="text-xs md:text-sm text-white/50">
-            SeedSupabase - Campi ai valori hardcoded
+            SeedSupabase - Pagina Campi ai valori hardcoded
           </span>
         </div>
       </div>
