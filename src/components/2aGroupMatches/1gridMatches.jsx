@@ -650,7 +650,7 @@ export default function GridMatchesPage({ isLogged }) {
                       <div
                         className="
                           absolute
-                          md:top-4 top-[3.3rem]
+                          md:top-[5.5rem] top-[3.3rem]
                           left-1/2 -translate-x-1/2
                           flex flex-col items-center gap-1
                           z-[12000]
@@ -672,12 +672,12 @@ export default function GridMatchesPage({ isLogged }) {
                             e.stopPropagation();
                             openMobileBoth(letter); // ✅ apre NOTE + PLUS insieme
                           }}
-                          className={`
+                          className={`                          
                             w-8 h-8
                             md:w-10 md:h-10                            
-                            translate-y-2
+                            md:translate-y-6 translate-y-[0.5rem]
                             md:text-[20px] text-[15px]
-                            rounded- full                            
+                            rounded- full                              
                             text-white
                             flex items-center justify-center
                             cursor-pointer
@@ -708,6 +708,7 @@ export default function GridMatchesPage({ isLogged }) {
                             md:flex hidden
                             w-8 h-8 
                             md:w-10 md:h-10
+                              translate-y-5
                             md:text-[20px] text-[12px]                            
                             text-sky-300
                             items-center justify-center
@@ -1199,7 +1200,12 @@ export default function GridMatchesPage({ isLogged }) {
 
                     {/* Lettera */}
                     <span
-                      className={`mt-0 ${CssGroupLetter.Text} font-extrabold text-xl md:text-3xl leading-none`}
+                      className={`
+                        mt-0
+                        md:translate-y-2 translate-y-2 
+                        ${CssGroupLetter.Text}
+                        font-extrabold text-xl md:text-3xl leading-none
+                      `}
                     >
                       {letter}
                     </span>
@@ -1209,7 +1215,7 @@ export default function GridMatchesPage({ isLogged }) {
                       <div
                         className="
                           hidden md:flex flex-row
-                          absolute top-4 left-8 right-2 z-[12000]
+                          absolute top-6 left-8 right-2 z-[12000]
                           w-[19.8rem]
                           min-h-[16.9rem]
                           max-h-[18vh]                          
@@ -1236,7 +1242,7 @@ export default function GridMatchesPage({ isLogged }) {
                         </div> */}
 
                         {/* ✅ CONTENUTO AGGANCIATO A groupNotes */}
-                        <div className="w-[3rem] flex items-start justify-center pt-10">
+                        <div className="w-[3rem] flex items-start justify-center pt-[7.8rem]">
                           <AdminEditToggle onExit={saveAllEdits} />
                         </div>
                         <div className="mt-0 space-y-0 text-sm text-white flex-1 min-w-0 pr-2">
@@ -1335,7 +1341,7 @@ export default function GridMatchesPage({ isLogged }) {
                     {hoverPlusModal === letter && (
                       <div
                         className="
-                          absolute top-4 left-8 right-2 z-[12000]
+                          absolute top-6 left-8 right-2 z-[12000]
                           w-[19.8rem]
                           min-h-[16.9rem]
                           max-h-[18vh]
@@ -1685,7 +1691,7 @@ export default function GridMatchesPage({ isLogged }) {
                         {/* ADMIN TOGGLE – CENTRATO */}
                         <div
                           className="
-                                absolute inset-0 md:-top-[15.8rem]  -top-[2rem]
+                                absolute inset-0 md:-top-[5.8rem]  -top-[2rem]
                                 flex items-center justify-center
                                 z-[10002]
                                 pointer-events-none

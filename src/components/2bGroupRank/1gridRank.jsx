@@ -870,7 +870,7 @@ export default function GridRankPage({
                     <div className="relative w-8 md:w-10 flex items-center justify-center -top-4">
                       {/* LETTERA */}
                       <span
-                        className={`mt-4 font-extrabold text-xl md:text-3xl leading-none ${CssGroupLetter.Text}`}
+                        className={`mt-12 font-extrabold text-xl md:text-3xl leading-none ${CssGroupLetter.Text}`}
                       >
                         {letter}
                       </span>

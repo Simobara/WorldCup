@@ -212,19 +212,19 @@ const groupNotesMond26 = {
   L: {
     day1: {
       title: ["1ª giornata"],
-      items: "ING 1 CRO",
+      items: "ENG 1 CRO",
     },
     day2: {
       title: ["2ª giornata"],
-      items: "ING 1 GHA, CRO x PAN tassativo almeno un punto CRO ",
+      items: "ENG 1 GHA, CRO x PAN tassativo almeno un punto CRO ",
     },
     day3: {
       title: ["3ª giornata"],
-      items: "ING 1 PAN, sopresa GHA win CRO",
+      items: "ENG 1 PAN, sopresa GHA win CRO",
     },
     notes: {
       title: ["📝"],
-      text: "ING 9PT PAN 2' GHA 3PT CRO eliminata",
+      text: "ENG 9PT PAN 2' GHA 3PT CRO eliminata",
     },
   },
 };
