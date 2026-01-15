@@ -500,7 +500,7 @@ const TableBlock = ({ isLogged }) => {
       >
         {/* ✅ COLONNA 32 A */}
         <div className="relative flex-1 h-full bg-purple flex flex-col items-center md:pt-20 pt-12">
-          <div className="md:-mt-8 -mt-6">
+          <div className="md:-mt-8 -mt-4">
             {renderMatchBlock(mA1, Rett.A, "round32")}
           </div>
           <div>
@@ -517,6 +517,7 @@ const TableBlock = ({ isLogged }) => {
             <div className="md:mt-20 mt-16">
               {renderMatchBlock(mB1, Rett.B, "round32")}
             </div>
+
             <div className="md:mt-10 mt-6">
               {renderMatchBlock(mB2, Rett.B, "round32")}
             </div>
