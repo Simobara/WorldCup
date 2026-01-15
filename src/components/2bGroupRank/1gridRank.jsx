@@ -499,7 +499,7 @@ export default function GridRankPage({
   const GROUP_HEIGHT_MOBILE = "h-[188px]";
 
   const headerHDesktop = "16px";
-  const rowHDesktop = 70;
+  const rowHDesktop = 69;
 
   const headerHMobile = "16px";
   const rowHMobile = 42;
