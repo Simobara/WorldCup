@@ -649,7 +649,7 @@ export default function AdminSeedStructurePage() {
                         labelMobile="T1"
                         widthMobile="80px"
                         widthDesktop="130px"
-                        className="!bg-sky-900 ml-2 mr-4"
+                        className="!bg-sky-900 ml-2"
                         value={match.team1}
                         onChange={(v) =>
                           handleMatchChange(
@@ -664,7 +664,7 @@ export default function AdminSeedStructurePage() {
                     </div>
 
                     {/* TEAM 2 */}
-                    <div className="flex-1 px-1 py-1 rounded">
+                    <div className="flex-1 px-1 py-1 rounded !ml-4">
                       <Field
                         label={isGroupsMode ? "team2" : "T2"}
                         labelMobile="T2"
