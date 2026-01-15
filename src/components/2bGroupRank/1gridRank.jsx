@@ -502,7 +502,7 @@ export default function GridRankPage({
   const rowHDesktop = 70;
 
   const headerHMobile = "16px";
-  const rowHMobile = 43;
+  const rowHMobile = 42;
 
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
