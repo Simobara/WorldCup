@@ -469,7 +469,7 @@ export default function GridMatchesPage({ isLogged }) {
   return (
     <section
       aria-labelledby="wc-matches-title"
-      className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-2 overflow-x-auto"
+      className="min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-0 overflow-x-auto"
     >
       {/* Titolo SEO/accessibilità (non cambia UI) */}
       <h1 id="wc-matches-title" className="sr-only">

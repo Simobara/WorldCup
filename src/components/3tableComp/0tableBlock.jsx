@@ -568,7 +568,7 @@ const TableBlock = ({ isLogged }) => {
               className="
                 absolute
                 left-1/2
-                -translate-x-1/2 -translate-y-[40vh]
+                -translate-x-1/2 md:-translate-y-[40vh] -translate-y-[36vh]
                 md:w-[300px] w-[200px]
                 max-w-none pointer-events-none
               "
@@ -577,7 +577,7 @@ const TableBlock = ({ isLogged }) => {
 
             {/* ✅ Blocco FINALE F1, centrato sopra la coppa */}
             <div className="relative z-10 flex items-center justify-center">
-              <div className="relative">
+              <div className="relative  md:-translate-y-[10vh] -translate-y-[4vh]">
                 {renderMatchBlock(mF1, Rett.Final, "final")}
 
                 <button
@@ -589,7 +589,7 @@ const TableBlock = ({ isLogged }) => {
                     select-none
                     absolute 
                     md:right-10 right-8 
-                    md:-top-8 -top-6 
+                    md:-top-8 -top-7 
                     bg-transparent
                     text-yellow-500 font-bold
                     text-xs md:text-sm
