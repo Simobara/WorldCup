@@ -493,15 +493,15 @@ export default function GridRankPage({
 
   // ✅ come “Matches”: card strette in mobile, grandi in desktop
   const GROUP_WIDTH_DESKTOP = "md:w-[22rem]";
-  const GROUP_HEIGHT_DESKTOP = "md:h-[264px]";
+  const GROUP_HEIGHT_DESKTOP = "md:h-[286px]";
 
   const GROUP_WIDTH_MOBILE = "w-[9.5rem]";
-  const GROUP_HEIGHT_MOBILE = "h-[170px]";
+  const GROUP_HEIGHT_MOBILE = "h-[11.5rem]";
 
   const headerHDesktop = "16px";
   const rowHDesktop = 68;
 
-  const headerHMobile = "16px";
+  const headerHMobile = "1rem";
   const rowHMobile = 42;
 
   const [rowH, setRowH] = useState(rowHMobile);
