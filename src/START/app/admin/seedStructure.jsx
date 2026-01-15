@@ -112,8 +112,8 @@ export default function AdminSeedStructurePage() {
     { key: "round16", label: "R16" },
     { key: "quarterFinals", label: "QF" },
     { key: "semifinals", label: "SF" },
-    // { key: "final34", label: "3°/4°" },
-    { key: "final", label: "Final" },
+    { key: "final34", label: "3 / 4" },
+    { key: "final", label: "FINAL" },
   ];
   const [activeFinalKey, setActiveFinalKey] = useState("round32");
 
@@ -384,8 +384,8 @@ export default function AdminSeedStructurePage() {
       {/* HEADER STICKY: toggle + gruppi/fasi */}
       <div
         className="
-          sticky -top-4 z-40 bg-yellow-500
-          md:static md:bg-slate-950 py-6
+          sticky -top-4 z-40 bg-slate-950
+          md:static md:bg-slate-950 py-2
         "
       >
         {/* TOGGLE modalità */}
@@ -399,7 +399,7 @@ export default function AdminSeedStructurePage() {
                 : "bg-slate-800 text-white/70"
             }`}
           >
-            Gironi A–L
+            GIRONI A–L
           </button>
 
           <button
@@ -411,7 +411,7 @@ export default function AdminSeedStructurePage() {
                 : "bg-slate-800 text-white/70"
             }`}
           >
-            Fase Finale
+            FASE FINALE
           </button>
         </div>
 
@@ -451,15 +451,15 @@ export default function AdminSeedStructurePage() {
                     type="button"
                     onClick={() => setActiveFinalKey(phase.key)}
                     className={`
-                    px-3 py-1 md:px-4 md:py-2
-                    rounded-md 
-                    text-xs md:text-lg font-md
-                    ${
-                      isActive
-                        ? "bg-pink-800 border-pink-800 text-white"
-                        : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
-                    }
-                  `}
+                      px-3 py-2          // 👈 come i gironi
+                      rounded-md 
+                      text-base md:text-xl font-md   // 👈 come i gironi
+                      ${
+                        isActive
+                          ? "bg-pink-800 border-pink-800 text-white"
+                          : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
+                      }
+                    `}
                   >
                     {phase.label}
                   </button>
@@ -470,7 +470,13 @@ export default function AdminSeedStructurePage() {
         </div>
       </div>
 
-      <div className="md:mb-3 mb-0">
+      <div
+        className={`
+          md:mb-3 
+          mb-0
+          ${isGroupsMode ? "" : "mt-12 md:mt-0"} 
+        `}
+      >
         <h1 className="text-lg md:text-xl font-semibold  md:mt-0 !mt-0 md:ml-2 items-start justify-start">
           Admin Mode - Seed Structure (
           {isGroupsMode ? `group ${activeGroup}` : `fase ${activeFinalKey}`})
@@ -480,12 +486,20 @@ export default function AdminSeedStructurePage() {
           <button
             type="button"
             onClick={() => navigate("/admin/run-seed")}
-            className="rounded-md bg-emerald- 600 bg-gray-600  hover:bg-emerald-500 md:ml-4 ml-0 md:p-4 md:mr-4 mr-0 text-xss md:text-sm"
+            className="
+             md:mb-0 mb-1
+            rounded-md 
+            md:p-4 p-2 
+            md:mr-4 mr-2 
+            md:ml-4 ml-0
+            text-xss md:text-sm
+            bg-emerald- 600 bg-gray-600
+            hover:bg-emerald-500"
           >
             ❕
           </button>
 
-          <span className="text-xs md:text-sm text-white/50">
+          <span className="text-sm md:text-sm text-white/50">
             SeedSupabase - Pagina Campi ai valori hardcoded
           </span>
         </div>
