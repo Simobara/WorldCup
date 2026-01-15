@@ -664,7 +664,7 @@ export default function AdminSeedStructurePage() {
                     </div>
 
                     {/* TEAM 2 */}
-                    <div className="flex-1 px-1 py-1 rounded !ml-4">
+                    <div className="flex-1 px-1 py-1 rounded !ml-6">
                       <Field
                         label={isGroupsMode ? "team2" : "T2"}
                         labelMobile="T2"
