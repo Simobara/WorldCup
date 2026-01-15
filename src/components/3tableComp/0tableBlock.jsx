@@ -538,7 +538,8 @@ const TableBlock = ({ isLogged }) => {
           <div className="md:mt-44 mt-32 ml-2">
             {renderMatchBlock(mA6, Rett.A, "round16")}
           </div>
-          <div className="md:mt-48 mt-40 ml-2">
+
+          <div className="md:mt-48 mt-44 ml-2">
             {renderMatchBlock(mB5, Rett.B, "round16")}
           </div>
           <div className="md:mt-44 mt-32 ml-2">
