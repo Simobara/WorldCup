@@ -31,6 +31,7 @@ const Grid = ({
     }))
   );
 
+  let sundayCount = 0;
   return (
     <div
       className="grid gap-[0px]"
@@ -61,6 +62,25 @@ const Grid = ({
         })();
 
         const label = rowIndex === 0 ? columnLabels[colIndex] : null;
+
+        let hideLabel = false;
+        let forceSundayTextInvisible = false;
+
+        if (rowIndex === 0 && label && typeof label === "object") {
+          const isSunday =
+            typeof label.top === "string" &&
+            label.top.toUpperCase().startsWith("DOM");
+
+          if (isSunday) {
+            sundayCount += 1;
+
+            if (sundayCount === 5) {
+              // 👉 NON nascondiamo il div, ma rendiamo il testo invisibile
+              forceSundayTextInvisible = true;
+            }
+          }
+        }
+
         const hasLabel = !!label;
 
         // weekend SOLO sulla prima riga (date)
@@ -155,8 +175,20 @@ const Grid = ({
                   isWeekendCell ? "text-sky-800" : ""
                 }`}
               >
-                <span className="text-sm font-bold">{label.top}</span>
-                <span className="text-lg font-extrabold">{label.bottom}</span>
+                <span
+                  className={`text-sm font-bold ${
+                    forceSundayTextInvisible ? "text-slate-950" : ""
+                  }`}
+                >
+                  {label.top}
+                </span>
+                <span
+                  className={`text-lg font-extrabold ${
+                    forceSundayTextInvisible ? "text-slate-950" : ""
+                  }`}
+                >
+                  {label.bottom}
+                </span>
               </div>
             ) : null}
 
