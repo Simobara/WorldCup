@@ -568,7 +568,7 @@ const TableBlock = ({ isLogged }) => {
               className="
                 absolute
                 left-1/2
-                -translate-x-1/2 -translate-y-[18rem]
+                -translate-x-1/2 -translate-y-[40vh]
                 md:w-[300px] w-[200px]
                 max-w-none pointer-events-none
               "
