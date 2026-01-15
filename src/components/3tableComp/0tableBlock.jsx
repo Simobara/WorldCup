@@ -514,7 +514,7 @@ const TableBlock = ({ isLogged }) => {
               {renderMatchBlock(mA4, Rett.A, "round32")}
             </div>
 
-            <div className="md:mt-20 mt-16">
+            <div className="md:mt-20 mt-12">
               {renderMatchBlock(mB1, Rett.B, "round32")}
             </div>
 
