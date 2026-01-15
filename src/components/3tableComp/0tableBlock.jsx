@@ -548,59 +548,62 @@ const TableBlock = ({ isLogged }) => {
 
         {/* ✅ COLONNA QUARTI A */}
         <div className="relative flex-1 h-full bg-blue flex flex-col items-start md:pt-20 pt-12">
-          <div className="md:mt-[10rem] mt-[9rem] md:ml-0 -ml-8">
+          <div className="md:mt-[10rem] mt-[9rem] md:-ml-6 -ml-8">
             {renderMatchBlock(mA7, Rett.A, "quarter")}
           </div>
-          <div className="md:mt-[26rem] mt-[23rem] md:ml-0 -ml-8">
+          <div className="md:mt-[26rem] mt-[23rem] md:-ml-6 -ml-8">
             {renderMatchBlock(mB7, Rett.B, "quarter")}
           </div>
         </div>
 
         {/* ✅ COLONNA SEMIFINALI + FINALE */}
-        <div className="flex-1 h-full bg-green- relative overflow-visible flex items-center justify-center">
-          {/* ✅ FINALE F1 */}
-          {/* Contenitore centrale che riempie tutta la colonna */}
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* 🏆 Coppa centrata con posizione proporzionale */}
-            <img
-              src="/assts/WCOfficial.png"
-              alt="World Cup"
-              className="
-                absolute
+        <div className="flex-1 h-full bg-green- relative overflow-visible">
+          {/* 🏆 Coppa: sfondo, z più basso */}
+          <img
+            src="/assts/WCOfficial.png"
+            alt="World Cup"
+            className="
+          absolute
                 left-1/2
-                -translate-x-1/2 md:-translate-y-[40vh] -translate-y-[36vh]
+                -translate-x-1/2 md:translate-y-[8vh] translate-y-[14vh]
                 md:w-[300px] w-[200px]
-                max-w-none pointer-events-none
-              "
-              style={{ top: "50%" }} // 👈 regola questa percentuale se la vuoi più alta o più bassa
-            />
+                max-w-none pointer-events-none md:scale-110 scale-150
+      z-0
+    "
+          />
 
-            {/* ✅ Blocco FINALE F1, centrato sopra la coppa */}
-            <div className="relative z-10 flex items-center justify-center">
-              <div className="relative  md:-translate-y-[10vh] -translate-y-[4vh]">
-                {renderMatchBlock(mF1, Rett.Final, "final")}
+          {/* ✅ Blocco FINALE F1: posizione FISSA nella colonna, sopra la coppa */}
+          <div
+            className="
+      absolute
+      left-1/2 -translate-x-1/2 md:translate-y-[12vh] translate-y-[14vh]
+      md:top-[18rem] top-[16rem]
+      z-10
+      flex items-center justify-center
+    "
+          >
+            <div className="relative">
+              {renderMatchBlock(mF1, Rett.Final, "final")}
 
-                <button
-                  onClick={() => {
-                    if (!isLogged) setShowPron((prev) => !prev);
-                  }}
-                  disabled={isLogged}
-                  className="
-                    select-none
-                    absolute 
-                    md:right-10 right-8 
-                    md:-top-8 -top-7 
-                    bg-transparent
-                    text-yellow-500 font-bold
-                    text-xs md:text-sm
-                    px-3 py-0
-                    rounded-full z-50 
-                    "
-                  // bg-white
-                >
-                  {showPron ? "," : "."}
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  if (!isLogged) setShowPron((prev) => !prev);
+                }}
+                disabled={isLogged}
+                className="
+          select-none
+          absolute 
+          md:right-10 right-8 
+          md:-top-8 -top-7 
+          bg-transparent
+          text-yellow-500 font-bold
+          text-xs md:text-sm
+          px-3 py-0
+          rounded-full z-50 
+        "
+              >
+                {showPron ? "," : "."}
+              </button>
             </div>
           </div>
 
@@ -611,7 +614,7 @@ const TableBlock = ({ isLogged }) => {
 
             return (
               <div
-                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[23rem] z-10 ml-4"
+                className=" absolute left-1/2 -translate-x-1/2 md:top-[27.5rem] top-[23rem] z-10 ml-4"
                 style={{
                   transform: `translateX(calc(-50% - ${SEMI_OFFSET_DESKTOP}))`,
                 }}
@@ -650,7 +653,7 @@ const TableBlock = ({ isLogged }) => {
 
             return (
               <div
-                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[23rem] z-10 -ml-4"
+                className=" absolute left-1/2 -translate-x-1/2 md:top-[27.5rem] top-[23rem] z-10 -ml-4"
                 style={{
                   transform: `translateX(calc(-50% + ${SEMI_OFFSET_DESKTOP}))`,
                 }}
