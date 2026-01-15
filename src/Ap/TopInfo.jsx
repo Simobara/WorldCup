@@ -91,13 +91,8 @@ export default function TopInfo() {
         { path: "__admin_placeholder__", icon: null, isPlaceholder: true },
       ];
 
-  // // Se admin → aggiungi anche il tab 🛠️ nello slider
-  // const routes = isAdmin
-  //   ? [...baseRoutes, { path: "/admin/seed-structure", icon: "🛠️" }]
-  //   : baseRoutes;
-
   //---------------------------------------------------------
-  // ✅ ogni volta che cambia login/logout → reset su standings
+
   // ✅ ogni volta che cambia login/logout → reset su standings
   useEffect(() => {
     // primo render: inizializza e basta
@@ -391,6 +386,9 @@ export default function TopInfo() {
                 flex items-center justify-center
                 text-base md:text-2xl
                 cursor-pointer select-none
+                  /* 🎨 GRAYSCALE SOLO MOBILE */
+                  grayscale brightness-75
+                  md:grayscale-0 md:brightness-100
                 ${
                   activePath === r.path
                     ? "text-white"
@@ -419,6 +417,9 @@ export default function TopInfo() {
             text-base md:text-2xl
             rounded-md
             transition-colors
+             /* 🎨 GRAYSCALE SOLO MOBILE */
+              grayscale brightness-75 opacity-90
+              md:grayscale-0 md:brightness-100 md:opacity-100
             ${isLogged ? "text-white hover:bg-white/10" : "grayscale brightness-75 opacity-80"}
             disabled:opacity-60
           `}
@@ -433,26 +434,6 @@ export default function TopInfo() {
           {authIcon}
         </button>
       </div>
-
-      {/* ADMIN BUTTON: solo per simobara@hotmail.it */}
-      {/* ADMIN BUTTON: solo per simobara@hotmail.it */}
-      {/* {isAdmin && (
-        <button
-          type="button"
-          onClick={() => navigate("/admin/seed-structure")}
-          className="
-      relative z-10
-      w-8 h-8 md:w-12 md:h-12
-      flex items-center justify-center
-      text-base md:text-2xl
-      text-yellow-300
-      hover:bg-white/10
-    "
-          title=""
-        >
-          🛠️
-        </button>
-      )} */}
 
       {openLogin && !isLogged && (
         <LoginModal
