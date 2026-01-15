@@ -532,16 +532,16 @@ const TableBlock = ({ isLogged }) => {
 
         {/* ✅ COLONNA 16 A */}
         <div className="relative flex-1 h-full flex bg-orange flex-col items-center md:pt-20 pt-12">
-          <div className="md:mt-8 mt-8 ml-2">
+          <div className="md:mt-8 mt-8 -ml-2">
             {renderMatchBlock(mA5, Rett.A, "round16")}
           </div>
-          <div className="md:mt-44 mt-32 ml-2">
+          <div className="md:mt-44 mt-32 -ml-2">
             {renderMatchBlock(mA6, Rett.A, "round16")}
           </div>
-          <div className="md:mt-48 mt-40 ml-2">
+          <div className="md:mt-48 mt-40 -ml-2">
             {renderMatchBlock(mB5, Rett.B, "round16")}
           </div>
-          <div className="md:mt-44 mt-32 ml-2">
+          <div className="md:mt-44 mt-32 -ml-2">
             {renderMatchBlock(mB6, Rett.B, "round16")}
           </div>
         </div>
@@ -694,16 +694,16 @@ const TableBlock = ({ isLogged }) => {
 
         {/* ✅ COLONNA 16 B */}
         <div className="relative flex-1 h-full bg-orange flex flex-col items-center md:pt-20 pt-12">
-          <div className="md:mt-8 mt-8 mr-2">
+          <div className="md:mt-8 mt-8 mr-4">
             {renderMatchBlock(mC5, Rett.C, "round16")}
           </div>
-          <div className="md:mt-44 mt-32 mr-2">
+          <div className="md:mt-44 mt-32 mr-4">
             {renderMatchBlock(mC6, Rett.C, "round16")}
           </div>
-          <div className="md:mt-48 mt-40 mr-2">
+          <div className="md:mt-48 mt-40 mr-4">
             {renderMatchBlock(mD5, Rett.D, "round16")}
           </div>
-          <div className="md:mt-44 mt-32 mr-2">
+          <div className="md:mt-44 mt-32 mr-4">
             {renderMatchBlock(mD6, Rett.D, "round16")}
           </div>
         </div>
