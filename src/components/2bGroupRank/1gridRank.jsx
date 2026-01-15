@@ -584,15 +584,15 @@ export default function GridRankPage({
 
   useEffect(() => {
     if (!isLogged || !userEmail) {
-      console.log("EFFECT: non loggato o manca userEmail → non carico nulla");
+      // console.log("EFFECT: non loggato o manca userEmail → non carico nulla");
       return;
     }
 
-    console.log(
-      "EFFECT: loggato come",
-      userEmail,
-      "→ carico gruppi A-L con pronostici hardcoded"
-    );
+    // console.log(
+    //   "EFFECT: loggato come",
+    //   userEmail,
+    //   "→ carico gruppi A-L con pronostici hardcoded"
+    // );
 
     let cancelled = false;
 

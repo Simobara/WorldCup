@@ -2146,7 +2146,7 @@ function Row7({
             className={`
               absolute
               md:-top-12 -top-7
-              md:left-0 -left-[0.8rem]
+              md:left-0 -left-[0.7rem]
 
               md:w-6 w-3
               md:h-[6rem] h-14
