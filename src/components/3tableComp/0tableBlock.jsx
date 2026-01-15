@@ -532,26 +532,26 @@ const TableBlock = ({ isLogged }) => {
 
         {/* ✅ COLONNA 16 A */}
         <div className="relative flex-1 h-full flex bg-orange flex-col items-center md:pt-20 pt-12">
-          <div className="md:mt-8 mt-8 -ml-2">
+          <div className="md:mt-8 mt-8 -ml-8">
             {renderMatchBlock(mA5, Rett.A, "round16")}
           </div>
-          <div className="md:mt-44 mt-32 -ml-2">
+          <div className="md:mt-44 mt-36 -ml-8">
             {renderMatchBlock(mA6, Rett.A, "round16")}
           </div>
-          <div className="md:mt-48 mt-40 -ml-2">
+          <div className="md:mt-48 mt-44 -ml-8">
             {renderMatchBlock(mB5, Rett.B, "round16")}
           </div>
-          <div className="md:mt-44 mt-32 -ml-2">
+          <div className="md:mt-44 mt-36 -ml-8">
             {renderMatchBlock(mB6, Rett.B, "round16")}
           </div>
         </div>
 
         {/* ✅ COLONNA QUARTI A */}
         <div className="relative flex-1 h-full bg-blue flex flex-col items-start md:pt-20 pt-12">
-          <div className="md:mt-[10rem] mt-[8rem] md:ml-0 -ml-8">
+          <div className="md:mt-[10rem] mt-[9rem] md:ml-0 -ml-8">
             {renderMatchBlock(mA7, Rett.A, "quarter")}
           </div>
-          <div className="md:mt-[26rem] mt-[22rem] md:ml-0 -ml-8">
+          <div className="md:mt-[26rem] mt-[23rem] md:ml-0 -ml-8">
             {renderMatchBlock(mB7, Rett.B, "quarter")}
           </div>
         </div>
@@ -611,7 +611,7 @@ const TableBlock = ({ isLogged }) => {
 
             return (
               <div
-                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[22rem] z-10 "
+                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[22rem] z-10 ml-4"
                 style={{
                   transform: `translateX(calc(-50% - ${SEMI_OFFSET_DESKTOP}))`,
                 }}
@@ -650,7 +650,7 @@ const TableBlock = ({ isLogged }) => {
 
             return (
               <div
-                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[22rem] z-10"
+                className=" absolute left-1/2 -translate-x-1/2 md:top-[26rem] top-[22rem] z-10 -ml-4"
                 style={{
                   transform: `translateX(calc(-50% + ${SEMI_OFFSET_DESKTOP}))`,
                 }}
@@ -694,16 +694,16 @@ const TableBlock = ({ isLogged }) => {
 
         {/* ✅ COLONNA 16 B */}
         <div className="relative flex-1 h-full bg-orange flex flex-col items-center md:pt-20 pt-12">
-          <div className="md:mt-8 mt-8 mr-4">
+          <div className="md:mt-8 mt-8 -mr-4">
             {renderMatchBlock(mC5, Rett.C, "round16")}
           </div>
-          <div className="md:mt-44 mt-32 mr-4">
+          <div className="md:mt-44 mt-32 -mr-4">
             {renderMatchBlock(mC6, Rett.C, "round16")}
           </div>
-          <div className="md:mt-48 mt-40 mr-4">
+          <div className="md:mt-48 mt-40 -mr-4">
             {renderMatchBlock(mD5, Rett.D, "round16")}
           </div>
-          <div className="md:mt-44 mt-32 mr-4">
+          <div className="md:mt-44 mt-32 -mr-4">
             {renderMatchBlock(mD6, Rett.D, "round16")}
           </div>
         </div>
