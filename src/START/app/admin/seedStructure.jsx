@@ -649,7 +649,7 @@ export default function AdminSeedStructurePage() {
                         labelMobile="T1"
                         widthMobile="80px"
                         widthDesktop="130px"
-                        className="!bg-sky-900 ml02"
+                        className="!bg-sky-900 ml-2 mr-4"
                         value={match.team1}
                         onChange={(v) =>
                           handleMatchChange(
@@ -670,7 +670,7 @@ export default function AdminSeedStructurePage() {
                         labelMobile="T2"
                         widthMobile="80px"
                         widthDesktop="130px"
-                        className="!bg-sky-900 md:ml-0 ml-4"
+                        className="!bg-sky-900 md:ml-0"
                         value={match.team2}
                         onChange={(v) =>
                           handleMatchChange(
