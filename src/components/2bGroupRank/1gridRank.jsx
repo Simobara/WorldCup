@@ -729,7 +729,7 @@ export default function GridRankPage({
       className={
         isTooltip
           ? "p-0 overflow-visible"
-          : "min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-0 overflow-x-auto"
+          : "min-h-screen pl-1 pr-12 md:px-4 md:pt-16 pt-1 overflow-x-auto"
       }
     >
       <div
