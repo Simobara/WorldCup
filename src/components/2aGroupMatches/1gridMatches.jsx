@@ -2146,7 +2146,7 @@ function Row7({
             className={`
               absolute
               md:-top-12 -top-7
-              md:left-0 -left-[0.6rem]
+              md:left-0 -left-[0.8rem]
 
               md:w-6 w-3
               md:h-[6rem] h-14
@@ -2181,7 +2181,7 @@ function Row7({
               md:border-none bordr border-whit
 
               flex items-center justify-center
-              md:ml-0 ml-[0.1rem] text-[15px] leading-none
+              md:ml-0 ml-[0.1rem] text-[12px] leading-none
               pointer-events-auto
             `}
             aria-label="show ranking"
