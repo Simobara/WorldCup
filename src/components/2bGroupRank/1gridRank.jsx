@@ -415,6 +415,54 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
     return ak.localeCompare(bk);
   });
 }
+
+function sortTeamsByTotal(
+  teams,
+  tableByTeam, // punti ufficiali
+  pronTableByTeam, // punti da pronostici/bonus
+  resolveName
+) {
+  if (!pronTableByTeam && !tableByTeam) return teams;
+
+  return [...teams].sort((a, b) => {
+    const ak = resolveName(a.name);
+    const bk = resolveName(b.name);
+
+    const Aoff = tableByTeam?.[ak] ?? { pt: 0, gf: 0, gs: 0 };
+    const Boff = tableByTeam?.[bk] ?? { pt: 0, gf: 0, gs: 0 };
+
+    const Apron = pronTableByTeam?.[ak] ?? { pt: 0 };
+    const Bpron = pronTableByTeam?.[bk] ?? { pt: 0 };
+
+    const Atot = (Aoff.pt ?? 0) + (Apron.pt ?? 0); // 👈 SOMMA
+    const Btot = (Boff.pt ?? 0) + (Bpron.pt ?? 0); // 👈 SOMMA
+
+    // 1) ordino per punti totali (ufficiali + pronostici)
+    if (Btot !== Atot) return Btot - Atot;
+
+    // 2) a parità, guardo i punti ufficiali
+    if (Boff.pt !== Aoff.pt) return Boff.pt - Aoff.pt;
+
+    // 3) differenza reti ufficiale
+    const Agd = (Aoff.gf ?? 0) - (Aoff.gs ?? 0);
+    const Bgd = (Boff.gf ?? 0) - (Boff.gs ?? 0);
+    if (Bgd !== Agd) return Bgd - Agd;
+
+    // 4) più gol fatti
+    if ((Boff.gf ?? 0) !== (Aoff.gf ?? 0)) {
+      return (Boff.gf ?? 0) - (Aoff.gf ?? 0);
+    }
+
+    // 5) a parità di tutto, più punti pronostico
+    if ((Bpron.pt ?? 0) !== (Apron.pt ?? 0)) {
+      return (Bpron.pt ?? 0) - (Apron.pt ?? 0);
+    }
+
+    // 6) fallback alfabetico
+    return ak.localeCompare(bk);
+  });
+}
+
 // ---------------------------------------------------------------------------------
 export default function GridRankPage({
   onlyGroup,
@@ -794,10 +842,15 @@ export default function GridRankPage({
               //   console.log("🟦 GRUPPO B → pronTableByTeam:", pronTableByTeam);
               // }
 
-              const sortedTeams = groupHasResults
-                ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
-                : pronTableByTeam
-                  ? sortTeamsByPron(teams, pronTableByTeam, resolveName)
+              const sortedTeams = pronTableByTeam
+                ? sortTeamsByTotal(
+                    teams,
+                    tableByTeam,
+                    pronTableByTeam,
+                    resolveName
+                  )
+                : groupHasResults
+                  ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
                   : teams;
 
               return (

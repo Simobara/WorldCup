@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // 👈 AGGIUNTO
 import { getFlatMatchesForGroup } from "../../../components/2aGroupMatches/zExternal/getFlatMatchesForGroup";
 import { supabase } from "../../../Services/supabase/supabaseClient";
 import { groupMatches } from "../1GroupMatches";
@@ -7,6 +8,8 @@ import { groupFinal } from "../2GroupFinal";
 export default function RunSeedPage() {
   const [status, setStatus] = useState("Nessuna operazione in corso.");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate(); // 👈 HOOK PER TORNARE INDIETRO
 
   // 🔵 SEED GIRONI A–L → wc_match_structure
   async function seedGroups() {
@@ -141,6 +144,15 @@ export default function RunSeedPage() {
 
   return (
     <div className="p-4 max-w-lg mx-auto text-slate-100 mt-20">
+      {/* 🔙 BOTTONE TORNA A SEED-STRUCTURE */}
+      <button
+        type="button"
+        onClick={() => navigate("/admin/seed-structure")}
+        className="mb-4 px-8 py-4 rounded-md bg-gray-700 hover:bg-slate-800 text-sm"
+      >
+        ← Torna a Seed Structure
+      </button>
+
       <h1 className="text-xl font-bold mb-3">
         Seed strutture Mondiale → Supabase
       </h1>

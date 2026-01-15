@@ -503,28 +503,27 @@ const TableBlock = ({ isLogged }) => {
           <div className="md:-mt-8 -mt-4">
             {renderMatchBlock(mA1, Rett.A, "round32")}
           </div>
-
           <div>
-            <div className="md:mt-10 mt-8">
+            <div className="md:mt-10 mt-6">
               {renderMatchBlock(mA2, Rett.A, "round32")}
             </div>
             <div className="md:mt-20 mt-16">
               {renderMatchBlock(mA3, Rett.A, "round32")}
             </div>
-            <div className="md:mt-10 mt-8">
+            <div className="md:mt-10 mt-6">
               {renderMatchBlock(mA4, Rett.A, "round32")}
             </div>
 
             <div className="md:mt-20 mt-16">
               {renderMatchBlock(mB1, Rett.B, "round32")}
             </div>
-            <div className="md:mt-10 mt-8">
+            <div className="md:mt-10 mt-6">
               {renderMatchBlock(mB2, Rett.B, "round32")}
             </div>
             <div className="md:mt-20 mt-16">
               {renderMatchBlock(mB3, Rett.B, "round32")}
             </div>
-            <div className="md:mt-10 mt-8">
+            <div className="md:mt-10 mt-6">
               {renderMatchBlock(mB4, Rett.B, "round32")}
             </div>
           </div>

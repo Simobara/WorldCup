@@ -371,95 +371,105 @@ export default function AdminSeedStructurePage() {
     })();
   }, []);
   //-----------------------------------------------------------------------------------
+
   return (
     <div
       className={`
         flex-1 min-h-[100svh] bg-slate-950 relative 
         overflow-x-hidden
         ${isGroupsMode ? "overflow-y-auto lg:overflow-y-hidden" : "overflow-y-auto"}
-        text-white p-4 md:p-6
+        text-white md:p-6 px-4
       `}
     >
-      {/* TOGGLE modalità */}
-      <div className="mt-3 mb-4 flex justify-center gap-3">
-        <button
-          type="button"
-          onClick={() => setMode("groups")}
-          className={`px-4 py-2 rounded-md text-sm md:text-base ${
-            isGroupsMode
-              ? "bg-pink-800 text-white"
-              : "bg-slate-800 text-white/70"
-          }`}
-        >
-          Gironi A–L
-        </button>
+      {/* HEADER STICKY: toggle + gruppi/fasi */}
+      <div
+        className="
+          sticky -top-2 z-40 bg-yellow-500
+          md:static md:bg-slate-950 py-6
+        "
+      >
+        {/* TOGGLE modalità */}
+        <div className="mt-3 mb-4 flex justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setMode("groups")}
+            className={`px-4 py-2 rounded-md text-sm md:text-base ${
+              isGroupsMode
+                ? "bg-pink-800 text-white"
+                : "bg-slate-800 text-white/70"
+            }`}
+          >
+            Gironi A–L
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setMode("finals")}
-          className={`px-4 py-2 rounded-md text-sm md:text-base ${
-            !isGroupsMode
-              ? "bg-pink-800 text-white"
-              : "bg-slate-800 text-white/70"
-          }`}
-        >
-          Fase Finale
-        </button>
+          <button
+            type="button"
+            onClick={() => setMode("finals")}
+            className={`px-4 py-2 rounded-md text-sm md:text-base ${
+              !isGroupsMode
+                ? "bg-pink-800 text-white"
+                : "bg-slate-800 text-white/70"
+            }`}
+          >
+            Fase Finale
+          </button>
+        </div>
+
+        {/* LETTERE A–L oppure Fasi Finali */}
+        {isGroupsMode ? (
+          <div className="flex justify-center flex-wrap gap-2 mb-10 md:mb-12">
+            {Array.from("ABCDEFGHIJKL").map((letter) => {
+              const isActive = letter === activeGroup;
+              return (
+                <button
+                  key={letter}
+                  type="button"
+                  onClick={() => setActiveGroup(letter)}
+                  className={`
+                    px-5 py-2 rounded-md 
+                    text-base md:text-xl font-md
+                    ${
+                      isActive
+                        ? "bg-pink-800 border-pink-800 text-white"
+                        : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
+                    }
+                  `}
+                >
+                  {letter}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex justify-center flex-wrap gap-2 mb-10 md:mb-0">
+            {FINAL_PHASES.map((phase) => {
+              const isActive = phase.key === activeFinalKey;
+              return (
+                <button
+                  key={phase.key}
+                  type="button"
+                  onClick={() => setActiveFinalKey(phase.key)}
+                  className={`
+                    px-3 py-1 md:px-4 md:py-2
+                    rounded-md 
+                    text-xs md:text-lg font-md
+                    ${
+                      isActive
+                        ? "bg-pink-800 border-pink-800 text-white"
+                        : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
+                    }
+                  `}
+                >
+                  {phase.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* LETTERE A–L oppure Fasi Finali */}
-      {isGroupsMode ? (
-        <div className="!mb-12 flex justify-center flex-wrap gap-2">
-          {Array.from("ABCDEFGHIJKL").map((letter) => {
-            const isActive = letter === activeGroup;
-            return (
-              <button
-                key={letter}
-                type="button"
-                onClick={() => setActiveGroup(letter)}
-                className={`
-                  px-5 py-2 rounded-md 
-                  text-base md:text-xl font-md
-                  ${
-                    isActive
-                      ? "bg-pink-800 border-pink-800 text-white"
-                      : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
-                  }
-                `}
-              >
-                {letter}
-              </button>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="mb-6 flex justify-center flex-wrap gap-2">
-          {FINAL_PHASES.map((phase) => {
-            const isActive = phase.key === activeFinalKey;
-            return (
-              <button
-                key={phase.key}
-                type="button"
-                onClick={() => setActiveFinalKey(phase.key)}
-                className={`
-                  px-4 py-2 rounded-md 
-                  text-sm md:text-lg font-md
-                  ${
-                    isActive
-                      ? "bg-pink-800 border-pink-800 text-white"
-                      : "bg-slate-800 border-white/20 text-white/80 hover:bg-slate-700 hover:text-white"
-                  }
-                `}
-              >
-                {phase.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="mb-3 ">
-        <h1 className="text-lg md:text-xl font-semibold  md:mt-0 !mt-6 text-center justify-center">
+      <div className="md:mb-3 mb-0">
+        <h1 className="text-lg md:text-xl font-semibold  md:mt-0 !mt-0 md:ml-6 items-start justify-start">
           Admin Mode - Seed Structure (
           {isGroupsMode ? `group ${activeGroup}` : `fase ${activeFinalKey}`})
         </h1>
@@ -468,7 +478,7 @@ export default function AdminSeedStructurePage() {
           <button
             type="button"
             onClick={() => navigate("/admin/run-seed")}
-            className="rounded-md bg-emerald- 600 hover:bg-emerald- 500 px-4 py-0 text-xs md:text-sm"
+            className="rounded-md bg-emerald- 600 bg-gray-600  hover:bg-emerald-500 md:ml-4 ml-0 md:p-4 md:mr-4 mr-0 text-xss md:text-sm"
           >
             ❕
           </button>
