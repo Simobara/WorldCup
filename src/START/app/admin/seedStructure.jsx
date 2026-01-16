@@ -1062,14 +1062,14 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
             {giornata.matches.map((match, idx) => (
               <div
                 key={idx}
-                className="flex flex-col gap-1 p-1 border border-white/10 rounded bg-slate-950/70"
+                className="flex flex-col gap-1 py-1 border border-white/10 rounded bg-slate-950/70"
               >
                 {/* day + city + time */}
-                <div className="flex items-center gap-3 w-full">
+                <div className="flex items-center gap-[1.05rem] w-full">
                   <Field
                     label="day"
                     labelMobile=""
-                    widthMobile="70px"
+                    widthMobile="67px"
                     widthDesktop="90px"
                     className="!bg-pink-900 !px-2"
                     value={giornata.dates[0] || ""}
@@ -1078,7 +1078,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                   <Field
                     label="city"
                     labelMobile="city"
-                    widthMobile="185px"
+                    widthMobile="180px"
                     widthDesktop="180px"
                     value={match.city}
                     onChange={(v) =>
@@ -1092,7 +1092,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                     }
                   />
                 </div>
-                <div className="flex items-center gap-0 mt-1 md:ml-0 ml-0">
+                <div className="flex items-center gap-[0.05rem] mt-1 md:ml-0">
                   <Field
                     label="time"
                     labelMobile="time"
@@ -1150,7 +1150,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* pron / ris / results + reset */}
-                <div className="flex w-full items-center gap-3 mt-1">
+                <div className="flex w-full items-center gap-[0.80rem] mt-1">
                   <Field
                     label="pron"
                     labelMobile="pron"
@@ -1265,7 +1265,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 className="flex flex-col gap-2 p-0 border border-white/10 rounded bg-slate-950/70"
               >
                 {/* day + city + time */}
-                <div className="flex items-center gap-0 w-full">
+                <div className="flex items-center gap-2 w-full">
                   <Field
                     label="day"
                     labelMobile=""
@@ -1311,7 +1311,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* pos1 / pos2 / goto / fg */}
-                <div className="flex w-full flex-wrap gap-[0.1rem] mt-0 !px-0">
+                <div className="flex w-full flex-wrap gap-[0.25rem] mt-0 !px-0">
                   <Field
                     label="pos1"
                     labelMobile="pos1"
@@ -1374,7 +1374,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* T1, T2 */}
-                <div className="flex items-center gap-0">
+                <div className="flex items-center gap-[0.15rem] md:ml-0 ml-0">
                   <Field
                     label="pronsq"
                     labelMobile="pSq"
@@ -1429,7 +1429,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* RES / TS / R + reset */}
-                <div className="flex items-center gap-0">
+                <div className="flex items-center gap-[0.1rem]">
                   <Field
                     label="RES"
                     labelMobile="RES"
@@ -1675,7 +1675,7 @@ function Field({
         : widthDesktop;
 
   return (
-    <div className="flex items-center gap-1 text-base md:text-xl">
+    <div className="flex items-center gap-0 text-base md:text-xl">
       {/* LABEL DESKTOP */}
       <span className="hidden md:inline text-white/70">{label}:</span>
 
