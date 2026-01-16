@@ -438,7 +438,7 @@ export default function AdminSeedStructure() {
       {/* HEADER SOTTO */}
       <div className="md:mb-3 mb-0">
         <h1 className="text-lg md:text-xl font-semibold md:mt-0 !mt-0 md:ml-2 items-start justify-start">
-          Admin Mode - Seed Structure (
+          AdminMode - SeedData (
           {isGroupsMode ? `group ${activeGroup}` : `fase ${activeFinalKey}`})
         </h1>
 
