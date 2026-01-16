@@ -111,9 +111,9 @@ export default function AdminSeedStructure() {
   const FINAL_PHASES = [
     { key: "round32", label: "R32" },
     { key: "round16", label: "R16" },
-    { key: "quarterFinals", label: "QUART" },
-    { key: "semifinals", label: "SEMIF" },
-    { key: "final34", label: "3 / 4" },
+    { key: "quarterFinals", label: "QUARTER" },
+    { key: "semifinals", label: "SEMIFINALS" },
+    { key: "final34", label: "3 / 4 PLACE" },
     { key: "final", label: "FINAL" },
   ];
   const [activeFinalKey, setActiveFinalKey] = useState("round32");
