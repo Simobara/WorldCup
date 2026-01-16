@@ -603,14 +603,14 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* TEAM1 + TEAM2 */}
-                <div className="flex w-full md:w-auto md:ml-6 ml-2">
+                <div className="flex w-full md:w-auto md:ml-8 ml-2">
                   <div className="flex-1 px-1 py-1 rounded">
                     <Field
                       label="team1"
                       labelMobile="T1"
                       widthMobile="80px"
                       widthDesktop="120px"
-                      className="!bg-sky-900 ml-2"
+                      className="!bg-sky-900 ml-0"
                       value={match.team1}
                       onChange={(v) =>
                         handleMatchChange(
@@ -646,7 +646,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
 
                 {/* pron / ris / results + reset */}
                 <div className="flex items-center gap-4">
-                  <div className="flex flex-wrap w-full md:w-auto md:ml-6 ml-0 md:gap-2 gap-0">
+                  <div className="flex flex-wrap w-full md:w-auto md:ml-8 ml-0 md:gap-2 gap-0">
                     <Field
                       label="pron"
                       labelMobile="pr"
@@ -806,7 +806,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                     widthMobile="60px"
                     widthDesktop="80px"
                     value={match.time}
-                    className="!px-1"
+                    className="!px-2"
                     onChange={(v) =>
                       handleMatchChange(
                         giornataKey,
@@ -839,14 +839,14 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* TEAM1 + TEAM2 */}
-                <div className="flex w-full md:w-auto md:ml-0 ml-2">
+                <div className="flex w-full md:w-auto md:ml-4 ml-2">
                   <div className="flex-1 px-1 py-1 rounded">
                     <Field
                       label="T1"
                       labelMobile="T1"
                       widthMobile="80px"
                       widthDesktop="120px"
-                      className="!bg-sky-900 ml-2"
+                      className="!bg-sky-900"
                       value={match.team1}
                       onChange={(v) =>
                         handleMatchChange(
@@ -881,7 +881,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* RES / TS / R + reset */}
-                <div className="flex items-center md:gap-1 gap-0">
+                <div className="flex items-center md:ml-4 ml-0 md:gap-1 gap-0">
                   <Field
                     label="RES"
                     labelMobile="RES"
