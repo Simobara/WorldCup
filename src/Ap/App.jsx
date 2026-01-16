@@ -25,8 +25,8 @@ import TablePage from "../Body/3TablePageX";
 import { EditModeProvider } from "../Providers/EditModeProvider";
 import { AuthProvider } from "../Services/supabase/AuthProvider";
 
+import SeedStructure from "../START/app/admin/SeedStructure";
 import SeedMatchStructure from "../START/app/admin/resetSeed";
-import AdminSeedStructurePage from "../START/app/admin/seedStructure";
 
 function AppRoutes() {
   const [isLogged, setIsLogged] = useState(false);
@@ -54,7 +54,7 @@ function AppRoutes() {
       <Route path="/tablePage" element={<TablePage />} /> 
              {/* ADMIN */}
          {/* 👇 Editor struttura: QUI vedi la pagina che hai incollato */}
-      <Route path="/admin/seed-structure" element={<AdminSeedStructurePage />} />
+      <Route path="/admin/seed-structure" element={<SeedStructure />} />
       {/* 👇 Pagina che fa effettivamente il seed su Supabase */}
       <Route path="/admin/run-seed" element={<SeedMatchStructure />} />
 
