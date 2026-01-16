@@ -1265,7 +1265,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 className="flex flex-col gap-2 p-0 border border-white/10 rounded bg-slate-950/70"
               >
                 {/* day + city + time */}
-                <div className="flex items-center gap-1 w-full">
+                <div className="flex items-center gap-0 w-full">
                   <Field
                     label="day"
                     labelMobile=""
