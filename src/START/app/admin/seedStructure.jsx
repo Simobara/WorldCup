@@ -1311,7 +1311,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* pos1 / pos2 / goto / fg */}
-                <div className="flex w-full flex-wrap gap-0 mt-0 !px-0">
+                <div className="flex w-full flex-wrap gap-[0.2rem] mt-0 !px-0">
                   <Field
                     label="pos1"
                     labelMobile="pos1"
