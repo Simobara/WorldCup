@@ -1271,7 +1271,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                     labelMobile=""
                     widthMobile="90px"
                     widthDesktop="90px"
-                    className="!bg-pink-900 !px-1"
+                    className="!bg-pink-900"
                     value={giornata.dates[0] || ""}
                     onChange={(v) => handleDateChange(giornataKey, 0, v)}
                   />
