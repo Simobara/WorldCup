@@ -109,10 +109,10 @@ export default function AdminSeedStructurePage() {
 
   // fasi finali
   const FINAL_PHASES = [
-    { key: "round32", label: "R32" },
-    { key: "round16", label: "R16" },
-    { key: "quarterFinals", label: "QF" },
-    { key: "semifinals", label: "SF" },
+    { key: "round32", label: "ROUND 32" },
+    { key: "round16", label: "ROUND 16" },
+    { key: "quarterFinals", label: "QUARTER FINAL" },
+    { key: "semifinals", label: "SEMI FINAL" },
     { key: "final34", label: "3 / 4" },
     { key: "final", label: "FINAL" },
   ];
@@ -416,7 +416,7 @@ export default function AdminSeedStructurePage() {
                     type="button"
                     onClick={() => setActiveFinalKey(phase.key)}
                     className={`
-                      px-3 py-2
+                      px-1 py-2
                       rounded-md 
                       text-base md:text-xl font-md
                       ${
