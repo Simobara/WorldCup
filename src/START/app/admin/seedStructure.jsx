@@ -966,7 +966,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* pos1 / pos2 / goto / fg */}
-                <div className="flex flex-wrap w-full md:w-auto md:gap-1 gap-1 px-1 py-1 md:ml-[6.5rem] ml-0">
+                <div className="flex flex-wrap w-full md:w-auto md:gap-1 gap-0 px-1 py-1 md:ml-[6.5rem] ml-0">
                   <Field
                     label="pos1"
                     labelMobile="pos1"
