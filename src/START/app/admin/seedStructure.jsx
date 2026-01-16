@@ -109,10 +109,10 @@ export default function AdminSeedStructurePage() {
 
   // fasi finali
   const FINAL_PHASES = [
-    { key: "round32", label: "ROUND 32" },
-    { key: "round16", label: "ROUND 16" },
-    { key: "quarterFinals", label: "QUARTER FINAL" },
-    { key: "semifinals", label: "SEMI FINAL" },
+    { key: "round32", label: "32" },
+    { key: "round16", label: "16" },
+    { key: "quarterFinals", label: "QUARTER" },
+    { key: "semifinals", label: "SEMIFINAL" },
     { key: "final34", label: "3 / 4" },
     { key: "final", label: "FINAL" },
   ];
