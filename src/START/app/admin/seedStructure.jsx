@@ -1294,7 +1294,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                   <Field
                     label="time"
                     labelMobile="time"
-                    widthMobile="60px"
+                    widthMobile="55px"
                     widthDesktop="80px"
                     value={match.time}
                     className="!px-1"
