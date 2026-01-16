@@ -1374,7 +1374,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                 </div>
 
                 {/* T1, T2 */}
-                <div className="flex items-center gap-[0.15rem] md:ml-0 ml-0">
+                <div className="flex items-center gap-[0.10rem] md:ml-0 ml-0">
                   <Field
                     label="pronsq"
                     labelMobile="pSq"
