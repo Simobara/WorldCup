@@ -91,7 +91,7 @@ async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
   }
 }
 
-export default function AdminSeedStructurePage() {
+export default function AdminSeedStructure() {
   // Copia modificabile dei gironi A–L
   const [dataGroups, setDataGroups] = useState(() =>
     structuredClone(groupMatches)
