@@ -14,7 +14,7 @@ const fieldToDbColumn = {
   pron: "seed_pron",
   ris: "seed_ris",
   results: "results_official",
-  // numero e time non stanno in wc_match_structure
+  // numero e time non stanno in wc_matches_structure
 };
 // quali campi dell'editor FINAL corrispondono a quali colonne nel DB wc_final_structure
 const finalFieldToDbColumn = {
@@ -40,7 +40,7 @@ async function updateFinalMatchFieldInDb(
   phaseKey,
   matchIndex, // <-- ora passo direttamente il match_index del DB
   field,
-  value
+  value,
 ) {
   const column = finalFieldToDbColumn[field];
   if (!column) return;
@@ -60,7 +60,7 @@ async function updateFinalMatchFieldInDb(
   } else {
     console.log(
       `✅ FINAL: aggiornato ${column} per phase=${phaseKey}, match_index=${matchIndex} →`,
-      value
+      value,
     );
   }
 }
@@ -76,7 +76,7 @@ async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
   };
 
   const { error } = await supabase
-    .from("wc_match_structure")
+    .from("wc_matches_structure")
     .update(payload)
     .eq("group_letter", groupLetter)
     .eq("match_index", matchIndex);
@@ -86,7 +86,7 @@ async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
   } else {
     console.log(
       `✅ Aggiornato ${column} per gruppo ${groupLetter}, match_index=${matchIndex} →`,
-      value
+      value,
     );
   }
 }
@@ -94,11 +94,11 @@ async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
 export default function AdminSeedStructure() {
   // Copia modificabile dei gironi A–L
   const [dataGroups, setDataGroups] = useState(() =>
-    structuredClone(groupMatches)
+    structuredClone(groupMatches),
   );
   // Copia modificabile della fase finale
   const [dataFinals, setDataFinals] = useState(() =>
-    structuredClone(groupFinal)
+    structuredClone(groupFinal),
   );
 
   // modalità: gironi A–L o fase finale
@@ -167,7 +167,7 @@ export default function AdminSeedStructure() {
         activeFinalKey,
         firstMatch.numero,
         "day",
-        value
+        value,
       );
     }
   };
@@ -177,7 +177,7 @@ export default function AdminSeedStructure() {
     matchIndexLocal,
     field,
     value,
-    numero
+    numero,
   ) => {
     // 1️⃣ aggiorno lo state (UI reattiva)
     updateData((prev) => {
@@ -233,7 +233,7 @@ export default function AdminSeedStructure() {
           activeFinalKey,
           globalIndex,
           field,
-          value
+          value,
         );
       }
     }
@@ -245,9 +245,9 @@ export default function AdminSeedStructure() {
       // 1️⃣ CARICO GIRONI A–L
       //
       const { data: rows, error } = await supabase
-        .from("wc_match_structure")
+        .from("wc_matches_structure")
         .select(
-          "group_letter, match_index, city, team1, team2, seed_pron, seed_ris, results_official"
+          "group_letter, match_index, city, team1, team2, seed_pron, seed_ris, results_official",
         );
 
       if (error) {
@@ -287,7 +287,7 @@ export default function AdminSeedStructure() {
       // 2️⃣ CARICO FASE FINALE
       //
       const { data: finalRows, error: finalError } = await supabase.from(
-        "wc_final_structure"
+        "wc_final_structure",
       ).select(`
         phase_key,
         match_index,
@@ -309,7 +309,7 @@ export default function AdminSeedStructure() {
       if (finalError) {
         console.error(
           "Errore caricando struttura FINALI da Supabase:",
-          finalError
+          finalError,
         );
         return;
       }

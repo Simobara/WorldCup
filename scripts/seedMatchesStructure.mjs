@@ -55,7 +55,7 @@ async function runSeed() {
     console.log(`Trovate ${payload.length} partite, invio a Supabase…`);
 
     const { data, error } = await supabase
-      .from("wc_match_structure")
+      .from("wc_matches_structure")
       .upsert(payload, {
         onConflict: "group_letter,match_index",
       })

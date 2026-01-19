@@ -65,7 +65,7 @@ async function runSeed() {
     console.log("📤 [seedWcMatchStructure] Invio a Supabase...");
 
     const { data, error } = await supabase
-      .from("wc_match_structure")
+      .from("wc_matches_structure")
       .upsert(payload, {
         onConflict: "group_letter,match_index",
       })
@@ -79,7 +79,7 @@ async function runSeed() {
     console.log(
       `✅ [seedWcMatchStructure] Seed completato: ${
         data?.length ?? 0
-      } righe inserite/aggiornate in wc_match_structure.`
+      } righe inserite/aggiornate in wc_matches_structure.`
     );
     process.exit(0);
   } catch (err) {

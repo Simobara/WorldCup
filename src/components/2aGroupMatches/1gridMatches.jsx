@@ -60,7 +60,7 @@ export default function GridMatchesPage({ isLogged }) {
   );
 
   const STORAGE_KEY = "gridMatches_showPronostics";
-  // ✅ struttura “flat” che arriva da Supabase (wc_match_structure)
+  // ✅ struttura “flat” che arriva da Supabase (wc_matches_structure)
   const [structureByGroup, setStructureByGroup] = useState(null);
   const [structureLoading, setStructureLoading] = useState(true);
   const [rankRefreshKey, setRankRefreshKey] = useState(0);
@@ -165,7 +165,7 @@ export default function GridMatchesPage({ isLogged }) {
       keysTouched: keysTouchedMatches.current,
     });
 
-        // ---------- RISULTATI ADMIN → wc_match_structure ----------
+        // ---------- RISULTATI ADMIN → wc_matches_structure ----------
     if (isAdminUser && keysTouchedMatches.current.size) {
       try {
         await saveAdminSeedsToDb({

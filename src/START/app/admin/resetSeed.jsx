@@ -11,7 +11,7 @@ export default function RunSeedPage() {
 
   const navigate = useNavigate(); // 👈 HOOK PER TORNARE INDIETRO
 
-  // 🔵 SEED GIRONI A–L → wc_match_structure
+  // 🔵 SEED GIRONI A–L → wc_matches_structure
   async function seedGroups() {
     try {
       setLoading(true);
@@ -50,7 +50,7 @@ export default function RunSeedPage() {
       }
 
       const { error } = await supabase
-        .from("wc_match_structure")
+        .from("wc_matches_structure")
         .upsert(payload, {
           onConflict: "group_letter,match_index",
         });
@@ -62,7 +62,7 @@ export default function RunSeedPage() {
       }
 
       setStatus(
-        `✅ Seed GIRONI completato: ${payload.length} partite inserite/aggiornate in wc_match_structure.`
+        `✅ Seed GIRONI completato: ${payload.length} partite inserite/aggiornate in wc_matches_structure.`,
       );
     } catch (err) {
       console.error("❌ Errore inatteso seed GIRONI:", err);
@@ -114,7 +114,7 @@ export default function RunSeedPage() {
 
       if (rowsToInsert.length === 0) {
         setStatus(
-          "⚠️ Nessuna partita trovata nella fase finale (payload vuoto)."
+          "⚠️ Nessuna partita trovata nella fase finale (payload vuoto).",
         );
         return;
       }
@@ -132,7 +132,7 @@ export default function RunSeedPage() {
       }
 
       setStatus(
-        `✅ Seed FASE FINALE completato: ${rowsToInsert.length} partite inserite/aggiornate in wc_final_structure.`
+        `✅ Seed FASE FINALE completato: ${rowsToInsert.length} partite inserite/aggiornate in wc_final_structure.`,
       );
     } catch (err) {
       console.error("❌ Errore inatteso seed FINALI:", err);
@@ -160,7 +160,7 @@ export default function RunSeedPage() {
       <p className="text-sm mb-4">
         Da qui puoi aggiornare i dati hardcoded nei seed (
         <code>groupMatches</code> e <code>groupFinal</code>) sulle tabelle{" "}
-        <code>wc_match_structure</code> (gironi) e{" "}
+        <code>wc_matches_structure</code> (gironi) e{" "}
         <code>wc_final_structure</code> (fase finale).
       </p>
 

@@ -18,9 +18,49 @@ function mapRowToFlatMatch(row) {
     results: (row.results_official ?? row.results ?? "").trim(),
   };
 }
+// 🔁 Logica comune: dai valori locali (a,b,pronNorm,editedFlag) → ris & pron coerenti
+function computeRisAndPronFromState({
+  existingRis,
+  existingPron,
+  a,
+  b,
+  pronNorm,
+  editedFlag,
+}) {
+  let ris = existingRis ?? null;
+  let pron = existingPron ?? null;
+
+  const sa = String(a ?? "").trim();
+  const sb = String(b ?? "").trim();
+  const hasGoals = sa !== "" && sb !== "";
+
+  if (hasGoals) {
+    // ✅ risultato pronosticato → comanda anche il segno
+    ris = `${sa}-${sb}`;
+
+    const na = Number(sa);
+    const nb = Number(sb);
+
+    if (Number.isFinite(na) && Number.isFinite(nb)) {
+      if (na > nb) pron = "1";
+      else if (na < nb) pron = "2";
+      else pron = "X";
+    }
+  } else if (editedFlag) {
+    // 🧹 reset completo (Del / rotellina)
+    ris = null;
+    pron = null;
+  } else if (pronNorm === "1" || pronNorm === "X" || pronNorm === "2") {
+    // ✏️ solo segno 1/X/2 (nessun risultato)
+    pron = pronNorm;
+    // ris resta ciò che era (o null) a seconda di existingRis
+  }
+
+  return { ris, pron };
+}
 
 /**
- * Legge la tabella wc_match_structure da Supabase e
+ * Legge la tabella wc_matches_structure da Supabase e
  * restituisce un oggetto del tipo:
  *
  * {
@@ -31,13 +71,13 @@ function mapRowToFlatMatch(row) {
  */
 export async function loadMatchStructureFromDb() {
   const { data, error } = await supabase
-    .from("wc_match_structure")
+    .from("wc_matches_structure")
     .select("*")
     .order("group_letter", { ascending: true })
     .order("match_index", { ascending: true });
 
   if (error) {
-    console.error("Errore caricando wc_match_structure:", error);
+    console.error("Errore caricando wc_matches_structure:", error);
     throw error;
   }
 
@@ -58,7 +98,7 @@ export async function loadMatchStructureFromDb() {
 }
 
 /**
- * Salva i risultati inseriti dall'ADMIN in wc_match_structure.seed_ris
+ * Salva i risultati inseriti dall'ADMIN in wc_matches_structure.seed_ris
  * usando plusRis (a/b) per i gruppi/modifiche toccati.
  *
  * ✅ NON cancella più i seed non modificati
@@ -84,9 +124,9 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
     keysTouched: letters,
   });
 
-  // 1️⃣ leggo i seed_ris attuali dal DB
+  // 1️⃣ leggo i seed attuali dal DB
   const { data: existingRows, error: readError } = await supabase
-    .from("wc_match_structure")
+    .from("wc_matches_structure")
     .select("group_letter, match_index, seed_ris, seed_pron")
     .in("group_letter", letters)
     .order("group_letter", { ascending: true })
@@ -110,6 +150,7 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
       seed_pron: row.seed_pron,
     };
   }
+
   // 2️⃣ costruisco il payload
   const payload = [];
 
@@ -138,12 +179,10 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
       const a = String(risObj?.a ?? "").trim();
       const b = String(risObj?.b ?? "").trim();
 
-      // è stata toccata la riga (anche solo per cancellare)?
       const editedFlag = Array.isArray(plusRisEdited)
         ? !!plusRisEdited[idx]
         : !!(plusRisEdited[idx] ?? plusRisEdited[String(idx)] ?? false);
 
-      // pronostico 1 / X / 2 per questo match (dal state UI)
       const pronRaw = Array.isArray(plusPron)
         ? plusPron[idx]
         : (plusPron[idx] ?? plusPron[String(idx)] ?? "");
@@ -151,38 +190,28 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
         .trim()
         .toUpperCase();
 
-      // seed attuali letti dal DB (li teniamo se la riga non è stata toccata)
       const existingSeedRis =
         currentSeeds?.[letter]?.[idx]?.seed_ris != null
           ? String(currentSeeds[letter][idx].seed_ris).trim()
           : null;
+
       const existingSeedPron =
         currentSeeds?.[letter]?.[idx]?.seed_pron != null
           ? String(currentSeeds[letter][idx].seed_pron).trim().toUpperCase()
           : null;
 
-      let seed_ris = existingSeedRis;
-      let seed_pron = existingSeedPron;
-
-      // ---- RISULTATO (seed_ris) ----
-      if (a !== "" && b !== "") {
-        // ✏️ admin ha scritto un nuovo risultato
-        seed_ris = `${a}-${b}`;
-      } else if (editedFlag) {
-        // 🧹 admin ha usato la rotellina / reset → cancella dal DB
-        seed_ris = null;
-      }
-      // else: non toccata → lascia existingSeedRis
-
-      // ---- PRONOSTICO (seed_pron) ----
-      if (pronNorm === "1" || pronNorm === "X" || pronNorm === "2") {
-        // ✏️ admin ha impostato un nuovo segno 1/X/2
-        seed_pron = pronNorm;
-      } else if (editedFlag) {
-        // 🧹 se la riga è stata resettata (Del / rotellina), azzero anche il segno
-        seed_pron = null;
-      }
-      // else: non toccata e nessun nuovo segno → lascia existingSeedPron
+      // 🔥 qui applichiamo la regola:
+      // - se c'è risultato pronosticato (a/b) → decide anche il segno
+      // - se non c'è risultato ma c'è 1/X/2 → salva solo il segno
+      // - se reset (editedFlag true, nessun gol) → azzera entrambi
+      const { ris: seed_ris, pron: seed_pron } = computeRisAndPronFromState({
+        existingRis: existingSeedRis,
+        existingPron: existingSeedPron,
+        a,
+        b,
+        pronNorm,
+        editedFlag,
+      });
 
       payload.push({
         user_email: userEmail,
@@ -206,7 +235,7 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
 
   try {
     const { data, error } = await supabase
-      .from("wc_match_structure")
+      .from("wc_matches_structure")
       .upsert(payload, {
         onConflict: "group_letter,match_index",
       });
@@ -218,5 +247,148 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
     }
   } catch (err) {
     console.error("saveAdminSeedsToDb EXCEPTION:", err);
+  }
+}
+
+/**
+ * Pronostici UTENTE NORMALE
+ * Tabella: wc_matches_structure_userpron
+ *
+ * Regola:
+ * - se l'utente mette un risultato (a-b) → calcolo anche il segno 1/X/2
+ * - se mette solo 1/X/2 → salvo solo il segno
+ * - se reset (editedFlag, senza gol) → azzero tutti i campi
+ *
+ * 🔴 ATTENZIONE:
+ *  - qui assumo colonne: ris_user, pron_user, user_email
+ *    se i nomi sono diversi, cambia SOLO qui.
+ */
+export async function saveUserPronosticsToDb({
+  userEmail,
+  matches,
+  keysTouched,
+}) {
+  if (!userEmail || !matches) return;
+
+  const letters = keysTouched?.size
+    ? Array.from(keysTouched)
+    : Object.keys(matches ?? {});
+
+  if (!letters.length) return;
+
+  // 1️⃣ leggo pronostici esistenti dell'utente
+  const { data: existingRows, error: readError } = await supabase
+    .from("wc_matches_structure_userpron")
+    .select("user_email, group_letter, match_index, user_ris, user_pron")
+    .eq("user_email", userEmail)
+    .in("group_letter", letters)
+    .order("group_letter", { ascending: true })
+    .order("match_index", { ascending: true });
+
+  if (readError) {
+    console.error(
+      "[saveUserPronosticsToDb] errore leggendo pronostici utente:",
+      readError,
+    );
+    return;
+  }
+
+  const current = {};
+  for (const row of existingRows ?? []) {
+    const letter = row.group_letter;
+    const idx = row.match_index;
+    if (!current[letter]) current[letter] = {};
+    current[letter][idx] = {
+      user_ris: row.user_ris,
+      user_pron: row.user_pron,
+    };
+  }
+
+  const payload = [];
+
+  for (const letter of letters) {
+    const groupData = matches[letter] || {};
+
+    const groupKey = `group_${letter}`;
+    const struct = groupMatches?.[groupKey] ?? null;
+    if (!struct) continue;
+
+    const matchesFlat = Object.values(struct)
+      .filter((v) => v?.matches)
+      .flatMap((g) => g.matches ?? []);
+
+    const maxLen = matchesFlat.length;
+
+    const plusRis = groupData.plusRis ?? {};
+    const plusPron = groupData.plusPron ?? {};
+    const plusRisEdited = groupData.plusRisEdited ?? {};
+
+    for (let idx = 0; idx < maxLen; idx++) {
+      const risObj = Array.isArray(plusRis)
+        ? plusRis[idx]
+        : (plusRis[idx] ?? plusRis[String(idx)] ?? {});
+
+      const a = String(risObj?.a ?? "").trim();
+      const b = String(risObj?.b ?? "").trim();
+
+      const editedFlag = Array.isArray(plusRisEdited)
+        ? !!plusRisEdited[idx]
+        : !!(plusRisEdited[idx] ?? plusRisEdited[String(idx)] ?? false);
+
+      const pronRaw = Array.isArray(plusPron)
+        ? plusPron[idx]
+        : (plusPron[idx] ?? plusPron[String(idx)] ?? "");
+      const pronNorm = String(pronRaw ?? "")
+        .trim()
+        .toUpperCase();
+
+      const existingRis =
+        current?.[letter]?.[idx]?.user_ris != null
+          ? String(current[letter][idx].user_ris).trim()
+          : null;
+
+      const existingPron =
+        current?.[letter]?.[idx]?.user_pron != null
+          ? String(current[letter][idx].user_pron).trim().toUpperCase()
+          : null;
+
+      const { ris, pron } = computeRisAndPronFromState({
+        existingRis,
+        existingPron,
+        a,
+        b,
+        pronNorm,
+        editedFlag,
+      });
+
+      payload.push({
+        user_email: userEmail,
+        group_letter: letter,
+        match_index: idx,
+        user_ris: ris,
+        user_pron: pron,
+      });
+    }
+  }
+
+  if (!payload.length) {
+    console.warn("[saveUserPronosticsToDb] payload empty, nothing to upsert");
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("wc_matches_structure_userpron")
+      .upsert(payload, {
+        onConflict: "user_email,group_letter,match_index",
+      });
+
+    console.log("[saveUserPronosticsToDb] upsert result", { data, error });
+
+    if (error) {
+      console.error("saveUserPronosticsToDb ERROR:", error);
+    }
+  } catch (err) {
+    console.error("saveUserPronosticsToDb EXCEPTION:", err);
   }
 }

@@ -5,6 +5,7 @@ import {
 } from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
 import { supabase } from "../supabase/supabaseClient";
+import { saveUserPronosticsToDb } from "./repoMatchStructure";
 
 // clone safe
 function clone(x) {
@@ -246,7 +247,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       const merged = clone(base);
 
       // ⛔️ ADMIN: NON deve leggere i pronostici da wc_matches_structure_userpron
-      // L'admin gestisce solo la struttura globale su wc_match_structure (pagina AdminSeed).
+      // L'admin gestisce solo la struttura globale su wc_matches_structure (pagina AdminSeed).
       if (isAdmin) {
         if (cacheKey) {
           MEMORY_CACHE_BY_USER.set(cacheKey, merged);
@@ -338,7 +339,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       if (!keysTouched?.size) return;
 
       // ⛔️ ADMIN: NON deve salvare i pronostici in wc_matches_structure_userpron
-      // L'admin modifica solo wc_match_structure tramite la pagina AdminSeed.
+      // L'admin modifica solo wc_matches_structure tramite la pagina AdminSeed.
       if (isAdmin) {
         return;
       }
@@ -381,82 +382,15 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         // ignore
       }
 
-      // costruiamo le righe per wc_matches_structure_userpron
-      const payload = [];
-
-      for (const letter of Array.from(keysTouched)) {
-        const groupData = matches?.[letter];
-        if (!groupData) continue;
-
-        // recupero la struttura di base per questo gruppo dal file
-        const groupKey = `group_${letter}`;
-        const struct = groupMatches?.[groupKey] ?? null;
-        if (!struct) continue;
-
-        const matchesFlat = Object.values(struct)
-          .filter((v) => v?.matches)
-          .flatMap((g) => g.matches ?? []);
-
-        const plusRisArr = Array.isArray(groupData.plusRis)
-          ? groupData.plusRis
-          : [];
-        const plusPronArr = Array.isArray(groupData.plusPron)
-          ? groupData.plusPron
-          : [];
-
-        const maxLen = Math.max(
-          matchesFlat.length,
-          plusRisArr.length,
-          plusPronArr.length,
-        );
-
-        for (let idx = 0; idx < maxLen; idx++) {
-          const baseMatch = matchesFlat[idx] ?? {};
-          const ris = plusRisArr[idx] ?? { a: "", b: "" };
-
-          const a = String(ris?.a ?? "").trim();
-          const b = String(ris?.b ?? "").trim();
-
-          const user_pron = String(plusPronArr[idx] ?? "")
-            .trim()
-            .toUpperCase();
-
-          // 🔄 nuovo formato:
-          //    - se a e b pieni → "a-b"
-          //    - se vuoti → null (Supabase = EMPTY)
-          let user_ris = null;
-          if (a !== "" && b !== "") {
-            user_ris = `${a}-${b}`;
-          }
-
-          // salvo sempre una riga, anche se vuota (così ho 0..5 in tabella)
-          payload.push({
-            user_id: userId,
-            user_email: userEmail,
-            group_letter: letter,
-            match_index: idx,
-            team1: baseMatch.team1 ?? "",
-            team2: baseMatch.team2 ?? "",
-            user_pron: user_pron || null,
-            user_ris,
-          });
-        }
-      }
-
-      if (!payload.length) return;
-
-      const { error } = await supabase
-        .from("wc_matches_structure_userpron")
-        .upsert(payload, {
-          onConflict: "user_email,group_letter,match_index",
-        });
-
-      if (error) {
-        console.error(
-          "MATCHES SAVE wc_matches_structure_userpron ERROR:",
-          error,
-        );
-      }
+      // 🔥 salvataggio pronostici utente con logica:
+      //    - risultato (a-b) → decide anche 1/X/2
+      //    - solo 1/X/2 → salva solo segno
+      //    - reset → azzera tutto
+      await saveUserPronosticsToDb({
+        userEmail,
+        matches,
+        keysTouched,
+      });
     },
   };
 }

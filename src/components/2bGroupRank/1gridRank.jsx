@@ -260,7 +260,7 @@ function computeBonusTableForGroup(
 
       // Sorgenti pronostico:
       // - utente normale → m.ris / m.pron (user_ris / user_pron)
-      // - admin         → SEMPRE seed_ris / seed_pron da wc_match_structure
+      // - admin         → SEMPRE seed_ris / seed_pron da wc_matches_structure
       const risSource = useSeeds ? m.seed_ris : m.ris;
       const pronSource = useSeeds ? m.seed_pron : m.pron;
 
@@ -533,14 +533,14 @@ export default function GridRankPage({
   useEffect(() => {
     const debugFetch = async () => {
       const { data, error } = await supabase
-        .from("wc_match_structure")
+        .from("wc_matches_structure")
         .select("*")
         .limit(50);
 
       // if (error) {
-      //   console.error("DEBUG wc_match_structure ERROR", error);
+      //   console.error("DEBUG wc_matches_structure ERROR", error);
       // } else {
-      //   console.log("DEBUG wc_match_structure DATA", data);
+      //   console.log("DEBUG wc_matches_structure DATA", data);
       // }
     };
 
@@ -594,7 +594,7 @@ export default function GridRankPage({
 
   // console.log("🔵 DEBUG LOGIN:", { isLogged, userEmail });
   // 🔹 CARICAMENTO MATCH DA SUPABASE QUANDO LOGGATO
-  //    - struttura da wc_match_structure
+  //    - struttura da wc_matches_structure
   //    - pronostici reali da ws_matches_structure_userpron (campo data) per userEmail, gruppo B
 
   useEffect(() => {
@@ -612,17 +612,17 @@ export default function GridRankPage({
     let cancelled = false;
 
     // 🔹 CARICAMENTO MATCH DA SUPABASE QUANDO LOGGATO
-    //    - struttura da wc_match_structure
+    //    - struttura da wc_matches_structure
     //    - pronostici reali da wc_matches_structure_userpron per userEmail
 
     async function loadMatches() {
       // 1️⃣ struttura di tutte le partite
       const { data: structRows, error: structErr } = await supabase
-        .from("wc_match_structure")
+        .from("wc_matches_structure")
         .select("*");
 
       if (structErr) {
-        console.error("Supabase wc_match_structure error", structErr);
+        console.error("Supabase wc_matches_structure error", structErr);
         return;
       }
 

@@ -12,7 +12,7 @@ const fieldToDbColumn = {
   pron: "seed_pron",
   ris: "seed_ris",
   results: "results_official",
-  // numero e time non stanno in wc_match_structure
+  // numero e time non stanno in wc_matches_structure
 };
 
 // quali campi dell'editor FINAL corrispondono a quali colonne nel DB wc_final_structure
@@ -39,7 +39,7 @@ async function updateFinalMatchFieldInDb(
   phaseKey,
   matchIndex, // <-- ora passo direttamente il match_index del DB
   field,
-  value
+  value,
 ) {
   const column = finalFieldToDbColumn[field];
   if (!column) return;
@@ -59,7 +59,7 @@ async function updateFinalMatchFieldInDb(
   } else {
     console.log(
       `✅ FINAL: aggiornato ${column} per phase=${phaseKey}, match_index=${matchIndex} →`,
-      value
+      value,
     );
   }
 }
@@ -75,7 +75,7 @@ async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
   };
 
   const { error } = await supabase
-    .from("wc_match_structure")
+    .from("wc_matches_structure")
     .update(payload)
     .eq("group_letter", groupLetter)
     .eq("match_index", matchIndex);
@@ -85,7 +85,7 @@ async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
   } else {
     console.log(
       `✅ Aggiornato ${column} per gruppo ${groupLetter}, match_index=${matchIndex} →`,
-      value
+      value,
     );
   }
 }
@@ -93,11 +93,11 @@ async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
 export default function AdminSeedStructure() {
   // Copia modificabile dei gironi A–L
   const [dataGroups, setDataGroups] = useState(() =>
-    structuredClone(groupMatches)
+    structuredClone(groupMatches),
   );
   // Copia modificabile della fase finale
   const [dataFinals, setDataFinals] = useState(() =>
-    structuredClone(groupFinal)
+    structuredClone(groupFinal),
   );
 
   // modalità: gironi A–L o fase finale
@@ -162,7 +162,7 @@ export default function AdminSeedStructure() {
         activeFinalKey,
         firstMatch.numero,
         "day",
-        value
+        value,
       );
     }
   };
@@ -172,7 +172,7 @@ export default function AdminSeedStructure() {
     matchIndexLocal,
     field,
     value,
-    numero
+    numero,
   ) => {
     // 1) aggiorno lo state
     updateData((prev) => {
@@ -214,7 +214,7 @@ export default function AdminSeedStructure() {
           activeFinalKey,
           globalIndex,
           field,
-          value
+          value,
         );
       }
     }
@@ -226,9 +226,9 @@ export default function AdminSeedStructure() {
       // 1️⃣ CARICO GIRONI A–L
       //
       const { data: rows, error } = await supabase
-        .from("wc_match_structure")
+        .from("wc_matches_structure")
         .select(
-          "group_letter, match_index, city, team1, team2, seed_pron, seed_ris, results_official"
+          "group_letter, match_index, city, team1, team2, seed_pron, seed_ris, results_official",
         );
 
       if (error) {
@@ -267,7 +267,7 @@ export default function AdminSeedStructure() {
       // 2️⃣ CARICO FASE FINALE
       //
       const { data: finalRows, error: finalError } = await supabase.from(
-        "wc_final_structure"
+        "wc_final_structure",
       ).select(`
         phase_key,
         match_index,
@@ -289,7 +289,7 @@ export default function AdminSeedStructure() {
       if (finalError) {
         console.error(
           "Errore caricando struttura FINALI da Supabase:",
-          finalError
+          finalError,
         );
         return;
       }
@@ -578,7 +578,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "city",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -596,7 +596,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "time",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -618,7 +618,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                           idx,
                           "team1",
                           v,
-                          match.numero
+                          match.numero,
                         )
                       }
                     />
@@ -637,7 +637,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                           idx,
                           "team2",
                           v,
-                          match.numero
+                          match.numero,
                         )
                       }
                     />
@@ -661,7 +661,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                           idx,
                           "pron",
                           v,
-                          match.numero
+                          match.numero,
                         )
                       }
                     />
@@ -670,7 +670,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                       label="ris"
                       labelMobile="ris"
                       widthMobile="50px"
-                      widthDesktop="50px"
+                      widthDesktop="60px"
                       value={match.ris ?? ""}
                       onChange={(v) =>
                         handleMatchChange(
@@ -678,7 +678,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                           idx,
                           "ris",
                           v,
-                          match.numero
+                          match.numero,
                         )
                       }
                     />
@@ -696,7 +696,7 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                           idx,
                           "results",
                           v,
-                          match.numero
+                          match.numero,
                         )
                       }
                     />
@@ -710,14 +710,14 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "ris",
                         "",
-                        match.numero
+                        match.numero,
                       );
                       handleMatchChange(
                         giornataKey,
                         idx,
                         "results",
                         "",
-                        match.numero
+                        match.numero,
                       );
                     }}
                     className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
@@ -795,7 +795,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "city",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -813,7 +813,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "time",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -831,7 +831,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                           idx,
                           "pronsq",
                           v,
-                          match.numero
+                          match.numero,
                         )
                       }
                     />
@@ -854,7 +854,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                           idx,
                           "team1",
                           v,
-                          match.numero
+                          match.numero,
                         )
                       }
                     />
@@ -873,7 +873,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                           idx,
                           "team2",
                           v,
-                          match.numero
+                          match.numero,
                         )
                       }
                     />
@@ -895,7 +895,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results.RES",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -912,7 +912,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results.TS",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -929,7 +929,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results.R",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -942,21 +942,21 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results.RES",
                         "",
-                        match.numero
+                        match.numero,
                       );
                       handleMatchChange(
                         giornataKey,
                         idx,
                         "results.TS",
                         "",
-                        match.numero
+                        match.numero,
                       );
                       handleMatchChange(
                         giornataKey,
                         idx,
                         "results.R",
                         "",
-                        match.numero
+                        match.numero,
                       );
                     }}
                     className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
@@ -979,7 +979,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "pos1",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -995,7 +995,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "pos2",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1011,7 +1011,7 @@ function DesktopFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "goto",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1087,7 +1087,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "city",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1106,7 +1106,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "time",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1126,7 +1126,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "team1",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1143,7 +1143,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "team2",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1165,7 +1165,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "pron",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1174,7 +1174,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                     label="ris"
                     labelMobile="ris"
                     widthMobile="50px"
-                    widthDesktop="50px"
+                    widthDesktop="60px"
                     value={match.ris ?? ""}
                     onChange={(v) =>
                       handleMatchChange(
@@ -1182,7 +1182,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "ris",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1200,7 +1200,7 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1213,14 +1213,14 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "ris",
                         "",
-                        match.numero
+                        match.numero,
                       );
                       handleMatchChange(
                         giornataKey,
                         idx,
                         "results",
                         "",
-                        match.numero
+                        match.numero,
                       );
                     }}
                     className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
@@ -1287,7 +1287,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "city",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1304,7 +1304,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "time",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1324,7 +1324,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "pos1",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1340,7 +1340,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "pos2",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />{" "}
@@ -1356,7 +1356,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "goto",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1388,7 +1388,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "pronsq",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1405,7 +1405,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "team1",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1422,7 +1422,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "team2",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1443,7 +1443,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results.RES",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1460,7 +1460,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results.TS",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1477,7 +1477,7 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results.R",
                         v,
-                        match.numero
+                        match.numero,
                       )
                     }
                   />
@@ -1490,21 +1490,21 @@ function MobileFinalsSection({ group, handleDateChange, handleMatchChange }) {
                         idx,
                         "results.RES",
                         "",
-                        match.numero
+                        match.numero,
                       );
                       handleMatchChange(
                         giornataKey,
                         idx,
                         "results.TS",
                         "",
-                        match.numero
+                        match.numero,
                       );
                       handleMatchChange(
                         giornataKey,
                         idx,
                         "results.R",
                         "",
-                        match.numero
+                        match.numero,
                       );
                     }}
                     className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
