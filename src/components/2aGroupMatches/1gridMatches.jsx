@@ -8,7 +8,7 @@ import React, {
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
 import { createMatchesRepo } from "../../Services/repo/repoMatch";
-import { loadMatchStructureFromDb } from "../../Services/repo/repoMatchStructure";
+import { loadMatchStructureFromDb, saveAdminSeedsToDb } from "../../Services/repo/repoMatchStructure";
 
 import { createNotesRepo } from "../../Services/repo/repoNote";
 import { useAuth } from "../../Services/supabase/AuthProvider";
@@ -63,6 +63,7 @@ export default function GridMatchesPage({ isLogged }) {
   // ✅ struttura “flat” che arriva da Supabase (wc_match_structure)
   const [structureByGroup, setStructureByGroup] = useState(null);
   const [structureLoading, setStructureLoading] = useState(true);
+  const [rankRefreshKey, setRankRefreshKey] = useState(0);
   const [showPronostics, setShowPronostics] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -143,27 +144,62 @@ export default function GridMatchesPage({ isLogged }) {
   };
 
   // ✅ salva tutte le modifiche quando esci da EDIT
+    // ✅ salva tutte le modifiche quando esci da EDIT
   async function saveAllEdits() {
     const paths = Object.keys(localEdits);
-    if (!paths.length) return;
+    if (!paths.length && !keysTouchedMatches.current.size) return;
 
-    const keysTouchedNotes = new Set(paths.map((p) => p.split(".")[0]));
-    await repo.save({ notes, keysTouched: keysTouchedNotes });
-    keysTouched.current.clear();
+    const isAdminUser =
+      user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
+    // ---------- NOTE (sempre) ----------
+    if (paths.length) {
+      const keysTouchedNotes = new Set(paths.map((p) => p.split(".")[0]));
+      await repo.save({ notes, keysTouched: keysTouchedNotes });
+      keysTouched.current.clear();
+    }
+
+    // ---------- PRON / RIS UTENTE (NON admin) ----------
     await matchesRepo.save({
       matches: matchesState,
       keysTouched: keysTouchedMatches.current,
     });
+
+        // ---------- RISULTATI ADMIN → wc_match_structure ----------
+    if (isAdminUser && keysTouchedMatches.current.size) {
+      try {
+        await saveAdminSeedsToDb({
+          userEmail: user.email,
+          matches: matchesState,
+          keysTouched: keysTouchedMatches.current,
+        });
+
+        // ricarico la struttura ufficiale dal DB
+        const freshStructure = await loadMatchStructureFromDb();
+        setStructureByGroup(freshStructure);
+
+        // 👉 forza il ricaricamento della classifica (GridRankPage)
+        setRankRefreshKey((prev) => prev + 1);
+      } catch (err) {
+        console.error("Errore salvando seed risultati admin:", err);
+      }
+    }
+
+    // dopo il salvataggio, pulisco i gruppi toccati
     keysTouchedMatches.current.clear();
 
-    // ✅ RICARICA DAL DB così RIS è sempre allineato
-    const freshMatches = await matchesRepo.load({ forceRefresh: true });
-    setMatchesState(freshMatches);
+    // ---------- Ricarico solo per NON admin ----------
+    let freshMatches = matchesState;
+    if (!isAdminUser) {
+      freshMatches = await matchesRepo.load({ forceRefresh: true });
+      setMatchesState(freshMatches);
+    }
 
     setLocalEdits({});
     lastSavedRef.current = { notes, matches: freshMatches };
   }
+
+
 
   // ✅ METTI QUESTO BLOCCO: dentro GridMatchesPage, subito DOPO saveAllEdits() e PRIMA del return(...)
   const discardEdits = useCallback(() => {
@@ -547,7 +583,7 @@ export default function GridMatchesPage({ isLogged }) {
 
             // ADMIN: legge seed (m.ris) se NON edited
             // ADMIN: seed solo la PRIMA volta (quando DB è vuoto)
-            const computeResAdmin = (m, letter, idx) => {
+             const computeResAdmin = (m, letter, idx) => {
               const official = (m?.results ?? "").trim();
               if (official.includes("-")) return official;
 
@@ -560,15 +596,15 @@ export default function GridMatchesPage({ isLogged }) {
 
               const wasEdited = !!matchesState?.[letter]?.plusRisEdited?.[idx];
 
+              // se l'admin ha messo un risultato locale → usa quello
               if (a !== "" && b !== "") return `${a}-${b}`;
+
+              // se l'admin ha toccato e svuotato la riga → niente fallback al seed
               if (wasEdited) return "";
 
-              // ✅ seed SOLO se non c'è ancora nulla nel DB (prima volta)
-              const dbEmpty =
-                !matchesLoaded || Object.keys(matchesState ?? {}).length === 0;
-
+              // altrimenti usa sempre il seed dal DB (seed_ris caricato in m.ris)
               const seed = String(m?.ris ?? "").trim();
-              if (showPronostics && dbEmpty && seed.includes("-")) return seed;
+              if (seed.includes("-")) return seed;
 
               return "";
             };
@@ -805,18 +841,20 @@ export default function GridMatchesPage({ isLogged }) {
                                         {matchesFlatP.map((m, idx) => {
                                           const t1 = findTeamP(m.team1);
                                           const t2 = findTeamP(m.team2);
-                                          const res = computeResP(m, idx);
+                                            const res = computeResP(m, idx);
 
                                           // risultati ufficiali sì/no
                                           const isOfficial = (m?.results ?? "")
                                             .trim()
                                             .includes("-");
 
-                                          // pron selezionato per quella partita
+                                          // pron selezionato per quella partita:
+                                          // - se sto editando → plusPron
+                                          // - altrimenti (o admin dopo refresh) → seed_pron in m.pron
                                           const selectedPron = String(
                                             matchesState?.[letterP]?.plusPron?.[
                                               idx
-                                            ] ?? ""
+                                            ] ?? m?.pron ?? ""
                                           )
                                             .trim()
                                             .toUpperCase();
@@ -1215,13 +1253,13 @@ export default function GridMatchesPage({ isLogged }) {
                       <div
                         className="
                           hidden md:flex flex-row
-                          absolute top-6 left-8 right-2 z-[12000]
+                          absolute top-4 left-8 right-2 z-[12000]
                           w-[19.8rem]
                           min-h-[16.9rem]
                           max-h-[18vh]                          
                           overflow-x-hidden
                           rounded-2xl
-                          bg-slate-900 text-white
+                          bg-slate-900 text-white border-white
                           border-4
                           overscroll-contain
                           scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
@@ -1242,7 +1280,8 @@ export default function GridMatchesPage({ isLogged }) {
                         </div> */}
 
                         {/* ✅ CONTENUTO AGGANCIATO A groupNotes */}
-                        <div className="w-[3rem] flex items-start justify-center pt-[7.8rem]">
+                        {/* QUESTO PT ABBASSA IL SIMBOLO DENTRO IL MODALE L ALTRO SEGNATO*/}
+                        <div className="w-[3rem] flex items-start justify-center pt-[8.3rem]">
                           <AdminEditToggle onExit={saveAllEdits} />
                         </div>
                         <div className="mt-0 space-y-0 text-sm text-white flex-1 min-w-0 pr-2">
@@ -1339,9 +1378,10 @@ export default function GridMatchesPage({ isLogged }) {
                     )}
                     {/* ===== DESKTOP HOVER PLUS ➕(RIS PRONOSTICI) ===== */}
                     {hoverPlusModal === letter && (
+                      //top muove il segno dentro il modale bg-red
                       <div
                         className="
-                          absolute top-6 left-8 right-2 z-[12000]
+                          absolute md:top-4 left-8 right-2 z-[12000] 
                           w-[19.8rem]
                           min-h-[16.9rem]
                           max-h-[18vh]
@@ -1382,37 +1422,39 @@ export default function GridMatchesPage({ isLogged }) {
                               const t2 = findTeam(m.team2);
                               const res = computeRes(m, letter, idx);
 
-                              // ✅ pron selezionato nel modale (+)
+                              // ✅ pron selezionato nel modale (+) o seed_pron (admin)
                               const selectedPron = String(
-                                matchesState?.[letter]?.plusPron?.[idx] ?? ""
-                              ).trim();
+                                matchesState?.[letter]?.plusPron?.[idx] ??
+                                  m?.pron ??
+                                  ""
+                              )
+                                .trim()
+                                .toUpperCase();
 
                               const isChecked =
                                 !!matchesState?.[letter]?.plusCheck?.[idx];
 
                               // ✅ baseA/baseB dal risultato corrente (res)
-                              const [baseA, baseB] = String(res ?? "").includes(
-                                "-"
-                              )
-                                ? String(res)
-                                    .split("-")
-                                    .map((x) => x.trim())
+                              const [baseA, baseB] = String(res ?? "").includes("-")
+                                ? String(res).split("-").map((x) => x.trim())
                                 : ["", ""];
 
-                              // ✅ valori salvati (override) per l'input
-                              const savedA =
-                                matchesState?.[letter]?.plusRis?.[idx]?.a;
-                              const savedB =
-                                matchesState?.[letter]?.plusRis?.[idx]?.b;
+                              const savedA = matchesState?.[letter]?.plusRis?.[idx]?.a;
+                              const savedB = matchesState?.[letter]?.plusRis?.[idx]?.b;
 
-                              const isOfficial = (m?.results ?? "")
-                                .trim()
-                                .includes("-");
+                              const isOfficial = (m?.results ?? "").trim().includes("-");
                               const norm = (x) => String(x ?? "").trim();
                               const valueA = norm(savedA);
                               const valueB = norm(savedB);
+
+                              // se non ho ancora un plusRis, ma esiste un risultato (seed/ufficiale),
+                              // uso baseA/baseB come fallback visivo
+                              const displayA = valueA !== "" ? valueA : baseA;
+                              const displayB = valueB !== "" ? valueB : baseB;
+
                               const hasAnyScore =
-                                isOfficial || valueA !== "" || valueB !== "";
+                                isOfficial || displayA !== "" || displayB !== "";
+
                               // 🎯 LOGICA BORDO IN MODALE (win/draw in base a res)
                               let highlightModal1 = "none";
                               let highlightModal2 = "none";
@@ -1593,20 +1635,10 @@ export default function GridMatchesPage({ isLogged }) {
                                       pathA={`${letter}.plusRis.${idx}.a`}
                                       pathB={`${letter}.plusRis.${idx}.b`}
                                       pathPron={`${letter}.plusPron.${idx}`}
-                                      valueA={isOfficial ? baseA : valueA}
-                                      valueB={isOfficial ? baseB : valueB}
-                                      placeholderA={
-                                        user?.email?.toLowerCase() ===
-                                        ADMIN_EMAIL.toLowerCase()
-                                          ? baseA
-                                          : ""
-                                      }
-                                      placeholderB={
-                                        user?.email?.toLowerCase() ===
-                                        ADMIN_EMAIL.toLowerCase()
-                                          ? baseB
-                                          : ""
-                                      }
+                                      valueA={displayA}
+                                      valueB={displayB}
+                                      placeholderA=""   // non servono più i placeholder, i numeri ci sono davvero
+                                      placeholderB=""
                                       readOnly={isOfficial}
                                       onChange={handleEditChange}
                                       className={`
@@ -1689,9 +1721,11 @@ export default function GridMatchesPage({ isLogged }) {
                         {/* 🔴 "+" */}
                         {/* Toggle sempre a metà, lato sinistro, segue lo scroll */}
                         {/* ADMIN TOGGLE – CENTRATO */}
+                        {/* QUESTO TOP ABBASSA IL PULSANTE DENTRO IL MODALE L ALTRO E
+                         PT-[8.3REM] */}
                         <div
                           className="
-                                absolute inset-0 md:-top-[5.8rem]  -top-[2rem]
+                                absolute inset-0 md:-top-[4.9rem]  -top-[2rem]
                                 flex items-center justify-center
                                 z-[10002]
                                 pointer-events-none
@@ -1907,6 +1941,7 @@ export default function GridMatchesPage({ isLogged }) {
                 maxMatches={mobileCutoff}
                 isLogged={isLogged}
                 userEmail={user?.email}
+                refreshKey={rankRefreshKey}
               />
             </div>
           </>
@@ -1946,6 +1981,7 @@ export default function GridMatchesPage({ isLogged }) {
                 maxMatches={hoverCutoff}
                 isLogged={isLogged}
                 userEmail={user?.email}
+                refreshKey={rankRefreshKey}
               />
             </div>
           </>

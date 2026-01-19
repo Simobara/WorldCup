@@ -28,7 +28,7 @@ export default function AdminEditToggle({ className = "", onExit }) {
         } else {
           setEditMode(true);
         }
-      }}
+      }} //py-0.5 cambiar dentro il modale bg-red-600
       className={`px-3 py-[0.7rem]  bg-red-600 text-white text-xs shadow-lg disabled:opacity-60 ${className}  md:text-[20px] text-[12px]`}
     >
       {saving ? "💾" : editMode ? "✅" : "☑️"}

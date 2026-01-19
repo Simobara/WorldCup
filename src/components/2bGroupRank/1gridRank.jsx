@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../Services/supabase/supabaseClient";
-import { flagsMond } from "../../START/app/0main";
+import { ADMIN_EMAIL, flagsMond } from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
 import {
   CssGroup,
@@ -12,7 +12,7 @@ import Quadrato from "../3tableComp/1quad";
 
 // pronData = pronRows[0].data
 // pronData = pronRows[0].data
-// 🔹 Estrae risultato e pronostico da matches_pron.data (campo "pronostici")
+// 🔹 Estrae risultato e pronostico da mws_matches_structure_userpron.data (campo "pronostici")
 //    in base al match_index (0..5)
 function getPronFromMatchesPron(pronostici, matchIndex) {
   if (!pronostici) return { ris: null, pron: null };
@@ -148,7 +148,7 @@ function computePronTableForGroup(
   resolveName,
   groupTeamNames,
   maxMatches = null,
-  allowRis = true
+  allowRis = true,
 ) {
   const table = {};
 
@@ -208,7 +208,8 @@ function computeBonusTableForGroup(
   matchesData,
   resolveName,
   groupTeamNames,
-  maxMatches = null
+  maxMatches = null,
+  useSeeds = false,
 ) {
   const table = {};
 
@@ -243,6 +244,8 @@ function computeBonusTableForGroup(
       }
 
       // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
+      // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
+      // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
       const hasOfficial = !!String(m.results ?? "").trim();
       if (hasOfficial) {
         // console.log("ℹ️ BONUS: salto match (ha risultato ufficiale)", {
@@ -255,8 +258,14 @@ function computeBonusTableForGroup(
 
       let outcome = null; // "1" | "2" | "X"
 
+      // Sorgenti pronostico:
+      // - utente normale → m.ris / m.pron (user_ris / user_pron)
+      // - admin         → SEMPRE seed_ris / seed_pron da wc_match_structure
+      const risSource = useSeeds ? m.seed_ris : m.ris;
+      const pronSource = useSeeds ? m.seed_pron : m.pron;
+
       // 1️⃣ se ho un risultato con gol (ris), da lì ricavo il segno
-      const risStr = String(m.ris ?? "").trim();
+      const risStr = String(risSource ?? "").trim();
       if (risStr && risStr.includes("-")) {
         const [gaRaw, gbRaw] = risStr
           .split("-")
@@ -271,7 +280,7 @@ function computeBonusTableForGroup(
 
       // 2️⃣ se non ho ancora outcome, uso il segno 1/X/2
       if (!outcome) {
-        const sign = String(m.pron ?? "")
+        const sign = String(pronSource ?? "")
           .trim()
           .toUpperCase();
         if (sign === "1" || sign === "2" || sign === "X") {
@@ -330,7 +339,7 @@ function computeTableForGroup(
   resolveName,
   groupTeamNames,
   maxMatches = null,
-  allowRis = true
+  allowRis = true,
 ) {
   const table = {};
 
@@ -420,7 +429,7 @@ function sortTeamsByTotal(
   teams,
   tableByTeam, // punti ufficiali
   pronTableByTeam, // punti da pronostici/bonus
-  resolveName
+  resolveName,
 ) {
   if (!pronTableByTeam && !tableByTeam) return teams;
 
@@ -469,6 +478,7 @@ export default function GridRankPage({
   maxMatches = null,
   isLogged,
   userEmail, // 🔹 nuovo prop
+  refreshKey = 0,
 }) {
   const isTooltip = !!onlyGroup;
   const STORAGE_KEY = "gridRank_showPronostics";
@@ -512,6 +522,11 @@ export default function GridRankPage({
     isLogged &&
     !!userEmail &&
     Object.keys(supabaseMatchesByGroup || {}).length > 0;
+
+  const isAdminUser =
+    isLogged &&
+    !!userEmail &&
+    userEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   //----------------------------------------------------------------------------
   // DEBUG: vedi cosa arriva davvero da Supabase
 
@@ -580,7 +595,7 @@ export default function GridRankPage({
   // console.log("🔵 DEBUG LOGIN:", { isLogged, userEmail });
   // 🔹 CARICAMENTO MATCH DA SUPABASE QUANDO LOGGATO
   //    - struttura da wc_match_structure
-  //    - pronostici reali da matches_pron (campo data) per userEmail, gruppo B
+  //    - pronostici reali da ws_matches_structure_userpron (campo data) per userEmail, gruppo B
 
   useEffect(() => {
     if (!isLogged || !userEmail) {
@@ -596,39 +611,37 @@ export default function GridRankPage({
 
     let cancelled = false;
 
+    // 🔹 CARICAMENTO MATCH DA SUPABASE QUANDO LOGGATO
+    //    - struttura da wc_match_structure
+    //    - pronostici reali da wc_matches_structure_userpron per userEmail
+
     async function loadMatches() {
-      // 1️⃣ tutte le partite di TUTTI i gruppi per questo utente
+      // 1️⃣ struttura di tutte le partite
       const { data: structRows, error: structErr } = await supabase
         .from("wc_match_structure")
         .select("*");
-      // 🔧 NIENTE .eq("user_email", userEmail) se la struttura è globale
-      // .eq("user_email", userEmail);
 
       if (structErr) {
         console.error("Supabase wc_match_structure error", structErr);
         return;
       }
 
-      // 2️⃣ tutti i pronostici di TUTTI i gruppi per questo utente
+      // 2️⃣ pronostici / risultati utente per tutte le partite
       const { data: pronRows, error: pronErr } = await supabase
-        .from("matches_pron")
-        .select("data, key")
+        .from("wc_matches_structure_userpron")
+        .select("group_letter, match_index, user_pron, user_ris")
         .eq("user_email", userEmail);
 
       if (pronErr) {
-        console.error("Supabase matches_pron error", pronErr);
+        console.error("Supabase wc_matches_structure_userpron error", pronErr);
         return;
       }
 
-      // mappa: { A: dataA, B: dataB, C: dataC, ... }
-      const pronByKey = {};
+      // mappa per accesso rapido: "A-0", "A-1", ... → riga utente
+      const pronMap = {};
       for (const pr of pronRows ?? []) {
-        const rawKey = String(pr.key ?? "");
-        const normalizedKey = rawKey.startsWith("group_")
-          ? rawKey.slice("group_".length) // "group_A" -> "A"
-          : rawKey; // già "A", "B", ecc.
-
-        pronByKey[normalizedKey] = pr.data;
+        const key = `${pr.group_letter}-${pr.match_index}`;
+        pronMap[key] = pr;
       }
 
       // 🔹 Costruisco supabaseMatchesByGroup = { group_A: {...}, group_B: {...}, ... }
@@ -638,7 +651,7 @@ export default function GridRankPage({
         const letter = row.group_letter ?? row.group ?? null;
         if (!letter) continue;
 
-        const groupKey = `group_${letter}`; // es. "group_A", "group_B", ...
+        const groupKey = `group_${letter}`; // es. "group_A"
 
         if (!byGroup[groupKey]) {
           byGroup[groupKey] = {
@@ -656,25 +669,60 @@ export default function GridRankPage({
               ? "giornata_2"
               : "giornata_3";
 
-        // 👉 pronostici REALI per QUESTO gruppo (A, B, C, ...)
-        const pronostici = pronByKey[letter] ?? null;
-        const { ris, pron } = getPronFromMatchesPron(
-          pronostici,
-          row.match_index
-        );
+        // 👉 riga utente corrispondente (stesso gruppo + stesso match_index)
+        const userRow = pronMap[`${letter}-${row.match_index}`];
+
+        // user_pron: "1", "X", "2" oppure stringa vuota
+        const pron = (userRow?.user_pron || "").trim().toUpperCase() || null;
+
+        // user_ris può essere:
+        // - vecchio formato JSON: '{"a":"2","b":"1"}'
+        // - nuovo formato stringa: "2-1"
+        let ris = null;
+
+        const rawUserRis = (userRow?.user_ris ?? "").toString().trim();
+        if (rawUserRis) {
+          if (rawUserRis.startsWith("{")) {
+            // ✅ vecchio formato JSON
+            try {
+              const parsed = JSON.parse(rawUserRis);
+              const aRaw = String(parsed?.a ?? "").trim();
+              const bRaw = String(parsed?.b ?? "").trim();
+              if (aRaw !== "" && bRaw !== "") {
+                ris = `${aRaw}-${bRaw}`;
+              }
+            } catch (e) {
+              console.warn("user_ris JSON non valido:", rawUserRis, e);
+            }
+          } else {
+            // ✅ nuovo formato "2-1" (accetto anche "2 : 1", "2 - 1", ecc.)
+            const normalized = rawUserRis
+              .replace(/[–—−]/g, "-") // trattini strani → "-"
+              .replace(/:/g, "-")
+              .replace(/\s+/g, ""); // togli spazi
+
+            if (normalized.includes("-")) {
+              const [gaRaw, gbRaw] = normalized.split("-");
+              const ga = gaRaw.trim();
+              const gb = gbRaw.trim();
+
+              if (ga !== "" && gb !== "") {
+                ris = `${ga}-${gb}`;
+              }
+            }
+          }
+        }
 
         byGroup[groupKey][giornataKey].matches.push({
           team1: row.team1,
           team2: row.team2,
-          results: row.results_official ?? null,
-          ris,
-          pron,
+          results: row.results_official ?? null, // risultato ufficiale
+          ris, // risultato utente (stringa "2-1" oppure null)
+          pron, // segno 1/X/2 utente
           seed_ris: row.seed_ris ?? null,
           seed_pron: row.seed_pron ?? null,
         });
       }
-
-      // console.log("🟢 SUPABASE byGroup COMPLETO:", byGroup);
 
       if (!cancelled) {
         setSupabaseMatchesByGroup(byGroup);
@@ -686,7 +734,7 @@ export default function GridRankPage({
     return () => {
       cancelled = true;
     };
-  }, [isLogged, userEmail]);
+  }, [isLogged, userEmail, refreshKey]);
 
   // useEffect(() => {
   //   console.log(
@@ -784,7 +832,7 @@ export default function GridRankPage({
 
               const resolveName = buildNameResolver(flagsMond);
               const groupTeamNames = new Set(
-                teams.map((t) => resolveName(t.name))
+                teams.map((t) => resolveName(t.name)),
               );
 
               // 🔹 se loggato (Supabase): usa anche i "ris" come risultati provvisori
@@ -796,7 +844,7 @@ export default function GridRankPage({
                 resolveName,
                 groupTeamNames,
                 maxMatches,
-                allowRis
+                allowRis,
               );
 
               const simByTeam = {};
@@ -818,7 +866,7 @@ export default function GridRankPage({
               }
 
               const groupHasResults = Object.values(tableByTeam).some(
-                (t) => t.gf > 0 || t.gs > 0
+                (t) => t.gf > 0 || t.gs > 0,
               );
 
               const pronTableByTeam = useSupabase
@@ -826,14 +874,15 @@ export default function GridRankPage({
                     matchesData,
                     resolveName,
                     groupTeamNames,
-                    maxMatches
-                  ) // 🔹 bonus (seed_ris / seed_pron) per loggato
+                    maxMatches,
+                    isAdminUser, // 🔹 solo l'admin usa i seed se mancano i dati utente
+                  )
                 : showPronostics
                   ? computePronTableForGroup(
                       matchesData,
                       resolveName,
                       groupTeamNames,
-                      maxMatches
+                      maxMatches,
                     )
                   : null;
 
@@ -847,7 +896,7 @@ export default function GridRankPage({
                     teams,
                     tableByTeam,
                     pronTableByTeam,
-                    resolveName
+                    resolveName,
                   )
                 : groupHasResults
                   ? sortTeamsByTable(teams, tableByTeam, resolveName, true)

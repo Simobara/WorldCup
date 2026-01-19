@@ -12,6 +12,134 @@ function clone(x) {
   return JSON.parse(JSON.stringify(x ?? null));
 }
 
+// carica tutti i pronostici/scores dell'utente
+export async function loadUserMatches(userEmail) {
+  if (!userEmail) return {};
+
+  // ⛔️ l'ADMIN usa un'altra tabella, qui niente
+  if (userEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    return {};
+  }
+
+  const { data, error } = await supabase
+    .from("wc_matches_structure_userpron")
+    .select("match_index, user_pron, user_ris")
+    .eq("user_email", userEmail);
+
+  if (error) {
+    console.error("LOAD wc_matches_structure_userpron ERROR:", error);
+    return {};
+  }
+
+  const out = {};
+  (data || []).forEach((row) => {
+    // user_ris può essere:
+    // - stringa "2-1"
+    // - oppure vecchio JSON '{"a":"2","b":"1"}'
+    let ris = "";
+    const raw = (row.user_ris ?? "").toString().trim();
+
+    if (!raw) {
+      ris = "";
+    } else if (raw.startsWith("{")) {
+      // vecchio formato JSON
+      try {
+        const parsed = JSON.parse(raw);
+        const a = String(parsed?.a ?? "").trim();
+        const b = String(parsed?.b ?? "").trim();
+        ris = a !== "" && b !== "" ? `${a}-${b}` : "";
+      } catch {
+        ris = "";
+      }
+    } else {
+      // nuovo formato già "2-1"
+      ris = raw;
+    }
+
+    out[row.match_index] = {
+      pron: row.user_pron || "",
+      ris,
+    };
+  });
+
+  return out;
+}
+
+// ✅ SALVA / AGGIORNA UN SINGOLO MATCH DELL'UTENTE
+//    user_ris viene salvato come stringa "a-b" oppure NULL
+export async function saveUserMatch({
+  userId,
+  userEmail,
+  match_index,
+  team1,
+  team2,
+  group_letter,
+  user_pron,
+  user_ris, // può arrivare come "2-1" oppure {a,b}
+}) {
+  if (!userId || !userEmail) {
+    console.warn("saveUserMatch: manca userId o userEmail");
+    return;
+  }
+
+  // ⛔️ l'ADMIN NON deve salvare in wc_matches_structure_userpron
+  if (userEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    return;
+  }
+
+  // 🔄 normalizza user_ris nel formato "a-b" oppure null
+  // 🔄 normalizza user_ris nel formato "a-b" oppure null
+  //    accetta:
+  //    - stringa "2-1"
+  //    - stringa JSON '{"a":"2","b":"1"}'
+  //    - oggetto { a, b }
+  let normalizedUserRis = null;
+
+  if (typeof user_ris === "string") {
+    const trimmed = user_ris.trim();
+
+    if (!trimmed) {
+      normalizedUserRis = null;
+    } else if (trimmed.startsWith("{")) {
+      // vecchio formato JSON passato come stringa
+      try {
+        const parsed = JSON.parse(trimmed);
+        const a = String(parsed?.a ?? "").trim();
+        const b = String(parsed?.b ?? "").trim();
+        normalizedUserRis = a !== "" && b !== "" ? `${a}-${b}` : null;
+      } catch {
+        normalizedUserRis = null;
+      }
+    } else {
+      // assumo già "a-b"
+      normalizedUserRis = trimmed;
+    }
+  } else if (user_ris && typeof user_ris === "object") {
+    const a = String(user_ris.a ?? "").trim();
+    const b = String(user_ris.b ?? "").trim();
+    normalizedUserRis = a !== "" && b !== "" ? `${a}-${b}` : null;
+  }
+
+  const payload = {
+    user_id: userId,
+    user_email: userEmail,
+    match_index,
+    team1,
+    team2,
+    group_letter,
+    user_pron,
+    user_ris: normalizedUserRis,
+  };
+
+  const { error } = await supabase
+    .from("wc_matches_structure_userpron")
+    .upsert(payload);
+
+  if (error) {
+    console.error("SAVE wc_matches_structure_userpron ERROR:", error);
+  }
+}
+
 // base “pulita” per non-admin (solo struttura)
 function stripForNonAdmin(fileBase) {
   const out = {};
@@ -41,7 +169,7 @@ function buildBaseFromFile(fileBase) {
     const matchesCount = matchesFlat.length;
 
     const plusPronFromFile = matchesFlat.map((m) =>
-      String(m?.pron ?? "").trim()
+      String(m?.pron ?? "").trim(),
     );
 
     const plusRisFromFile = matchesFlat.map((m) => {
@@ -106,138 +234,100 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         return isAdmin ? fileBaseAdmin : fileBaseNonAdmin;
       }
 
+      // cache in memoria (per utente)
       if (!forceRefresh && cacheKey) {
         const cached = MEMORY_CACHE_BY_USER.get(cacheKey);
         if (cached) return cached;
       }
 
-      // 1) leggi DB per email
-      let { data, error } = await supabase
-        .from("matches_pron")
-        .select("key, data")
-        .eq("user_email", userEmail);
-
-      if (error) {
-        console.error("MATCHES LOAD ERROR:", error);
-        return isAdmin ? fileBaseAdmin : fileBaseNonAdmin;
-      }
-
-      // 2) ADMIN seed (prima volta)
-      if (isAdmin && (!data || data.length === 0)) {
-        const payload = Object.keys(fileBaseAdmin).map((k) => ({
-          user_id: userId,
-          user_email: userEmail,
-          key: k,
-          data: fileBaseAdmin[k],
-        }));
-
-        const { error: seedErr } = await supabase
-          .from("matches_pron")
-          .upsert(payload, { onConflict: "key,user_email" });
-
-        if (seedErr) {
-          console.warn("ADMIN MATCHES SEED WARN:", seedErr);
-          return fileBaseAdmin;
-        }
-
-        const res2 = await supabase
-          .from("matches_pron")
-          .select("key, data")
-          .eq("user_email", userEmail);
-
-        data = res2.data ?? [];
-      }
-
-      // 3) NON-ADMIN seed (prima volta)
-      if (!isAdmin && (!data || data.length === 0)) {
-        const payload = Object.keys(fileBaseNonAdmin).map((k) => ({
-          user_id: userId,
-          user_email: userEmail,
-          key: k,
-          data: fileBaseNonAdmin[k],
-        }));
-
-        await supabase
-          .from("matches_pron")
-          .upsert(payload, { onConflict: "key,user_email" });
-
-        const res3 = await supabase
-          .from("matches_pron")
-          .select("key, data")
-          .eq("user_email", userEmail);
-
-        data = res3.data ?? [];
-      }
-
-      // 4) DB → map
-      const fromDb = {};
-      for (const row of data ?? []) fromDb[row.key] = row.data;
-
-      // 5) base
+      // base di partenza (dal file)
       const base = isAdmin ? fileBaseAdmin : fileBaseNonAdmin;
       const merged = clone(base);
 
-      // 6) merge (DB vince)
-      for (const k of Object.keys(fromDb)) {
-        if (fromDb[k]) merged[k] = fromDb[k];
-      }
-
-      // ✅ MIGRAZIONI SOFT (admin + non-admin)
-      let didFix = false;
-      const keysFixed = new Set();
-
-      // FIX A: plusRisEdited
-      for (const k of Object.keys(merged ?? {})) {
-        const obj = merged[k] ?? {};
-
-        if (!Array.isArray(obj.plusRisEdited)) {
-          const count = Array.isArray(obj.plusRis) ? obj.plusRis.length : 0;
-          obj.plusRisEdited = Array.from({ length: count }, () => false);
-
-          for (let i = 0; i < count; i++) {
-            const a = String(obj.plusRis?.[i]?.a ?? "").trim();
-            const b = String(obj.plusRis?.[i]?.b ?? "").trim();
-            if (a !== "" || b !== "") obj.plusRisEdited[i] = true;
-          }
-
-          merged[k] = obj;
-          didFix = true;
-          keysFixed.add(k);
-        }
-      }
-
-      // FIX B: plusPron seed dal file per admin
+      // ⛔️ ADMIN: NON deve leggere i pronostici da wc_matches_structure_userpron
+      // L'admin gestisce solo la struttura globale su wc_match_structure (pagina AdminSeed).
       if (isAdmin) {
-        for (const k of Object.keys(fileBaseAdmin)) {
-          const obj = merged[k] ?? {};
-          const seed = fileBaseAdmin[k] ?? {};
-
-          if (!Array.isArray(obj.plusPron)) {
-            obj.plusPron = Array.isArray(seed.plusPron) ? seed.plusPron : [];
-            merged[k] = obj;
-            didFix = true;
-            keysFixed.add(k);
-          }
+        if (cacheKey) {
+          MEMORY_CACHE_BY_USER.set(cacheKey, merged);
         }
+        return merged;
       }
 
-      // salva eventuali fix
-      if (didFix && isRemote && userId && userEmail && keysFixed.size) {
-        const payload = Array.from(keysFixed).map((k) => ({
-          user_id: userId,
-          user_email: userEmail,
-          key: k,
-          data: merged?.[k] ?? null,
-        }));
+      // 1) leggi tutte le righe dei pronostici per questo utente
+      const { data, error } = await supabase
+        .from("wc_matches_structure_userpron")
+        .select("group_letter, match_index, user_pron, user_ris")
+        .eq("user_email", userEmail)
+        .order("group_letter", { ascending: true })
+        .order("match_index", { ascending: true });
 
-        const { error: fixSaveErr } = await supabase
-          .from("matches_pron")
-          .upsert(payload, { onConflict: "key,user_email" });
-
-        if (fixSaveErr) console.warn("MATCHES FIX SAVE WARN:", fixSaveErr);
+      if (error) {
+        console.error(
+          "MATCHES LOAD wc_matches_structure_userpron ERROR:",
+          error,
+        );
+        return merged; // torno almeno la base da file
       }
 
-      if (cacheKey) MEMORY_CACHE_BY_USER.set(cacheKey, merged);
+      // 2) DB → merge su struttura base
+      for (const row of data ?? []) {
+        const letter = row.group_letter;
+        if (!letter) continue;
+
+        const idx = Number(row.match_index);
+        if (!Number.isFinite(idx) || idx < 0) continue;
+
+        // assicuro l'oggetto del gruppo
+        const obj = merged[letter] || {
+          plusRis: [],
+          plusPron: [],
+          plusRisEdited: [],
+          __edited: false,
+        };
+
+        if (!Array.isArray(obj.plusRis)) obj.plusRis = [];
+        if (!Array.isArray(obj.plusPron)) obj.plusPron = [];
+        if (!Array.isArray(obj.plusRisEdited)) obj.plusRisEdited = [];
+
+        // allungo gli array se servono
+        while (obj.plusRis.length <= idx) obj.plusRis.push({ a: "", b: "" });
+        while (obj.plusPron.length <= idx) obj.plusPron.push("");
+        while (obj.plusRisEdited.length <= idx) obj.plusRisEdited.push(false);
+
+        // 🔄 user_ris ora è stringa "a-b" (o null/empty), NON più JSON
+        let a = "";
+        let b = "";
+        const rawRis = String(row.user_ris ?? "").trim();
+
+        if (rawRis && rawRis.includes("-")) {
+          const [sa, sb] = rawRis.split("-");
+          a = String(sa ?? "").trim();
+          b = String(sb ?? "").trim();
+        }
+
+        const pron = String(row.user_pron ?? "")
+          .trim()
+          .toUpperCase();
+
+        // aggiorno plusRis / plusPron solo se l'utente ha messo qualcosa
+        if (a !== "" || b !== "") {
+          obj.plusRis[idx] = { a, b };
+          obj.plusRisEdited[idx] = true;
+          obj.__edited = true;
+        }
+
+        if (pron) {
+          obj.plusPron[idx] = pron;
+          obj.__edited = true;
+        }
+
+        merged[letter] = obj;
+      }
+
+      // aggiorna cache
+      if (cacheKey) {
+        MEMORY_CACHE_BY_USER.set(cacheKey, merged);
+      }
 
       return merged;
     },
@@ -246,7 +336,13 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
     async save({ matches, keysTouched }) {
       if (!keysTouched?.size) return;
 
-      // marca edit (solo non-admin)
+      // ⛔️ ADMIN: NON deve salvare i pronostici in wc_matches_structure_userpron
+      // L'admin modifica solo wc_match_structure tramite la pagina AdminSeed.
+      if (isAdmin) {
+        return;
+      }
+
+      // marca edit (solo non-admin) per le note interne
       if (!isAdmin && matches) {
         for (const k of keysTouched) {
           matches[k] = matches[k] ?? {};
@@ -258,7 +354,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       if (!isRemote) {
         try {
           const current = JSON.parse(
-            localStorage.getItem(LOCAL_STORAGE_KEY) || "{}"
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "{}",
           );
           const next = { ...current };
           for (const k of keysTouched) next[k] = matches?.[k] ?? null;
@@ -272,7 +368,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       // ===== REMOTE =====
       if (!userId || !userEmail) return;
 
-      // aggiorna cache
+      // aggiorna cache in memoria
       try {
         if (cacheKey) {
           const prev = MEMORY_CACHE_BY_USER.get(cacheKey) || {};
@@ -280,20 +376,86 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
           for (const k of keysTouched) next[k] = matches?.[k] ?? null;
           MEMORY_CACHE_BY_USER.set(cacheKey, next);
         }
-      } catch {}
+      } catch {
+        // ignore
+      }
 
-      const payload = Array.from(keysTouched).map((k) => ({
-        user_id: userId,
-        user_email: userEmail,
-        key: k,
-        data: matches?.[k] ?? null,
-      }));
+      // costruiamo le righe per wc_matches_structure_userpron
+      const payload = [];
+
+      for (const letter of Array.from(keysTouched)) {
+        const groupData = matches?.[letter];
+        if (!groupData) continue;
+
+        // recupero la struttura di base per questo gruppo dal file
+        const groupKey = `group_${letter}`;
+        const struct = groupMatches?.[groupKey] ?? null;
+        if (!struct) continue;
+
+        const matchesFlat = Object.values(struct)
+          .filter((v) => v?.matches)
+          .flatMap((g) => g.matches ?? []);
+
+        const plusRisArr = Array.isArray(groupData.plusRis)
+          ? groupData.plusRis
+          : [];
+        const plusPronArr = Array.isArray(groupData.plusPron)
+          ? groupData.plusPron
+          : [];
+
+        const maxLen = Math.max(
+          matchesFlat.length,
+          plusRisArr.length,
+          plusPronArr.length,
+        );
+
+        for (let idx = 0; idx < maxLen; idx++) {
+          const baseMatch = matchesFlat[idx] ?? {};
+          const ris = plusRisArr[idx] ?? { a: "", b: "" };
+
+          const a = String(ris?.a ?? "").trim();
+          const b = String(ris?.b ?? "").trim();
+
+          const user_pron = String(plusPronArr[idx] ?? "")
+            .trim()
+            .toUpperCase();
+
+          // 🔄 nuovo formato:
+          //    - se a e b pieni → "a-b"
+          //    - se vuoti → null (Supabase = EMPTY)
+          let user_ris = null;
+          if (a !== "" && b !== "") {
+            user_ris = `${a}-${b}`;
+          }
+
+          // salvo sempre una riga, anche se vuota (così ho 0..5 in tabella)
+          payload.push({
+            user_id: userId,
+            user_email: userEmail,
+            group_letter: letter,
+            match_index: idx,
+            team1: baseMatch.team1 ?? "",
+            team2: baseMatch.team2 ?? "",
+            user_pron: user_pron || null,
+            user_ris,
+          });
+        }
+      }
+
+      if (!payload.length) return;
 
       const { error } = await supabase
-        .from("matches_pron")
-        .upsert(payload, { onConflict: "key,user_email" });
+        .from("wc_matches_structure_userpron")
+        .upsert(payload, {
+          onConflict: "user_id,group_letter,match_index",
+        });
 
-      if (error) console.error("MATCHES SAVE ERROR:", error);
+      if (error) {
+        console.error(
+          "MATCHES SAVE wc_matches_structure_userpron ERROR:",
+          error,
+        );
+      }
     },
   };
 }
