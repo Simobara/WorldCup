@@ -133,8 +133,9 @@ export async function saveUserMatch({
 
   const { error } = await supabase
     .from("wc_matches_structure_userpron")
-    .upsert(payload);
-
+    .upsert(payload, {
+      onConflict: "user_email,group_letter,match_index",
+    });
   if (error) {
     console.error("SAVE wc_matches_structure_userpron ERROR:", error);
   }
@@ -447,7 +448,7 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       const { error } = await supabase
         .from("wc_matches_structure_userpron")
         .upsert(payload, {
-          onConflict: "user_id,group_letter,match_index",
+          onConflict: "user_email,group_letter,match_index",
         });
 
       if (error) {
