@@ -102,7 +102,7 @@ export default function RunSeedPage() {
               team1: match.team1 ?? null,
               team2: match.team2 ?? null,
 
-              results_ris: match.results?.ris ?? null,
+              results_res: match.results?.ris ?? null,
               results_ts: match.results?.TS ?? null,
               results_r: match.results?.R ?? null,
             });
