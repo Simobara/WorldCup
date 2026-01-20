@@ -155,58 +155,62 @@ export default function GridMatchesPage({ isLogged }) {
   // ✅ salva tutte le modifiche quando esci da EDIT
     // ✅ salva tutte le modifiche quando esci da EDIT
   async function saveAllEdits() {
-    const paths = Object.keys(localEdits);
-    if (!paths.length && !keysTouchedMatches.current.size) return;
+  const paths = Object.keys(localEdits);
+  if (!paths.length && !keysTouchedMatches.current.size) return;
 
-    const isAdminUser =
-      user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const isAdminUser =
+    user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-    // ---------- NOTE (sempre) ----------
-    if (paths.length) {
-      const keysTouchedNotes = new Set(paths.map((p) => p.split(".")[0]));
-      await repo.save({ notes, keysTouched: keysTouchedNotes });
-      keysTouched.current.clear();
-    }
-
-    // ---------- PRON / RIS UTENTE (NON admin) ----------
-    await matchesRepo.save({
-      matches: matchesState,
-      keysTouched: keysTouchedMatches.current,
-    });
-
-        // ---------- RISULTATI ADMIN → wc_matches_structure ----------
-    if (isAdminUser && keysTouchedMatches.current.size) {
-      try {
-        await saveAdminSeedsToDb({
-          userEmail: user.email,
-          matches: matchesState,
-          keysTouched: keysTouchedMatches.current,
-        });
-
-        // ricarico la struttura ufficiale dal DB
-        const freshStructure = await loadMatchStructureFromDb();
-        setStructureByGroup(freshStructure);
-
-        // 👉 forza il ricaricamento della classifica (GridRankPage)
-        setRankRefreshKey((prev) => prev + 1);
-      } catch (err) {
-        console.error("Errore salvando seed risultati admin:", err);
-      }
-    }
-
-    // dopo il salvataggio, pulisco i gruppi toccati
-    keysTouchedMatches.current.clear();
-
-    // ---------- Ricarico solo per NON admin ----------
-    let freshMatches = matchesState;
-    if (!isAdminUser) {
-      freshMatches = await matchesRepo.load({ forceRefresh: true });
-      setMatchesState(freshMatches);
-    }
-
-    setLocalEdits({});
-    lastSavedRef.current = { notes, matches: freshMatches };
+  // ---------- NOTE ----------
+  if (paths.length) {
+    const keysTouchedNotes = new Set(paths.map((p) => p.split(".")[0]));
+    await repo.save({ notes, keysTouched: keysTouchedNotes });
+    keysTouched.current.clear();
   }
+
+  // ---------- PRON / RIS UTENTE ----------
+  await matchesRepo.save({
+    matches: matchesState,
+    keysTouched: keysTouchedMatches.current,
+  });
+
+  // ---------- RISULTATI ADMIN ----------
+  if (isAdminUser && keysTouchedMatches.current.size) {
+    try {
+      await saveAdminSeedsToDb({
+        userEmail: user.email,
+        matches: matchesState,
+        keysTouched: keysTouchedMatches.current,
+      });
+
+      const freshStructure = await loadMatchStructureFromDb();
+      setStructureByGroup(freshStructure);
+
+      // 👉 forza ricarico classifica (admin)
+      setRankRefreshKey((prev) => prev + 1);
+    } catch (err) {
+      console.error("Errore salvando seed risultati admin:", err);
+    }
+  }
+
+  keysTouchedMatches.current.clear();
+
+  let freshMatches = matchesState;
+
+  // ---------- Ricarico solo per NON admin ----------
+  if (!isAdminUser) {
+    freshMatches = await matchesRepo.load({ forceRefresh: true });
+    setMatchesState(freshMatches);
+
+    // ❗❗ AGGIUNGI QUESTO:
+    // 👉 forza ricarico classifica anche per utente normale
+    setRankRefreshKey((prev) => prev + 1);
+  }
+
+  setLocalEdits({});
+  lastSavedRef.current = { notes, matches: freshMatches };
+}
+
 
 
 
