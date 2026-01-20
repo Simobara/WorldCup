@@ -193,23 +193,20 @@ export default function GridMatchesPage({ isLogged }) {
     }
   }
 
-  keysTouchedMatches.current.clear();
+   keysTouchedMatches.current.clear();
 
   let freshMatches = matchesState;
 
   // ---------- Ricarico solo per NON admin ----------
   if (!isAdminUser) {
-    freshMatches = await matchesRepo.load({ forceRefresh: true });
-    setMatchesState(freshMatches);
-
-    // ❗❗ AGGIUNGI QUESTO:
-    // 👉 forza ricarico classifica anche per utente normale
+    // ❌ NON ricarico dal server: uso lo stato locale appena salvato
+    // ✅ ma aggiorno comunque la classifica (GridRankPage) via refreshKey
     setRankRefreshKey((prev) => prev + 1);
   }
 
-  setLocalEdits({});
-  lastSavedRef.current = { notes, matches: freshMatches };
-}
+    setLocalEdits({});
+    lastSavedRef.current = { notes, matches: freshMatches };
+  }
 
 
 
