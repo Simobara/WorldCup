@@ -22,6 +22,8 @@ export default function EditableScore({
   placeholderA = "",
   placeholderB = "",
   readOnly = false,
+  // 👇 nuovo: chiamato quando premi TAB sul campo B
+  onTabOut,
 }) {
   const { editMode } = useEditMode();
 
@@ -47,20 +49,20 @@ export default function EditableScore({
       return;
     }
 
-    // 🔴 caso speciale: il parent ha forzato un reset (es. click su P / due frecce)
+    // caso speciale: reset forzato dal parent (es. click su P / frecce)
     const externalEmpty =
       String(extA).trim() === "" && String(extB).trim() === "";
     const localNotEmpty = String(a).trim() !== "" || String(b).trim() !== "";
 
     if (externalEmpty && localNotEmpty) {
-      // 👉 reset immediato anche nei campi locali
+      // reset anche in locale
       dirtyRef.current = false;
       setA("");
       setB("");
       return;
     }
 
-    // caso normale: quando non hai digitato nulla localmente
+    // caso normale: se non hai digitato nulla localmente, segui i valori esterni
     if (!dirtyRef.current) {
       setA(extA);
       setB(extB);
@@ -147,8 +149,10 @@ export default function EditableScore({
   const hasAnyScoreHere =
     String(a ?? "").trim() !== "" || String(b ?? "").trim() !== "";
 
-  // 👉 logica centrale per bloccare il bottone X
-  const isDisabledCenter = !editMode || !pathPron || hasAnyScoreHere;
+  // 👉 blocca il bottone X se c’è già un punteggio
+  // 👉 il bottone X è disabilitato SOLO se non sei in edit o manca pathPron
+  const isDisabledCenter = !editMode || !pathPron;
+  // const isDisabledCenter = !editMode || !pathPron || hasAnyScoreHere;
 
   return (
     <div
@@ -176,7 +180,6 @@ export default function EditableScore({
         }}
         onClick={(e) => {
           // anche se clicchi in mezzo, forza il cursore all'inizio
-          //e.preventDefault();
           requestAnimationFrame(() => {
             e.target.setSelectionRange(0, 0);
           });
@@ -213,6 +216,13 @@ export default function EditableScore({
           if (isDisabledCenter) return;
           onChange?.(pathPron, "X");
         }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (isDisabledCenter) return;
+            onChange?.(pathPron, "X");
+          }
+        }}
         className={[
           "md:w-[3.5rem] w-[12px]",
           "md:h-[2rem] h-2",
@@ -224,9 +234,7 @@ export default function EditableScore({
           "!px-2",
         ].join(" ")}
         aria-label="Pareggio"
-      >
-        {/* volendo puoi mettere una X visiva qui */}
-      </button>
+      />
 
       {/* INPUT B */}
       <input
@@ -244,7 +252,6 @@ export default function EditableScore({
         }}
         onClick={(e) => {
           // anche se clicchi in mezzo, forza all'inizio
-          //e.preventDefault();
           requestAnimationFrame(() => {
             e.target.setSelectionRange(0, 0);
           });
@@ -254,6 +261,18 @@ export default function EditableScore({
           const v = sanitize(e.target.value);
           setB(v);
           onChange?.(pathB, v);
+        }}
+        onKeyDown={(e) => {
+          // ❗ NON blocchiamo più il TAB di default
+          if (
+            e.key === "Tab" &&
+            !e.shiftKey &&
+            typeof onTabOut === "function"
+          ) {
+            // facciamo solo una chiamata "di notifica"
+            onTabOut();
+            // niente preventDefault qui: il focus prosegue normalmente
+          }
         }}
         className={[
           "w-6 md:w-7 h-full",

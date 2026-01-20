@@ -1180,7 +1180,7 @@ function Row7({
       >
         <span
           className={`text-[12px] md:text-[15px] font-extrabold ${
-            isSim ? "text-purple-400/80" : ""
+            isSim ? "text--400/80" : ""
           }`}
         >
           {gol}

@@ -119,10 +119,10 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
 
   if (!letters.length) return;
 
-  console.log("[saveAdminSeedsToDb] called", {
-    userEmail,
-    keysTouched: letters,
-  });
+  // console.log("[saveAdminSeedsToDb] called", {
+  //   userEmail,
+  //   keysTouched: letters,
+  // });
 
   // 1️⃣ leggo i seed attuali dal DB
   const { data: existingRows, error: readError } = await supabase
@@ -133,10 +133,10 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
     .order("match_index", { ascending: true });
 
   if (readError) {
-    console.error(
-      "[saveAdminSeedsToDb] errore leggendo seed esistenti:",
-      readError,
-    );
+    // console.error(
+    //   "[saveAdminSeedsToDb] errore leggendo seed esistenti:",
+    //   readError,
+    // );
     return;
   }
 
@@ -224,14 +224,14 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
   }
 
   if (!payload.length) {
-    console.warn("[saveAdminSeedsToDb] payload empty, nothing to upsert");
-    return;
+    // console.warn("[saveAdminSeedsToDb] payload empty, nothing to upsert");
+    // return;
   }
 
-  console.log(
-    "[saveAdminSeedsToDb] payload sample",
-    payload.filter((r) => r.group_letter === "B").slice(0, 6),
-  );
+  // console.log(
+  //   "[saveAdminSeedsToDb] payload sample",
+  //   payload.filter((r) => r.group_letter === "B").slice(0, 6),
+  // );
 
   try {
     const { data, error } = await supabase
@@ -240,7 +240,7 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
         onConflict: "group_letter,match_index",
       });
 
-    console.log("[saveAdminSeedsToDb] upsert result", { data, error });
+    // console.log("[saveAdminSeedsToDb] upsert result", { data, error });
 
     if (error) {
       console.error("saveAdminSeedsToDb ERROR:", error);

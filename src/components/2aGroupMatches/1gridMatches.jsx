@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
 import AdminEditToggle from "../../Editor/AdminEditToggle";
 import EditableText from "../../Editor/EditableText";
@@ -16,8 +16,7 @@ import {
   ADMIN_EMAIL,
   DATA_SOURCE,
   DelSymbol,
-  flagsMond,
-  PinSymbol,
+  flagsMond
 } from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
 import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
@@ -37,6 +36,11 @@ import { toCode3 } from "./zExternal/toCode3";
 export default function GridMatchesPage({ isLogged }) {
   const { user } = useAuth();
   const { editMode, setEditMode } = useEditMode();
+  const notesModalRef = useRef(null);   // container del modale NOTE (desktop)
+  const notesToggleRef = useRef(null);  // bottone ☑️/✅ dentro quel modale
+  
+  const isAdminUser =
+  (user?.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   const NOTES_SOURCE = import.meta.env.VITE_NOTES_SOURCE ?? DATA_SOURCE;
   const MATCHES_SOURCE = import.meta.env.VITE_MATCHES_SOURCE ?? DATA_SOURCE;
@@ -72,6 +76,11 @@ export default function GridMatchesPage({ isLogged }) {
       return false;
     }
   });
+
+
+
+
+
   // 7 colonne: ------DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
   const gridColsDesktop = "80px 50px 30px 45px 40px 45px 30px";
   const gridColsMobile = "10px 20px 1px 35px 30px 35px 1px";
@@ -263,9 +272,14 @@ export default function GridMatchesPage({ isLogged }) {
   const [displayRisByKey, setDisplayRisByKey] = useState({});
   const didHydrateRef = useRef(false);
 
+  
   const lastSavedRef = useRef({ notes: {}, matches: {} });
   const hideTimerRef = useRef(null);
   const saveAllEditsRef = useRef(null);
+
+  // 👇 AGGIUNGI QUESTE DUE RIGHE QUI
+  const arrowRefs = useRef([]);
+  const editToggleRef = useRef(null);
 
   const [mobileRankOpen, setMobileRankOpen] = useState(false);
   const [mobileGroup, setMobileGroup] = useState(null); // "A".."L"
@@ -275,6 +289,45 @@ export default function GridMatchesPage({ isLogged }) {
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
   const [btnPos, setBtnPos] = useState({ top: "", left: "" });
+
+const handleNotesModalKeyDown = useCallback((e) => {
+  if (!notesModalRef.current) return;
+
+  const textareas = notesModalRef.current.querySelectorAll("textarea");
+  if (!textareas.length) return;
+
+  const first = textareas[0];
+  const last = textareas[textareas.length - 1];
+
+  // TAB sull'ultima textarea (Note Varie) -> vai al bottone
+  if (e.key === "Tab" && !e.shiftKey && e.target === last) {
+    e.preventDefault();
+    notesToggleRef.current?.focus();
+    return;
+  }
+
+  // INVIO sull'ultima textarea (Note Varie) -> chiude edit e torna al bottone
+  if (e.key === "Enter" && e.target === last) {
+    e.preventDefault();
+    if (notesToggleRef.current) {
+      notesToggleRef.current.click();  // simula click sul bottone
+      notesToggleRef.current.focus();  // tieni il focus lì
+    }
+  }
+}, []);
+
+useEffect(() => {
+  // quando entro in editMode, metto il focus sulla 1ª textarea del modale NOTE
+  if (!editMode) return;
+  if (!notesModalRef.current) return;
+
+  const first = notesModalRef.current.querySelector("textarea");
+  if (first) {
+    first.focus();
+    first.select?.();
+  }
+}, [editMode]);
+
 
   // =======================
   // MOBILE — NOTE + PLUS UNIFICATI
@@ -561,7 +614,10 @@ export default function GridMatchesPage({ isLogged }) {
           aria-label="World Cup groups match grid"
         >
           {groups.map((letter) => {
-            const groupData = notes?.[letter];
+            const groupData = notes?.[letter] || {};
+            const day1 = groupData.day1 || groupData.DAY1 || {};
+            const day2 = groupData.day2 || groupData.DAY2 || {};
+            const day3 = groupData.day3 || groupData.DAY3 || {};
             const resolveName = buildNameResolver(flagsMond);
 
             const groupKey = `group_${letter}`;
@@ -638,7 +694,13 @@ export default function GridMatchesPage({ isLogged }) {
 
               return "";
             };
-
+            // dentro GridMatchesPage, PRIMA del return del JSX del modale, puoi mettere:
+            const handleFlagKeyDown = (e, onClick) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick?.();          // esegue la stessa logica del click
+              }
+            };
             // 🔑 QUESTA È LA RIGA CHIAVE (ANCORA)
             const computeRes =
               user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
@@ -808,24 +870,26 @@ export default function GridMatchesPage({ isLogged }) {
                                 );
                               };
 
+                              // Mobile: stessa logica del desktop (results / seed / plusRis)
                               const computeResP = (m, idx) => {
-                                const official = (m?.results ?? "").trim();
-                                if (official.includes("-")) return official;
-
-                                const a = String(
-                                  matchesState?.[letterP]?.plusRis?.[idx]?.a ??
-                                    ""
-                                ).trim();
-                                const b = String(
-                                  matchesState?.[letterP]?.plusRis?.[idx]?.b ??
-                                    ""
-                                ).trim();
-                                if (a !== "" && b !== "") return `${a}-${b}`;
-                                return "";
+                                return computeRes(m, letterP, idx);
+                              
                               };
 
-                              const data = notes?.[letterP];
+                              // note: prima dal nuovo JSON wc_matches_structure.notes_admin,
+                              // poi fallback a notes[] (vecchia tabella)
+                              // 👇 Prima usa sempre lo stato "notes" (quello che stai editando),
+                              // poi come fallback eventuale notes_admin dalla struttura
+                              const dbNotesAdmin =
+                                structureByGroup?.[letterP]?.notes_admin || null;
 
+                              const baseNotes = notes?.[letterP];
+
+                              // Se sei ADMIN → prima le tue note in stato, poi fallback admin dal DB
+                              // Se NON sei admin → usa SOLO le tue note, mai le notes_admin
+                              const data = isAdminUser
+                                ? baseNotes || dbNotesAdmin || {}
+                                : baseNotes || {};
                               return (
                                 <div className="relative h-full flex flex-col">
                                   {/* TITOLI */}
@@ -860,7 +924,7 @@ export default function GridMatchesPage({ isLogged }) {
                                             .toUpperCase();
 
                                           // valori base da mostrare (risultato ufficiale o plusRis)
-                                          const [baseA, baseB] = String(
+                                                                                    const [baseA, baseB] = String(
                                             res ?? ""
                                           ).includes("-")
                                             ? String(res)
@@ -881,10 +945,22 @@ export default function GridMatchesPage({ isLogged }) {
                                             String(x ?? "").trim();
                                           const valueA = norm(savedA);
                                           const valueB = norm(savedB);
+
+                                          // 👇 come nel modale desktop:
+                                          // se non ho plusRis ma res ha un valore (seed / ufficiale),
+                                          // uso baseA/baseB come fallback
+                                          const displayA = isOfficial
+                                            ? baseA
+                                            : (valueA || baseA);
+                                          const displayB = isOfficial
+                                            ? baseB
+                                            : (valueB || baseB);
+
                                           const hasAnyScore =
                                             isOfficial ||
-                                            valueA !== "" ||
-                                            valueB !== "";
+                                            displayA !== "" ||
+                                            displayB !== "";
+
 
                                           // 🎯 LOGICA BORDI (come nel modale desktop)
                                           let highlightModal1 = "none";
@@ -953,7 +1029,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                   <button
                                                     type="button"
                                                     disabled={
-                                                      !editMode || hasAnyScore
+                                                      !editMode 
                                                     }
                                                     onClick={() => {
                                                       if (
@@ -976,7 +1052,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                         );
                                                       }
                                                     }}
-                                                    className={`scale-[0.45] origin-center ${
+                                                    className={`scale-[0.55] origin-center ${
                                                       editMode
                                                         ? "cursor-pointer"
                                                         : "cursor-default opacity-60"
@@ -998,20 +1074,12 @@ export default function GridMatchesPage({ isLogged }) {
 
                                                 {/* EDITABLE SCORE */}
                                                 <div className="flex justify-center">
-                                                  <EditableScore
+                                                 <EditableScore
                                                     pathA={`${letterP}.plusRis.${idx}.a`}
                                                     pathB={`${letterP}.plusRis.${idx}.b`}
                                                     pathPron={`${letterP}.plusPron.${idx}`}
-                                                    valueA={
-                                                      isOfficial
-                                                        ? baseA
-                                                        : valueA
-                                                    }
-                                                    valueB={
-                                                      isOfficial
-                                                        ? baseB
-                                                        : valueB
-                                                    }
+                                                    valueA={displayA}
+                                                    valueB={displayB}
                                                     placeholderA=""
                                                     placeholderB=""
                                                     readOnly={isOfficial}
@@ -1028,7 +1096,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                   <button
                                                     type="button"
                                                     disabled={
-                                                      !editMode || hasAnyScore
+                                                      !editMode
                                                     }
                                                     onClick={() => {
                                                       if (
@@ -1051,7 +1119,7 @@ export default function GridMatchesPage({ isLogged }) {
                                                         );
                                                       }
                                                     }}
-                                                    className={`scale-[0.45] origin-center ${
+                                                    className={`scale-[0.55] origin-center ${
                                                       editMode
                                                         ? "cursor-pointer"
                                                         : "cursor-default opacity-60"
@@ -1165,54 +1233,33 @@ export default function GridMatchesPage({ isLogged }) {
                                       </div>
                                     </div>
 
-                                    {/* --- SEZIONE NOTE --- */}
-                                    {data && (
-                                      <div className="text-sm">
-                                        {[data.day1, data.day2, data.day3].map(
-                                          (day, i) =>
-                                            day && (
-                                              <div key={i}>
-                                                <div className="font-bold text-red-900 pl-2">
-                                                  {Array.isArray(day.title)
-                                                    ? day.title[0]
-                                                    : day.title}
-                                                </div>
-                                                <div className="pl-2">
-                                                  <EditableText
-                                                    path={`${letterP}.day${i + 1}.items`}
-                                                    value={day.items}
-                                                    onChange={handleEditChange}
-                                                    textareaClassName="
-                                                      !h-[1.25rem]
-                                                      !min-h-[1rem]
-                                                      !max-h-[1.25rem]
-                                                      p-0 pt-0
-                                                      leading-[1rem]
-                                                      overflow-hidden
-                                                      resize-none
-                                                      align-top
-                                                    "
-                                                  />
-                                                </div>
-                                              </div>
-                                            )
-                                        )}
+                                                                       {/* --- SEZIONE NOTE --- */}
+                                    <div className="text-sm mt-4 space-y-1">
+                                      {[1, 2, 3].map((dayIndex) => {
+                                        const keyUpper = `DAY${dayIndex}`;
+                                        const keyLower = `day${dayIndex}`;
+                                        const day =
+                                          data[keyLower] || // 👈 prima quello che stai editando
+                                          data[keyUpper] || // 👈 fallback al DB (DAY1)
+                                          {};
 
-                                        {data.notes && (
-                                          <div>
+
+                                        return (
+                                          <div key={dayIndex}>
                                             <div className="font-bold text-red-900 pl-2">
-                                              {PinSymbol}
+                                              {dayIndex}ª giornata
                                             </div>
-                                            <div className="mt-0 pl-2">
+                                            <div className="pl-2">
                                               <EditableText
-                                                path={`${letterP}.notes.text`}
-                                                value={data.notes.text}
+                                                path={`${letterP}.day${dayIndex}.items`}
+                                                value={day.items || ""}
                                                 onChange={handleEditChange}
                                                 textareaClassName="
-                                                  !h-[6.25rem]
-                                                  !min-h-[6.25rem]
-                                                  !max-h-[6.25rem]
-                                                  leading-[1.25rem]
+                                                  !h-[1.25rem]
+                                                  !min-h-[1rem]
+                                                  !max-h-[1.25rem]
+                                                  p-0 pt-0
+                                                  leading-[1rem]
                                                   overflow-hidden
                                                   resize-none
                                                   align-top
@@ -1220,9 +1267,31 @@ export default function GridMatchesPage({ isLogged }) {
                                               />
                                             </div>
                                           </div>
-                                        )}
+                                        );
+                                      })}
+
+                                      <div>
+                                        <div className="font-bold text-red-900 pl-2">
+                                          Note Varie
+                                        </div>
+                                        <div className="mt-0 pl-2">
+                                          <EditableText
+                                            path={`${letterP}.notes.text`}
+                                            value={data?.notes?.text || ""}
+                                            onChange={handleEditChange}
+                                            textareaClassName="
+                                              !h-[6.25rem]
+                                              !min-h-[6.25rem]
+                                              !max-h-[6.25rem]
+                                              leading-[1.25rem]
+                                              overflow-hidden
+                                              resize-none
+                                              align-top
+                                            "
+                                          />
+                                        </div>
                                       </div>
-                                    )}
+                                    </div>
                                   </div>
 
                                   {/* ADMIN TOGGLE */}
@@ -1251,6 +1320,7 @@ export default function GridMatchesPage({ isLogged }) {
                     {/* ===== DESKTOP HOVER NOTE (TOOLTIP LATERALE) ===== */}
                     {hoverModal === letter && (
                       <div
+                       ref={notesModalRef}      
                         className="
                           hidden md:flex flex-row
                           absolute top-4 left-8 right-2 z-[12000]
@@ -1264,6 +1334,7 @@ export default function GridMatchesPage({ isLogged }) {
                           overscroll-contain
                           scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
                         "
+                         onKeyDownCapture={handleNotesModalKeyDown}
                         onMouseEnter={() => setHoverModal(letter)}
                         onMouseLeave={() => {
                           setHoverModal(null);
@@ -1282,17 +1353,20 @@ export default function GridMatchesPage({ isLogged }) {
                         {/* ✅ CONTENUTO AGGANCIATO A groupNotes */}
                         {/* QUESTO PT ABBASSA IL SIMBOLO DENTRO IL MODALE L ALTRO SEGNATO*/}
                         <div className="w-[3rem] flex items-start justify-center pt-[8.3rem]">
-                          <AdminEditToggle onExit={saveAllEdits} />
+                          <AdminEditToggle 
+                            onExit={saveAllEdits}
+                           buttonRef={notesToggleRef} 
+                           />
                         </div>
-                        <div className="mt-0 space-y-0 text-sm text-white flex-1 min-w-0 pr-2">
+                        <div className="mt-2 space-y-0 text-sm text-white flex-1 min-w-0 pr-2">
                           <div>
                             <div className="font-bold text-red-900 pl-2">
-                              {groupData?.day1?.title?.[0]}
+                               1ª giornata
                             </div>
                             <div className="pl-2">
                               <EditableText
                                 path={`${letter}.day1.items`}
-                                value={groupData?.day1?.items}
+                                 value={day1.items || ""} 
                                 onChange={handleEditChange}
                                 className="pl-2"
                                 textareaClassName="
@@ -1307,12 +1381,12 @@ export default function GridMatchesPage({ isLogged }) {
                           {/* Day 2 */}
                           <div>
                             <div className="font-bold text-red-900 pl-2">
-                              {groupData?.day2?.title?.[0]}
+                               2ª giornata
                             </div>
                             <div className="pl-2">
                               <EditableText
                                 path={`${letter}.day2.items`}
-                                value={groupData?.day2?.items}
+                                 value={day2.items || ""} 
                                 onChange={handleEditChange}
                                 className="pl-2"
                                 textareaClassName="
@@ -1329,12 +1403,12 @@ export default function GridMatchesPage({ isLogged }) {
                           {/* Day 3 */}
                           <div>
                             <div className="font-bold text-red-900 pl-2">
-                              {groupData?.day3?.title?.[0]}
+                               3ª giornata
                             </div>
                             <div className="pl-2 ">
                               <EditableText
                                 path={`${letter}.day3.items`}
-                                value={groupData?.day3?.items}
+                                value={day3.items || ""} 
                                 onChange={handleEditChange}
                                 className="pl-2 items-center"
                                 textareaClassName="
@@ -1351,7 +1425,9 @@ export default function GridMatchesPage({ isLogged }) {
                           {/* NOTE */}
                           <div>
                             <div className="font-bold text-red-900 pl-2">
-                              {PinSymbol}
+                              {/* {PinSymbol}
+                              */}
+                              Note Varie
                             </div>
                             <div className="mt-0 p-0 rounded-xl pl-2">
                               <EditableText
@@ -1376,9 +1452,8 @@ export default function GridMatchesPage({ isLogged }) {
                         /> */}
                       </div>
                     )}
-                    {/* ===== DESKTOP HOVER PLUS ➕(RIS PRONOSTICI) ===== */}
+                    {/* ===== DESKTOP HOVER PLUS ➕(RIS PRONOSTICI) ===== */}                     
                     {hoverPlusModal === letter && (
-                      //top muove il segno dentro il modale bg-red
                       <div
                         className="
                           absolute md:top-4 left-8 right-2 z-[12000] 
@@ -1393,7 +1468,6 @@ export default function GridMatchesPage({ isLogged }) {
                           overscroll-contain
                           scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-800
                         "
-                        // pl-24
                         onMouseEnter={() => setHoverPlusModal(letter)}
                         onMouseLeave={() => {
                           setHoverPlusModal(null);
@@ -1404,29 +1478,46 @@ export default function GridMatchesPage({ isLogged }) {
                         }}
                       >
                         <div className="p-0">
-                          {/* <div className="font-extrabold text-center text-sm mb-0">
-                                Gruppo {letter}
-                              </div> */}
-
                           <div
                             className="
-                                  -space-y-2
-                                  [&_input]:text-xl md:[&_input]:text-2xl
-                                  [&_input]:font-extrabold
-                                  [&_input]:leading-none
-                                  [&_input]:text-center
-                                "
+                              -space-y-2
+                              [&_input]:text-xl md:[&_input]:text-2xl
+                              [&_input]:font-extrabold
+                              [&_input]:leading-none
+                              [&_input]:text-center
+                            "
                           >
                             {matchesFlat.map((m, idx) => {
                               const t1 = findTeam(m.team1);
                               const t2 = findTeam(m.team2);
                               const res = computeRes(m, letter, idx);
 
-                              // ✅ pron selezionato nel modale (+) o seed_pron (admin)
+                              const isOfficial = (m?.results ?? "").trim().includes("-");
+
+                              // quando premi TAB sul secondo numero del risultato
+                              // const handleScoreTabOut = (e) => {
+                              //   // e.preventDefault();
+
+                              //   // cerca la prossima partita NON ufficiale con bottone frecce
+                              //   for (let j = idx + 1; j < matchesFlat.length; j++) {
+                              //     const nextIsOfficial = (matchesFlat[j]?.results ?? "")
+                              //       .trim()
+                              //       .includes("-");
+
+                              //     if (!nextIsOfficial && arrowRefs.current[j]) {
+                              //       arrowRefs.current[j].focus();
+                              //       return;
+                              //     }
+                              //   }
+
+                              //   // se non ci sono più frecce → torna al toggle verde/grigio
+                              //   if (editToggleRef.current) {
+                              //     editToggleRef.current.focus();
+                              //   }
+                              // };
+
                               const selectedPron = String(
-                                matchesState?.[letter]?.plusPron?.[idx] ??
-                                  m?.pron ??
-                                  ""
+                                matchesState?.[letter]?.plusPron?.[idx] ?? m?.pron ?? ""
                               )
                                 .trim()
                                 .toUpperCase();
@@ -1434,7 +1525,6 @@ export default function GridMatchesPage({ isLogged }) {
                               const isChecked =
                                 !!matchesState?.[letter]?.plusCheck?.[idx];
 
-                              // ✅ baseA/baseB dal risultato corrente (res)
                               const [baseA, baseB] = String(res ?? "").includes("-")
                                 ? String(res).split("-").map((x) => x.trim())
                                 : ["", ""];
@@ -1442,13 +1532,10 @@ export default function GridMatchesPage({ isLogged }) {
                               const savedA = matchesState?.[letter]?.plusRis?.[idx]?.a;
                               const savedB = matchesState?.[letter]?.plusRis?.[idx]?.b;
 
-                              const isOfficial = (m?.results ?? "").trim().includes("-");
                               const norm = (x) => String(x ?? "").trim();
                               const valueA = norm(savedA);
                               const valueB = norm(savedB);
 
-                              // se non ho ancora un plusRis, ma esiste un risultato (seed/ufficiale),
-                              // uso baseA/baseB come fallback visivo
                               const displayA = valueA !== "" ? valueA : baseA;
                               const displayB = valueB !== "" ? valueB : baseB;
 
@@ -1464,16 +1551,9 @@ export default function GridMatchesPage({ isLogged }) {
                                   .split("-")
                                   .map((n) => Number(String(n).trim()));
 
-                                if (
-                                  Number.isFinite(na) &&
-                                  Number.isFinite(nb)
-                                ) {
-                                  const winType = isOfficial
-                                    ? "win"
-                                    : "win-provisional";
-                                  const drawType = isOfficial
-                                    ? "draw"
-                                    : "draw-provisional";
+                                if (Number.isFinite(na) && Number.isFinite(nb)) {
+                                  const winType = isOfficial ? "win" : "win-provisional";
+                                  const drawType = isOfficial ? "draw" : "draw-provisional";
 
                                   if (na === nb) {
                                     highlightModal1 = drawType;
@@ -1485,7 +1565,6 @@ export default function GridMatchesPage({ isLogged }) {
                                   }
                                 }
                               } else {
-                                // Nessun risultato inserito → usa PRON come prima
                                 if (selectedPron === "X") {
                                   highlightModal1 = "pron-draw";
                                   highlightModal2 = "pron-draw";
@@ -1500,6 +1579,7 @@ export default function GridMatchesPage({ isLogged }) {
                                 <React.Fragment key={`plus-${letter}-${idx}`}>
                                   {/* RIGA INCONTRO */}
                                   <div
+                                    data-plus-row
                                     className={`
                                       grid grid-cols-[0.8rem_3rem_2.2rem_auto_2.2rem_3rem]
                                       w-full
@@ -1512,15 +1592,12 @@ export default function GridMatchesPage({ isLogged }) {
                                       pb-0 mb-0
                                     `}
                                   >
-                                    {/* COLONNA P (già sistemata per official) */}
+                                    {/* COLONNA P */}
                                     {(() => {
-                                      const isOfficial = (m?.results ?? "")
-                                        .trim()
-                                        .includes("-");
                                       if (isOfficial) {
                                         return (
                                           <span className="w-5 h-5 flex items-center justify-center">
-                                            {/* hidden when official */}
+                                            {/* niente P per risultati ufficiali */}
                                           </span>
                                         );
                                       }
@@ -1533,44 +1610,44 @@ export default function GridMatchesPage({ isLogged }) {
 
                                       return (
                                         <button
-                                          type="button"
-                                          onClick={() => {
-                                            if (!canUseDel) return;
+                                        type="button"
+                                        ref={(el) => (arrowRefs.current[idx] = el)}
+                                        onClick={() => {
+                                          if (!canUseDel) return;
 
-                                            // RESET COMPLETO come su mobile
-                                            handleEditChange(
-                                              `${letter}.plusCheck.${idx}`,
-                                              false
-                                            );
-                                            handleEditChange(
-                                              `${letter}.plusRis.${idx}.a`,
-                                              ""
-                                            );
-                                            handleEditChange(
-                                              `${letter}.plusRis.${idx}.b`,
-                                              ""
-                                            );
-                                            handleEditChange(
-                                              `${letter}.plusPron.${idx}`,
-                                              ""
-                                            );
-                                          }}
-                                          disabled={delDisabled}
-                                          className={`
-                                            w-8 h-8
-                                            flex items-center justify-center
-                                            transition
-                                            bg-transparent border-none
-                                            ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
-                                            ${delClassBase}
-                                            font-bold
-                                            active:rotate-90
-                                            active:scale-125
-                                          `}
-                                          aria-label="Reset pronostico"
-                                        >
-                                          {DelSymbol}
-                                        </button>
+                                          // RESET COMPLETO
+                                          handleEditChange(`${letter}.plusCheck.${idx}`, false);
+                                          handleEditChange(`${letter}.plusRis.${idx}.a`, "");
+                                          handleEditChange(`${letter}.plusRis.${idx}.b`, "");
+                                          handleEditChange(`${letter}.plusPron.${idx}`, "");
+                                        }}
+                                        onKeyDown={(e) => {
+                                          // SOLO ENTER, niente più gestione TAB qui
+                                          if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            if (!canUseDel) return;
+                                            handleEditChange(`${letter}.plusCheck.${idx}`, false);
+                                            handleEditChange(`${letter}.plusRis.${idx}.a`, "");
+                                            handleEditChange(`${letter}.plusRis.${idx}.b`, "");
+                                            handleEditChange(`${letter}.plusPron.${idx}`, "");
+                                          }
+                                        }}
+                                        disabled={delDisabled}
+                                        className={`
+                                          w-8 h-8
+                                          flex items-center justify-center
+                                          transition
+                                          bg-transparent border-none
+                                          ${editMode ? "-translate-x-[2.5rem]" : "translate-x-0"}
+                                          ${delClassBase}
+                                          font-bold
+                                          active:rotate-90
+                                          active:scale-125
+                                        `}
+                                        aria-label="Reset pronostico"
+                                      >
+                                        {DelSymbol}
+                                      </button>
                                       );
                                     })()}
 
@@ -1595,23 +1672,28 @@ export default function GridMatchesPage({ isLogged }) {
                                     >
                                       <button
                                         type="button"
-                                        disabled={!editMode || hasAnyScore}
-                                        onClick={() => {
+                                        disabled={!editMode 
+                                          // || hasAnyScore
+                                        }
+                                       onClick={() => {
                                           if (!editMode || hasAnyScore) return;
 
-                                          // solo pronostico, NON toccare plusRis
                                           if (selectedPron === "1") {
-                                            handleEditChange(
-                                              `${letter}.plusPron.${idx}`,
-                                              ""
-                                            );
+                                            handleEditChange(`${letter}.plusPron.${idx}`, "");
                                           } else {
-                                            handleEditChange(
-                                              `${letter}.plusPron.${idx}`,
-                                              "1"
-                                            );
+                                            handleEditChange(`${letter}.plusPron.${idx}`, "1");
                                           }
                                         }}
+                                        onKeyDown={(e) =>
+                                          handleFlagKeyDown(e, () => {
+                                            if (!editMode || hasAnyScore) return;
+                                            if (selectedPron === "1") {
+                                              handleEditChange(`${letter}.plusPron.${idx}`, "");
+                                            } else {
+                                              handleEditChange(`${letter}.plusPron.${idx}`, "1");
+                                            }
+                                          })
+                                        }                   
                                         className={`scale-[0.45] md:scale-[0.65] origin-center ${
                                           editMode
                                             ? "cursor-pointer"
@@ -1637,10 +1719,11 @@ export default function GridMatchesPage({ isLogged }) {
                                       pathPron={`${letter}.plusPron.${idx}`}
                                       valueA={displayA}
                                       valueB={displayB}
-                                      placeholderA=""   // non servono più i placeholder, i numeri ci sono davvero
+                                      placeholderA=""
                                       placeholderB=""
                                       readOnly={isOfficial}
                                       onChange={handleEditChange}
+                                      // onTabOut={handleScoreTabOut}  // TAB su B → freccia riga dopo o toggle verde
                                       className={`
                                         min-w-[2.5rem]
                                         ${isOfficial ? "opacity-50 text-gray-300" : ""}
@@ -1651,22 +1734,28 @@ export default function GridMatchesPage({ isLogged }) {
                                     <div className="flex items-center justify-center p-0 m-0 leading-none h-full">
                                       <button
                                         type="button"
-                                        disabled={!editMode || hasAnyScore}
-                                        onClick={() => {
+                                        disabled={!editMode 
+                                          // || hasAnyScore
+                                        }
+                                         onClick={() => {
                                           if (!editMode || hasAnyScore) return;
 
                                           if (selectedPron === "2") {
-                                            handleEditChange(
-                                              `${letter}.plusPron.${idx}`,
-                                              ""
-                                            );
+                                            handleEditChange(`${letter}.plusPron.${idx}`, "");
                                           } else {
-                                            handleEditChange(
-                                              `${letter}.plusPron.${idx}`,
-                                              "2"
-                                            );
+                                            handleEditChange(`${letter}.plusPron.${idx}`, "2");
                                           }
                                         }}
+                                        onKeyDown={(e) =>
+                                          handleFlagKeyDown(e, () => {
+                                            if (!editMode || hasAnyScore) return;
+                                            if (selectedPron === "2") {
+                                              handleEditChange(`${letter}.plusPron.${idx}`, "");
+                                            } else {
+                                              handleEditChange(`${letter}.plusPron.${idx}`, "2");
+                                            }
+                                          })
+                                        }
                                         className={`scale-[0.45] md:scale-[0.65] origin-center ${
                                           editMode
                                             ? "cursor-pointer"
@@ -1718,27 +1807,43 @@ export default function GridMatchesPage({ isLogged }) {
                             })}
                           </div>
                         </div>
+                        {/* ADMIN TOGGLE – CENTRATO */}
                         {/* 🔴 "+" */}
                         {/* Toggle sempre a metà, lato sinistro, segue lo scroll */}
                         {/* ADMIN TOGGLE – CENTRATO */}
                         {/* QUESTO TOP ABBASSA IL PULSANTE DENTRO IL MODALE L ALTRO E
-                         PT-[8.3REM] */}
+                          PT-[8.3REM] */}                                    
                         <div
                           className="
-                                absolute inset-0 md:-top-[4.9rem]  -top-[2rem]
-                                flex items-center justify-center
-                                z-[10002]
-                                pointer-events-none
-                              "
+                            absolute inset-0 md:-top-[4.9rem]  -top-[2rem]
+                            flex items-center justify-center
+                            z-[10002]
+                            pointer-events-none
+                          "
                         >
                           <div className="pointer-events-auto">
                             <div className="absolute left-0 pointer-events-auto">
-                              <AdminEditToggle onExit={saveAllEdits} />
+                              <AdminEditToggle
+                                onExit={saveAllEdits}
+                                buttonRef={editToggleRef}
+                                onTabNext={() => {
+                                  // trova la PRIMA partita non ufficiale che ha il bottone frecce
+                                  for (let j = 0; j < matchesFlat.length; j++) {
+                                    const m = matchesFlat[j];
+                                    const isOfficial = (m?.results ?? "").trim().includes("-");
+
+                                    if (!isOfficial && arrowRefs.current[j]) {
+                                      arrowRefs.current[j].focus(); // 👈 frecce riga j
+                                      return;
+                                    }
+                                  }
+                                }}
+                              />
                             </div>
                           </div>
                         </div>
                       </div>
-                    )}
+                    )}                      
                   </div>
 
                   {/* GRIGLIA */}

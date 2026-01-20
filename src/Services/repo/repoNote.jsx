@@ -5,14 +5,19 @@ import { supabase } from "../supabase/supabaseClient";
 const LOCAL_STORAGE_KEY = "notes_base_local";
 const ADMIN_EMAIL = "simobara@hotmail.it";
 
+// ============ UTILITY ============
+
 // safe clone (fallback se structuredClone non esiste)
 function clone(x) {
+  // eslint-disable-next-line no-undef
   if (typeof structuredClone === "function") return structuredClone(x);
   return JSON.parse(JSON.stringify(x ?? null));
 }
 
 /**
- * Rimuove i commenti (items e notes.text) mantenendo la struttura
+ * Rimuove il contenuto delle note (items / text) dai dati base,
+ * mantenendo solo la struttura. Usato per utenti non loggati
+ * / senza userId/email, così non vedono i commenti.
  */
 function stripComments(base) {
   const out = clone(base ?? {});
@@ -31,6 +36,89 @@ function stripComments(base) {
   return out;
 }
 
+/**
+ * Rimuove le proprietà "title" da day1/day2/day3/notes
+ */
+function removeTitles(obj) {
+  if (!obj) return obj;
+
+  const out = clone(obj);
+
+  ["day1", "day2", "day3"].forEach((key) => {
+    if (out[key]) delete out[key].title;
+  });
+
+  if (out.notes) delete out.notes.title;
+
+  return out;
+}
+
+/**
+ * Porta le chiavi day1/day2/day3 a DAY1/DAY2/DAY3
+ */
+function normalizeKeysToUppercase(obj) {
+  if (!obj) return obj;
+
+  const out = {};
+
+  ["day1", "day2", "day3"].forEach((k) => {
+    if (obj[k]) out[k.toUpperCase()] = obj[k];
+  });
+
+  if (obj.notes) out.notes = obj.notes;
+
+  return out;
+}
+
+/**
+ * normalizza qualsiasi formato in stato React:
+ *   { day1, day2, day3, notes }
+ */
+function normalizeNoteForState(raw) {
+  if (!raw) {
+    return {
+      day1: { items: "" },
+      day2: { items: "" },
+      day3: { items: "" },
+      notes: { text: "" },
+    };
+  }
+
+  const noTitles = removeTitles(raw);
+  const upper = normalizeKeysToUppercase(noTitles); // DAY1, DAY2, DAY3, notes
+
+  return {
+    day1: upper.DAY1 || noTitles.day1 || { items: "" },
+    day2: upper.DAY2 || noTitles.day2 || { items: "" },
+    day3: upper.DAY3 || noTitles.day3 || { items: "" },
+    notes: upper.notes || noTitles.notes || { text: "" },
+  };
+}
+
+/**
+ * prende lo stato React (day1/day2/day3/notes)
+ * e lo porta nel formato DB (DAY1/DAY2/DAY3/notes)
+ */
+function normalizeNoteForDb(stateNote) {
+  if (!stateNote) {
+    return {
+      DAY1: { items: "" },
+      DAY2: { items: "" },
+      DAY3: { items: "" },
+      notes: { text: "" },
+    };
+  }
+
+  return {
+    DAY1: { items: stateNote.day1?.items ?? stateNote.DAY1?.items ?? "" },
+    DAY2: { items: stateNote.day2?.items ?? stateNote.DAY2?.items ?? "" },
+    DAY3: { items: stateNote.day3?.items ?? stateNote.DAY3?.items ?? "" },
+    notes: { text: stateNote.notes?.text ?? "" },
+  };
+}
+
+// ============ REPO ============
+
 export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
   const isRemote = source === DATA_SOURCE;
 
@@ -39,175 +127,166 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
 
   const isAdmin = (userEmail || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
+  // ========= ADMIN: LOAD =========
+  // ========= ADMIN: LOAD =========
+  async function loadAdminNotesFromStructure() {
+    try {
+      const { data, error } = await supabase
+        .from("wc_matches_structure")
+        .select("group_letter, match_index, notes_admin")
+        .eq("user_email", ADMIN_EMAIL)
+        .eq("match_index", 0); // 👈 SOLO MATCH 0
+
+      if (error) {
+        console.error("ADMIN LOAD FROM STRUCTURE ERROR:", error);
+        return groupNotes ?? {};
+      }
+
+      const byGroup = {};
+
+      for (const row of data ?? []) {
+        const letter = row.group_letter;
+        if (!letter) continue;
+        if (!row.notes_admin) continue;
+
+        byGroup[letter] = row.notes_admin;
+      }
+
+      const merged = clone(groupNotes ?? {});
+      for (const g of Object.keys(byGroup)) {
+        if (byGroup[g]) merged[g] = byGroup[g];
+      }
+
+      return merged;
+    } catch (err) {
+      console.error("ADMIN LOAD FROM STRUCTURE ERROR:", err);
+      return groupNotes ?? {};
+    }
+  }
+
+  // ========= ADMIN: SAVE =========
+  // ========= ADMIN: SAVE =========
+  async function saveAdminNotesToStructure({ notes, keysTouched }) {
+    if (!keysTouched?.size) return;
+
+    for (const groupLetter of keysTouched) {
+      const payload = {
+        notes_admin: notes?.[groupLetter] ?? null,
+      };
+
+      const { error } = await supabase
+        .from("wc_matches_structure")
+        .update(payload)
+        .eq("user_email", ADMIN_EMAIL)
+        .eq("group_letter", groupLetter)
+        .eq("match_index", 0); // 👈 SOLO MATCH 0
+
+      if (error) {
+        console.error(
+          "ADMIN SAVE NOTES ERROR:",
+          error,
+          "group_letter:",
+          groupLetter,
+        );
+      }
+    }
+  }
+
   return {
     source,
 
+    // ============ LOAD ============
     async load() {
       // ---------- LOCAL ----------
       if (!isRemote) {
         try {
           const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
           const parsed = saved ? JSON.parse(saved) : null;
-          return { ...(groupNotes ?? {}), ...(parsed ?? {}) };
+
+          const base = { ...(groupNotes ?? {}), ...(parsed ?? {}) };
+
+          const out = {};
+          for (const g of Object.keys(base ?? {})) {
+            out[g] = normalizeNoteForState(base[g]);
+          }
+
+          return out;
         } catch {
-          return groupNotes ?? {};
+          const base = groupNotes ?? {};
+          const out = {};
+          for (const g of Object.keys(base ?? {})) {
+            out[g] = normalizeNoteForState(base[g]);
+          }
+          return out;
         }
       }
 
-      // se non ho userEmail, considero come non loggato
-      if (!userEmail) {
-        return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
+      // ============ ADMIN PATH ============
+      if (isAdmin) {
+        const loaded = await loadAdminNotesFromStructure();
+
+        const cleaned = {};
+        for (const g of Object.keys(loaded ?? {})) {
+          cleaned[g] = normalizeNoteForState(loaded[g]);
+        }
+
+        return cleaned;
       }
 
-      // ---------- REMOTE ----------
-      // non loggato → admin vede base completa, altri base pulita
-      if (!userId) {
-        return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
+      // ============ NON-ADMIN PATH ============
+
+      // utente senza email o userId → solo base stripComments
+      if (!userEmail || !userId) {
+        const base = stripComments(groupNotes);
+        const out = {};
+        for (const g of Object.keys(base ?? {})) {
+          out[g] = normalizeNoteForState(base[g]);
+        }
+        return out;
       }
 
-      // 1) Leggi DB user (per email, NON più per user_id)
-      let { data, error } = await supabase
-        .from("notes_base")
-        .select("key, data")
-        .eq("user_email", userEmail); // 🟢 CAMBIATO
+      // carica note utente da wc_matches_structure_userpron.notes_user
+      // carica note utente da wc_matches_structure_userpron.notes_user
+      const { data, error } = await supabase
+        .from("wc_matches_structure_userpron")
+        .select("group_letter, match_index, notes_user")
+        .eq("user_email", userEmail)
+        .eq("match_index", 0); // 👈 SOLO MATCH 0
 
       if (error) {
-        console.error("LOAD ERROR:", error);
-        return isAdmin ? (groupNotes ?? {}) : stripComments(groupNotes);
+        console.error("LOAD USERPRON ERROR:", error);
+        const base = stripComments(groupNotes);
+        const out = {};
+        for (const g of Object.keys(base ?? {})) {
+          out[g] = normalizeNoteForState(base[g]);
+        }
+        return out;
       }
 
-      // 2) ADMIN: prima volta assoluta → seed DB con il LOCALE COMPLETO
-      if (isAdmin && (!data || data.length === 0)) {
-        const payload = Object.keys(groupNotes ?? {}).map((k) => ({
-          user_id: userId,
-          user_email: userEmail, // 🟢 AGGIUNTO
-          key: k,
-          data: groupNotes?.[k] ?? null,
-        }));
-
-        const { error: seedAdminErr } = await supabase
-          .from("notes_base")
-          .upsert(payload, { onConflict: "key,user_email" }); // 🟢 CAMBIATO
-
-        if (seedAdminErr) {
-          console.warn("ADMIN SEED WARN:", seedAdminErr);
-          return groupNotes ?? {};
-        }
-
-        // rilegge dopo seed
-        const res2 = await supabase
-          .from("notes_base")
-          .select("key, data")
-          .eq("user_email", userEmail); // 🟢 CAMBIATO
-
-        if (res2.error) {
-          console.error("LOAD AFTER ADMIN SEED ERROR:", res2.error);
-          return groupNotes ?? {};
-        }
-
-        data = res2.data;
+      // base: groupNotes senza commenti, normalizzati
+      const base = stripComments(groupNotes);
+      const merged = {};
+      for (const g of Object.keys(base ?? {})) {
+        merged[g] = normalizeNoteForState(base[g]);
       }
 
-      // 3) NON-ADMIN: prima volta → seed con BASE PULITA
-      if (!isAdmin && (!data || data.length === 0)) {
-        const cleanBase = stripComments(groupNotes);
-
-        const payload = Object.keys(cleanBase ?? {}).map((k) => ({
-          user_id: userId,
-          user_email: userEmail, // 🟢 AGGIUNTO
-          key: k,
-          data: cleanBase?.[k] ?? null,
-        }));
-
-        const { error: seedCleanErr } = await supabase
-          .from("notes_base")
-          .upsert(payload, { onConflict: "key,user_email" }); // 🟢 CAMBIATO
-
-        if (seedCleanErr) {
-          console.warn("NON-ADMIN SEED CLEAN WARN:", seedCleanErr);
-        }
-
-        const res3 = await supabase
-          .from("notes_base")
-          .select("key, data")
-          .eq("user_email", userEmail); // 🟢 CAMBIATO
-
-        if (!res3.error) data = res3.data;
-      }
-
-      // 4) out dal DB
-      const out = {};
-      for (const row of data ?? []) out[row.key] = row.data;
-
-      // 5) base:
-      const base = isAdmin ? groupNotes : stripComments(groupNotes);
-
-      // 6) merge (DB vince)
-      const merged = clone(base);
-      for (const k of Object.keys(out ?? {})) {
-        if (!out[k]) continue;
-        merged[k] = out[k];
-      }
-
-      // 7) NON-ADMIN: nascondi i commenti seed se uguali al file principale
-      if (!isAdmin) {
-        for (const g of Object.keys(merged ?? {})) {
-          const mG = merged[g];
-          const refG = groupNotes?.[g];
-          if (!mG || !refG) continue;
-
-          for (const dayKey of ["day1", "day2", "day3"]) {
-            const mItem = mG?.[dayKey]?.items ?? "";
-            const refItem = refG?.[dayKey]?.items ?? "";
-            if (refItem && mItem === refItem) {
-              mG[dayKey] = mG[dayKey] ?? {};
-              mG[dayKey].items = "";
-            }
-          }
-
-          const mText = mG?.notes?.text ?? "";
-          const refText = refG?.notes?.text ?? "";
-          if (refText && mText === refText) {
-            mG.notes = mG.notes ?? {};
-            mG.notes.text = "";
-          }
-        }
-      }
-
-      // ✅ NON-ADMIN: mostra items/text SOLO se l’utente ha scritto (__edited === true)
-      if (!isAdmin) {
-        for (const g of Object.keys(merged ?? {})) {
-          const mG = merged[g];
-          if (!mG) continue;
-
-          if (mG.__edited !== true) {
-            for (const dayKey of ["day1", "day2", "day3"]) {
-              if (mG[dayKey]) mG[dayKey].items = "";
-            }
-            if (mG.notes) mG.notes.text = "";
-          }
-        }
+      // override con i dati utente
+      for (const row of data ?? []) {
+        merged[row.group_letter] = normalizeNoteForState(row.notes_user);
       }
 
       return merged;
     },
 
+    // ============ SAVE ============
     async save({ notes, keysTouched }) {
       if (!keysTouched?.size) return;
-
-      // ✅ NON-ADMIN: marca i gruppi modificati
-      if (!isAdmin && notes) {
-        for (const k of keysTouched) {
-          notes[k] = notes[k] ?? {};
-          notes[k].__edited = true;
-        }
-      }
 
       // ---------- LOCAL ----------
       if (!isRemote) {
         try {
           const current = JSON.parse(
-            localStorage.getItem(LOCAL_STORAGE_KEY) || "{}"
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "{}",
           );
           const next = { ...current };
           for (const k of keysTouched) next[k] = notes?.[k] ?? null;
@@ -218,21 +297,46 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
         return;
       }
 
-      // ---------- REMOTE ----------
-      if (!userId || !userEmail) return; // 🟢 ora richiedo anche email
+      // ============ ADMIN PATH ============
+      if (isAdmin) {
+        const notesToSave = {};
+        for (const key of keysTouched) {
+          notesToSave[key] = normalizeNoteForDb(notes[key]);
+        }
+        await saveAdminNotesToStructure({ notes: notesToSave, keysTouched });
+        return;
+      }
 
-      const payload = Array.from(keysTouched).map((k) => ({
-        user_id: userId,
-        user_email: userEmail, // 🟢 AGGIUNTO
-        key: k,
-        data: notes?.[k] ?? null,
-      }));
+      // ============================
+      //      NON-ADMIN PATH
+      // ============================
 
-      const { error } = await supabase
-        .from("notes_base")
-        .upsert(payload, { onConflict: "key,user_email" }); // 🟢 CAMBIATO
+      // ============================
+      //      NON-ADMIN PATH
+      // ============================
 
-      if (error) console.error("SAVE ERROR:", error);
+      if (!userId || !userEmail) return;
+
+      // aggiorna ogni gruppo toccato in wc_matches_structure_userpron
+      for (const groupLetter of keysTouched) {
+        const normalized = normalizeNoteForDb(notes[groupLetter]);
+
+        const { error } = await supabase
+          .from("wc_matches_structure_userpron")
+          .update({ notes_user: normalized })
+          .eq("user_email", userEmail)
+          .eq("group_letter", groupLetter)
+          .eq("match_index", 0); // 👈 SOLO MATCH 0
+
+        if (error) {
+          console.error(
+            "SAVE USERPRON ERROR:",
+            error,
+            "group_letter:",
+            groupLetter,
+          );
+        }
+      }
     },
   };
 }

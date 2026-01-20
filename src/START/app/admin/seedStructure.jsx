@@ -1542,46 +1542,68 @@ function Field({
 
     // ⏱ CAMPO TIME → solo numeri, formato HH:MM
     if (label === "time") {
+      const previous = value ?? "";
+      const isAdding = raw.length > previous.length; // true se sta scrivendo, false se sta cancellando
+
       let digits = raw.replace(/\D/g, "");
       digits = digits.slice(0, 4);
 
-      let formatted = "";
-
       if (digits.length === 0) {
-        formatted = "";
-      } else if (digits.length <= 2) {
-        formatted = digits.length === 2 ? `${digits}:` : digits;
-      } else {
-        const hh = digits.slice(0, 2);
-        const mm = digits.slice(2);
-        formatted = `${hh}:${mm}`;
+        onChange("");
+        return;
       }
 
-      onChange(formatted);
+      if (digits.length === 1) {
+        // prima cifra, nessun :
+        onChange(digits);
+        return;
+      }
+
+      if (digits.length === 2) {
+        // se sta scrivendo → "HH:"
+        // se sta cancellando → "HH" (così non rimette il :)
+        onChange(isAdding ? `${digits}:` : digits);
+        return;
+      }
+
+      // 3 o 4 cifre → HH:M o HH:MM
+      const hh = digits.slice(0, 2);
+      const mm = digits.slice(2);
+      onChange(`${hh}:${mm}`);
       return;
     }
 
-    // 📅 CAMPO DAY → formato LLL/DD (es. GIU/28)
+    // 📅 CAMPO DAY → formato LLL/DD (GIU/28) con slash intelligente
     if (label === "day") {
+      const previous = value ?? "";
+      const isAdding = raw.length > previous.length; // true = sta scrivendo, false = sta cancellando
+
       const upper = raw.toUpperCase();
+      let letters = upper.replace(/[^A-Z]/g, "").slice(0, 3); // max 3 lettere
+      let digits = upper.replace(/[^0-9]/g, "").slice(0, 2); // max 2 numeri
 
-      const lettersOnly = upper.replace(/[^A-Z]/g, "");
-      const digitsOnly = upper.replace(/[^0-9]/g, "");
-
-      const month = lettersOnly.slice(0, 3);
-      const dayNum = digitsOnly.slice(0, 2);
-
-      let formatted = "";
-
-      if (month.length === 0) {
-        formatted = "";
-      } else if (month.length < 3) {
-        formatted = month;
-      } else {
-        formatted = dayNum.length > 0 ? `${month}/${dayNum}` : `${month}/`;
+      // Nessuna lettera → vuoto
+      if (letters.length === 0) {
+        onChange("");
+        return;
       }
 
-      onChange(formatted);
+      // 1-2 lettere: semplici, nessuno slash
+      if (letters.length < 3) {
+        onChange(letters);
+        return;
+      }
+
+      // 3 lettere → aggiungi "/" solo se sta scrivendo
+      if (letters.length === 3 && digits.length === 0) {
+        onChange(isAdding ? `${letters}/` : letters);
+        return;
+      }
+
+      // 3 lettere + 1-2 numeri → GIU/2 o GIU/28
+      const month = letters;
+      const day = digits;
+      onChange(`${month}/${day}`);
       return;
     }
 
@@ -1615,39 +1637,64 @@ function Field({
 
     // ⚽ CAMPI RISULTATO: ris / RES / TS / R / results → formato 1-2
     if (["ris", "RES", "results", "TS", "R"].includes(label)) {
+      const previous = value ?? ""; // valore attuale nel campo
+      const isAdding = raw.length > previous.length; // true se sta scrivendo, false se sta cancellando
+
       let digits = raw.replace(/\D/g, "");
       digits = digits.slice(0, 2);
-      let formatted = "";
-      if (!digits.length) formatted = "";
-      else if (digits.length === 1) formatted = `${digits[0]}-`;
-      else formatted = `${digits[0]}-${digits[1]}`;
-      onChange(formatted);
+
+      if (!digits.length) {
+        onChange("");
+        return;
+      }
+
+      if (digits.length === 1) {
+        // se sta scrivendo →  "1-"
+        // se sta cancellando → solo "1" (così puoi togliere anche il numero)
+        onChange(isAdding ? `${digits[0]}-` : digits[0]);
+        return;
+      }
+
+      // due cifre → "1-2"
+      onChange(`${digits[0]}-${digits[1]}`);
       return;
     }
 
     // 🇵🇹 CAMPO PRONSQ → SOLO LETTERE, formato AAA-BBB
     if (label === "pronsq") {
+      const previous = (value ?? "").toUpperCase();
+      const isAdding = raw.length > previous.length; // true se sta scrivendo, false se sta cancellando
+
       let letters = raw.toUpperCase().replace(/[^A-Z]/g, "");
       letters = letters.slice(0, 6);
 
-      let formatted = "";
-
       if (letters.length === 0) {
-        formatted = "";
-      } else if (letters.length <= 3) {
-        formatted = letters.length === 3 ? `${letters}-` : letters;
-      } else {
-        const first = letters.slice(0, 3);
-        const second = letters.slice(3);
-        formatted = `${first}-${second}`;
+        onChange("");
+        return;
       }
 
-      onChange(formatted);
+      if (letters.length <= 3) {
+        // Se sta scrivendo e ha appena completato 3 lettere → AAA-
+        // Se sta cancellando → solo AAA (senza bloccare il backspace sul trattino)
+        onChange(isAdding && letters.length === 3 ? `${letters}-` : letters);
+        return;
+      }
+
+      // Da 4 a 6 lettere → AAA-BBB
+      const first = letters.slice(0, 3);
+      const second = letters.slice(3);
+      onChange(`${first}-${second}`);
       return;
     }
 
     // LOGICA GENERICA (city, team1, team2, pron, ecc.)
-    let v = raw.toUpperCase();
+    // LOGICA GENERICA (city, team1, team2, pron, ecc.)
+    let v = raw;
+
+    // per questi campi vogliamo MAIUSCOLO
+    if (["team1", "team2", "pron"].includes(label)) {
+      v = v.toUpperCase();
+    }
 
     if (maxLength) v = v.slice(0, maxLength);
 
