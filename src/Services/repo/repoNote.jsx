@@ -165,7 +165,6 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
   }
 
   // ========= ADMIN: SAVE =========
-  // ========= ADMIN: SAVE =========
   async function saveAdminNotesToStructure({ notes, keysTouched }) {
     if (!keysTouched?.size) return;
 
@@ -174,20 +173,40 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
         notes_admin: notes?.[groupLetter] ?? null,
       };
 
-      const { error } = await supabase
+      // 🔵 SALVA nella riga 0
+      const { error: err0 } = await supabase
         .from("wc_matches_structure")
         .update(payload)
         .eq("user_email", ADMIN_EMAIL)
         .eq("group_letter", groupLetter)
-        .eq("match_index", 0); // 👈 SOLO MATCH 0
+        .eq("match_index", 0);
 
-      if (error) {
+      if (err0) {
         console.error(
-          "ADMIN SAVE NOTES ERROR:",
-          error,
+          "ADMIN SAVE NOTES ERROR (index 0):",
+          err0,
           "group_letter:",
           groupLetter,
         );
+      }
+
+      // 🔵 METTI "|" nelle righe 1..5
+      for (let i = 1; i <= 5; i++) {
+        const { error: errI } = await supabase
+          .from("wc_matches_structure")
+          .update({ notes_admin: "|" })
+          .eq("user_email", ADMIN_EMAIL)
+          .eq("group_letter", groupLetter)
+          .eq("match_index", i);
+
+        if (errI) {
+          console.error(
+            "ADMIN SAVE NOTES ERROR (index " + i + "):",
+            errI,
+            "group_letter:",
+            groupLetter,
+          );
+        }
       }
     }
   }
@@ -311,30 +330,46 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
       //      NON-ADMIN PATH
       // ============================
 
-      // ============================
-      //      NON-ADMIN PATH
-      // ============================
-
       if (!userId || !userEmail) return;
 
       // aggiorna ogni gruppo toccato in wc_matches_structure_userpron
       for (const groupLetter of keysTouched) {
         const normalized = normalizeNoteForDb(notes[groupLetter]);
 
-        const { error } = await supabase
+        // 🔵 SALVA le note dell’utente nella riga 0
+        const { error: err0 } = await supabase
           .from("wc_matches_structure_userpron")
           .update({ notes_user: normalized })
           .eq("user_email", userEmail)
           .eq("group_letter", groupLetter)
-          .eq("match_index", 0); // 👈 SOLO MATCH 0
+          .eq("match_index", 0);
 
-        if (error) {
+        if (err0) {
           console.error(
-            "SAVE USERPRON ERROR:",
-            error,
+            "SAVE USERPRON ERROR (index 0):",
+            err0,
             "group_letter:",
             groupLetter,
           );
+        }
+
+        // 🔵 METTI "|" nelle righe 1..5
+        for (let i = 1; i <= 5; i++) {
+          const { error: errI } = await supabase
+            .from("wc_matches_structure_userpron")
+            .update({ notes_user: "|" })
+            .eq("user_email", userEmail)
+            .eq("group_letter", groupLetter)
+            .eq("match_index", i);
+
+          if (errI) {
+            console.error(
+              "SAVE USERPRON ERROR (index " + i + "):",
+              errI,
+              "group_letter:",
+              groupLetter,
+            );
+          }
         }
       }
     },
