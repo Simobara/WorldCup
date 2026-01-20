@@ -425,15 +425,15 @@ const TableBlock = ({ isLogged }) => {
     }
 
     // niente ufficiali (già gestito sopra) e niente pron utente → opzionale: mostra pronsq admin dal DB
-    if (dbPron) {
-      const [p1, p2] = dbPron.split("-").map((s) => s.trim());
-      return {
-        code1: p1 || "",
-        code2: p2 || "",
-        isPron1: !!p1,
-        isPron2: !!p2,
-      };
-    }
+    // if (dbPron) {
+    //   const [p1, p2] = dbPron.split("-").map((s) => s.trim());
+    //   return {
+    //     code1: p1 || "",
+    //     code2: p2 || "",
+    //     isPron1: !!p1,
+    //     isPron2: !!p2,
+    //   };
+    // }
 
     return { code1: "", code2: "", isPron1: false, isPron2: false };
   };

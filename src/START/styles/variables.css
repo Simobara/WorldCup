@@ -53,7 +53,7 @@
 
   /* GROUP CARD (container) =================================== */
   --group-bg:             #541313; /* bg-red-900 */
-  --group-border:         #541313; /* border-red-900 */
+  --group-border:         #582323; /* border-red-900 */
 
   /* GRID MATCHES ============================================= */
   --mhead-bg:             #541313; /* bg-red-900 */
@@ -123,7 +123,7 @@
   --c-gray-400:  #9ca3af;
 
   --c-red-900:   #541313;
-
+  --c-blue-700:  #233AE9;
   --c-sky-800:   #075985;
   --c-sky-900:   #0c4a6e;
   --c-teal-700:  #0f766e;
@@ -146,7 +146,7 @@
   --quad-bg-final:        var(--c-yellow-500);
 
   --quad-border-win:      var(--c-rose-700);
-  --quad-border-draw:     var(--c-slate-400);
+  --quad-border-draw:     var(--c-blue-700);
   --quad-border-pron:     var(--c-purple-500);
   --quad-border-pron-draw:var(--c-green-500);
   --quad-border-default:  var(--c-slate-900);

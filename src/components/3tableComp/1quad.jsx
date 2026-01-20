@@ -24,8 +24,8 @@ const Quadrato = ({
 
   const borderByHighlight = {
     // ✅ UFFICIALE: vittoria team1 o team2 → pink-900
-    win: "border-pink-900",
-    win2: "border-pink-900",
+    win: "border-pink-500",
+    win2: "border-pink-500",
 
     draw: CssQuad.BorderDraw,
 

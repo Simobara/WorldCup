@@ -116,12 +116,12 @@ export const CssHighlights = {
 };
 
 export const Rett = {
-  A: "bg-blue-600",
-  B: "bg-rose-600",
-  C: "bg-amber-600",
-  D: "bg-green-600",
+  A: "bg-cyan-400",
+  B: "bg-rose-500",
+  C: "bg-amber-500",
+  D: "bg-violet-400",
   Final: "bg-yellow-400",
 
-  SemiAB: "bg-gradient-to-b from-blue-600 to-rose-600",
-  SemiCD: "bg-gradient-to-b from-amber-600 to-green-600",
+  SemiAB: "bg-gradient-to-b from-cyan-400 to-rose-500",
+  SemiCD: "bg-gradient-to-b from-amber-500 to-violet-400",
 };
