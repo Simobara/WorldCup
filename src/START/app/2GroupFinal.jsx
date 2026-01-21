@@ -168,7 +168,7 @@ const groupFinal26 = {
         'LUG/18',
       ],
       matches: [
-        { numero:  1, city: 'Miami',       time: '23:00', pos1:'FINAL',            pos2:'3/4',                team1:'',    team2:'',    fg:'F2',  pronsq:'', results:{ RES:' ', TS:' ', R:' ' } },
+        { numero:  1, city: 'Miami',       time: '23:00', pos1:'FINAL',         pos2:'3/4',         team1:'',    team2:'',    fg:'F2',  pronsq:'', results:{ RES:' ', TS:' ', R:' ' } },
       ],
     },
   },
@@ -180,7 +180,7 @@ const groupFinal26 = {
         'LUG/19',
       ],
       matches: [
-        { numero:  1, city: 'NewYork',     time: '00:00', pos1:'FINAL',             pos2:'WC',            team1:'',    team2:'',    fg:'F1',  pronsq:'', results:{ RES:' ', TS:' ', R:' ' } },
+        { numero:  1, city: 'NewYork',     time: '00:00', pos1:'FINAL',         pos2:'WC',          team1:'',    team2:'',    fg:'F1',  pronsq:'', results:{ RES:' ', TS:' ', R:' ' } },
       ],
     },
   },

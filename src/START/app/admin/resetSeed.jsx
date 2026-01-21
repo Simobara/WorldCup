@@ -89,7 +89,7 @@ export default function RunSeedPage() {
             rowsToInsert.push({
               phase_key: phaseKey,
               match_index: matchIndex,
-
+              day: giornata.dates?.[0] ?? null,
               city: match.city ?? null,
               time: match.time ?? null,
 
@@ -102,7 +102,7 @@ export default function RunSeedPage() {
               team1: match.team1 ?? null,
               team2: match.team2 ?? null,
 
-              results_res: match.results?.ris ?? null,
+              results_res: match.results?.RES ?? null,
               results_ts: match.results?.TS ?? null,
               results_r: match.results?.R ?? null,
             });

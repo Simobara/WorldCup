@@ -147,23 +147,17 @@ export default function AdminSeedStructure() {
       const phase = currentData[groupKey];
       if (!phase) return;
 
-      const allGiornate = Object.values(phase);
-      const flat = [];
-      for (const g of allGiornate) {
-        for (const m of g.matches) flat.push(m);
+      let globalIndex = 0;
+
+      for (const [gKey, g] of Object.entries(phase)) {
+        if (gKey === giornataKey) {
+          // salvo il day sulla PRIMA partita di quella giornata
+          break;
+        }
+        globalIndex += g.matches.length;
       }
 
-      const firstMatch =
-        flat.find((m) => m.giornataKey === giornataKey) || flat[0];
-
-      if (!firstMatch?.numero) return;
-
-      void updateFinalMatchFieldInDb(
-        activeFinalKey,
-        firstMatch.numero,
-        "day",
-        value,
-      );
+      void updateFinalMatchFieldInDb(activeFinalKey, globalIndex, "day", value);
     }
   };
 
@@ -264,27 +258,28 @@ export default function AdminSeedStructure() {
       }
 
       //
+      //
       // 2️⃣ CARICO FASE FINALE
       //
       const { data: finalRows, error: finalError } = await supabase.from(
         "wc_final_structure",
       ).select(`
-        phase_key,
-        match_index,
-        day,      
-        city,
-        time,
-        pos1,
-        pos2,
-        goto,
-        fg,
-        pronsq,
-        team1,
-        team2,
-        results_res,
-        results_ts,
-        results_r
-      `);
+          phase_key,
+          match_index,
+          day,
+          city,
+          time,
+          pos1,
+          pos2,
+          goto,
+          fg,
+          pronsq,
+          team1,
+          team2,
+          results_res,
+          results_ts,
+          results_r
+        `);
 
       if (finalError) {
         console.error(
@@ -297,38 +292,59 @@ export default function AdminSeedStructure() {
       setDataFinals((prev) => {
         const next = structuredClone(prev);
 
+        // raggruppo le righe per phase_key per non ricalcolare tutto ogni volta
+        const rowsByPhase = {};
         for (const row of finalRows ?? []) {
-          const phaseKey = row.phase_key;
+          if (!rowsByPhase[row.phase_key]) rowsByPhase[row.phase_key] = [];
+          rowsByPhase[row.phase_key].push(row);
+        }
+
+        for (const [phaseKey, rows] of Object.entries(rowsByPhase)) {
           const phase = next[phaseKey];
           if (!phase) continue;
 
-          const allGiornate = Object.values(phase);
-          const flat = [];
-          for (const g of allGiornate) {
-            for (const m of g.matches) flat.push(m);
+          // costruisco un flat con meta-info per sapere a che giornata appartiene ogni match_index
+          const matchInfos = [];
+          for (const [gKey, g] of Object.entries(phase)) {
+            g.matches.forEach((m, idx) => {
+              matchInfos.push({
+                match: m,
+                giornataKey: gKey,
+                dateIndex: 0, // usiamo sempre dates[0]
+                matchIndexLocal: idx,
+              });
+            });
           }
 
-          const match = flat[row.match_index];
-          if (!match) continue;
+          for (const row of rows) {
+            const info = matchInfos[row.match_index];
+            if (!info) continue;
 
-          // day: qui puoi mettere la tua logica per la giornata corretta se vuoi
-          if (row.time) match.time = row.time;
-          if (row.city) match.city = row.city;
-          if (row.pos1) match.pos1 = row.pos1;
-          if (row.pos2) match.pos2 = row.pos2;
-          if (row.goto) match.goto = row.goto;
-          if (row.fg) match.fg = row.fg;
-          if (row.pronsq) match.pronsq = row.pronsq;
-          if (row.team1) match.team1 = row.team1;
-          if (row.team2) match.team2 = row.team2;
+            const { match, giornataKey, dateIndex } = info;
 
-          if (row.results_res || row.results_ts || row.results_r) {
-            if (!match.results) {
-              match.results = { RES: "", TS: "", R: "" };
+            // 🔹 DAY: scrivo il valore nel dates[0] della giornata corretta
+            if (row.day) {
+              phase[giornataKey].dates[dateIndex] = row.day;
             }
-            if (row.results_res) match.results.RES = row.results_res;
-            if (row.results_ts) match.results.TS = row.results_ts;
-            if (row.results_r) match.results.R = row.results_r;
+
+            if (row.time) match.time = row.time;
+            if (row.city) match.city = row.city;
+            if (row.pos1) match.pos1 = row.pos1;
+            if (row.pos2) match.pos2 = row.pos2;
+            if (row.goto) match.goto = row.goto;
+            if (row.fg) match.fg = row.fg;
+            if (row.pronsq) match.pronsq = row.pronsq;
+            if (row.team1) match.team1 = row.team1;
+            if (row.team2) match.team2 = row.team2;
+
+            if (row.results_res || row.results_ts || row.results_r) {
+              if (!match.results) {
+                match.results = { RES: "", TS: "", R: "" };
+              }
+              if (row.results_res) match.results.RES = row.results_res;
+              if (row.results_ts) match.results.TS = row.results_ts;
+              if (row.results_r) match.results.R = row.results_r;
+            }
           }
         }
 

@@ -56,7 +56,7 @@ const tutteLeSquadre = Object.values(flagsMond).flat();
 
 // 🔹 mappa: codice (id) → flag
 const flagByTeamCode = Object.fromEntries(
-  tutteLeSquadre.map((t) => [t.id, t.flag])
+  tutteLeSquadre.map((t) => [t.id, t.flag]),
 );
 
 // 🔹 helper per ottenere la bandiera da "MEX", "GER", ecc.
@@ -83,7 +83,7 @@ const TableBlock = ({ isLogged }) => {
   useEffect(() => {
     const loadFinalsFromDb = async () => {
       const { data: finalRows, error } = await supabase.from(
-        "wc_final_structure"
+        "wc_final_structure",
       ).select(`
           phase_key,
           match_index,
@@ -96,7 +96,7 @@ const TableBlock = ({ isLogged }) => {
           pronsq,
           team1,
           team2,
-          results_ris,
+          results_res,
           results_ts,
           results_r
         `);
@@ -137,11 +137,11 @@ const TableBlock = ({ isLogged }) => {
           if (row.team2) match.team2 = row.team2;
 
           // risultati annidati
-          if (row.results_ris || row.results_ts || row.results_r) {
+          if (row.results_res || row.results_ts || row.results_r) {
             if (!match.results) {
-              match.results = { ris: "", TS: "", R: "" };
+              match.results = { RES: "", TS: "", R: "" };
             }
-            if (row.results_ris) match.results.ris = row.results_ris;
+            if (row.results_res) match.results.RES = row.results_res;
             if (row.results_ts) match.results.TS = row.results_ts;
             if (row.results_r) match.results.R = row.results_r;
           }
@@ -224,9 +224,9 @@ const TableBlock = ({ isLogged }) => {
           giornata.matches.flatMap((m) => [
             (m.team1 || "").trim(),
             (m.team2 || "").trim(),
-          ])
+          ]),
         )
-        .filter(Boolean)
+        .filter(Boolean),
     );
 
   const collectPronTeamsFromStage = (stage) =>
@@ -238,9 +238,9 @@ const TableBlock = ({ isLogged }) => {
             if (!pron) return [];
             const [p1, p2] = pron.split("-").map((s) => s.trim());
             return [p1 || "", p2 || ""];
-          })
+          }),
         )
-        .filter(Boolean)
+        .filter(Boolean),
     );
 
   const realTeamsInRound16 = collectRealTeamsFromStage(round16);
@@ -286,7 +286,7 @@ const TableBlock = ({ isLogged }) => {
       giornata.matches.map((match) => ({
         ...match,
         date: giornata.dates[0] || "",
-      }))
+      })),
     );
 
   const allMatches = [
