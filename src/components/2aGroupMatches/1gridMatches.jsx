@@ -308,13 +308,13 @@ const handleNotesModalKeyDown = useCallback((e) => {
   }
 
   // INVIO sull'ultima textarea (Note Varie) -> chiude edit e torna al bottone
-  if (e.key === "Enter" && e.target === last) {
-    e.preventDefault();
-    if (notesToggleRef.current) {
-      notesToggleRef.current.click();  // simula click sul bottone
-      notesToggleRef.current.focus();  // tieni il focus lì
-    }
-  }
+  // if (e.key === "Enter" && e.target === last) {
+  //   e.preventDefault();
+  //   if (notesToggleRef.current) {
+  //     notesToggleRef.current.click();  // simula click sul bottone
+  //     notesToggleRef.current.focus();  // tieni il focus lì
+  //   }
+  // }
 }, []);
 
 useEffect(() => {
