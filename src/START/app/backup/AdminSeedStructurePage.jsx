@@ -348,14 +348,19 @@ export default function AdminSeedStructure() {
           if (row.team2) match.team2 = row.team2;
 
           // risultati annidati
-          if (row.results_ris || row.results_ts || row.results_r) {
-            if (!match.results) {
-              match.results = { RES: "", TS: "", R: "" };
-            }
-            if (row.results_res) match.results.ris = row.results_ris;
-            if (row.results_ts) match.results.TS = row.results_ts;
-            if (row.results_r) match.results.R = row.results_r;
-          }
+          // --- RISULTATI (normalizzati) ---
+          const normalized = normalizeResults({
+            ris: row.results_ris ?? "",
+            TS: row.results_ts ?? "",
+            R: row.results_r ?? "",
+          });
+
+          // aggiorna l'oggetto match
+          match.results = {
+            ris: normalized.ris,
+            TS: normalized.TS,
+            R: normalized.R,
+          };
         }
 
         return next;

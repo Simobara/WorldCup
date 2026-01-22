@@ -22,6 +22,45 @@ import BlokQuadRettSemi from "./5blokQuadRettSemi";
 
 // continua a usare wc_final_user_pron + squadre reali del DB.
 
+
+function normalizeResults({ ris, TS, R }) {
+  const isDraw = (v) => {
+    if (!v) return false;
+    const parts = v.split("-");
+    if (parts.length !== 2) return false;
+    const [a, b] = parts.map(n => parseInt(n, 10));
+    return a === b;
+  };
+
+  // Caso 1: RIS è pareggio → TS = null, R = null
+  if (isDraw(ris)) {
+    return { ris, TS: null, R: null };
+  }
+
+  // Caso 2: RIS è un risultato NON pareggio → niente TS, niente R
+  if (ris && !isDraw(ris)) {
+    return { ris, TS: "", R: "" };
+  }
+
+  // Caso 3: TS valorizzato NON pareggio → niente rigori
+  if (TS && !isDraw(TS)) {
+    return { ris, TS, R: "" };
+  }
+
+  // Caso 4: TS è pareggio → deve andare ai rigori
+  if (TS && isDraw(TS)) {
+    return { ris, TS, R: null };
+  }
+
+  // Caso base: nessun valore → tutto vuoto
+  return {
+    ris: ris ?? "",
+    TS: TS ?? "",
+    R: R ?? ""
+  };
+}
+
+
 // 🔹 Costruisco una mappa fg -> pronsq **DAL FILE HARDCODED**
 const buildSeedPronByFg = () => {
   const map = {};
