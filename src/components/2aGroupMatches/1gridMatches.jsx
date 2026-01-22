@@ -113,6 +113,24 @@ export default function GridMatchesPage({ isLogged }) {
   const GAP_RIGHT = 0; // gruppi A–C, E–G, I–K
   const GAP_LEFT = 0; // gruppi D / H / L
 
+
+// ✅ normalizza i nomi dei campi DB -> UI (pron/ris/results)
+const normalizeMatch = (m) => {
+  if (!m) return m;
+
+  // se già ha pron/ris/results, non tocco
+  const already = ("pron" in m) || ("ris" in m) || ("results" in m);
+  if (already) return m;
+
+  return {
+    ...m,
+    pron: m.seed_pron ?? "",
+    ris: m.seed_ris ?? "",
+    results: m.results_official ?? "",
+  };
+};
+
+
   const handleEditChange = (path, value) => {
     // tiene traccia dei path editati (serve per save)
     setLocalEdits((prev) => ({
@@ -366,27 +384,27 @@ useEffect(() => {
 
   //------------------------------------------------------------------------
   useEffect(() => {
-    let cancelled = false;
+  let cancelled = false;
 
-    (async () => {
-      try {
-        const byGroup = await loadMatchStructureFromDb();
-        if (!cancelled) {
-          setStructureByGroup(byGroup);
-        }
-      } catch (err) {
-        console.error("Errore caricando struttura da DB:", err);
-      } finally {
-        if (!cancelled) {
-          setStructureLoading(false);
-        }
+  (async () => {
+    try {
+      if (!isLogged) {
+        // ✅ non loggato: non carico DB
+        if (!cancelled) setStructureByGroup(null);
+        return;
       }
-    })();
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+      const byGroup = await loadMatchStructureFromDb();
+      if (!cancelled) setStructureByGroup(byGroup);
+    } catch (err) {
+      console.error("Errore caricando struttura da DB:", err);
+    } finally {
+      if (!cancelled) setStructureLoading(false);
+    }
+  })();
+
+  return () => { cancelled = true; };
+}, [isLogged]);
 
   useEffect(() => {
     const update = () => {
@@ -622,10 +640,11 @@ useEffect(() => {
             const resolveName = buildNameResolver(flagsMond);
 
             const groupKey = `group_${letter}`;
-            const matchesFlat =
-              structureByGroup?.[letter]?.length
-                ? structureByGroup[letter]
-                : getFlatMatchesForGroup(groupMatches?.[groupKey]);
+           const matchesFlat = !isLogged
+  ? getFlatMatchesForGroup(groupMatches?.[groupKey]) // ✅ SEMPRE hardcoded se NON loggato
+  : (structureByGroup?.[letter]?.length
+      ? structureByGroup[letter]                      // ✅ DB solo se loggato
+      : getFlatMatchesForGroup(groupMatches?.[groupKey]));
             const rowsCount = matchesFlat.length;
 
             const findTeam = (rawName) => {
@@ -854,12 +873,10 @@ useEffect(() => {
                               const resolveName = buildNameResolver(flagsMond);
 
                               const groupKey = `group_${letterP}`;
-                              const matchesFlatP =
-                                structureByGroup?.[letterP]?.length
-                                  ? structureByGroup[letterP]
-                                  : getFlatMatchesForGroup(
-                                      groupMatches?.[groupKey]
-                              );
+                             const matchesFlatP =
+  structureByGroup?.[letterP]?.length
+    ? structureByGroup[letterP].map(normalizeMatch)
+    : getFlatMatchesForGroup(groupMatches?.[groupKey]);
 
                               const findTeamP = (rawName) => {
                                 const name = resolveName(rawName);
@@ -916,13 +933,11 @@ useEffect(() => {
                                           // pron selezionato per quella partita:
                                           // - se sto editando → plusPron
                                           // - altrimenti (o admin dopo refresh) → seed_pron in m.pron
-                                          const selectedPron = String(
-                                            matchesState?.[letterP]?.plusPron?.[
-                                              idx
-                                            ] ?? m?.pron ?? ""
-                                          )
-                                            .trim()
-                                            .toUpperCase();
+                                         const selectedPron = String(
+  matchesState?.[letterP]?.plusPron?.[idx] ??
+    ((isAdminUser || !isLogged) ? (m?.pron ?? "") : "") ??
+    ""
+).trim().toUpperCase();
 
                                           // valori base da mostrare (risultato ufficiale o plusRis)
                                                                                     const [baseA, baseB] = String(
@@ -950,12 +965,9 @@ useEffect(() => {
                                           // 👇 come nel modale desktop:
                                           // se non ho plusRis ma res ha un valore (seed / ufficiale),
                                           // uso baseA/baseB come fallback
-                                          const displayA = isOfficial
-                                            ? baseA
-                                            : (valueA || baseA);
-                                          const displayB = isOfficial
-                                            ? baseB
-                                            : (valueB || baseB);
+                                         // ✅ IN EDIT MODE: mai fallback ai seed/base, altrimenti il reset “rimbalza”
+const displayA = isOfficial ? baseA : valueA;
+const displayB = isOfficial ? baseB : valueB;
 
                                           const hasAnyScore =
                                             isOfficial ||
@@ -1517,9 +1529,11 @@ useEffect(() => {
                               //   }
                               // };
 
-                              const selectedPron = String(
-                                matchesState?.[letter]?.plusPron?.[idx] ?? m?.pron ?? ""
-                              )
+                             const selectedPron = String(
+  matchesState?.[letter]?.plusPron?.[idx] ??
+    ((isAdminUser || !isLogged) ? (m?.pron ?? "") : "") ??
+    ""
+)
                                 .trim()
                                 .toUpperCase();
 
@@ -1537,8 +1551,8 @@ useEffect(() => {
                               const valueA = norm(savedA);
                               const valueB = norm(savedB);
 
-                              const displayA = valueA !== "" ? valueA : baseA;
-                              const displayB = valueB !== "" ? valueB : baseB;
+                              const displayA = isOfficial ? baseA : valueA;
+      const displayB = isOfficial ? baseB : valueB;
 
                               const hasAnyScore =
                                 isOfficial || displayA !== "" || displayB !== "";
@@ -1879,13 +1893,13 @@ useEffect(() => {
                         const isProvisional =
                           !hasOfficial && showPronostics && res !== "";
 
-                        const pron = (
-                          matchesState?.[letter]?.plusPron?.[row] ??
-                          m?.pron ??
-                          ""
-                        )
-                          .trim()
-                          .toUpperCase();
+                       const pron = (
+  matchesState?.[letter]?.plusPron?.[row] ??
+  ((isAdminUser || !isLogged) ? (m?.pron ?? "") : "") ??
+  ""
+).trim().toUpperCase();
+
+                        
                         const hasResult = res !== "";
 
                         let highlightType1 = "none";

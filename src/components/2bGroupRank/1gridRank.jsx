@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQualifiedTeams } from "../../Ap/Global/global";
 import { supabase } from "../../Services/supabase/supabaseClient";
 import { ADMIN_EMAIL, flagsMond } from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
@@ -493,6 +494,7 @@ export default function GridRankPage({
     }
   });
 
+  const { setQualifiedTeams } = useQualifiedTeams();
   // ✅ COLONNE: desktop e mobile (come richiesto)
   //const headers = ["SQUADRA", "", "PUNTI", "GOL", "W", "X", "P"];
   const gridColsDesktop = "30px 60px 50px 60px 40px 40px 40px";
@@ -772,6 +774,108 @@ export default function GridRankPage({
     }
   }, [showPronostics]);
 
+  // ✅ SOLO GRUPPO B: quando tutte le 6 partite hanno un risultato (ufficiale o ris),
+  // calcolo 1B/2B e li salvo nel context
+  // ✅ TUTTI I GRUPPI: quando un gruppo è completo, salvo 1X/2X nel context
+  useEffect(() => {
+    const letters = "ABCDEFGHIJKL".split("");
+
+     const isOfficial = (m) => isScore(m.results);
+
+    // match "coperto" = ufficiale oppure pronostico (ris o segno 1/X/2)
+    const isScore = (s) => {
+      const raw = String(s ?? "").trim();
+      if (!raw) return false;
+      const normalized = raw
+        .replace(/[–—−]/g, "-")
+        .replace(/:/g, "-")
+        .replace(/\s+/g, "");
+      if (!normalized.includes("-")) return false;
+      const [aStr, bStr] = normalized.split("-");
+      const a = Number(aStr);
+      const b = Number(bStr);
+      return Number.isFinite(a) && Number.isFinite(b);
+    };
+
+    const isSign = (s) => {
+      const v = String(s ?? "")
+        .trim()
+        .toUpperCase();
+      return v === "1" || v === "X" || v === "2";
+    };
+
+    const isCovered = (m) =>
+      isScore(m.results) || isScore(m.ris) || isSign(m.pron);
+
+    const resolveName = buildNameResolver(flagsMond);
+
+    const nextQualified = {};
+
+    for (const letter of letters) {
+      const groupKey = `group_${letter}`;
+
+      const matchesData = useSupabase
+        ? supabaseMatchesByGroup?.[groupKey]
+        : groupMatches?.[groupKey];
+
+      if (!matchesData) continue;
+
+      const allMatches = Object.values(matchesData)
+        .flatMap((g) => g?.matches ?? [])
+        .filter(Boolean);
+
+      if (allMatches.length < 6) continue;
+
+      const groupComplete = allMatches.every(isCovered);
+      if (!groupComplete) continue;
+
+      const allOfficial = allMatches.every(isOfficial);
+      const qualifyIsPron = !allOfficial; // ✅ se NON sono tutti ufficiali → bordo viola
+
+      const teams = (flagsMond ?? []).filter((t) => t.group === letter);
+      const groupTeamNames = new Set(teams.map((t) => resolveName(t.name)));
+
+      const tableByTeam = computeTableForGroup(
+        matchesData,
+        resolveName,
+        groupTeamNames,
+        null,
+        true, // include ris se presenti
+      );
+
+      const pronTableByTeam = computePronTableForGroup(
+        matchesData,
+        resolveName,
+        groupTeamNames,
+        null,
+        true, // allowRis: se c'è ris/ufficiale non conta il pron
+      );
+
+      const sorted = allOfficial
+        ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
+        : sortTeamsByTotal(teams, tableByTeam, pronTableByTeam, resolveName);
+
+      const first = sorted?.[0]?.id || "";
+      const second = sorted?.[1]?.id || "";
+      if (!first || !second) continue;
+
+      nextQualified[`1${letter}`] = { code: first, isPron: qualifyIsPron };
+      nextQualified[`2${letter}`] = { code: second, isPron: qualifyIsPron };
+    }
+
+    // merge nel context (non cancello quello che c’era)
+    if (Object.keys(nextQualified).length > 0) {
+      setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+    }
+  }, [
+    useSupabase,
+    supabaseMatchesByGroup,
+    isLogged,
+    userEmail,
+    refreshKey,
+    setQualifiedTeams,
+  ]);
+
   return (
     <div
       className={
@@ -837,14 +941,14 @@ export default function GridRankPage({
 
               // 🔹 se loggato (Supabase): usa anche i "ris" come risultati provvisori
               //    (prima results_official, se mancano allora ris)
-              const allowRis = useSupabase ? false : showPronostics;
+              const allowRisForQualify = useSupabase ? false : showPronostics;
 
               const tableByTeam = computeTableForGroup(
                 matchesData,
                 resolveName,
                 groupTeamNames,
                 maxMatches,
-                allowRis,
+                allowRisForQualify,
               );
 
               const simByTeam = {};

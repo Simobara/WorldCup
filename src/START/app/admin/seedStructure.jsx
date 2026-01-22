@@ -4,6 +4,44 @@ import { supabase } from "../../../Services/supabase/supabaseClient";
 import { groupMatches } from "../1GroupMatches";
 import { groupFinal } from "../2GroupFinal";
 
+
+const derivePronFromRis = (ris) => {
+  // accetta "1-1", "2-0", ecc.
+  const m = String(ris ?? "").match(/^(\d+)\s*-\s*(\d+)$/);
+  if (!m) return "";
+
+  const a = Number(m[1]);
+  const b = Number(m[2]);
+  if (Number.isNaN(a) || Number.isNaN(b)) return "";
+
+  if (a > b) return "1";
+  if (a < b) return "2";
+  return "X";
+};
+
+
+  const getOrderedGiornateEntries = (phaseOrGroupObj) => {
+    return Object.entries(phaseOrGroupObj).sort(([a], [b]) => {
+      const na = Number(a.split("_")[1] ?? 0);
+      const nb = Number(b.split("_")[1] ?? 0);
+      return na - nb;
+    });
+  };
+
+  const findMatchByGlobalIndex = (phaseOrGroupObj, globalIndex) => {
+    let cursor = 0;
+    for (const [giornataKey, giornata] of getOrderedGiornateEntries(phaseOrGroupObj)) {
+      const len = giornata?.matches?.length ?? 0;
+      if (globalIndex < cursor + len) {
+        const localIdx = globalIndex - cursor;
+        return { giornataKey, match: giornata.matches[localIdx], localIdx };
+      }
+      cursor += len;
+    }
+    return null;
+  };
+
+
 // quali campi dell'editor GIRONI corrispondono a quali colonne nel DB
 const fieldToDbColumn = {
   city: "city",
@@ -35,6 +73,47 @@ const finalFieldToDbColumn = {
   "results.R": "results_r",
 };
 
+
+// ---------------- VIEW LAYER (hardcoded + DB override) ----------------
+const makeKey = (g, idx) => `${g}-${idx}`;
+
+function buildViewFromHardcoded(groupMatches) {
+  const map = {};
+  for (const gLetter of "ABCDEFGHIJKL") {
+    const group = groupMatches[`group_${gLetter}`];
+    if (!group) continue;
+
+    const flat = [];
+    for (const giornata of Object.values(group)) {
+      for (const m of giornata.matches) flat.push(m);
+    }
+
+    flat.forEach((m, idx) => {
+      map[makeKey(gLetter, idx)] = {
+        pron: m.pron ?? "",
+        ris: m.ris ?? "",
+        results: m.results ?? "",
+      };
+    });
+  }
+  return map;
+}
+
+function applyDbOverride(map, rows) {
+  const next = { ...map };
+  for (const r of rows ?? []) {
+    const key = makeKey(r.group_letter, r.match_index);
+    next[key] = {
+      ...(next[key] ?? { pron: "", ris: "", results: "" }),
+      pron: r.seed_pron ?? "",
+      ris: r.seed_ris ?? "",
+      results: r.results_official ?? "",
+    };
+  }
+  return next;
+}
+
+
 async function updateFinalMatchFieldInDb(
   phaseKey,
   matchIndex, // <-- ora passo direttamente il match_index del DB
@@ -64,24 +143,28 @@ async function updateFinalMatchFieldInDb(
   }
 }
 
-async function updateMatchFieldInDb(groupLetter, matchNumero, field, value) {
+async function updateMatchFieldInDb(groupLetter, matchIndex, field, value) {
   const column = fieldToDbColumn[field];
   if (!column) return;
 
-  const matchIndex = matchNumero - 1; // perché nel seed usavi index 0-based
+  const payload = { [column]: value === "" ? null : value };
 
-  const payload = {
-    [column]: value === "" ? null : value,
-  };
-
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("wc_matches_structure")
     .update(payload)
     .eq("group_letter", groupLetter)
-    .eq("match_index", matchIndex);
+    .eq("match_index", matchIndex)
+    .select("group_letter, match_index"); // utile per debug
 
   if (error) {
     console.error("❌ Errore aggiornando Supabase:", error);
+  } else if (!data?.length) {
+    console.warn("⚠️ Nessuna riga aggiornata (match_index non trovato):", {
+      groupLetter,
+      matchIndex,
+      field,
+      value,
+    });
   } else {
     console.log(
       `✅ Aggiornato ${column} per gruppo ${groupLetter}, match_index=${matchIndex} →`,
@@ -106,6 +189,13 @@ export default function AdminSeedStructure() {
 
   // gruppi A–L
   const [activeGroup, setActiveGroup] = useState("A");
+
+
+// VIEW: unica sorgente per mostrare pron/ris/results (fuori + hover)
+const [viewByKey, setViewByKey] = useState(() =>
+  buildViewFromHardcoded(groupMatches)
+);
+const [isLogged, setIsLogged] = useState(false);
 
   // fasi finali
   const FINAL_PHASES = [
@@ -133,6 +223,14 @@ export default function AdminSeedStructure() {
       setDataFinals(updater);
     }
   };
+
+const setViewField = (groupLetter, matchIndex, patch) => {
+  const key = makeKey(groupLetter, matchIndex);
+  setViewByKey((prev) => ({
+    ...prev,
+    [key]: { ...(prev[key] ?? { pron: "", ris: "", results: "" }), ...patch },
+  }));
+};
 
   const handleDateChange = (giornataKey, dateIndex, value) => {
     // 1) aggiorno lo state
@@ -180,179 +278,294 @@ export default function AdminSeedStructure() {
         }
         match.results[key] = value;
       } else {
-        match[field] = field === "numero" ? Number(value) || 0 : value;
-      }
+  match[field] = field === "numero" ? Number(value) || 0 : value;
+
+  // ✅ AUTO-PRON: se scrivo ris "1-1" => pron "X" (solo in GIRONI)
+  if (isGroupsMode && field === "ris") {
+    const autoPron = derivePronFromRis(value);
+    if (autoPron) match.pron = autoPron;
+  }
+}
 
       return next;
     });
 
     // 2) aggiorno il DB
-    if (typeof numero === "number") {
-      if (isGroupsMode) {
-        void updateMatchFieldInDb(activeGroup, numero, field, value);
-      } else {
-        const phase = dataFinals[activeFinalKey];
-        if (!phase) return;
 
-        let globalIndex = 0;
+    if (isGroupsMode) {
+  const phase = currentData[groupKey]; // group_{letter}
+  if (!phase) return;
 
-        for (const [gKey, g] of Object.entries(phase)) {
-          if (gKey === giornataKey) {
-            globalIndex += matchIndexLocal;
-            break;
-          }
-          globalIndex += g.matches.length;
+  let globalIndex = 0;
+
+  // ✅ ordine stabile (giornata_1, giornata_2, ...)
+  for (const [gKey, g] of getOrderedGiornateEntries(phase)) {
+    if (gKey === giornataKey) {
+      globalIndex += matchIndexLocal;
+      break;
+    }
+    globalIndex += g.matches.length;
+  }
+
+  void updateMatchFieldInDb(activeGroup, globalIndex, field, value);
+
+  // ✅ se ho cambiato ris e ho calcolato auto-pron, salvo anche la pron nel DB
+if (field === "ris") {
+  const autoPron = derivePronFromRis(value);
+  if (autoPron) void updateMatchFieldInDb(activeGroup, globalIndex, "pron", autoPron);
+}
+    } else {
+      const phase = dataFinals[activeFinalKey];
+      if (!phase) return;
+
+      let globalIndex = 0;
+
+      for (const [gKey, g] of Object.entries(phase)) {
+        if (gKey === giornataKey) {
+          globalIndex += matchIndexLocal;
+          break;
         }
-
-        void updateFinalMatchFieldInDb(
-          activeFinalKey,
-          globalIndex,
-          field,
-          value,
-        );
+        globalIndex += g.matches.length;
       }
+
+      void updateFinalMatchFieldInDb(activeFinalKey, globalIndex, field, value);
     }
   };
 
+  const getOrderedGiornateEntries = (phaseOrGroupObj) => {
+    return Object.entries(phaseOrGroupObj).sort(([a], [b]) => {
+      const na = Number(a.split("_")[1] ?? 0);
+      const nb = Number(b.split("_")[1] ?? 0);
+      return na - nb;
+    });
+  };
+
+  const findMatchByGlobalIndex = (phaseOrGroupObj, globalIndex) => {
+    let cursor = 0;
+    for (const [giornataKey, giornata] of getOrderedGiornateEntries(phaseOrGroupObj)) {
+      const len = giornata?.matches?.length ?? 0;
+      if (globalIndex < cursor + len) {
+        const localIdx = globalIndex - cursor;
+        return { giornataKey, match: giornata.matches[localIdx], localIdx };
+      }
+      cursor += len;
+    }
+    return null;
+  };
+
+
+
+    // --- LOADERS -------------------------------------------------------
+
+const loadGroupsFromDb = async (groupLetter) => {
+  // ⚠️ IMPORTANTISSIMO: prendi SOLO colonne che ESISTONO nel DB
+  // Dal tuo errore: "time does not exist" → quindi NON selezionare time/day/city/team1/team2 se non ci sono.
+
+  const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData?.session) return;
+
+  const { data: rows, error } = await supabase
+    .from("wc_matches_structure")
+    .select("group_letter, match_index, seed_pron, seed_ris, results_official")
+    .eq("group_letter", groupLetter)
+    .order("match_index", { ascending: true });
+
+  console.log("loadGroupsFromDb", {
+    groupLetter,
+    rowsCount: rows?.length,
+    error,
+  });
+
+  if (error) {
+    console.error("Errore caricando struttura GIRONI da Supabase:", error);
+    return;
+  }
+
+  setDataGroups((prev) => {
+    const next = structuredClone(prev);
+
+    const gKey = `group_${groupLetter}`;
+    const group = next[gKey];
+    if (!group) return next;
+
+    // 1) ✅ CLEAR TOTALE: prima cancello pron/ris/results su TUTTE le partite del gruppo
+    // (qui puoi anche NON fare flat: basta iterare direttamente le giornate)
+    for (const giornata of Object.values(group)) {
+      for (const match of giornata.matches) {
+        match.pron = "";
+        match.ris = "";
+        match.results = "";
+      }
+    }
+
+    // 2) ✅ APPLY DAL DB: applico quello che arriva dal DB usando mapping robusto
+    for (const row of rows ?? []) {
+      const idx = Number(row.match_index);
+      const found = findMatchByGlobalIndex(group, idx);
+      if (!found?.match) continue;
+
+      const match = found.match;
+
+      match.pron = row.seed_pron ?? "";
+      match.ris = row.seed_ris ?? "";
+      match.results = row.results_official ?? "";
+    }
+
+    return next;
+  });
+};
+
+
+
+  const loadFinalsFromDb = async () => {
+    const { data: finalRows, error: finalError } = await supabase
+      .from("wc_final_structure")
+      .select(`
+        phase_key,
+        match_index,
+        day,
+        city,
+        time,
+        pos1,
+        pos2,
+        goto,
+        fg,
+        pronsq,
+        team1,
+        team2,
+        results_res,
+        results_ts,
+        results_r
+      `);
+
+    if (finalError) {
+      console.error("Errore caricando struttura FINALI da Supabase:", finalError);
+      return;
+    }
+
+    setDataFinals((prev) => {
+      const next = structuredClone(prev);
+
+      // raggruppo per phase_key
+      const rowsByPhase = {};
+      for (const row of finalRows ?? []) {
+        if (!rowsByPhase[row.phase_key]) rowsByPhase[row.phase_key] = [];
+        rowsByPhase[row.phase_key].push(row);
+      }
+
+      for (const [phaseKey, rows] of Object.entries(rowsByPhase)) {
+        const phase = next[phaseKey];
+        if (!phase) continue;
+
+        // costruisco flat per match_index
+        const matchInfos = [];
+        for (const [giornataKey, giornata] of Object.entries(phase)) {
+          giornata.matches.forEach((m) => {
+            matchInfos.push({ match: m, giornataKey });
+          });
+        }
+
+         for (const row of rows) {
+          const idx = Number(row.match_index);
+          const found = findMatchByGlobalIndex(phase, idx);
+          if (!found?.match) continue;
+
+          const { match, giornataKey } = found;
+
+          
+
+          // ✅ DAY: sovrascrivi SEMPRE (NULL -> "")
+          phase[giornataKey].dates[0] = row.day ?? "";
+
+          // ✅ campi match: sovrascrivi SEMPRE
+          match.time = row.time ?? "";
+          match.city = row.city ?? "";
+          match.pos1 = row.pos1 ?? "";
+          match.pos2 = row.pos2 ?? "";
+          match.goto = row.goto ?? "";
+          match.fg = row.fg ?? "";
+          match.pronsq = row.pronsq ?? "";
+          match.team1 = row.team1 ?? "";
+          match.team2 = row.team2 ?? "";
+
+          // ✅ results: sovrascrivi SEMPRE
+          if (!match.results) match.results = { RES: "", TS: "", R: "" };
+          match.results.RES = row.results_res ?? "";
+          match.results.TS = row.results_ts ?? "";
+          match.results.R = row.results_r ?? "";
+        }
+      }
+
+      return next;
+    });
+  };
+
+//-----------------------------------------------------------------------------------------
+    useEffect(() => {
+  (async () => {
+    // base sempre hardcoded
+    const base = buildViewFromHardcoded(groupMatches);
+
+    const { data } = await supabase.auth.getSession();
+    const logged = !!data.session;
+    setIsLogged(logged);
+
+    if (!logged) {
+      setViewByKey(base);
+      return;
+    }
+
+    // logged -> override dal DB
+    const { data: rows, error } = await supabase
+      .from("wc_matches_structure")
+      .select("group_letter, match_index, seed_pron, seed_ris, results_official");
+
+    if (error) {
+      console.error("Errore caricando VIEW da Supabase:", error);
+      setViewByKey(base);
+      return;
+    }
+
+    setViewByKey(applyDbOverride(base, rows));
+  })();
+}, []);
+
+useEffect(() => {
+  if (!isLogged) return;
+  if (mode === "groups") void loadGroupsFromDb(activeGroup);
+  else void loadFinalsFromDb();
+}, [isLogged, mode, activeGroup, activeFinalKey]);
+
+
+useEffect(() => {
+  // al mount carico il gruppo iniziale (A) e i finals
+  void loadGroupsFromDb(activeGroup);
+  void loadFinalsFromDb();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
+
+useEffect(() => {
+    if (mode === "groups") {
+      void loadGroupsFromDb(activeGroup);
+    } else {
+      void loadFinalsFromDb();
+    }
+  }, [mode, activeGroup, activeFinalKey]);
+
+
   useEffect(() => {
-    (async () => {
-      //
-      // 1️⃣ CARICO GIRONI A–L
-      //
-      const { data: rows, error } = await supabase
-        .from("wc_matches_structure")
-        .select(
-          "group_letter, match_index, city, team1, team2, seed_pron, seed_ris, results_official",
-        );
+    const onFocus = () => {
+      if (mode === "groups") void loadGroupsFromDb(activeGroup);
+      else void loadFinalsFromDb();
+    };
 
-      if (error) {
-        console.error("Errore caricando struttura GIRONI da Supabase:", error);
-      } else {
-        setDataGroups((prev) => {
-          const next = structuredClone(prev);
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [mode, activeGroup, activeFinalKey]);
 
-          for (const row of rows ?? []) {
-            const groupKey = `group_${row.group_letter}`;
-            const group = next[groupKey];
-            if (!group) continue;
 
-            const allGiornate = Object.values(group);
-            const flat = [];
-            for (const g of allGiornate) {
-              for (const m of g.matches) flat.push(m);
-            }
-
-            const match = flat[row.match_index];
-            if (!match) continue;
-
-            if (row.city) match.city = row.city;
-            if (row.team1) match.team1 = row.team1;
-            if (row.team2) match.team2 = row.team2;
-            if (row.seed_pron) match.pron = row.seed_pron;
-            if (row.seed_ris) match.ris = row.seed_ris;
-            if (row.results_official) match.results = row.results_official;
-          }
-
-          return next;
-        });
-      }
-
-      //
-      //
-      // 2️⃣ CARICO FASE FINALE
-      //
-      const { data: finalRows, error: finalError } = await supabase.from(
-        "wc_final_structure",
-      ).select(`
-          phase_key,
-          match_index,
-          day,
-          city,
-          time,
-          pos1,
-          pos2,
-          goto,
-          fg,
-          pronsq,
-          team1,
-          team2,
-          results_res,
-          results_ts,
-          results_r
-        `);
-
-      if (finalError) {
-        console.error(
-          "Errore caricando struttura FINALI da Supabase:",
-          finalError,
-        );
-        return;
-      }
-
-      setDataFinals((prev) => {
-        const next = structuredClone(prev);
-
-        // raggruppo le righe per phase_key per non ricalcolare tutto ogni volta
-        const rowsByPhase = {};
-        for (const row of finalRows ?? []) {
-          if (!rowsByPhase[row.phase_key]) rowsByPhase[row.phase_key] = [];
-          rowsByPhase[row.phase_key].push(row);
-        }
-
-        for (const [phaseKey, rows] of Object.entries(rowsByPhase)) {
-          const phase = next[phaseKey];
-          if (!phase) continue;
-
-          // costruisco un flat con meta-info per sapere a che giornata appartiene ogni match_index
-          const matchInfos = [];
-          for (const [gKey, g] of Object.entries(phase)) {
-            g.matches.forEach((m, idx) => {
-              matchInfos.push({
-                match: m,
-                giornataKey: gKey,
-                dateIndex: 0, // usiamo sempre dates[0]
-                matchIndexLocal: idx,
-              });
-            });
-          }
-
-          for (const row of rows) {
-            const info = matchInfos[row.match_index];
-            if (!info) continue;
-
-            const { match, giornataKey, dateIndex } = info;
-
-            // 🔹 DAY: scrivo il valore nel dates[0] della giornata corretta
-            if (row.day) {
-              phase[giornataKey].dates[dateIndex] = row.day;
-            }
-
-            if (row.time) match.time = row.time;
-            if (row.city) match.city = row.city;
-            if (row.pos1) match.pos1 = row.pos1;
-            if (row.pos2) match.pos2 = row.pos2;
-            if (row.goto) match.goto = row.goto;
-            if (row.fg) match.fg = row.fg;
-            if (row.pronsq) match.pronsq = row.pronsq;
-            if (row.team1) match.team1 = row.team1;
-            if (row.team2) match.team2 = row.team2;
-
-            if (row.results_res || row.results_ts || row.results_r) {
-              if (!match.results) {
-                match.results = { RES: "", TS: "", R: "" };
-              }
-              if (row.results_res) match.results.RES = row.results_res;
-              if (row.results_ts) match.results.TS = row.results_ts;
-              if (row.results_r) match.results.R = row.results_r;
-            }
-          }
-        }
-
-        return next;
-      });
-    })();
-  }, []);
-
+//-----------------------------------------------------------------------------------------
   return (
     <div
       className={`
@@ -721,6 +934,13 @@ function DesktopGroupsSection({ group, handleDateChange, handleMatchChange }) {
                   <button
                     type="button"
                     onClick={() => {
+                      handleMatchChange(
+                        giornataKey,
+                        idx,
+                        "pron",
+                        "",
+                        match.numero,
+                      );
                       handleMatchChange(
                         giornataKey,
                         idx,
@@ -1224,20 +1444,9 @@ function MobileGroupsSection({ group, handleDateChange, handleMatchChange }) {
                   <button
                     type="button"
                     onClick={() => {
-                      handleMatchChange(
-                        giornataKey,
-                        idx,
-                        "ris",
-                        "",
-                        match.numero,
-                      );
-                      handleMatchChange(
-                        giornataKey,
-                        idx,
-                        "results",
-                        "",
-                        match.numero,
-                      );
+                      handleMatchChange(giornataKey, idx, "pron", "", match.numero);
+                      handleMatchChange(giornataKey, idx, "ris", "", match.numero);
+                      handleMatchChange(giornataKey, idx, "results", "", match.numero);
                     }}
                     className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-800 border border-white/30 text-lg"
                   >

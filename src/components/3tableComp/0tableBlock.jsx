@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQualifiedTeams } from "../../Ap/Global/global";
 import { supabase } from "../../Services/supabase/supabaseClient";
 import { flagsMond } from "../../START/app/0main";
 import { groupFinal } from "../../START/app/2GroupFinal";
@@ -22,13 +23,12 @@ import BlokQuadRettSemi from "./5blokQuadRettSemi";
 
 // continua a usare wc_final_user_pron + squadre reali del DB.
 
-
 function normalizeResults({ ris, TS, R }) {
   const isDraw = (v) => {
     if (!v) return false;
     const parts = v.split("-");
     if (parts.length !== 2) return false;
-    const [a, b] = parts.map(n => parseInt(n, 10));
+    const [a, b] = parts.map((n) => parseInt(n, 10));
     return a === b;
   };
 
@@ -56,10 +56,9 @@ function normalizeResults({ ris, TS, R }) {
   return {
     ris: ris ?? "",
     TS: TS ?? "",
-    R: R ?? ""
+    R: R ?? "",
   };
 }
-
 
 // 🔹 Costruisco una mappa fg -> pronsq **DAL FILE HARDCODED**
 const buildSeedPronByFg = () => {
@@ -117,6 +116,7 @@ const TableBlock = ({ isLogged }) => {
   const [showPron, setShowPron] = useState(false);
   const [userPronByFg, setUserPronByFg] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
+  const { qualifiedTeams } = useQualifiedTeams();
 
   // 🔹 carica FINALI da Supabase e sovrascrive l'hardcoded
   useEffect(() => {
@@ -398,6 +398,19 @@ const TableBlock = ({ isLogged }) => {
     const team1 = (match.team1 || "").trim();
     const team2 = (match.team2 || "").trim();
 
+    // ✅ QUALIFICATE DA GIRONE (solo B): se non ho team ufficiali,
+    // uso pos1/pos2 per piazzare 1B/2B dal context
+    const pos1 = String(match.pos1 ?? "").trim(); // es "2B"
+    const pos2 = String(match.pos2 ?? "").trim(); // es "2A"
+
+    const q1 = qualifiedTeams?.[pos1] || null; // { code, isPron }
+    const q2 = qualifiedTeams?.[pos2] || null;
+
+    const q1Code = q1?.code || "";
+    const q2Code = q2?.code || "";
+    const q1IsPron = !!q1?.isPron;
+    const q2IsPron = !!q2?.isPron;
+
     // pronsq DAL DB (finalData) → usato per ADMIN / fallback
     const dbPron = (match.pronsq || match.pron || "").trim();
 
@@ -406,12 +419,14 @@ const TableBlock = ({ isLogged }) => {
 
     // 🔵 0) REGOLA BASE: SE CI SONO SQUADRE UFFICIALI, VINCONO SEMPRE
     //    (per TUTTI: admin, loggati, non loggati)
-    if (team1 || team2) {
+    // 🟢 0.5) Se non ho squadre ufficiali, ma ho qualificate dal girone (solo B),
+    // le mostro nel tabellone usando pos1/pos2.
+    if (q1Code || q2Code) {
       return {
-        code1: team1,
-        code2: team2,
-        isPron1: false, // bordo bianco
-        isPron2: false,
+        code1: q1Code,
+        code2: q2Code,
+        isPron1: q1IsPron, // ✅ viola se qualifica da pron
+        isPron2: q2IsPron,
       };
     }
 

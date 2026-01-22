@@ -28,6 +28,7 @@ import { AuthProvider } from "../Services/supabase/AuthProvider";
 
 import SeedMatchStructure from "../START/app/admin/resetSeed";
 import AdminSeedStructure from "../START/app/admin/seedStructure";
+import { QualifiedTeamsProvider } from "./Global/global";
 
 function AppRoutes() {
   const [isLogged, setIsLogged] = useState(false);
@@ -67,14 +68,16 @@ const App = () => {
   return (
     <AuthProvider>
       <EditModeProvider>
-        <Router>
-          <div className="relative h-[100svh] md:h-screen w-screen bg-slate-900 overflow-hidden overscroll-none touch-none">
-            <TopInfo />
-            <div className="h-full w-full flex">
-              <AppRoutes />
+         <QualifiedTeamsProvider>
+          <Router>
+            <div className="relative h-[100svh] md:h-screen w-screen bg-slate-900 overflow-hidden overscroll-none touch-none">
+              <TopInfo />
+              <div className="h-full w-full flex">
+                <AppRoutes />
+              </div>
             </div>
-          </div>
-        </Router>
+          </Router>
+         </QualifiedTeamsProvider>
       </EditModeProvider>
     </AuthProvider>
   );
