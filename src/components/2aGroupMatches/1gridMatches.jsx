@@ -78,7 +78,7 @@ export default function GridMatchesPage({ isLogged }) {
   });
 
 
-
+const canShowGroupButtons = isLogged && showPronostics;
 
 
   // 7 colonne: ------DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
@@ -325,6 +325,8 @@ const handleNotesModalKeyDown = useCallback((e) => {
     return;
   }
 
+  
+
   // INVIO sull'ultima textarea (Note Varie) -> chiude edit e torna al bottone
   // if (e.key === "Enter" && e.target === last) {
   //   e.preventDefault();
@@ -523,12 +525,18 @@ useEffect(() => {
   }, [matchesLoaded]);
 
   useEffect(() => {
-    if (isLogged) {
-      setShowPronostics(true);
-    } else {
-      setShowPronostics(false); // opzionale
-    }
-  }, [isLogged]);
+  if (isLogged) {
+    setShowPronostics(true);
+    return;
+  }
+
+  // guest: ripristina da storage (opzionale, ma chiaro)
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved != null) setShowPronostics(JSON.parse(saved));
+  } catch {}
+}, [isLogged]);
+
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -607,12 +615,12 @@ useEffect(() => {
               md:w-8 md:h-8
               md:py-0 py-2
               md:px-1 px-2
-              rounded-full font-extrabold text-sm 
-              transition-all duration-300 
-              
-              bg-transparent text-slate-900
-              z-[11000]
-            `}
+              rounded-full font-extrabold text-sm                          
+            text-slate-900
+               ${showPronostics
+                  ? "bg-white text-slate-900"
+                  : "bg-transparent text-white"}
+              `}          
             style={{
               top: btnPos.top,
               left: btnPos.left,
@@ -764,7 +772,7 @@ useEffect(() => {
                   {/* LETTERA + MESSAGE */}
                   <div className="relative w-8 md:w-10 flex items-center justify-center p-0 m-0">
                     {/* ================= ICONE AZIONI GRUPPO (MOBILE + DESKTOP) ================= */}
-                    {showPronostics && (
+                    {canShowGroupButtons && (
                       <div
                         className="
                           absolute

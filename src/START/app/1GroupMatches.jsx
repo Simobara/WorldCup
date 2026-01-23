@@ -7,7 +7,7 @@ group_A: {
         ],
         matches: [
             { numero: 1, city: 'CDMX',             time: '19:00',      team1: 'Mexico',         team2: 'SAfrica',           pron:'1', ris: ' ' ,  results:'2-1 ' },
-            { numero: 2, city: 'Guadalajara',      time: '02:00',      team1: 'Korea',          team2: 'IRL',               pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 2, city: 'Guadalajara',      time: '02:00',      team1: 'Korea',          team2: 'IRL',               pron:'1', ris: ' ' ,  results:'3-0 ' },
         ],
     },
     giornata_2:{

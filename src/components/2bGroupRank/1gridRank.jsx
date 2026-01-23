@@ -167,29 +167,45 @@ function computePronTableForGroup(
       if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
       seen++;
 
-      const pron = String(m.pron ?? "")
-        .trim()
-        .toUpperCase();
-      if (!pron) continue;
+      // ❌ se c'è un risultato UFFICIALE, non contare il pronostico
+      const official = parseResult(m, { allowRis: false });
+      if (official) continue;
 
-      // se c'è un risultato "valido" (in base al toggle), NON contare il pron
-      const hasRes = !!parseResult(m, { allowRis });
-      if (hasRes) continue;
+      // ✅ ricavo il segno anche dal RIS (es. 2-0 → "1", 1-1 → "X")
+      let outcome = null;
+
+      const parsed = parseResult(m, { allowRis: true });
+      if (parsed?.source === "ris") {
+        const [ga, gb] = parsed.score;
+        outcome = ga > gb ? "1" : ga < gb ? "2" : "X";
+      }
+
+      // fallback sul segno scritto a mano
+      if (!outcome) {
+        const sign = String(m.pron ?? "")
+          .trim()
+          .toUpperCase();
+        if (sign === "1" || sign === "2" || sign === "X") {
+          outcome = sign;
+        }
+      }
+
+      if (!outcome) continue;
 
       const t1 = resolveName(m.team1);
       const t2 = resolveName(m.team2);
 
       if (!groupTeamNames.has(t1) || !groupTeamNames.has(t2)) continue;
 
-      if (pron === "1") {
+      if (outcome === "1") {
         table[t1].pt += 3;
         table[t1].w += 1;
         table[t2].p += 1;
-      } else if (pron === "2") {
+      } else if (outcome === "2") {
         table[t2].pt += 3;
         table[t2].w += 1;
         table[t1].p += 1;
-      } else if (pron === "X") {
+      } else if (outcome === "X") {
         table[t1].pt += 1;
         table[t2].pt += 1;
         table[t1].x += 1;
@@ -780,7 +796,7 @@ export default function GridRankPage({
   useEffect(() => {
     const letters = "ABCDEFGHIJKL".split("");
 
-     const isOfficial = (m) => isScore(m.results);
+    const isOfficial = (m) => isScore(m.results);
 
     // match "coperto" = ufficiale oppure pronostico (ris o segno 1/X/2)
     const isScore = (s) => {
@@ -906,10 +922,14 @@ export default function GridRankPage({
               md:w-8 md:h-8
               md:py-0 py-2
               md:px-1 px-2
-              rounded-full font-extrabold text-sm 
-              transition-all duration-300 
-              bg-transparent text-slate-900
+              rounded-full font-extrabold text-sm              
+          text-slate-900
               z-[11000]
+              ${
+                showPronostics
+                  ? "bg-white text-slate-900"
+                  : "bg-transparent text-white"
+              }
             `}
             style={{
               top: btnPos.top,
@@ -948,7 +968,7 @@ export default function GridRankPage({
                 resolveName,
                 groupTeamNames,
                 maxMatches,
-                allowRisForQualify,
+               false,
               );
 
               const simByTeam = {};
@@ -973,38 +993,41 @@ export default function GridRankPage({
                 (t) => t.gf > 0 || t.gs > 0,
               );
 
-              const pronTableByTeam = useSupabase
-                ? computeBonusTableForGroup(
-                    matchesData,
-                    resolveName,
-                    groupTeamNames,
-                    maxMatches,
-                    isAdminUser, // 🔹 solo l'admin usa i seed se mancano i dati utente
-                  )
-                : showPronostics
-                  ? computePronTableForGroup(
+              const canShowPron = useSupabase || showPronostics;
+
+              const pronTableByTeam = canShowPron
+                ? useSupabase
+                  ? computeBonusTableForGroup(
+                      matchesData,
+                      resolveName,
+                      groupTeamNames,
+                      maxMatches,
+                      isAdminUser,
+                    )
+                  : computePronTableForGroup(
                       matchesData,
                       resolveName,
                       groupTeamNames,
                       maxMatches,
                     )
-                  : null;
+                : null;
 
               // 👇 QUI ora pronTableByTeam ESISTE
               // if (groupKey === "group_B") {
               //   console.log("🟦 GRUPPO B → pronTableByTeam:", pronTableByTeam);
               // }
 
-              const sortedTeams = pronTableByTeam
-                ? sortTeamsByTotal(
-                    teams,
-                    tableByTeam,
-                    pronTableByTeam,
-                    resolveName,
-                  )
-                : groupHasResults
-                  ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
-                  : teams;
+              const sortedTeams =
+                canShowPron && pronTableByTeam
+                  ? sortTeamsByTotal(
+                      teams,
+                      tableByTeam,
+                      pronTableByTeam,
+                      resolveName,
+                    )
+                  : groupHasResults
+                    ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
+                    : teams;
 
               return (
                 <div
@@ -1068,7 +1091,7 @@ export default function GridRankPage({
 
                           // 👉 PRONOSTICI SEMPRE NEL “+”
                           // (anche se non ci sono risultati ufficiali)
-                          const pronPt = pronStats?.pt ?? 0;
+                          const pronPt = (useSupabase || showPronostics) ? (pronStats?.pt ?? 0) : 0;
 
                           // risultato simulato
                           const isSim = team ? !!simByTeam[teamKey] : false;
@@ -1081,11 +1104,7 @@ export default function GridRankPage({
 
                           // quando mostrare i dati
                           const showStats =
-                            !!mainStats &&
-                            (groupHasResults ||
-                              showPronostics ||
-                              useSupabase ||
-                              pronPt > 0);
+                            !!mainStats && (groupHasResults || canShowPron);
 
                           const safeStats = showStats ? mainStats : null;
                           const safeGolStr = showStats ? golStr : "";
@@ -1227,7 +1246,7 @@ function Row7({
   isSim,
   isLastRow,
 }) {
-  const showBonus = pronPt > 0;
+  const showBonus = showPronostics && pronPt > 0;
   return (
     <>
       {/* CODICE */}
