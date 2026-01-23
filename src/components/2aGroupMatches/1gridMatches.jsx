@@ -526,17 +526,19 @@ useEffect(() => {
 
   useEffect(() => {
   if (isLogged) {
+    // loggato: showPronostics può stare true (per UI), ma NON deve influire sullo storage guest
     setShowPronostics(true);
     return;
   }
 
-  // guest: ripristina da storage (opzionale, ma chiaro)
+  // guest: ripristina da storage
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved != null) setShowPronostics(JSON.parse(saved));
-  } catch {}
+    setShowPronostics(saved ? JSON.parse(saved) : false);
+  } catch {
+    setShowPronostics(false);
+  }
 }, [isLogged]);
-
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -553,12 +555,16 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(showPronostics));
-    } catch {
-      // ignore
-    }
-  }, [showPronostics]);
+  // 🔒 IMPORTANTISSIMO: lo storage è solo per GUEST.
+  // Se sei loggato, NON scrivere mai (altrimenti salvi "true" e al logout riappare).
+  if (isLogged) return;
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(showPronostics));
+  } catch {
+    // ignore
+  }
+}, [showPronostics, isLogged]);
 
   useEffect(() => {
     if (!showPronostics) {
