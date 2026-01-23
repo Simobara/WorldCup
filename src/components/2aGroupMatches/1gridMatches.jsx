@@ -23,12 +23,14 @@ import { CssGroupLetter, CssMatchGrid } from "../../START/styles/0CssGsTs";
 import GridRankPage from "../2bGroupRank/1gridRank";
 import Quadrato from "../3tableComp/1quad";
 //zExternal
+import { useQualifiedTeams } from "../../Ap/Global/global.jsx";
 import EditableScore from "../../Editor/EditableScore.jsx";
 import { useEditMode } from "../../Providers/EditModeProvider";
 import { buildNameResolver } from "./zExternal/buildNameResolver";
 import { city3 } from "./zExternal/city3";
 import { dayOnly } from "./zExternal/dayOnly";
 import { getFlatMatchesForGroup } from "./zExternal/getFlatMatchesForGroup";
+import { getSortedTeamsForGroup } from "./zExternal/getSortedTeamsForGroup";
 import { setDeep } from "./zExternal/setDeep";
 import { splitDayDesk } from "./zExternal/splitDayDesk";
 import { toCode3 } from "./zExternal/toCode3";
@@ -77,9 +79,72 @@ export default function GridMatchesPage({ isLogged }) {
     }
   });
 
-
+const { setQualifiedTeams } = useQualifiedTeams();
 const canShowGroupButtons = isLogged && showPronostics;
 
+
+
+const [dataVersion, setDataVersion] = useState(0);
+const bumpDataVersion = useCallback(() => setDataVersion(v => v + 1), []);
+
+
+// ✅ METTI QUI (UNA SOLA VOLTA)
+const [notes, setNotes] = useState({});
+const [matchesState, setMatchesState] = useState({});
+
+
+
+
+// ✅ matchesByGroup “derivato” dallo stato attuale (DB/hardcoded + plusRis/plusPron)
+// Serve per ricalcolare le qualificate in tempo reale
+const matchesByGroup = useMemo(() => {
+  const out = {};
+  for (const letter of "ABCDEFGHIJKL") {
+    out[`group_${letter}`] = buildMatchesDataForGroup(letter);
+  }
+  return out;
+  // buildMatchesDataForGroup dipende da structureByGroup, matchesState, isLogged ecc.
+}, [structureByGroup, matchesState, isLogged]);
+
+
+// ✅ ogni volta che cambiano i match (o dopo save), ricalcolo le qualificate e le metto nel context
+useEffect(() => {
+  const nextQualified = {};
+
+  for (const letter of "ABCDEFGHIJKL") {
+    const groupKey = `group_${letter}`;
+    const matchesData = matchesByGroup?.[groupKey];
+    if (!matchesData) continue;
+
+    // calcolo classifica “come GridRank” (stessa utility)
+    const sorted = getSortedTeamsForGroup({
+      flagsMond,
+      groupLetter: letter,
+      matchesData,
+      maxMatches: null,
+      allowRis: true,   // ✅ considera anche plusRis
+      useBonus: true,
+    });
+
+    const first = sorted?.[0]?.id || "";
+    const second = sorted?.[1]?.id || "";
+    if (!first || !second) continue;
+
+    // ✅ set isPron: se NON ho tutti results ufficiali, considero provvisorio
+    const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
+    const allOfficial = all.every((m) => isScore(m.results));
+    const isPron = !allOfficial;
+
+    // scrivo 1A / 2A ecc.
+    nextQualified[`1${letter}`] = { code: first, isPron };
+    nextQualified[`2${letter}`] = { code: second, isPron };
+  }
+
+  // ✅ scrivo nel context (e quindi TableBlock si aggiorna)
+  if (Object.keys(nextQualified).length) {
+    setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+  }
+}, [matchesByGroup, setQualifiedTeams]);
 
   // 7 colonne: ------DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
   const gridColsDesktop = "80px 50px 30px 45px 40px 45px 30px";
@@ -115,7 +180,8 @@ const canShowGroupButtons = isLogged && showPronostics;
 
 
 // ✅ normalizza i nomi dei campi DB -> UI (pron/ris/results)
-const normalizeMatch = (m) => {
+// ✅ normalizza i nomi dei campi DB -> UI (pron/ris/results)
+function normalizeMatch(m) {
   if (!m) return m;
 
   // se già ha pron/ris/results, non tocco
@@ -192,6 +258,72 @@ const normalizeMatch = (m) => {
     keysTouched: keysTouchedMatches.current,
   });
 
+  const resolveName = buildNameResolver(flagsMond);
+
+const nextQualified = {};
+
+for (const letter of "ABCDEFGHIJKL") {
+  const matchesData = buildMatchesDataForGroup(letter);
+
+  if (!isGroupComplete(matchesData)) continue;
+
+  // qui riusi la stessa logica di GridRank:
+  // - computeTableForGroup (ufficiali)
+  // - computePronTableForGroup o bonus
+  // - sortTeamsByTotal
+  //
+  // Se vuoi *identico identico* a GridRank, la cosa migliore è:
+  // ✅ estrarre computeTableForGroup / computePronTableForGroup / sortTeamsByTotal in un file utils condiviso
+  // e importarli sia in GridRankPage sia qui.
+
+  // Pseudologica (perché dipende dalle tue funzioni già presenti in GridRank):
+  const teams = (flagsMond ?? []).filter((t) => t.group === letter);
+  const groupTeamNames = new Set(teams.map((t) => resolveName(t.name)));
+
+  // const tableByTeam = computeTableForGroup(matchesData, resolveName, groupTeamNames, null, true);
+  // const pronTableByTeam = computePronTableForGroup(matchesData, resolveName, groupTeamNames, null, true);
+
+  const sorted = getSortedTeamsForGroup({
+  flagsMond,
+  groupLetter: letter,
+  matchesData,
+  maxMatches: null,
+  useBonus: true,
+});
+
+  const first = sorted?.[0]?.id || "";
+  const second = sorted?.[1]?.id || "";
+  if (!first || !second) continue;
+
+  // se non sono tutti ufficiali → isPron true (bordo viola nel tabellone)
+  const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
+  const allOfficial = all.every((m) => isScore(m.results));
+
+  nextQualified[`1${letter}`] = { code: first, isPron: !allOfficial };
+  nextQualified[`2${letter}`] = { code: second, isPron: !allOfficial };
+}
+
+if (Object.keys(nextQualified).length) {
+  setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+
+  // ✅ persistenza (TableBlock le vede anche dopo refresh)
+  try {
+    const nextJson = JSON.stringify(nextQualified);
+    if (nextJson !== lastQualifiedJsonRef.current) {
+      lastQualifiedJsonRef.current = nextJson;
+
+      const prevObj = JSON.parse(localStorage.getItem("wc26_qualifiedTeams") || "{}");
+      localStorage.setItem(
+        "wc26_qualifiedTeams",
+        JSON.stringify({ ...prevObj, ...nextQualified })
+      );
+    }
+  } catch {
+    // ignore
+  }
+}
+
+
   // ---------- RISULTATI ADMIN ----------
   if (isAdminUser && keysTouchedMatches.current.size) {
     try {
@@ -223,11 +355,81 @@ setStructureByGroup(freshStructure); // ok, ma tanto poi map(normalizeMatch) al 
     setRankRefreshKey((prev) => prev + 1);
   }
 
+mergeQualifiedTeams(patch);  
+  // ✅ IMPORTANTISSIMO: ping globale -> GridRank + TableBlock + QualifiedTeamsSync
+  bumpDataVersion?.();
+
+
     setLocalEdits({});
     lastSavedRef.current = { notes, matches: freshMatches };
   }
 
 
+const isScore = (s) => {
+  const raw = String(s ?? "").trim().replace(/[–—−]/g, "-").replace(/:/g, "-").replace(/\s+/g, "");
+  if (!raw.includes("-")) return false;
+  const [a, b] = raw.split("-");
+  return Number.isFinite(Number(a)) && Number.isFinite(Number(b));
+};
+const isSign = (s) => {
+  const v = String(s ?? "").trim().toUpperCase();
+  return v === "1" || v === "X" || v === "2";
+};
+
+
+
+
+function buildMatchesDataForGroup(letter) {
+  const groupKey = `group_${letter}`;
+
+  // struttura “flat” per quel gruppo: DB se c’è, altrimenti hardcoded
+  const flat =
+    isLogged && structureByGroup?.[letter]?.length
+      ? structureByGroup[letter].map(normalizeMatch)  // team1/team2/results/seed pron/ris
+      : getFlatMatchesForGroup(groupMatches?.[groupKey]).map(normalizeMatch);
+
+  // ricostruisco le 3 giornate (2 match ciascuna)
+  const giornate = {
+    giornata_1: { matches: [] },
+    giornata_2: { matches: [] },
+    giornata_3: { matches: [] },
+  };
+
+  flat.forEach((m, idx) => {
+    const giornataKey = idx <= 1 ? "giornata_1" : idx <= 3 ? "giornata_2" : "giornata_3";
+
+    const a = String(matchesState?.[letter]?.plusRis?.[idx]?.a ?? "").trim();
+    const b = String(matchesState?.[letter]?.plusRis?.[idx]?.b ?? "").trim();
+    const userRis = a !== "" && b !== "" ? `${a}-${b}` : "";
+
+    const userPron = String(matchesState?.[letter]?.plusPron?.[idx] ?? "")
+      .trim()
+      .toUpperCase();
+
+    giornate[giornataKey].matches.push({
+      team1: m.team1,
+      team2: m.team2,
+      results: m.results ?? "",   // ufficiale
+      ris: userRis || "",         // utente
+      pron: userPron || "",       // utente
+    });
+  });
+
+  return giornate;
+};
+
+
+
+
+
+
+
+const isCoveredMatch = (m) => isScore(m.results) || isScore(m.ris) || isSign(m.pron);
+
+const isGroupComplete = (matchesData) => {
+  const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
+  return all.length >= 6 && all.every(isCoveredMatch);
+};
 
 
   // ✅ METTI QUESTO BLOCCO: dentro GridMatchesPage, subito DOPO saveAllEdits() e PRIMA del return(...)
@@ -272,13 +474,24 @@ setStructureByGroup(freshStructure); // ok, ma tanto poi map(normalizeMatch) al 
   const [hoverCutoff, setHoverCutoff] = useState(null); // numero match da considerare (2,4,6)
   const [hoverModal, setHoverModal] = useState(null);
 
-  // ✅ dati note (editabili e salvabili)
-  const [notes, setNotes] = useState({});
 
-  const [matchesState, setMatchesState] = useState({});
+
+
+
   const [matchesLoaded, setMatchesLoaded] = useState(false);
   const keysTouched = useRef(new Set());
   const keysTouchedMatches = useRef(new Set());
+
+
+
+
+
+
+
+
+
+
+
 
   // ✅ stato apertura modale note mobile
   const [mobileNotesOpen, setMobileNotesOpen] = useState(false);
@@ -300,6 +513,9 @@ setStructureByGroup(freshStructure); // ok, ma tanto poi map(normalizeMatch) al 
   // 👇 AGGIUNGI QUESTE DUE RIGHE QUI
   const arrowRefs = useRef([]);
   const editToggleRef = useRef(null);
+
+const lastQualifiedJsonRef = useRef(""); // ✅ evita write ripetute
+
 
   const [mobileRankOpen, setMobileRankOpen] = useState(false);
   const [mobileGroup, setMobileGroup] = useState(null); // "A".."L"
@@ -328,6 +544,7 @@ const handleNotesModalKeyDown = useCallback((e) => {
 
   
 
+
   // INVIO sull'ultima textarea (Note Varie) -> chiude edit e torna al bottone
   // if (e.key === "Enter" && e.target === last) {
   //   e.preventDefault();
@@ -338,6 +555,78 @@ const handleNotesModalKeyDown = useCallback((e) => {
   // }
 }, []);
 
+
+
+//------------------------------------------------
+useEffect(() => {
+  const letters = "ABCDEFGHIJKL".split("");
+  const nextQualified = {};
+
+  for (const letter of letters) {
+    const groupKey = `group_${letter}`;
+    const matchesData = matchesByGroup?.[groupKey]; // <-- usa QUI il tuo state reale
+
+    if (!matchesData) continue;
+
+    // gruppo “chiuso” = 6 match coperti (results OR ris OR pron)
+    // riuso le stesse regole dello Step 1: se allowRis=true include anche ris
+    // Se vuoi SOLO ufficiali per qualificare: metti allowRis=false
+    const sorted = getSortedTeamsForGroup({
+      flagsMond,
+      groupLetter: letter,
+      matchesData,
+      maxMatches: null,
+      allowRis: true,
+      useBonus: true,
+    });
+
+    const first = sorted?.[0]?.id || "";
+    const second = sorted?.[1]?.id || "";
+    if (!first || !second) continue;
+
+    // 👉 qui puoi decidere quando scrivere: solo se il gruppo è “chiuso”
+    // per ora scriviamo sempre se abbiamo 2 squadre (nel prossimo step mettiamo isGroupClosed)
+    nextQualified[`1${letter}`] = { code: first, isPron: false };
+    nextQualified[`2${letter}`] = { code: second, isPron: false };
+  }
+
+  setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+}, [matchesByGroup, setQualifiedTeams]);
+
+//------------------------------------------------
+useEffect(() => {
+  const nextQualified = {};
+
+  for (const letter of "ABCDEFGHIJKL") {
+    const matchesData = buildMatchesDataForGroup(letter);
+    if (!isGroupComplete(matchesData)) continue;
+
+    const sorted = getSortedTeamsForGroup({
+      flagsMond,
+      groupLetter: letter,
+      matchesData,
+      maxMatches: null,
+      allowRis: true,
+      useBonus: true,
+    });
+
+    const first = sorted?.[0]?.id || "";
+    const second = sorted?.[1]?.id || "";
+    if (!first || !second) continue;
+
+    const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
+    const allOfficial = all.every((m) => isScore(m.results));
+
+    nextQualified[`1${letter}`] = { code: first, isPron: !allOfficial };
+    nextQualified[`2${letter}`] = { code: second, isPron: !allOfficial };
+  }
+
+  if (Object.keys(nextQualified).length) {
+    setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+  }
+}, [matchesState, structureByGroup, isLogged]);
+
+//------------------------------------------------
 useEffect(() => {
   // quando entro in editMode, metto il focus sulla 1ª textarea del modale NOTE
   if (!editMode) return;
@@ -408,7 +697,7 @@ useEffect(() => {
 
   return () => { cancelled = true; };
 }, [isLogged]);
-
+//------------------------------------------------
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
@@ -445,11 +734,21 @@ useEffect(() => {
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
-
+//------------------------------------------------
   useEffect(() => {
     saveAllEditsRef.current = saveAllEdits;
   }, [saveAllEdits]);
+//------------------------------------------------
 
+useEffect(() => {
+  try {
+    const stored = JSON.parse(localStorage.getItem("wc26_qualifiedTeams") || "{}");
+    lastQualifiedJsonRef.current = JSON.stringify(stored || {});
+  } catch {
+    lastQualifiedJsonRef.current = "";
+  }
+}, []);
+//------------------------------------------------
   useEffect(() => {
     return () => {
       if (editMode) {
@@ -458,7 +757,7 @@ useEffect(() => {
       }
     };
   }, [editMode, setEditMode]);
-
+//------------------------------------------------
   useEffect(() => {
     let cancelled = false;
 
@@ -481,6 +780,12 @@ useEffect(() => {
     };
   }, [repo, matchesRepo]);
 
+
+
+
+
+
+  //------------------------------------------------
   useEffect(() => {
     if (!matchesLoaded) return;
 
@@ -2085,6 +2390,8 @@ const displayB = isOfficial ? baseB : (valueB !== "" ? valueB : seedB);
                 isLogged={isLogged}
                 userEmail={user?.email}
                 refreshKey={rankRefreshKey}
+                 dataVersion={dataVersion}
+                 matchesByGroupOverride={matchesByGroup} 
               />
             </div>
           </>
@@ -2125,6 +2432,8 @@ const displayB = isOfficial ? baseB : (valueB !== "" ? valueB : seedB);
                 isLogged={isLogged}
                 userEmail={user?.email}
                 refreshKey={rankRefreshKey}
+                 dataVersion={dataVersion}
+                 matchesByGroupOverride={matchesByGroup} 
               />
             </div>
           </>

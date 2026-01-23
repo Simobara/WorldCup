@@ -13,8 +13,24 @@ Note:
 ------------------------------------------------------------------------------*/
 // App.jsx
 // deploy bump
+/* -----------------------------------------------------------------------------
+📄 File: App.jsx
+Scopo: componente root dell’app.
+       Gestisce provider globali, routing e layout principale.
+------------------------------------------------------------------------------*/
+/* -----------------------------------------------------------------------------
+📄 File: App.jsx
+Scopo: componente root dell’app.
+       Gestisce provider globali, routing e layout principale.
+------------------------------------------------------------------------------*/
+
 import { useEffect, useState } from "react";
-import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import { supabase } from "../Services/supabase/supabaseClient";
 
 import TopInfo from "../Ap/TopInfo";
@@ -25,62 +41,75 @@ import TablePage from "../Body/3TablePageX";
 import { EditModeProvider } from "../Providers/EditModeProvider";
 import { AuthProvider } from "../Services/supabase/AuthProvider";
 
-
 import SeedMatchStructure from "../START/app/admin/resetSeed";
 import AdminSeedStructure from "../START/app/admin/seedStructure";
 import { QualifiedTeamsProvider } from "./Global/global";
 
-function AppRoutes() {
-  const [isLogged, setIsLogged] = useState(false);
-
-  useEffect(() => {
-    // iniziale
-    supabase.auth.getSession().then(({ data }) => {
-      setIsLogged(!!data?.session);
-    });
-
-    // update live
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLogged(!!session);
-    });
-
-    return () => sub?.subscription?.unsubscribe?.();
-  }, []);
-
+function AppRoutes({ isLogged, userEmail, refreshKey }) {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/standingsPage" replace />} />
       <Route path="/standingsPage" element={<StandingsPage />} />
-      <Route path="/groupRankPage" element={<GroupRankPage/>} />
+      <Route path="/groupRankPage" element={<GroupRankPage />} />
       <Route path="/groupMatchesPage" element={<GroupMatchesPage />} />
-      <Route path="/tablePage" element={<TablePage />} /> 
-             {/* ADMIN */}
-         {/* 👇 Editor struttura: QUI vedi la pagina che hai incollato */}
-      <Route path="/admin/seed-structure" element={<AdminSeedStructure />} />
-      {/* 👇 Pagina che fa effettivamente il seed su Supabase */}
-      <Route path="/admin/run-seed" element={<SeedMatchStructure />} />
+      <Route path="/tablePage" element={<TablePage />} />
 
+      {/* ADMIN */}
+      <Route path="/admin/seed-structure" element={<AdminSeedStructure />} />
+      <Route path="/admin/run-seed" element={<SeedMatchStructure />} />
     </Routes>
   );
 }
 
 const App = () => {
+  const [isLogged, setIsLogged] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+  // 🔹 1) inizializzo SOLO lo stato (NO refreshKey)
+  supabase.auth.getSession().then(({ data }) => {
+    const session = data?.session ?? null;
+    setIsLogged(!!session);
+    setUserEmail(session?.user?.email ?? "");
+  });
+
+  // 🔹 2) refreshKey SOLO quando Supabase notifica un cambio reale
+  const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    setIsLogged(!!session);
+    setUserEmail(session?.user?.email ?? "");
+    setRefreshKey((k) => k + 1); // 👈 UNICA fonte
+  });
+
+  return () => sub?.subscription?.unsubscribe?.();
+}, []);
+
+
   return (
     <AuthProvider>
       <EditModeProvider>
-         <QualifiedTeamsProvider>
-          <Router>
+        <Router>
+           <QualifiedTeamsProvider
+            isLogged={isLogged}
+            userEmail={userEmail}
+            refreshKey={refreshKey}
+          >          
             <div className="relative h-[100svh] md:h-screen w-screen bg-slate-900 overflow-hidden overscroll-none touch-none">
               <TopInfo />
               <div className="h-full w-full flex">
-                <AppRoutes />
+                <AppRoutes
+                  isLogged={isLogged}
+                  userEmail={userEmail}
+                  refreshKey={refreshKey}
+                />
               </div>
             </div>
-          </Router>
-         </QualifiedTeamsProvider>
+          </QualifiedTeamsProvider>
+        </Router>
       </EditModeProvider>
     </AuthProvider>
   );
 };
+
 
 export default App;

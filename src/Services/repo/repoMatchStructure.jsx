@@ -4,6 +4,11 @@ import { ADMIN_EMAIL } from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
 import { supabase } from "../supabase/supabaseClient";
 
+function normEmail(email) {
+  return String(email || "")
+    .trim()
+    .toLowerCase();
+}
 // Trasforma una riga del DB nella forma "flat" che la UI capisce
 function mapRowToFlatMatch(row) {
   return {
@@ -105,11 +110,8 @@ export async function loadMatchStructureFromDb() {
  *    (li legge prima dal DB e li mantiene)
  */
 export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
-  if (
-    !userEmail ||
-    userEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase() ||
-    !matches
-  ) {
+  const emailNorm = normEmail(userEmail);
+  if (!emailNorm || emailNorm !== normEmail(ADMIN_EMAIL) || !matches) {
     return;
   }
 
@@ -214,7 +216,7 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
       });
 
       payload.push({
-        user_email: userEmail,
+        user_email: emailNorm,
         group_letter: letter,
         match_index: idx,
         seed_ris,
@@ -268,7 +270,8 @@ export async function saveUserPronosticsToDb({
   matches,
   keysTouched,
 }) {
-  if (!userEmail || !matches) return;
+  const emailNorm = normEmail(userEmail);
+  if (!emailNorm || !matches) return;
 
   const letters = keysTouched?.size
     ? Array.from(keysTouched)
@@ -280,7 +283,7 @@ export async function saveUserPronosticsToDb({
   const { data: existingRows, error: readError } = await supabase
     .from("wc_matches_structure_userpron")
     .select("user_email, group_letter, match_index, user_ris, user_pron")
-    .eq("user_email", userEmail)
+    .eq("user_email", emailNorm)
     .in("group_letter", letters)
     .order("group_letter", { ascending: true })
     .order("match_index", { ascending: true });
@@ -362,7 +365,7 @@ export async function saveUserPronosticsToDb({
       });
 
       payload.push({
-        user_email: userEmail,
+        user_email: emailNorm,
         group_letter: letter,
         match_index: idx,
         user_ris: ris,

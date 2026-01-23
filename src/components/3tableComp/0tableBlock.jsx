@@ -23,43 +23,6 @@ import BlokQuadRettSemi from "./5blokQuadRettSemi";
 
 // continua a usare wc_final_user_pron + squadre reali del DB.
 
-function normalizeResults({ ris, TS, R }) {
-  const isDraw = (v) => {
-    if (!v) return false;
-    const parts = v.split("-");
-    if (parts.length !== 2) return false;
-    const [a, b] = parts.map((n) => parseInt(n, 10));
-    return a === b;
-  };
-
-  // Caso 1: RIS è pareggio → TS = null, R = null
-  if (isDraw(ris)) {
-    return { ris, TS: null, R: null };
-  }
-
-  // Caso 2: RIS è un risultato NON pareggio → niente TS, niente R
-  if (ris && !isDraw(ris)) {
-    return { ris, TS: "", R: "" };
-  }
-
-  // Caso 3: TS valorizzato NON pareggio → niente rigori
-  if (TS && !isDraw(TS)) {
-    return { ris, TS, R: "" };
-  }
-
-  // Caso 4: TS è pareggio → deve andare ai rigori
-  if (TS && isDraw(TS)) {
-    return { ris, TS, R: null };
-  }
-
-  // Caso base: nessun valore → tutto vuoto
-  return {
-    ris: ris ?? "",
-    TS: TS ?? "",
-    R: R ?? "",
-  };
-}
-
 // 🔹 Costruisco una mappa fg -> pronsq **DAL FILE HARDCODED**
 const buildSeedPronByFg = () => {
   const map = {};
@@ -118,6 +81,11 @@ const TableBlock = ({ isLogged }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const { qualifiedTeams } = useQualifiedTeams();
 
+  // ✅ se loggato: aspetta che arrivino le qualificate (evita flash vuoto sul tabellone)
+  // const qualifiedReady =
+  //  --- !isLogged || (qualifiedTeams && Object.keys(qualifiedTeams).length > 0);
+
+  const qualifiedReady = true; // non bloccare mai l'output
   // 🔹 carica FINALI da Supabase e sovrascrive l'hardcoded
   useEffect(() => {
     const loadFinalsFromDb = async () => {
@@ -398,8 +366,12 @@ const TableBlock = ({ isLogged }) => {
     const team1 = (match.team1 || "").trim();
     const team2 = (match.team2 || "").trim();
 
-    // ✅ QUALIFICATE DA GIRONE (solo B): se non ho team ufficiali,
-    // uso pos1/pos2 per piazzare 1B/2B dal context
+    // ✅ se loggato ma le qualificate non sono ancora pronte,
+    // evito di mostrare vuoto “finale” nei match che dipendono da pos1/pos2
+    // if (isLogged && !qualifiedReady) {
+    //   return { code1: "", code2: "", isPron1: false, isPron2: false };
+    // }
+
     const pos1 = String(match.pos1 ?? "").trim(); // es "2B"
     const pos2 = String(match.pos2 ?? "").trim(); // es "2A"
 

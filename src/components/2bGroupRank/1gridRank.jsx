@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQualifiedTeams } from "../../Ap/Global/global";
 import { supabase } from "../../Services/supabase/supabaseClient";
 import { ADMIN_EMAIL, flagsMond } from "../../START/app/0main";
@@ -9,12 +9,58 @@ import {
   CssHeader7,
   CssRow7,
 } from "../../START/styles/0CssGsTs";
+import { buildNameResolver } from "../2aGroupMatches/zExternal/buildNameResolver";
+import { getSortedTeamsForGroup } from "../2aGroupMatches/zExternal/getSortedTeamsForGroup";
 import Quadrato from "../3tableComp/1quad";
 
 // pronData = pronRows[0].data
 // pronData = pronRows[0].data
 // 🔹 Estrae risultato e pronostico da mws_matches_structure_userpron.data (campo "pronostici")
 //    in base al match_index (0..5)
+
+const normalizeScore = (s) =>
+  String(s ?? "")
+    .trim()
+    .replace(/[–—−]/g, "-")
+    .replace(/:/g, "-")
+    .replace(/\s+/g, "");
+
+const isScore = (s) => {
+  const v = normalizeScore(s);
+  if (!v || !v.includes("-")) return false;
+  const [aStr, bStr] = v.split("-");
+  const a = Number(aStr);
+  const b = Number(bStr);
+  return Number.isFinite(a) && Number.isFinite(b);
+};
+
+const isSign = (s) => {
+  const v = String(s ?? "")
+    .trim()
+    .toUpperCase();
+  return v === "1" || v === "X" || v === "2";
+};
+
+const isCovered = (m) =>
+  isScore(m?.results) || isScore(m?.ris) || isSign(m?.pron);
+
+const getAllMatches = (matchesData) =>
+  Object.values(matchesData ?? {})
+    .flatMap((g) => g?.matches ?? [])
+    .filter(Boolean);
+
+const isGroupClosed = (matchesData) => {
+  const all = getAllMatches(matchesData);
+  if (all.length < 6) return false;
+  return all.every(isCovered);
+};
+
+const isGroupAllOfficial = (matchesData) => {
+  const all = getAllMatches(matchesData);
+  if (all.length < 6) return false;
+  return all.every((m) => isScore(m?.results));
+};
+
 function getPronFromMatchesPron(pronostici, matchIndex) {
   if (!pronostici) return { ris: null, pron: null };
 
@@ -121,28 +167,28 @@ function parseResult(match, { allowRis = true } = {}) {
   return null;
 }
 
-function norm(s) {
-  return String(s ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "")
-    .replace(/[^\p{L}\p{N}]/gu, "");
-}
+// function norm(s) {
+//   return String(s ?? "")
+//     .trim()
+//     .toLowerCase()
+//     .replace(/\s+/g, "")
+//     .replace(/[^\p{L}\p{N}]/gu, "");
+// }
 
-function buildNameResolver(allTeams) {
-  const map = new Map();
+// function buildNameResolver(allTeams) {
+//   const map = new Map();
 
-  for (const t of allTeams ?? []) {
-    map.set(norm(t.name), t.name);
-    map.set(norm(t.id), t.name);
-    map.set(norm(t.name.replaceAll(".", "")), t.name);
-  }
+//   for (const t of allTeams ?? []) {
+//     map.set(norm(t.name), t.name);
+//     map.set(norm(t.id), t.name);
+//     map.set(norm(t.name.replaceAll(".", "")), t.name);
+//   }
 
-  map.set(norm("SAfrica"), "Sudafrica");
-  map.set(norm("StatiUniti"), "StatiUniti");
+//   map.set(norm("SAfrica"), "Sudafrica");
+//   map.set(norm("StatiUniti"), "StatiUniti");
 
-  return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
-}
+//   return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
+// }
 
 function computePronTableForGroup(
   matchesData,
@@ -496,6 +542,8 @@ export default function GridRankPage({
   isLogged,
   userEmail, // 🔹 nuovo prop
   refreshKey = 0,
+  dataVersion = 0,
+  matchesByGroupOverride = null,
 }) {
   const isTooltip = !!onlyGroup;
   const STORAGE_KEY = "gridRank_showPronostics";
@@ -535,6 +583,12 @@ export default function GridRankPage({
   const [rowH, setRowH] = useState(rowHMobile);
   const [headerH, setHeaderH] = useState(headerHMobile);
   const [btnPos, setBtnPos] = useState({ top: "", left: "" });
+
+  const [isFetching, setIsFetching] = useState(false);
+
+  // ✅ cache “stabile”: finché arriva il nuovo fetch, mostro i dati vecchi
+  const stableRef = useRef({}); // ultimo byGroup “buono”
+  const [renderMatchesByGroup, setRenderMatchesByGroup] = useState({});
 
   const useSupabase =
     isLogged &&
@@ -628,122 +682,131 @@ export default function GridRankPage({
     // );
 
     let cancelled = false;
-
+    setRenderMatchesByGroup(stableRef.current || {});
     // 🔹 CARICAMENTO MATCH DA SUPABASE QUANDO LOGGATO
     //    - struttura da wc_matches_structure
     //    - pronostici reali da wc_matches_structure_userpron per userEmail
 
     async function loadMatches() {
-      // 1️⃣ struttura di tutte le partite
-      const { data: structRows, error: structErr } = await supabase
-        .from("wc_matches_structure")
-        .select("*");
+      setIsFetching(true);
 
-      if (structErr) {
-        console.error("Supabase wc_matches_structure error", structErr);
-        return;
-      }
+      try {
+        const { data: structRows, error: structErr } = await supabase
+          .from("wc_matches_structure")
+          .select("*");
 
-      // 2️⃣ pronostici / risultati utente per tutte le partite
-      const { data: pronRows, error: pronErr } = await supabase
-        .from("wc_matches_structure_userpron")
-        .select("group_letter, match_index, user_pron, user_ris")
-        .eq("user_email", userEmail);
-
-      if (pronErr) {
-        console.error("Supabase wc_matches_structure_userpron error", pronErr);
-        return;
-      }
-
-      // mappa per accesso rapido: "A-0", "A-1", ... → riga utente
-      const pronMap = {};
-      for (const pr of pronRows ?? []) {
-        const key = `${pr.group_letter}-${pr.match_index}`;
-        pronMap[key] = pr;
-      }
-
-      // 🔹 Costruisco supabaseMatchesByGroup = { group_A: {...}, group_B: {...}, ... }
-      const byGroup = {};
-
-      for (const row of structRows ?? []) {
-        const letter = row.group_letter ?? row.group ?? null;
-        if (!letter) continue;
-
-        const groupKey = `group_${letter}`; // es. "group_A"
-
-        if (!byGroup[groupKey]) {
-          byGroup[groupKey] = {
-            giornata_1: { matches: [] },
-            giornata_2: { matches: [] },
-            giornata_3: { matches: [] },
-          };
+        if (structErr) {
+          console.error("Supabase wc_matches_structure error", structErr);
+          return;
         }
 
-        const giornataIndex = row.match_index ?? 0;
-        const giornataKey =
-          giornataIndex <= 1
-            ? "giornata_1"
-            : giornataIndex <= 3
-              ? "giornata_2"
-              : "giornata_3";
+        const { data: pronRows, error: pronErr } = await supabase
+          .from("wc_matches_structure_userpron")
+          .select("group_letter, match_index, user_pron, user_ris")
+          .eq("user_email", userEmail);
 
-        // 👉 riga utente corrispondente (stesso gruppo + stesso match_index)
-        const userRow = pronMap[`${letter}-${row.match_index}`];
+        if (pronErr) {
+          console.error(
+            "Supabase wc_matches_structure_userpron error",
+            pronErr,
+          );
+          return;
+        }
 
-        // user_pron: "1", "X", "2" oppure stringa vuota
-        const pron = (userRow?.user_pron || "").trim().toUpperCase() || null;
+        // mappa per accesso rapido: "A-0", "A-1", ... → riga utente
+        const pronMap = {};
+        for (const pr of pronRows ?? []) {
+          const key = `${pr.group_letter}-${pr.match_index}`;
+          pronMap[key] = pr;
+        }
 
-        // user_ris può essere:
-        // - vecchio formato JSON: '{"a":"2","b":"1"}'
-        // - nuovo formato stringa: "2-1"
-        let ris = null;
+        // 🔹 Costruisco supabaseMatchesByGroup = { group_A: {...}, group_B: {...}, ... }
+        const byGroup = {};
 
-        const rawUserRis = (userRow?.user_ris ?? "").toString().trim();
-        if (rawUserRis) {
-          if (rawUserRis.startsWith("{")) {
-            // ✅ vecchio formato JSON
-            try {
-              const parsed = JSON.parse(rawUserRis);
-              const aRaw = String(parsed?.a ?? "").trim();
-              const bRaw = String(parsed?.b ?? "").trim();
-              if (aRaw !== "" && bRaw !== "") {
-                ris = `${aRaw}-${bRaw}`;
+        for (const row of structRows ?? []) {
+          const letter = row.group_letter ?? row.group ?? null;
+          if (!letter) continue;
+
+          const groupKey = `group_${letter}`; // es. "group_A"
+
+          if (!byGroup[groupKey]) {
+            byGroup[groupKey] = {
+              giornata_1: { matches: [] },
+              giornata_2: { matches: [] },
+              giornata_3: { matches: [] },
+            };
+          }
+
+          const giornataIndex = row.match_index ?? 0;
+          const giornataKey =
+            giornataIndex <= 1
+              ? "giornata_1"
+              : giornataIndex <= 3
+                ? "giornata_2"
+                : "giornata_3";
+
+          // 👉 riga utente corrispondente (stesso gruppo + stesso match_index)
+          const userRow = pronMap[`${letter}-${row.match_index}`];
+
+          // user_pron: "1", "X", "2" oppure stringa vuota
+          const pron = (userRow?.user_pron || "").trim().toUpperCase() || null;
+
+          // user_ris può essere:
+          // - vecchio formato JSON: '{"a":"2","b":"1"}'
+          // - nuovo formato stringa: "2-1"
+          let ris = null;
+
+          const rawUserRis = (userRow?.user_ris ?? "").toString().trim();
+          if (rawUserRis) {
+            if (rawUserRis.startsWith("{")) {
+              // ✅ vecchio formato JSON
+              try {
+                const parsed = JSON.parse(rawUserRis);
+                const aRaw = String(parsed?.a ?? "").trim();
+                const bRaw = String(parsed?.b ?? "").trim();
+                if (aRaw !== "" && bRaw !== "") {
+                  ris = `${aRaw}-${bRaw}`;
+                }
+              } catch (e) {
+                console.warn("user_ris JSON non valido:", rawUserRis, e);
               }
-            } catch (e) {
-              console.warn("user_ris JSON non valido:", rawUserRis, e);
-            }
-          } else {
-            // ✅ nuovo formato "2-1" (accetto anche "2 : 1", "2 - 1", ecc.)
-            const normalized = rawUserRis
-              .replace(/[–—−]/g, "-") // trattini strani → "-"
-              .replace(/:/g, "-")
-              .replace(/\s+/g, ""); // togli spazi
+            } else {
+              // ✅ nuovo formato "2-1" (accetto anche "2 : 1", "2 - 1", ecc.)
+              const normalized = rawUserRis
+                .replace(/[–—−]/g, "-") // trattini strani → "-"
+                .replace(/:/g, "-")
+                .replace(/\s+/g, ""); // togli spazi
 
-            if (normalized.includes("-")) {
-              const [gaRaw, gbRaw] = normalized.split("-");
-              const ga = gaRaw.trim();
-              const gb = gbRaw.trim();
+              if (normalized.includes("-")) {
+                const [gaRaw, gbRaw] = normalized.split("-");
+                const ga = gaRaw.trim();
+                const gb = gbRaw.trim();
 
-              if (ga !== "" && gb !== "") {
-                ris = `${ga}-${gb}`;
+                if (ga !== "" && gb !== "") {
+                  ris = `${ga}-${gb}`;
+                }
               }
             }
           }
+
+          byGroup[groupKey][giornataKey].matches.push({
+            team1: row.team1,
+            team2: row.team2,
+            results: row.results_official ?? null, // risultato ufficiale
+            ris, // risultato utente (stringa "2-1" oppure null)
+            pron, // segno 1/X/2 utente
+            seed_ris: row.seed_ris ?? null,
+            seed_pron: row.seed_pron ?? null,
+          });
         }
 
-        byGroup[groupKey][giornataKey].matches.push({
-          team1: row.team1,
-          team2: row.team2,
-          results: row.results_official ?? null, // risultato ufficiale
-          ris, // risultato utente (stringa "2-1" oppure null)
-          pron, // segno 1/X/2 utente
-          seed_ris: row.seed_ris ?? null,
-          seed_pron: row.seed_pron ?? null,
-        });
-      }
-
-      if (!cancelled) {
-        setSupabaseMatchesByGroup(byGroup);
+        if (!cancelled) {
+          setSupabaseMatchesByGroup(byGroup);
+          stableRef.current = byGroup;
+          setRenderMatchesByGroup(byGroup);
+        }
+      } finally {
+        if (!cancelled) setIsFetching(false);
       }
     }
 
@@ -752,7 +815,7 @@ export default function GridRankPage({
     return () => {
       cancelled = true;
     };
-  }, [isLogged, userEmail, refreshKey]);
+  }, [isLogged, userEmail, refreshKey, dataVersion]);
 
   // useEffect(() => {
   //   console.log(
@@ -795,34 +858,6 @@ export default function GridRankPage({
   // ✅ TUTTI I GRUPPI: quando un gruppo è completo, salvo 1X/2X nel context
   useEffect(() => {
     const letters = "ABCDEFGHIJKL".split("");
-
-    const isOfficial = (m) => isScore(m.results);
-
-    // match "coperto" = ufficiale oppure pronostico (ris o segno 1/X/2)
-    const isScore = (s) => {
-      const raw = String(s ?? "").trim();
-      if (!raw) return false;
-      const normalized = raw
-        .replace(/[–—−]/g, "-")
-        .replace(/:/g, "-")
-        .replace(/\s+/g, "");
-      if (!normalized.includes("-")) return false;
-      const [aStr, bStr] = normalized.split("-");
-      const a = Number(aStr);
-      const b = Number(bStr);
-      return Number.isFinite(a) && Number.isFinite(b);
-    };
-
-    const isSign = (s) => {
-      const v = String(s ?? "")
-        .trim()
-        .toUpperCase();
-      return v === "1" || v === "X" || v === "2";
-    };
-
-    const isCovered = (m) =>
-      isScore(m.results) || isScore(m.ris) || isSign(m.pron);
-
     const resolveName = buildNameResolver(flagsMond);
 
     const nextQualified = {};
@@ -830,46 +865,29 @@ export default function GridRankPage({
     for (const letter of letters) {
       const groupKey = `group_${letter}`;
 
-      const matchesData = useSupabase
-        ? supabaseMatchesByGroup?.[groupKey]
-        : groupMatches?.[groupKey];
+      const matchesData =
+        matchesByGroupOverride?.[groupKey] ??
+        (useSupabase
+          ? renderMatchesByGroup?.[groupKey]
+          : groupMatches?.[groupKey]);
 
       if (!matchesData) continue;
 
-      const allMatches = Object.values(matchesData)
-        .flatMap((g) => g?.matches ?? [])
-        .filter(Boolean);
+      // ✅ 1) gruppo chiuso? se no, NON scrivo nulla (quindi resta vuoto nel tabellone)
+      if (!isGroupClosed(matchesData)) continue;
 
-      if (allMatches.length < 6) continue;
+      // ✅ 2) capisco se è tutto ufficiale o “misto”
+      const allOfficial = isGroupAllOfficial(matchesData);
+      const qualifyIsPron = !allOfficial; // bordo viola se non tutto ufficiale
 
-      const groupComplete = allMatches.every(isCovered);
-      if (!groupComplete) continue;
-
-      const allOfficial = allMatches.every(isOfficial);
-      const qualifyIsPron = !allOfficial; // ✅ se NON sono tutti ufficiali → bordo viola
-
-      const teams = (flagsMond ?? []).filter((t) => t.group === letter);
-      const groupTeamNames = new Set(teams.map((t) => resolveName(t.name)));
-
-      const tableByTeam = computeTableForGroup(
+      const sorted = getSortedTeamsForGroup({
+        flagsMond,
+        groupLetter: letter,
         matchesData,
-        resolveName,
-        groupTeamNames,
-        null,
-        true, // include ris se presenti
-      );
-
-      const pronTableByTeam = computePronTableForGroup(
-        matchesData,
-        resolveName,
-        groupTeamNames,
-        null,
-        true, // allowRis: se c'è ris/ufficiale non conta il pron
-      );
-
-      const sorted = allOfficial
-        ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
-        : sortTeamsByTotal(teams, tableByTeam, pronTableByTeam, resolveName);
+        maxMatches: null, // per qualificati sempre full gruppo
+        allowRis: true, // perché il tuo "group closed" include results OR ris OR pron
+        useBonus: true,
+      });
 
       const first = sorted?.[0]?.id || "";
       const second = sorted?.[1]?.id || "";
@@ -879,16 +897,24 @@ export default function GridRankPage({
       nextQualified[`2${letter}`] = { code: second, isPron: qualifyIsPron };
     }
 
-    // merge nel context (non cancello quello che c’era)
-    if (Object.keys(nextQualified).length > 0) {
+    // ✅ 7) AGGIORNO IL CONTEXT:
+    // - se loggato (useSupabase) => RESET: tengo SOLO i gruppi chiusi
+    // - se ospite => puoi anche fare merge, ma io consiglio comunque reset per coerenza
+    if (useSupabase) {
+      setQualifiedTeams(nextQualified);
+    } else {
+      // se vuoi identico a prima: merge
       setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+      // oppure reset anche per ospite:
+      // setQualifiedTeams(nextQualified);
     }
   }, [
     useSupabase,
-    supabaseMatchesByGroup,
+    renderMatchesByGroup,
     isLogged,
     userEmail,
     refreshKey,
+    dataVersion,
     setQualifiedTeams,
   ]);
 
@@ -951,7 +977,7 @@ export default function GridRankPage({
               const teams = (flagsMond ?? []).filter((t) => t.group === letter);
               const groupKey = `group_${letter}`;
               const matchesData = useSupabase
-                ? supabaseMatchesByGroup?.[groupKey] // quando Supabase è pronto
+                ? renderMatchesByGroup?.[groupKey] // quando Supabase è pronto
                 : groupMatches?.[groupKey]; // altrimenti seed hardcoded
 
               const resolveName = buildNameResolver(flagsMond);
@@ -968,7 +994,7 @@ export default function GridRankPage({
                 resolveName,
                 groupTeamNames,
                 maxMatches,
-               false,
+                false,
               );
 
               const simByTeam = {};
@@ -1017,17 +1043,14 @@ export default function GridRankPage({
               //   console.log("🟦 GRUPPO B → pronTableByTeam:", pronTableByTeam);
               // }
 
-              const sortedTeams =
-                canShowPron && pronTableByTeam
-                  ? sortTeamsByTotal(
-                      teams,
-                      tableByTeam,
-                      pronTableByTeam,
-                      resolveName,
-                    )
-                  : groupHasResults
-                    ? sortTeamsByTable(teams, tableByTeam, resolveName, true)
-                    : teams;
+              const sortedTeams = getSortedTeamsForGroup({
+                flagsMond,
+                groupLetter: letter,
+                matchesData,
+                maxMatches, // qui rispetta il tooltip 2/4/6
+                allowRis: !useSupabase && showPronostics, // guest: include ris se toggle ON
+                useBonus: canShowPron, // se vuoi bonus+pron
+              });
 
               return (
                 <div
@@ -1091,7 +1114,10 @@ export default function GridRankPage({
 
                           // 👉 PRONOSTICI SEMPRE NEL “+”
                           // (anche se non ci sono risultati ufficiali)
-                          const pronPt = (useSupabase || showPronostics) ? (pronStats?.pt ?? 0) : 0;
+                          const pronPt =
+                            useSupabase || showPronostics
+                              ? (pronStats?.pt ?? 0)
+                              : 0;
 
                           // risultato simulato
                           const isSim = team ? !!simByTeam[teamKey] : false;
