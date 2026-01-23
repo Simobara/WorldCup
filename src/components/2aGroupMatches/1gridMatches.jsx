@@ -201,8 +201,9 @@ const normalizeMatch = (m) => {
         keysTouched: keysTouchedMatches.current,
       });
 
-      const freshStructure = await loadMatchStructureFromDb();
-      setStructureByGroup(freshStructure);
+    const freshStructure = await loadMatchStructureFromDb();
+setStructureByGroup(freshStructure); // ok, ma tanto poi map(normalizeMatch) al render
+
 
       // 👉 forza ricarico classifica (admin)
       setRankRefreshKey((prev) => prev + 1);
@@ -654,11 +655,13 @@ useEffect(() => {
             const resolveName = buildNameResolver(flagsMond);
 
             const groupKey = `group_${letter}`;
+           
            const matchesFlat = !isLogged
-  ? getFlatMatchesForGroup(groupMatches?.[groupKey]) // ✅ SEMPRE hardcoded se NON loggato
-  : (structureByGroup?.[letter]?.length
-      ? structureByGroup[letter]                      // ✅ DB solo se loggato
-      : getFlatMatchesForGroup(groupMatches?.[groupKey]));
+            ? getFlatMatchesForGroup(groupMatches?.[groupKey])
+            : (structureByGroup?.[letter]?.length
+                ? structureByGroup[letter].map(normalizeMatch)   // ✅ AGGIUNGI QUESTO
+                : getFlatMatchesForGroup(groupMatches?.[groupKey]));
+
             const rowsCount = matchesFlat.length;
 
             const findTeam = (rawName) => {
@@ -887,10 +890,10 @@ useEffect(() => {
                               const resolveName = buildNameResolver(flagsMond);
 
                               const groupKey = `group_${letterP}`;
-                             const matchesFlatP =
-  structureByGroup?.[letterP]?.length
-    ? structureByGroup[letterP].map(normalizeMatch)
-    : getFlatMatchesForGroup(groupMatches?.[groupKey]);
+                              const matchesFlatP =
+                                structureByGroup?.[letterP]?.length
+                                  ? structureByGroup[letterP].map(normalizeMatch)
+                                  : getFlatMatchesForGroup(groupMatches?.[groupKey]);
 
                               const findTeamP = (rawName) => {
                                 const name = resolveName(rawName);
@@ -948,10 +951,10 @@ useEffect(() => {
                                           // - se sto editando → plusPron
                                           // - altrimenti (o admin dopo refresh) → seed_pron in m.pron
                                          const selectedPron = String(
-  matchesState?.[letterP]?.plusPron?.[idx] ??
-    ((isAdminUser || !isLogged) ? (m?.pron ?? "") : "") ??
-    ""
-).trim().toUpperCase();
+                                            matchesState?.[letterP]?.plusPron?.[idx] ??
+                                              ((isAdminUser || !isLogged) ? (m?.pron ?? "") : "") ??
+                                              ""
+                                          ).trim().toUpperCase();
 
                                           // valori base da mostrare (risultato ufficiale o plusRis)
                                                                                     const [baseA, baseB] = String(
@@ -980,8 +983,11 @@ useEffect(() => {
                                           // se non ho plusRis ma res ha un valore (seed / ufficiale),
                                           // uso baseA/baseB come fallback
                                          // ✅ IN EDIT MODE: mai fallback ai seed/base, altrimenti il reset “rimbalza”
-const displayA = isOfficial ? baseA : valueA;
-const displayB = isOfficial ? baseB : valueB;
+                                          const seedA = !isOfficial && isAdminUser && valueA === "" && baseA ? baseA : "";
+                                          const seedB = !isOfficial && isAdminUser && valueB === "" && baseB ? baseB : "";
+
+                                          const displayA = isOfficial ? baseA : (valueA !== "" ? valueA : seedA);
+                                          const displayB = isOfficial ? baseB : (valueB !== "" ? valueB : seedB);
 
                                           const hasAnyScore =
                                             isOfficial ||
@@ -1565,8 +1571,11 @@ const displayB = isOfficial ? baseB : valueB;
                               const valueA = norm(savedA);
                               const valueB = norm(savedB);
 
-                              const displayA = isOfficial ? baseA : valueA;
-      const displayB = isOfficial ? baseB : valueB;
+                              const seedA = !isOfficial && isAdminUser && valueA === "" && baseA ? baseA : "";
+const seedB = !isOfficial && isAdminUser && valueB === "" && baseB ? baseB : "";
+
+const displayA = isOfficial ? baseA : (valueA !== "" ? valueA : seedA);
+const displayB = isOfficial ? baseB : (valueB !== "" ? valueB : seedB);
 
                               const hasAnyScore =
                                 isOfficial || displayA !== "" || displayB !== "";
