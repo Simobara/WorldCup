@@ -637,7 +637,7 @@ useEffect(() => {
                 : undefined,
             }}
           >
-            {" "}
+                   {showPronostics ? "📊" : ""}
           </button>
         )}
 
