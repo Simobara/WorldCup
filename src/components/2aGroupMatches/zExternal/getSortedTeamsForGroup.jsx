@@ -19,7 +19,9 @@ const isScore = (s) => {
 };
 
 const isSign = (s) => {
-  const v = String(s ?? "").trim().toUpperCase();
+  const v = String(s ?? "")
+    .trim()
+    .toUpperCase();
   return v === "1" || v === "X" || v === "2";
 };
 
@@ -148,7 +150,9 @@ const computePronTableForGroup = (
 
       // ✅ altrimenti usa il pron 1/X/2
       if (!outcome) {
-        const sign = String(m.pron ?? "").trim().toUpperCase();
+        const sign = String(m.pron ?? "")
+          .trim()
+          .toUpperCase();
         if (sign === "1" || sign === "2" || sign === "X") outcome = sign;
       }
 
@@ -267,11 +271,13 @@ export function getSortedTeamsForGroup({
   const anyPlayed = Object.values(tableByTeam).some((t) => (t.mp ?? 0) > 0);
 
   if (!useBonus || !pronTableByTeam) {
-    return anyPlayed ? sortTeamsByTable(teams, tableByTeam, resolveName) : teams;
+    return anyPlayed
+      ? sortTeamsByTable(teams, tableByTeam, resolveName)
+      : teams;
   }
 
   return sortTeamsByTotal(teams, tableByTeam, pronTableByTeam, resolveName);
 }
 
 // (opzionale) export helpers se ti servono altrove
-export { isScore, isSign, normalizeScore };
+export { computePronTableForGroup, isScore, isSign, normalizeScore };

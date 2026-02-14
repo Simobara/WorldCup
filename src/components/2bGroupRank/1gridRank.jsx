@@ -10,7 +10,10 @@ import {
   CssRow7,
 } from "../../START/styles/0CssGsTs";
 import { buildNameResolver } from "../2aGroupMatches/zExternal/buildNameResolver";
-import { getSortedTeamsForGroup } from "../2aGroupMatches/zExternal/getSortedTeamsForGroup";
+import {
+  computePronTableForGroup,
+  getSortedTeamsForGroup,
+} from "../2aGroupMatches/zExternal/getSortedTeamsForGroup";
 import Quadrato from "../3tableComp/1quad";
 
 // pronData = pronRows[0].data
@@ -190,212 +193,215 @@ function parseResult(match, { allowRis = true } = {}) {
 //   return (rawName) => map.get(norm(rawName)) ?? String(rawName).trim();
 // }
 
-function computePronTableForGroup(
-  matchesData,
-  resolveName,
-  groupTeamNames,
-  maxMatches = null,
-  allowRis = true,
-) {
-  const table = {};
+// function computePronTableForGroup(
+//   matchesData,
+//   resolveName,
+//   groupTeamNames,
+//   maxMatches = null,
+//   allowRis = true,
+// ) {
+//   const table = {};
 
-  for (const name of groupTeamNames) {
-    table[name] = { pt: 0, w: 0, x: 0, p: 0 };
-  }
+//   for (const name of groupTeamNames) {
+//     table[name] = { pt: 0, w: 0, x: 0, p: 0 };
+//   }
 
-  if (!matchesData) return table;
+//   if (!matchesData) return table;
 
-  const giornate = Object.values(matchesData);
-  let seen = 0;
+//   const giornate = Object.values(matchesData);
+//   let seen = 0;
 
-  for (const g of giornate) {
-    for (const m of g?.matches ?? []) {
-      if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
-      seen++;
+//   for (const g of giornate) {
+//     for (const m of g?.matches ?? []) {
+//       if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
+//       seen++;
 
-      // ❌ se c'è un risultato UFFICIALE, non contare il pronostico
-      const official = parseResult(m, { allowRis: false });
-      if (official) continue;
+//       // ❌ se c'è un risultato UFFICIALE, non contare il pronostico
+//       const official = parseResult(m, { allowRis: false });
+//       if (official) continue;
 
-      // ✅ ricavo il segno anche dal RIS (es. 2-0 → "1", 1-1 → "X")
-      let outcome = null;
+//       // ✅ ricavo il segno anche dal RIS (es. 2-0 → "1", 1-1 → "X")
+//       let outcome = null;
 
-      const parsed = parseResult(m, { allowRis: true });
-      if (parsed?.source === "ris") {
-        const [ga, gb] = parsed.score;
-        outcome = ga > gb ? "1" : ga < gb ? "2" : "X";
-      }
+//       const parsed = parseResult(m, { allowRis: true });
+//       if (parsed?.source === "ris") {
+//         const [ga, gb] = parsed.score;
+//         outcome = ga > gb ? "1" : ga < gb ? "2" : "X";
+//       }
 
-      // fallback sul segno scritto a mano
-      if (!outcome) {
-        const sign = String(m.pron ?? "")
-          .trim()
-          .toUpperCase();
-        if (sign === "1" || sign === "2" || sign === "X") {
-          outcome = sign;
-        }
-      }
+//       // fallback sul segno scritto a mano
+//       if (!outcome) {
+//         const sign = String(m.pron ?? "")
+//           .trim()
+//           .toUpperCase();
+//         if (sign === "1" || sign === "2" || sign === "X") {
+//           outcome = sign;
+//         }
+//       }
 
-      if (!outcome) continue;
+//       if (!outcome) continue;
 
-      const t1 = resolveName(m.team1);
-      const t2 = resolveName(m.team2);
+//       const t1 = resolveName(m.team1);
+//       const t2 = resolveName(m.team2);
 
-      if (!groupTeamNames.has(t1) || !groupTeamNames.has(t2)) continue;
+//       if (!groupTeamNames.has(t1) || !groupTeamNames.has(t2)) continue;
 
-      if (outcome === "1") {
-        table[t1].pt += 3;
-        table[t1].w += 1;
-        table[t2].p += 1;
-      } else if (outcome === "2") {
-        table[t2].pt += 3;
-        table[t2].w += 1;
-        table[t1].p += 1;
-      } else if (outcome === "X") {
-        table[t1].pt += 1;
-        table[t2].pt += 1;
-        table[t1].x += 1;
-        table[t2].x += 1;
-      }
-    }
-  }
+//       if (outcome === "1") {
+//         table[t1].pt += 3;
+//         table[t1].w += 1;
+//         table[t2].p += 1;
+//       } else if (outcome === "2") {
+//         table[t2].pt += 3;
+//         table[t2].w += 1;
+//         table[t1].p += 1;
+//       } else if (outcome === "X") {
+//         table[t1].pt += 1;
+//         table[t2].pt += 1;
+//         table[t1].x += 1;
+//         table[t2].x += 1;
+//       }
+//     }
+//   }
 
-  return table;
-}
+//   return table;
+// }
 
 // 🔹 NUOVA: tabella per i "bonus" (seed_ris / seed_pron) per utente loggato
 // 🔹 Tabella "bonus" (seed_ris / seed_pron) per utente loggato
 // 🔹 Tabella "bonus" (punti pronosticati) per utente loggato
 // 🔹 NUOVA: tabella "bonus" (punti pronosticati) per utente loggato
-function computeBonusTableForGroup(
-  matchesData,
-  resolveName,
-  groupTeamNames,
-  maxMatches = null,
-  useSeeds = false,
-) {
-  const table = {};
+// function computeBonusTableForGroup(
+//   matchesData,
+//   resolveName,
+//   groupTeamNames,
+//   maxMatches = null,
+//   useSeeds = false,
+//   isAdmin = false, // ✅ NUOVO
+// ) {
+//   const table = {};
 
-  // inizializzo tutti a 0
-  for (const name of groupTeamNames) {
-    table[name] = { pt: 0, w: 0, x: 0, p: 0 };
-  }
+//   // inizializzo tutti a 0
+//   for (const name of groupTeamNames) {
+//     table[name] = { pt: 0, w: 0, x: 0, p: 0 };
+//   }
 
-  if (!matchesData) return table;
+//   if (!matchesData) return table;
 
-  const giornate = Object.values(matchesData);
-  let seen = 0;
+//   const giornate = Object.values(matchesData);
+//   let seen = 0;
 
-  for (const g of giornate) {
-    for (const m of g?.matches ?? []) {
-      if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
-      seen++;
+//   for (const g of giornate) {
+//     for (const m of g?.matches ?? []) {
+//       if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
+//       seen++;
 
-      const t1 = resolveName(m.team1);
-      const t2 = resolveName(m.team2);
+//       const t1 = resolveName(m.team1);
+//       const t2 = resolveName(m.team2);
 
-      // se per qualche motivo i nomi non matchano la lista del gruppo, loggo
-      if (!groupTeamNames.has(t1) || !groupTeamNames.has(t2)) {
-        // console.log("⚠️ BONUS: team fuori gruppo o nome diverso", {
-        //   m_team1: m.team1,
-        //   m_team2: m.team2,
-        //   t1,
-        //   t2,
-        //   groupTeamNames: Array.from(groupTeamNames),
-        // });
-        continue;
-      }
+//       // se per qualche motivo i nomi non matchano la lista del gruppo, loggo
+//       if (!groupTeamNames.has(t1) || !groupTeamNames.has(t2)) {
+//         // console.log("⚠️ BONUS: team fuori gruppo o nome diverso", {
+//         //   m_team1: m.team1,
+//         //   m_team2: m.team2,
+//         //   t1,
+//         //   t2,
+//         //   groupTeamNames: Array.from(groupTeamNames),
+//         // });
+//         continue;
+//       }
 
-      // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
-      // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
-      // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
-      const hasOfficial = !!String(m.results ?? "").trim();
-      if (hasOfficial) {
-        // console.log("ℹ️ BONUS: salto match (ha risultato ufficiale)", {
-        //   team1: t1,
-        //   team2: t2,
-        //   results: m.results,
-        // });
-        continue;
-      }
+//       // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
+//       // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
+//       // ❌ se c'è già un risultato ufficiale, NON contiamo il pronostico
+//       // per admin NON salto mai
+//       if (!isAdmin) {
+//         const hasOfficial = !!String(m.results ?? "").trim();
+//         if (hasOfficial)
+//           // console.log("ℹ️ BONUS: salto match (ha risultato ufficiale)", {
+//           //   team1: t1,
+//           //   team2: t2,
+//           //   results: m.results,
+//           // });
+//           continue;
+//       }
 
-      let outcome = null; // "1" | "2" | "X"
+//       let outcome = null; // "1" | "2" | "X"
 
-      // Sorgenti pronostico:
-      // - utente normale → m.ris / m.pron (user_ris / user_pron)
-      // - admin         → SEMPRE seed_ris / seed_pron da wc_matches_structure
-      const risSource = useSeeds ? m.seed_ris : m.ris;
-      const pronSource = useSeeds ? m.seed_pron : m.pron;
+//       // Sorgenti pronostico:
+//       // - utente normale → m.ris / m.pron (user_ris / user_pron)
+//       // - admin         → SEMPRE seed_ris / seed_pron da wc_matches_structure
+//       const risSource = useSeeds ? m.seed_ris : m.ris;
+//       const pronSource = useSeeds ? m.seed_pron : m.pron;
 
-      // 1️⃣ se ho un risultato con gol (ris), da lì ricavo il segno
-      const risStr = String(risSource ?? "").trim();
-      if (risStr && risStr.includes("-")) {
-        const [gaRaw, gbRaw] = risStr
-          .split("-")
-          .map((x) => Number(String(x).trim()));
+//       // 1️⃣ se ho un risultato con gol (ris), da lì ricavo il segno
+//       const risStr = String(risSource ?? "").trim();
+//       if (risStr && risStr.includes("-")) {
+//         const [gaRaw, gbRaw] = risStr
+//           .split("-")
+//           .map((x) => Number(String(x).trim()));
 
-        if (!Number.isNaN(gaRaw) && !Number.isNaN(gbRaw)) {
-          if (gaRaw > gbRaw) outcome = "1";
-          else if (gaRaw < gbRaw) outcome = "2";
-          else outcome = "X";
-        }
-      }
+//         if (!Number.isNaN(gaRaw) && !Number.isNaN(gbRaw)) {
+//           if (gaRaw > gbRaw) outcome = "1";
+//           else if (gaRaw < gbRaw) outcome = "2";
+//           else outcome = "X";
+//         }
+//       }
 
-      // 2️⃣ se non ho ancora outcome, uso il segno 1/X/2
-      if (!outcome) {
-        const sign = String(pronSource ?? "")
-          .trim()
-          .toUpperCase();
-        if (sign === "1" || sign === "2" || sign === "X") {
-          outcome = sign;
-        }
-      }
+//       // 2️⃣ se non ho ancora outcome, uso il segno 1/X/2
+//       if (!outcome) {
+//         const sign = String(pronSource ?? "")
+//           .trim()
+//           .toUpperCase();
+//         if (sign === "1" || sign === "2" || sign === "X") {
+//           outcome = sign;
+//         }
+//       }
 
-      if (!outcome) {
-        // console.log("⚠️ BONUS: nessun pronostico utile per questo match", {
-        //   team1: t1,
-        //   team2: t2,
-        //   ris: m.ris,
-        //   pron: m.pron,
-        // });
-        continue;
-      }
+//       if (!outcome) {
+//         // console.log("⚠️ BONUS: nessun pronostico utile per questo match", {
+//         //   team1: t1,
+//         //   team2: t2,
+//         //   ris: m.ris,
+//         //   pron: m.pron,
+//         // });
+//         continue;
+//       }
 
-      // 3️⃣ applico il 3-1-0 SOLO sulla tabella bonus
-      // console.log("🟣 BONUS MATCH:", {
-      //   team1: t1,
-      //   team2: t2,
-      //   ris: m.ris,
-      //   pron: m.pron,
-      //   outcome,
-      // });
+//       // 3️⃣ applico il 3-1-0 SOLO sulla tabella bonus
+//       // console.log("🟣 BONUS MATCH:", {
+//       //   team1: t1,
+//       //   team2: t2,
+//       //   ris: m.ris,
+//       //   pron: m.pron,
+//       //   outcome,
+//       // });
 
-      if (outcome === "1") {
-        table[t1].pt += 3;
-        table[t1].w += 1;
-        table[t2].p += 1;
-      } else if (outcome === "2") {
-        table[t2].pt += 3;
-        table[t2].w += 1;
-        table[t1].p += 1;
-      } else {
-        // pareggio → 1 punto a testa
-        table[t1].pt += 1;
-        table[t2].pt += 1;
-        table[t1].x += 1;
-        table[t2].x += 1;
-      }
+//       if (outcome === "1") {
+//         table[t1].pt += 3;
+//         table[t1].w += 1;
+//         table[t2].p += 1;
+//       } else if (outcome === "2") {
+//         table[t2].pt += 3;
+//         table[t2].w += 1;
+//         table[t1].p += 1;
+//       } else {
+//         // pareggio → 1 punto a testa
+//         table[t1].pt += 1;
+//         table[t2].pt += 1;
+//         table[t1].x += 1;
+//         table[t2].x += 1;
+//       }
 
-      // console.log("   ➜ stato bonus dopo match:", {
-      //   [t1]: table[t1],
-      //   [t2]: table[t2],
-      // });
-    }
-  }
+//       // console.log("   ➜ stato bonus dopo match:", {
+//       //   [t1]: table[t1],
+//       //   [t2]: table[t2],
+//       // });
+//     }
+//   }
 
-  // console.log("✅ BONUS finale per gruppo:", table);
-  return table;
-}
+//   // console.log("✅ BONUS finale per gruppo:", table);
+//   return table;
+// }
 
 function computeTableForGroup(
   matchesData,
@@ -549,14 +555,7 @@ export default function GridRankPage({
   const STORAGE_KEY = "gridRank_showPronostics";
 
   const [supabaseMatchesByGroup, setSupabaseMatchesByGroup] = useState({});
-  const [showPronostics, setShowPronostics] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : false;
-    } catch {
-      return false;
-    }
-  });
+  const [showPronostics, setShowPronostics] = useState(false);
 
   const { setQualifiedTeams } = useQualifiedTeams();
   // ✅ COLONNE: desktop e mobile (come richiesto)
@@ -749,12 +748,38 @@ export default function GridRankPage({
           const userRow = pronMap[`${letter}-${row.match_index}`];
 
           // user_pron: "1", "X", "2" oppure stringa vuota
-          const pron = (userRow?.user_pron || "").trim().toUpperCase() || null;
+          let pron = (userRow?.user_pron || "").trim().toUpperCase() || null;
+          let ris = null;
+
+          // if (isAdminUser && letter === "A") {
+          //   console.log("ADMIN match", row.match_index, {
+          //     pron,
+          //     ris,
+          //     results: row.results_official,
+          //   });
+          // }
+
+          // ✅ ADMIN: i pron arrivano da wc_matches_structure (seed_*), non da userpron
+          if (isAdminUser) {
+            const seedPron = String(row.seed_pron ?? "")
+              .trim()
+              .toUpperCase();
+            const seedRis = String(row.seed_ris ?? "").trim();
+
+            pron = seedPron || null;
+
+            // normalizza seedRis tipo "2 : 1" / "2-1"
+            const normalized = seedRis
+              .replace(/[–—−]/g, "-")
+              .replace(/:/g, "-")
+              .replace(/\s+/g, "");
+
+            ris = normalized.includes("-") ? normalized : null;
+          }
 
           // user_ris può essere:
           // - vecchio formato JSON: '{"a":"2","b":"1"}'
           // - nuovo formato stringa: "2-1"
-          let ris = null;
 
           const rawUserRis = (userRow?.user_ris ?? "").toString().trim();
           if (rawUserRis) {
@@ -792,9 +817,9 @@ export default function GridRankPage({
           byGroup[groupKey][giornataKey].matches.push({
             team1: row.team1,
             team2: row.team2,
-            results: row.results_official ?? null, // risultato ufficiale
-            ris, // risultato utente (stringa "2-1" oppure null)
-            pron, // segno 1/X/2 utente
+            results: row.results_official ?? null,
+            ris,
+            pron,
             seed_ris: row.seed_ris ?? null,
             seed_pron: row.seed_pron ?? null,
           });
@@ -845,13 +870,13 @@ export default function GridRankPage({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(showPronostics));
-    } catch {
-      // se localStorage non disponibile, ignora
-    }
-  }, [showPronostics]);
+  // useEffect(() => {
+  //   try {
+  //     localStorage.setItem(STORAGE_KEY, JSON.stringify(showPronostics));
+  //   } catch {
+  //     // se localStorage non disponibile, ignora
+  //   }
+  // }, [showPronostics]);
 
   // ✅ SOLO GRUPPO B: quando tutte le 6 partite hanno un risultato (ufficiale o ris),
   // calcolo 1B/2B e li salvo nel context
@@ -900,6 +925,10 @@ export default function GridRankPage({
     // ✅ 7) AGGIORNO IL CONTEXT:
     // - se loggato (useSupabase) => RESET: tengo SOLO i gruppi chiusi
     // - se ospite => puoi anche fare merge, ma io consiglio comunque reset per coerenza
+    // ✅ ADMIN: i qualificati li gestisce TableBlock (seed_ris/seed_pron + group closed)
+    // Evita conflitti / overwrite.
+    if (isAdminUser) return;
+
     if (useSupabase) {
       setQualifiedTeams(nextQualified);
     } else {
@@ -1022,20 +1051,13 @@ export default function GridRankPage({
               const canShowPron = useSupabase || showPronostics;
 
               const pronTableByTeam = canShowPron
-                ? useSupabase
-                  ? computeBonusTableForGroup(
-                      matchesData,
-                      resolveName,
-                      groupTeamNames,
-                      maxMatches,
-                      isAdminUser,
-                    )
-                  : computePronTableForGroup(
-                      matchesData,
-                      resolveName,
-                      groupTeamNames,
-                      maxMatches,
-                    )
+                ? computePronTableForGroup(
+                    matchesData,
+                    resolveName,
+                    groupTeamNames,
+                    maxMatches,
+                    true,
+                  )
                 : null;
 
               // 👇 QUI ora pronTableByTeam ESISTE
@@ -1047,9 +1069,9 @@ export default function GridRankPage({
                 flagsMond,
                 groupLetter: letter,
                 matchesData,
-                maxMatches, // qui rispetta il tooltip 2/4/6
-                allowRis: !useSupabase && showPronostics, // guest: include ris se toggle ON
-                useBonus: canShowPron, // se vuoi bonus+pron
+                maxMatches,
+                allowRis: !useSupabase && showPronostics, // guest: include ris solo se toggle
+                useBonus: canShowPron, // logged: true (mostra +), guest: dipende dal toggle
               });
 
               return (
