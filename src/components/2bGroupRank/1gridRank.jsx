@@ -922,17 +922,15 @@ export default function GridRankPage({
       nextQualified[`2${letter}`] = { code: second, isPron: qualifyIsPron };
     }
 
-    // ✅ 7) AGGIORNO IL CONTEXT:
+    // ✅ AGGIORNO IL CONTEXT:
     // - se loggato (useSupabase) => RESET: tengo SOLO i gruppi chiusi
-    // - se ospite => puoi anche fare merge, ma io consiglio comunque reset per coerenza
-    // ✅ ADMIN: i qualificati li gestisce TableBlock (seed_ris/seed_pron + group closed)
-    // Evita conflitti / overwrite.
-    if (isAdminUser) return;
-
+    // - se ospite => merge (come prima)
+    //
+    // 🔥 PRIMA c'era un "return" per ADMIN: così TableBlock non riceveva mai 1X/2X.
+    // Ora anche ADMIN aggiorna qualifiedTeams, usando i suoi dati (seed_* già mappati in ris/pron).
     if (useSupabase) {
       setQualifiedTeams(nextQualified);
     } else {
-      // se vuoi identico a prima: merge
       setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
       // oppure reset anche per ospite:
       // setQualifiedTeams(nextQualified);

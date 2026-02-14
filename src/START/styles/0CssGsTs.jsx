@@ -119,7 +119,7 @@ export const Rett = {
   A: "bg-cyan-400",
   B: "bg-rose-500",
   C: "bg-amber-500",
-  D: "bg-violet-400",
+  D: "bg-violet-700",
   Final: "bg-yellow-400",
 
   SemiAB: "bg-gradient-to-b from-cyan-400 to-rose-500",

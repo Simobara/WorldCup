@@ -689,7 +689,7 @@ useEffect(() => {
           </button>
 
           <span className="text-sm md:text-sm text-white/50">
-            SeedSupabase - Pagina Campi ai valori hardcoded
+            Seed - Campi ai valori hardcoded
           </span>
         </div>
       </div>
