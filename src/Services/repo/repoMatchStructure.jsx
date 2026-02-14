@@ -216,7 +216,7 @@ export async function saveAdminSeedsToDb({ userEmail, matches, keysTouched }) {
       });
 
       payload.push({
-        user_email: emailNorm,
+        // user_email: emailNorm,
         group_letter: letter,
         match_index: idx,
         seed_ris,

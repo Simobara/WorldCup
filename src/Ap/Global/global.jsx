@@ -43,7 +43,7 @@ export function QualifiedTeamsProvider({
   );
 
   useEffect(() => {
-    console.log("🟣 QualifiedTeamsContext UPDATED:", qualifiedTeams);
+    console.log("🟣 UPDATED:", qualifiedTeams);
   }, [qualifiedTeams]);
 
   useEffect(() => {

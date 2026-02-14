@@ -6,8 +6,8 @@ group_A: {
             'GIU/11',
         ],
         matches: [
-            { numero: 1, city: 'CDMX',             time: '19:00',      team1: 'Mexico',         team2: 'SAfrica',           pron:'1', ris: ' ' ,  results:'2-1 ' },
-            { numero: 2, city: 'Guadalajara',      time: '02:00',      team1: 'Korea',          team2: 'IRL',               pron:'1', ris: ' ' ,  results:'3-0 ' },
+            { numero: 1, city: 'CDMX',             time: '19:00',      team1: 'Mexico',         team2: 'SAfrica',           pron:'1', ris: '2-1 ' ,  results:' ' },
+            { numero: 2, city: 'Guadalajara',      time: '02:00',      team1: 'Korea',          team2: 'IRL',               pron:'1', ris: ' ' ,  results:' ' },
         ],
     },
     giornata_2:{
@@ -15,8 +15,8 @@ group_A: {
             'GIU/18',
         ],
         matches: [
-            { numero: 3, city: 'Atlanta',          time: '16:00',      team1: 'IRL',            team2: 'SAfrica',           pron:'2', ris: ' ' ,  results:'2-2 ' }, 
-            { numero: 4, city: 'Guadalajara',      time: '01:00',      team1: 'Mexico',         team2: 'Korea',             pron:'1', ris: ' ' ,  results:'3-0 ' },
+            { numero: 3, city: 'Atlanta',          time: '16:00',      team1: 'IRL',            team2: 'SAfrica',           pron:'2', ris: ' ' ,  results:' ' }, 
+            { numero: 4, city: 'Guadalajara',      time: '01:00',      team1: 'Mexico',         team2: 'Korea',             pron:'1', ris: ' ' ,  results:' ' },
         ],
     },
     giornata_3:{
@@ -24,8 +24,8 @@ group_A: {
             'GIU/24',
         ],
         matches: [            
-            { numero: 5, city: 'Monterrey',        time: '01:00',      team1: 'SAfrica',        team2: 'Korea',             pron: '1', ris: ' ' ,  results: '2-0 '},            
-            { numero: 6, city: 'CDMX',             time: '01:00',      team1: 'IRL',            team2: 'Mexico',            pron: '2', ris: ' ' ,  results: '0-2 '},
+            { numero: 5, city: 'Monterrey',        time: '01:00',      team1: 'SAfrica',        team2: 'Korea',             pron: '1', ris: ' ' ,  results: ' '},            
+            { numero: 6, city: 'CDMX',             time: '01:00',      team1: 'IRL',            team2: 'Mexico',            pron: '2', ris: ' ' ,  results: ' '},
         ],
     },
 },
@@ -37,8 +37,8 @@ group_B: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'Toronto',          time: '20:00',     team1: 'Canada',          team2: 'Italia',           pron:'2', ris: '0-1 ' ,  results:'0-1 ' },
-            { numero: 2, city: 'SFrancisco',       time: '20:00',     team1: 'Svizzera',        team2: 'Qatar',            pron:'1', ris: '2-0 ' ,  results:'2-0 ' },
+            { numero: 1, city: 'Toronto',          time: '20:00',     team1: 'Canada',          team2: 'Italia',           pron:'2', ris: '0-1 ' ,  results:' ' },
+            { numero: 2, city: 'SFrancisco',       time: '20:00',     team1: 'Svizzera',        team2: 'Qatar',            pron:'1', ris: '2-0 ' ,  results:' ' },
         ],
     },
     giornata_2: {
@@ -46,8 +46,8 @@ group_B: {
             'GIU/18',
         ],
         matches: [
-            { numero: 3, city: 'LAngeles',          time: '20:00',     team1: 'Svizzera',        team2: 'Italia',          pron:'X', ris: '1-1 ' ,  results:'1-1 ' },
-            { numero: 4, city: 'Vancouver',         time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', ris: '3-0 ' ,  results:'3-0 ' },
+            { numero: 3, city: 'LAngeles',          time: '20:00',     team1: 'Svizzera',        team2: 'Italia',          pron:'X', ris: '1-1 ' ,  results:' ' },
+            { numero: 4, city: 'Vancouver',         time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', ris: '3-0 ' ,  results:' ' },
         ],
     },
     giornata_3: {

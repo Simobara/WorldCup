@@ -5,11 +5,12 @@ import {
 } from "../../START/app/0main";
 import { groupMatches } from "../../START/app/1GroupMatches";
 import { supabase } from "../supabase/supabaseClient";
-import { saveUserPronosticsToDb } from "./repoMatchStructure";
 
 // helper email
 function normEmail(email) {
-  return String(email || "").trim().toLowerCase();
+  return String(email || "")
+    .trim()
+    .toLowerCase();
 }
 
 // clone safe
@@ -166,7 +167,9 @@ function buildBaseFromFile(fileBase) {
 
     const matchesCount = matchesFlat.length;
 
-    const plusPronFromFile = matchesFlat.map((m) => String(m?.pron ?? "").trim());
+    const plusPronFromFile = matchesFlat.map((m) =>
+      String(m?.pron ?? "").trim(),
+    );
 
     const plusRisFromFile = matchesFlat.map((m) => {
       const raw = String(m?.ris ?? "").trim();
@@ -198,7 +201,9 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
   const isAdmin = emailNorm && emailNorm === normEmail(ADMIN_EMAIL);
 
   // ✅ cacheKey usa email normalizzata (evita doppioni per maiuscole)
-  const cacheKey = emailNorm ? `${emailNorm}:${isAdmin ? "admin" : "user"}` : null;
+  const cacheKey = emailNorm
+    ? `${emailNorm}:${isAdmin ? "admin" : "user"}`
+    : null;
 
   const fileBaseAdmin = buildBaseFromFile(groupMatches);
   const fileBaseNonAdmin = stripForNonAdmin(groupMatches);
@@ -254,7 +259,10 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         .order("match_index", { ascending: true });
 
       if (error) {
-        console.error("MATCHES LOAD wc_matches_structure_userpron ERROR:", error);
+        console.error(
+          "MATCHES LOAD wc_matches_structure_userpron ERROR:",
+          error,
+        );
         return merged;
       }
 
@@ -291,7 +299,9 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
           b = String(sb ?? "").trim();
         }
 
-        const pron = String(row.user_pron ?? "").trim().toUpperCase();
+        const pron = String(row.user_pron ?? "")
+          .trim()
+          .toUpperCase();
 
         if (a !== "" || b !== "") {
           obj.plusRis[idx] = { a, b };
@@ -328,7 +338,9 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
       // ===== LOCAL =====
       if (!isRemote) {
         try {
-          const current = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "{}");
+          const current = JSON.parse(
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "{}",
+          );
           const next = { ...current };
           for (const k of keysTouched) next[k] = matches?.[k] ?? null;
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(next));
@@ -353,11 +365,52 @@ export function createMatchesRepo(source = DATA_SOURCE, opts = {}) {
         // ignore
       }
 
-      await saveUserPronosticsToDb({
-        userEmail: emailNorm, // ✅ passa normalizzata
-        matches,
-        keysTouched,
-      });
+      // ✅ salva SEMPRE pron (1/X/2) anche senza ris
+      const rows = [];
+
+      for (const letter of keysTouched) {
+        const obj = matches?.[letter];
+        if (!obj) continue;
+
+        const plusPron = Array.isArray(obj.plusPron) ? obj.plusPron : [];
+        const plusRis = Array.isArray(obj.plusRis) ? obj.plusRis : [];
+
+        const maxLen = Math.max(plusPron.length, plusRis.length);
+
+        for (let idx = 0; idx < maxLen; idx++) {
+          const p = String(plusPron[idx] ?? "")
+            .trim()
+            .toUpperCase();
+          const a = String(plusRis[idx]?.a ?? "").trim();
+          const b = String(plusRis[idx]?.b ?? "").trim();
+          const ris = a !== "" && b !== "" ? `${a}-${b}` : null;
+
+          // se vuoi evitare righe “vuote” nel DB, puoi saltarle:
+          // if (!p && !ris) continue;
+
+          rows.push({
+            user_id: userId,
+            user_email: emailNorm,
+            group_letter: letter,
+            match_index: idx,
+            user_pron: p || null,
+            user_ris: ris,
+          });
+        }
+      }
+
+      if (rows.length) {
+        const { error } = await supabase
+          .from("wc_matches_structure_userpron")
+          .upsert(rows, { onConflict: "user_email,group_letter,match_index" });
+
+        if (error) {
+          console.error(
+            "SAVE wc_matches_structure_userpron (bulk) ERROR:",
+            error,
+          );
+        }
+      }
     },
   };
 }
