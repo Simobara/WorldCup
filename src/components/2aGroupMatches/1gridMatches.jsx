@@ -355,7 +355,7 @@ setStructureByGroup(freshStructure); // ok, ma tanto poi map(normalizeMatch) al 
     setRankRefreshKey((prev) => prev + 1);
   }
 
-mergeQualifiedTeams(patch);  
+// mergeQualifiedTeams(patch);  
   // ✅ IMPORTANTISSIMO: ping globale -> GridRank + TableBlock + QualifiedTeamsSync
   bumpDataVersion?.();
 

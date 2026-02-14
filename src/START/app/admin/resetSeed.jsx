@@ -97,7 +97,7 @@ export default function RunSeedPage() {
               pos2: match.pos2 ?? null,
               goto: match.goto ?? null,
               fg: match.fg ?? null,
-              pronsq: match.pronsq ?? null,
+              // pronsq: match.pronsq ?? null,
 
               team1: match.team1 ?? null,
               team2: match.team2 ?? null,

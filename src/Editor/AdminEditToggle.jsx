@@ -18,16 +18,16 @@ export default function AdminEditToggle({
     if (saving) return;
 
     if (editMode) {
-      // uscita da edit → salva
+      setSaving(true);
       try {
-        setSaving(true);
         await onExit?.();
-        setEditMode(false);
+      } catch (err) {
+        console.error("Errore in onExit/save:", err);
       } finally {
+        setEditMode(false); // ✅ sempre
         setSaving(false);
       }
     } else {
-      // entrata in edit
       setEditMode(true);
     }
   };

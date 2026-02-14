@@ -24,6 +24,14 @@ import BlokQuadRettSemi from "./5blokQuadRettSemi";
 // continua a usare wc_final_user_pron + squadre reali del DB.
 
 // 🔹 Costruisco una mappa fg -> pronsq **DAL FILE HARDCODED**
+const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
+  const phase = finalData?.[phaseKey];
+  if (!phase) return "";
+
+  const flat = Object.values(phase).flatMap((g) => g.matches);
+  return (flat?.[matchIndex]?.fg || "").trim();
+};
+
 const buildSeedPronByFg = () => {
   const map = {};
 
@@ -138,7 +146,7 @@ const TableBlock = ({ isLogged }) => {
           if (row.pos2) match.pos2 = row.pos2;
           if (row.goto) match.goto = row.goto;
           if (row.fg) match.fg = row.fg;
-          if (row.pronsq) match.pronsq = row.pronsq;
+          match.pronsq = row.pronsq ?? null; // oppure "" se preferisci stringa vuota
 
           if (row.team1) match.team1 = row.team1;
           if (row.team2) match.team2 = row.team2;
@@ -160,6 +168,31 @@ const TableBlock = ({ isLogged }) => {
 
     loadFinalsFromDb();
   }, []); // 👈 parte una volta sola, per tutti (loggati e non)
+
+  // ✅ PULIZIA: non usare mai pronsq hardcoded nello stato iniziale
+  // (city/time ecc restano hardcoded, ma i pron sbagliati spariscono)
+  useEffect(() => {
+    setFinalData((prev) => {
+      const next = structuredClone(prev);
+
+      const clearStage = (stage) => {
+        Object.values(stage).forEach((giornata) => {
+          giornata.matches.forEach((m) => {
+            m.pronsq = null; // oppure ""
+          });
+        });
+      };
+
+      clearStage(next.round32);
+      clearStage(next.round16);
+      clearStage(next.quarterFinals);
+      clearStage(next.semifinals);
+      clearStage(next.final34);
+      clearStage(next.final);
+
+      return next;
+    });
+  }, []);
 
   // 🔹 Ottieni user da Supabase (come prima)
   useEffect(() => {
@@ -194,15 +227,20 @@ const TableBlock = ({ isLogged }) => {
       return;
     }
 
-    if (!currentUser?.id) {
-      return;
-    }
+    if (!currentUser?.email) return;
 
     const fetchUserPron = async () => {
+      const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
+        const phase = finalData?.[phaseKey];
+        if (!phase) return "";
+        const flat = Object.values(phase).flatMap((g) => g.matches);
+        return (flat?.[matchIndex]?.fg || "").trim();
+      };
+
       const { data, error } = await supabase
-        .from("wc_final_user_pron")
-        .select("fg, pronsq")
-        .eq("user_id", currentUser.id);
+        .from("wc_final_structure_userpron")
+        .select("phase_key, match_index, user_pronsq")
+        .eq("user_email", currentUser.email);
 
       if (error) {
         console.error("Errore caricando pronostici utente:", error);
@@ -211,15 +249,16 @@ const TableBlock = ({ isLogged }) => {
 
       const map = {};
       for (const row of data ?? []) {
-        if (!row.fg || !row.pronsq) continue;
-        map[row.fg] = row.pronsq.trim();
+        const fg = getFgByPhaseAndIndex(row.phase_key, row.match_index);
+        const pr = String(row.user_pronsq ?? "").trim();
+        if (fg && pr) map[fg] = pr;
       }
 
       setUserPronByFg(map);
     };
 
     fetchUserPron();
-  }, [isLogged, currentUser]);
+  }, [isLogged, currentUser?.email, finalData]);
 
   // 🔹 squadre REALI e PRON, didTeamAdvance, collectMatchesWithDate
   // (tutto identico, solo che usano round32/round16/... dallo stato)
