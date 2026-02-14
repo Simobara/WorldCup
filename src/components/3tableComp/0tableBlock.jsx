@@ -275,9 +275,12 @@ const TableBlock = ({ isLogged }) => {
         .filter(Boolean),
     );
 
-  const collectPronTeamsFromStage = (stage) =>
-    new Set(
-      Object.values(stage)
+  const collectPronTeamsFromStage = (stage) => {
+    // ✅ OSPITE + showPron: avanzamenti basati SOLO sui seed hardcoded
+    const srcStage = !isLogged && showPron ? stage : stage;
+
+    return new Set(
+      Object.values(srcStage)
         .flatMap((giornata) =>
           giornata.matches.flatMap((m) => {
             const pron = (m.pronsq || m.pron || "").trim();
@@ -288,6 +291,7 @@ const TableBlock = ({ isLogged }) => {
         )
         .filter(Boolean),
     );
+  };
 
   const realTeamsInRound16 = collectRealTeamsFromStage(round16);
   const realTeamsInQuarter = collectRealTeamsFromStage(quarterFinals);
@@ -401,6 +405,22 @@ const TableBlock = ({ isLogged }) => {
     if (!match) {
       return { code1: "", code2: "", isPron1: false, isPron2: false };
     }
+    // ✅ OVERRIDE TOTALE (OSPITE): se NON loggato e showPron attivo,
+    // le squadre arrivano SEMPRE dal seed HARDCODED (groupFinal26 → pronsq),
+    // ignorando DB, qualifiedTeams, pronsq admin, team1/team2 reali, ecc.
+    if (!isLogged && showPron) {
+      const seedPron = (seedPronByFg?.[match.fg] || "").trim();
+      if (seedPron) {
+        const [p1, p2] = seedPron.split("-").map((s) => s.trim());
+        return {
+          code1: p1 || "",
+          code2: p2 || "",
+          isPron1: !!p1,
+          isPron2: !!p2,
+        };
+      }
+      return { code1: "", code2: "", isPron1: false, isPron2: false };
+    }
 
     const team1 = (match.team1 || "").trim();
     const team2 = (match.team2 || "").trim();
@@ -421,6 +441,25 @@ const TableBlock = ({ isLogged }) => {
     const q2Code = q2?.code || "";
     const q1IsPron = !!q1?.isPron;
     const q2IsPron = !!q2?.isPron;
+
+    // ✅ OSPITE senza showPron:
+    // - mostra SOLO qualificate ufficiali (isPron=false)
+    // - se provvisorie (isPron=true) non mostra nulla
+    if (!isLogged && !showPron) {
+      const hasOfficialQualified =
+        (q1Code && !q1IsPron) || (q2Code && !q2IsPron);
+
+      if (hasOfficialQualified) {
+        return {
+          code1: !q1IsPron ? q1Code : "",
+          code2: !q2IsPron ? q2Code : "",
+          isPron1: false,
+          isPron2: false,
+        };
+      }
+
+      return { code1: "", code2: "", isPron1: false, isPron2: false };
+    }
 
     // pronsq DAL DB (finalData) → usato per ADMIN / fallback
     const dbPron = (match.pronsq || match.pron || "").trim();
@@ -453,24 +492,10 @@ const TableBlock = ({ isLogged }) => {
     }
 
     // 🟡 2) NON LOGGATO (ospite)
+    // A questo punto:
+    // - showPron ON è già gestito all'inizio (override hardcoded)
+    // - showPron OFF mostra solo le qualificate (gestite sopra con q1/q2) o vuoto
     if (!isLogged) {
-      // se NON ha cliccato il bottone → non vede niente
-      if (!showPron) {
-        return { code1: "", code2: "", isPron1: false, isPron2: false };
-      }
-
-      // se ha cliccato il bottone → usa SEMPRE i seed dal file hardcoded
-      if (seedPron) {
-        const [p1, p2] = seedPron.split("-").map((s) => s.trim());
-        return {
-          code1: p1 || "",
-          code2: p2 || "",
-          isPron1: !!p1, // bordo viola
-          isPron2: !!p2,
-        };
-      }
-
-      // se per qualche motivo non c'è seed → niente
       return { code1: "", code2: "", isPron1: false, isPron2: false };
     }
 

@@ -116,13 +116,15 @@ useEffect(() => {
     const matchesData = matchesByGroup?.[groupKey];
     if (!matchesData) continue;
 
-    // calcolo classifica “come GridRank” (stessa utility)
+    // ✅ BLOCCO CHIAVE: evita qualificati “random”
+    if (!isGroupComplete(matchesData)) continue;
+
     const sorted = getSortedTeamsForGroup({
       flagsMond,
       groupLetter: letter,
       matchesData,
       maxMatches: null,
-      allowRis: true,   // ✅ considera anche plusRis
+      allowRis: true,
       useBonus: true,
     });
 
@@ -130,21 +132,19 @@ useEffect(() => {
     const second = sorted?.[1]?.id || "";
     if (!first || !second) continue;
 
-    // ✅ set isPron: se NON ho tutti results ufficiali, considero provvisorio
     const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
     const allOfficial = all.every((m) => isScore(m.results));
     const isPron = !allOfficial;
 
-    // scrivo 1A / 2A ecc.
     nextQualified[`1${letter}`] = { code: first, isPron };
     nextQualified[`2${letter}`] = { code: second, isPron };
   }
 
-  // ✅ scrivo nel context (e quindi TableBlock si aggiorna)
   if (Object.keys(nextQualified).length) {
     setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
   }
 }, [matchesByGroup, setQualifiedTeams]);
+
 
   // 7 colonne: ------DATA | CITTÀ | SQ1 | F1 | RIS | F2 | SQ2
   const gridColsDesktop = "80px 50px 30px 45px 40px 45px 30px";
@@ -258,70 +258,70 @@ function normalizeMatch(m) {
     keysTouched: keysTouchedMatches.current,
   });
 
-  const resolveName = buildNameResolver(flagsMond);
+//   const resolveName = buildNameResolver(flagsMond);
 
-const nextQualified = {};
+// const nextQualified = {};
 
-for (const letter of "ABCDEFGHIJKL") {
-  const matchesData = buildMatchesDataForGroup(letter);
+// for (const letter of "ABCDEFGHIJKL") {
+//   const matchesData = buildMatchesDataForGroup(letter);
 
-  if (!isGroupComplete(matchesData)) continue;
+//   if (!isGroupComplete(matchesData)) continue;
 
-  // qui riusi la stessa logica di GridRank:
-  // - computeTableForGroup (ufficiali)
-  // - computePronTableForGroup o bonus
-  // - sortTeamsByTotal
-  //
-  // Se vuoi *identico identico* a GridRank, la cosa migliore è:
-  // ✅ estrarre computeTableForGroup / computePronTableForGroup / sortTeamsByTotal in un file utils condiviso
-  // e importarli sia in GridRankPage sia qui.
+//   // qui riusi la stessa logica di GridRank:
+//   // - computeTableForGroup (ufficiali)
+//   // - computePronTableForGroup o bonus
+//   // - sortTeamsByTotal
+//   //
+//   // Se vuoi *identico identico* a GridRank, la cosa migliore è:
+//   // ✅ estrarre computeTableForGroup / computePronTableForGroup / sortTeamsByTotal in un file utils condiviso
+//   // e importarli sia in GridRankPage sia qui.
 
-  // Pseudologica (perché dipende dalle tue funzioni già presenti in GridRank):
-  const teams = (flagsMond ?? []).filter((t) => t.group === letter);
-  const groupTeamNames = new Set(teams.map((t) => resolveName(t.name)));
+//   // Pseudologica (perché dipende dalle tue funzioni già presenti in GridRank):
+//   const teams = (flagsMond ?? []).filter((t) => t.group === letter);
+//   const groupTeamNames = new Set(teams.map((t) => resolveName(t.name)));
 
-  // const tableByTeam = computeTableForGroup(matchesData, resolveName, groupTeamNames, null, true);
-  // const pronTableByTeam = computePronTableForGroup(matchesData, resolveName, groupTeamNames, null, true);
+//   // const tableByTeam = computeTableForGroup(matchesData, resolveName, groupTeamNames, null, true);
+//   // const pronTableByTeam = computePronTableForGroup(matchesData, resolveName, groupTeamNames, null, true);
 
-  const sorted = getSortedTeamsForGroup({
-  flagsMond,
-  groupLetter: letter,
-  matchesData,
-  maxMatches: null,
-  useBonus: true,
-});
+//   const sorted = getSortedTeamsForGroup({
+//   flagsMond,
+//   groupLetter: letter,
+//   matchesData,
+//   maxMatches: null,
+//   useBonus: true,
+// });
 
-  const first = sorted?.[0]?.id || "";
-  const second = sorted?.[1]?.id || "";
-  if (!first || !second) continue;
+//   const first = sorted?.[0]?.id || "";
+//   const second = sorted?.[1]?.id || "";
+//   if (!first || !second) continue;
 
-  // se non sono tutti ufficiali → isPron true (bordo viola nel tabellone)
-  const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
-  const allOfficial = all.every((m) => isScore(m.results));
+//   // se non sono tutti ufficiali → isPron true (bordo viola nel tabellone)
+//   const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
+//   const allOfficial = all.every((m) => isScore(m.results));
 
-  nextQualified[`1${letter}`] = { code: first, isPron: !allOfficial };
-  nextQualified[`2${letter}`] = { code: second, isPron: !allOfficial };
-}
+//   nextQualified[`1${letter}`] = { code: first, isPron: !allOfficial };
+//   nextQualified[`2${letter}`] = { code: second, isPron: !allOfficial };
+// }
 
-if (Object.keys(nextQualified).length) {
-  setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+// if (Object.keys(nextQualified).length) {
+//   setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
 
-  // ✅ persistenza (TableBlock le vede anche dopo refresh)
-  try {
-    const nextJson = JSON.stringify(nextQualified);
-    if (nextJson !== lastQualifiedJsonRef.current) {
-      lastQualifiedJsonRef.current = nextJson;
+//   // ✅ persistenza (TableBlock le vede anche dopo refresh)
+//   try {
+//     const nextJson = JSON.stringify(nextQualified);
+//     if (nextJson !== lastQualifiedJsonRef.current) {
+//       lastQualifiedJsonRef.current = nextJson;
 
-      const prevObj = JSON.parse(localStorage.getItem("wc26_qualifiedTeams") || "{}");
-      localStorage.setItem(
-        "wc26_qualifiedTeams",
-        JSON.stringify({ ...prevObj, ...nextQualified })
-      );
-    }
-  } catch {
-    // ignore
-  }
-}
+//       const prevObj = JSON.parse(localStorage.getItem("wc26_qualifiedTeams") || "{}");
+//       localStorage.setItem(
+//         "wc26_qualifiedTeams",
+//         JSON.stringify({ ...prevObj, ...nextQualified })
+//       );
+//     }
+//   } catch {
+//     // ignore
+//   }
+// }
 
 
   // ---------- RISULTATI ADMIN ----------
@@ -384,8 +384,8 @@ function buildMatchesDataForGroup(letter) {
 
   // struttura “flat” per quel gruppo: DB se c’è, altrimenti hardcoded
   const flat =
-    isLogged && structureByGroup?.[letter]?.length
-      ? structureByGroup[letter].map(normalizeMatch)  // team1/team2/results/seed pron/ris
+    structureByGroup?.[letter]?.length
+      ? structureByGroup[letter].map(normalizeMatch)
       : getFlatMatchesForGroup(groupMatches?.[groupKey]).map(normalizeMatch);
 
   // ricostruisco le 3 giornate (2 match ciascuna)
@@ -558,73 +558,73 @@ const handleNotesModalKeyDown = useCallback((e) => {
 
 
 //------------------------------------------------
-useEffect(() => {
-  const letters = "ABCDEFGHIJKL".split("");
-  const nextQualified = {};
+// useEffect(() => {
+//   const letters = "ABCDEFGHIJKL".split("");
+//   const nextQualified = {};
 
-  for (const letter of letters) {
-    const groupKey = `group_${letter}`;
-    const matchesData = matchesByGroup?.[groupKey]; // <-- usa QUI il tuo state reale
+//   for (const letter of letters) {
+//     const groupKey = `group_${letter}`;
+//     const matchesData = matchesByGroup?.[groupKey]; // <-- usa QUI il tuo state reale
 
-    if (!matchesData) continue;
+//     if (!matchesData) continue;
 
-    // gruppo “chiuso” = 6 match coperti (results OR ris OR pron)
-    // riuso le stesse regole dello Step 1: se allowRis=true include anche ris
-    // Se vuoi SOLO ufficiali per qualificare: metti allowRis=false
-    const sorted = getSortedTeamsForGroup({
-      flagsMond,
-      groupLetter: letter,
-      matchesData,
-      maxMatches: null,
-      allowRis: true,
-      useBonus: true,
-    });
+//     // gruppo “chiuso” = 6 match coperti (results OR ris OR pron)
+//     // riuso le stesse regole dello Step 1: se allowRis=true include anche ris
+//     // Se vuoi SOLO ufficiali per qualificare: metti allowRis=false
+//     const sorted = getSortedTeamsForGroup({
+//       flagsMond,
+//       groupLetter: letter,
+//       matchesData,
+//       maxMatches: null,
+//       allowRis: true,
+//       useBonus: true,
+//     });
 
-    const first = sorted?.[0]?.id || "";
-    const second = sorted?.[1]?.id || "";
-    if (!first || !second) continue;
+//     const first = sorted?.[0]?.id || "";
+//     const second = sorted?.[1]?.id || "";
+//     if (!first || !second) continue;
 
-    // 👉 qui puoi decidere quando scrivere: solo se il gruppo è “chiuso”
-    // per ora scriviamo sempre se abbiamo 2 squadre (nel prossimo step mettiamo isGroupClosed)
-    nextQualified[`1${letter}`] = { code: first, isPron: false };
-    nextQualified[`2${letter}`] = { code: second, isPron: false };
-  }
+//     // 👉 qui puoi decidere quando scrivere: solo se il gruppo è “chiuso”
+//     // per ora scriviamo sempre se abbiamo 2 squadre (nel prossimo step mettiamo isGroupClosed)
+//     nextQualified[`1${letter}`] = { code: first, isPron: false };
+//     nextQualified[`2${letter}`] = { code: second, isPron: false };
+//   }
 
-  setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
-}, [matchesByGroup, setQualifiedTeams]);
+//   setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+// }, [matchesByGroup, setQualifiedTeams]);
 
 //------------------------------------------------
-useEffect(() => {
-  const nextQualified = {};
+// useEffect(() => {
+//   const nextQualified = {};
 
-  for (const letter of "ABCDEFGHIJKL") {
-    const matchesData = buildMatchesDataForGroup(letter);
-    if (!isGroupComplete(matchesData)) continue;
+//   for (const letter of "ABCDEFGHIJKL") {
+//     const matchesData = buildMatchesDataForGroup(letter);
+//     if (!isGroupComplete(matchesData)) continue;
 
-    const sorted = getSortedTeamsForGroup({
-      flagsMond,
-      groupLetter: letter,
-      matchesData,
-      maxMatches: null,
-      allowRis: true,
-      useBonus: true,
-    });
+//     const sorted = getSortedTeamsForGroup({
+//       flagsMond,
+//       groupLetter: letter,
+//       matchesData,
+//       maxMatches: null,
+//       allowRis: true,
+//       useBonus: true,
+//     });
 
-    const first = sorted?.[0]?.id || "";
-    const second = sorted?.[1]?.id || "";
-    if (!first || !second) continue;
+//     const first = sorted?.[0]?.id || "";
+//     const second = sorted?.[1]?.id || "";
+//     if (!first || !second) continue;
 
-    const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
-    const allOfficial = all.every((m) => isScore(m.results));
+//     const all = Object.values(matchesData).flatMap((g) => g?.matches ?? []);
+//     const allOfficial = all.every((m) => isScore(m.results));
 
-    nextQualified[`1${letter}`] = { code: first, isPron: !allOfficial };
-    nextQualified[`2${letter}`] = { code: second, isPron: !allOfficial };
-  }
+//     nextQualified[`1${letter}`] = { code: first, isPron: !allOfficial };
+//     nextQualified[`2${letter}`] = { code: second, isPron: !allOfficial };
+//   }
 
-  if (Object.keys(nextQualified).length) {
-    setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
-  }
-}, [matchesState, structureByGroup, isLogged]);
+//   if (Object.keys(nextQualified).length) {
+//     setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
+//   }
+// }, [matchesState, structureByGroup, isLogged]);
 
 //------------------------------------------------
 useEffect(() => {
@@ -680,23 +680,20 @@ useEffect(() => {
 
   (async () => {
     try {
-      if (!isLogged) {
-        // ✅ non loggato: non carico DB
-        if (!cancelled) setStructureByGroup(null);
-        return;
-      }
-
-      const byGroup = await loadMatchStructureFromDb();
+      setStructureLoading(true);
+      const byGroup = await loadMatchStructureFromDb(); // deve funzionare anche anon
       if (!cancelled) setStructureByGroup(byGroup);
     } catch (err) {
       console.error("Errore caricando struttura da DB:", err);
+      if (!cancelled) setStructureByGroup(null);
     } finally {
       if (!cancelled) setStructureLoading(false);
     }
   })();
 
   return () => { cancelled = true; };
-}, [isLogged]);
+}, []); // ⬅️ una volta sola
+
 //------------------------------------------------
   useEffect(() => {
     const update = () => {
@@ -961,11 +958,17 @@ useEffect(() => {
 
             const groupKey = `group_${letter}`;
            
-           const matchesFlat = !isLogged
-            ? getFlatMatchesForGroup(groupMatches?.[groupKey])
-            : (structureByGroup?.[letter]?.length
-                ? structureByGroup[letter].map(normalizeMatch)   // ✅ AGGIUNGI QUESTO
-                : getFlatMatchesForGroup(groupMatches?.[groupKey]));
+          //  const matchesFlat = !isLogged
+          //   ? getFlatMatchesForGroup(groupMatches?.[groupKey])
+          //   : (structureByGroup?.[letter]?.length
+          //       ? structureByGroup[letter].map(normalizeMatch)   // ✅ AGGIUNGI QUESTO
+          //       : getFlatMatchesForGroup(groupMatches?.[groupKey]));
+
+            const matchesFlat =
+              structureByGroup?.[letter]?.length
+                ? structureByGroup[letter].map(normalizeMatch)
+                : getFlatMatchesForGroup(groupMatches?.[groupKey]).map(normalizeMatch);
+
 
             const rowsCount = matchesFlat.length;
 
@@ -1013,29 +1016,32 @@ useEffect(() => {
             // - se NON è loggato e toggle pronostici ON → può vedere i seed m.ris
             // - se è loggato (non admin) → NIENTE seed hardcoded, mai
             const computeResUser = (m, letter, idx) => {
-              const official = (m?.results ?? "").trim();
-              if (official.includes("-")) return official;
+            const official = String(m?.results ?? "").trim();
+            const seed = String(m?.ris ?? "").trim(); // ✅ definito subito
 
-              const a = String(
-                matchesState?.[letter]?.plusRis?.[idx]?.a ?? ""
-              ).trim();
-              const b = String(
-                matchesState?.[letter]?.plusRis?.[idx]?.b ?? ""
-              ).trim();
+            // 👻 GUEST: col bottone ON override totale (sostituisce anche ufficiali)
+            if (!isLogged && showPronostics) {
+              return seed.includes("-") ? seed : "";
+            }
 
-              if (a !== "" && b !== "") return `${a}-${b}`;
+            // ✅ ufficiali hanno priorità per tutti gli altri
+            if (official.includes("-")) return official;
 
-              // 👉 SE È LOGGATO (ma non admin) NON MOSTRA MAI I SEED
-              if (isLogged) {
-                return "";
-              }
 
-              // 👻 SOLO UTENTE NON LOGGATO PUÒ VEDERE I SEED CON PRONOSTICI ON
-              const seed = String(m?.ris ?? "").trim();
-              if (showPronostics && seed.includes("-")) return seed;
+            const a = String(matchesState?.[letter]?.plusRis?.[idx]?.a ?? "").trim();
+            const b = String(matchesState?.[letter]?.plusRis?.[idx]?.b ?? "").trim();
 
-              return "";
-            };
+            if (a !== "" && b !== "") return `${a}-${b}`;
+
+            // 👉 SE È LOGGATO (ma non admin) NON MOSTRA MAI I SEED
+            if (isLogged) return "";
+
+            // 👻 (se vuoi anche: guest senza override totale ma con showPronostics)
+            if (showPronostics && seed.includes("-")) return seed;
+
+            return "";
+          };
+
             // dentro GridMatchesPage, PRIMA del return del JSX del modale, puoi mettere:
             const handleFlagKeyDown = (e, onClick) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -1198,7 +1204,8 @@ useEffect(() => {
                               const matchesFlatP =
                                 structureByGroup?.[letterP]?.length
                                   ? structureByGroup[letterP].map(normalizeMatch)
-                                  : getFlatMatchesForGroup(groupMatches?.[groupKey]);
+                                  : getFlatMatchesForGroup(groupMatches?.[groupKey]).map(normalizeMatch);
+
 
                               const findTeamP = (rawName) => {
                                 const name = resolveName(rawName);

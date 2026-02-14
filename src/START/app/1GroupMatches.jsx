@@ -15,8 +15,8 @@ group_A: {
             'GIU/18',
         ],
         matches: [
-            { numero: 3, city: 'Atlanta',          time: '16:00',      team1: 'IRL',            team2: 'SAfrica',           pron:'2', ris: ' ' ,  results:' ' }, 
-            { numero: 4, city: 'Guadalajara',      time: '01:00',      team1: 'Mexico',         team2: 'Korea',             pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 3, city: 'Atlanta',          time: '16:00',      team1: 'IRL',            team2: 'SAfrica',           pron:'2', ris: ' ' ,  results:'2-2 ' }, 
+            { numero: 4, city: 'Guadalajara',      time: '01:00',      team1: 'Mexico',         team2: 'Korea',             pron:'1', ris: ' ' ,  results:'3-0 ' },
         ],
     },
     giornata_3:{
@@ -24,8 +24,8 @@ group_A: {
             'GIU/24',
         ],
         matches: [            
-            { numero: 5, city: 'Monterrey',        time: '01:00',      team1: 'SAfrica',        team2: 'Korea',             pron: '1', ris: ' ' ,  results: ' '},            
-            { numero: 6, city: 'CDMX',             time: '01:00',      team1: 'IRL',            team2: 'Mexico',            pron: '2', ris: ' ' ,  results: ' '},
+            { numero: 5, city: 'Monterrey',        time: '01:00',      team1: 'SAfrica',        team2: 'Korea',             pron: '1', ris: ' ' ,  results: '2-0 '},            
+            { numero: 6, city: 'CDMX',             time: '01:00',      team1: 'IRL',            team2: 'Mexico',            pron: '2', ris: ' ' ,  results: '0-2 '},
         ],
     },
 },
