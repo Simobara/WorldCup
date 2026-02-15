@@ -8,6 +8,9 @@ const Quadrato = ({
   advanced = false,
   highlightType = "none",
   isPronTeamTable = false,
+
+  // 🆕 click-to-advance
+  onPickTeam,
 }) => {
   const bgByPhase = {
     round32: CssQuad.BgRound32,
@@ -23,17 +26,12 @@ const Quadrato = ({
     isPronTeamTable && highlightType === "none" ? "pron" : highlightType;
 
   const borderByHighlight = {
-    // ✅ UFFICIALE: vittoria team1 o team2 → pink-900
     win: "border-pink-500",
     win2: "border-pink-500",
-
     draw: CssQuad.BorderDraw,
-
-    // ✅ PROVVISORIO (ris / pronostici): uso ancora il bordo purple che già hai
-    "win-provisional": CssQuad.BorderWinProvisional, // purple
-    "win2-provisional": CssQuad.BorderWinProvisional, // purple
-    "draw-provisional": CssQuad.BorderDrawProvisional, // green
-
+    "win-provisional": CssQuad.BorderWinProvisional,
+    "win2-provisional": CssQuad.BorderWinProvisional,
+    "draw-provisional": CssQuad.BorderDrawProvisional,
     pron: CssQuad.BorderPron,
     "pron-draw": CssQuad.BorderPronDraw,
     none: CssQuad.BorderDefault,
@@ -51,8 +49,20 @@ const Quadrato = ({
       ? ""
       : "filter grayscale";
 
+  // 🆕 click handler
+  const code = String(teamName ?? "")
+    .trim()
+    .toUpperCase();
+  const canPick = typeof onPickTeam === "function" && code.length > 0;
+
+  const handleClick = () => {
+    if (!canPick) return;
+    onPickTeam(code); // passa la squadra cliccata
+  };
+
   return (
     <div
+      onClick={handleClick}
       className={`
       relative w-16 md:h-16 h-16
       ${bgColor}
@@ -60,6 +70,7 @@ const Quadrato = ({
       ${pronRing}
       rounded-[14px] shadow-xl flex items-center justify-center
       overflow-hidden z-40
+      ${canPick ? "cursor-pointer" : ""}
     `}
     >
       {label && (

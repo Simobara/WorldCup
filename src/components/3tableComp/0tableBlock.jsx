@@ -450,7 +450,7 @@ const TableBlock = ({ isLogged }) => {
       case "quarter":
         if (sf.size === 0) return true;
         return sf.has(teamCode);
-      case "semi":
+      case "semifinals":
         if (fin.size === 0) return true;
         return fin.has(teamCode);
       case "final":
@@ -480,9 +480,36 @@ const TableBlock = ({ isLogged }) => {
   const getMatchByFg = (fgCode) =>
     allMatches.find((m) => m.fg === fgCode) || null;
 
+  // ✅ helper: dato fg (es "A5") -> { phaseKey, matchIndex }
+  const getMetaByFg = (fg) => {
+    const phases = [
+      "round32",
+      "round16",
+      "quarterFinals",
+      "semifinals",
+      "final34",
+      "final",
+    ];
+
+    for (const phaseKey of phases) {
+      const phase = finalData?.[phaseKey];
+      if (!phase) continue;
+
+      const flat = Object.values(phase).flatMap((g) => g.matches);
+      const idx = flat.findIndex(
+        (m) => String(m?.fg || "").trim() === String(fg || "").trim(),
+      );
+
+      if (idx >= 0) return { phaseKey, matchIndex: idx };
+    }
+
+    return null;
+  };
+
   // 🔹 A
   const mA1 = getMatchByFg("A1");
   const mA2 = getMatchByFg("A2");
+
   const mA3 = getMatchByFg("A3");
   const mA4 = getMatchByFg("A4");
 
@@ -603,7 +630,7 @@ const TableBlock = ({ isLogged }) => {
     const isFinalPhaseFromR16 = [
       "round16",
       "quarter",
-      "semi",
+      "semifinals",
       "final",
     ].includes(phase);
 
@@ -766,6 +793,217 @@ const TableBlock = ({ isLogged }) => {
   const SEMI_OFFSET_DESKTOP = "10rem";
   const SEMI_OFFSET_MOBILE = "8rem";
 
+  
+  // ✅ STEP2: click su una squadra -> aggiorna UI locale (DB nello step 3)
+  // ✅ STEP: click su una squadra -> scrive nel TURNO SUCCESSIVO usando goto -> fgDest
+  const handlePickTeam = (match, phase, pickedCode) => {
+    // solo utenti loggati
+    if (!isLogged) return;
+
+    const code = String(pickedCode || "")
+      .trim()
+      .toUpperCase();
+    if (code.length !== 3) return;
+
+    const goto = String(match?.goto || "").trim(); // es "74"
+    if (!goto) return;
+
+    // 1) trovo il match di destinazione: quello che ha pos1 o pos2 uguale a goto
+    const dest = allMatches.find((m) => {
+      const p1 = String(m?.pos1 ?? "").trim();
+      const p2 = String(m?.pos2 ?? "").trim();
+      return p1 === goto || p2 === goto;
+    });
+
+    const destFg = String(dest?.fg || "").trim();
+    if (!destFg) {
+      console.warn("❌ pickTeam: destFg non trovato dal goto", {
+        fromFg: match?.fg,
+        goto,
+      });
+      return;
+    }
+
+    // 2) capisco se scrivo il lato sinistro o destro (pos1 vs pos2)
+    const destPos1 = String(dest?.pos1 ?? "").trim();
+    const destPos2 = String(dest?.pos2 ?? "").trim();
+    const side = destPos1 === goto ? "L" : destPos2 === goto ? "R" : null;
+
+    if (!side) {
+      console.warn("❌ pickTeam: lato non determinato", {
+        destFg,
+        goto,
+        destPos1,
+        destPos2,
+      });
+      return;
+    }
+
+    // 3) meta per il salvataggio (phase_key + match_index del match destinazione)
+    const meta = getMetaByFg(destFg);
+    if (!meta) {
+      console.warn("❌ pickTeam: meta non trovata per fg", destFg);
+      return;
+    }
+
+    // helper: merge "AAA-BBB" mantenendo l’altro lato
+    const buildNextStr = (prevStr) => {
+      const oldStr = String(prevStr || "").trim();
+      const [oldL, oldR] = oldStr.split("-").map((s) => (s || "").trim());
+
+      const nextL = side === "L" ? code : oldL || "";
+      const nextR = side === "R" ? code : oldR || "";
+
+      return `${nextL}-${nextR}`.replace(/^-|-$/g, "");
+    };
+
+    // =========================
+    // ✅ ADMIN: salva su wc_final_structure.pronsq
+    // =========================
+    if (isAdmin) {
+      // UI immediata: aggiorno finalData (match destinazione) -> pronsq
+      setFinalData((prev) => {
+        const next = structuredClone(prev);
+        const phaseObj = next?.[meta.phaseKey];
+        if (!phaseObj) return prev;
+
+        const flat = Object.values(phaseObj).flatMap((g) => g.matches);
+        const m = flat?.[meta.matchIndex];
+        if (!m) return prev;
+
+        const nextStr = buildNextStr(m?.pronsq);
+        m.pronsq = nextStr;
+        return next;
+      });
+
+      console.log("✅ ADMIN pickTeam UI", {
+        fromFg: match?.fg,
+        goto,
+        destFg,
+        side,
+        code,
+        saveTo: "wc_final_structure.pronsq",
+      });
+
+      // DB: update-or-insert (robusto)
+      (async () => {
+        try {
+          // ricavo il valore “corrente” da finalData (best-effort) e calcolo nextStr
+          const phaseObj = finalData?.[meta.phaseKey];
+          const flat = phaseObj
+            ? Object.values(phaseObj).flatMap((g) => g.matches)
+            : [];
+          const cur = flat?.[meta.matchIndex];
+          const nextStr = buildNextStr(cur?.pronsq);
+
+          const payload = {
+            phase_key: meta.phaseKey,
+            match_index: meta.matchIndex,
+            pronsq: nextStr,
+          };
+
+          const { data: updatedRows, error: updErr } = await supabase
+            .from("wc_final_structure")
+            .update({ pronsq: payload.pronsq })
+            .eq("phase_key", payload.phase_key)
+            .eq("match_index", payload.match_index)
+            .select();
+
+          if (updErr) {
+            console.error("❌ ADMIN pickTeam DB update error:", updErr);
+            return;
+          }
+
+          if (!updatedRows || updatedRows.length === 0) {
+            const { error: insErr } = await supabase
+              .from("wc_final_structure")
+              .insert(payload);
+
+            if (insErr)
+              console.error("❌ ADMIN pickTeam DB insert error:", insErr);
+            else console.log("✅ ADMIN pickTeam DB inserted", payload);
+          } else {
+            console.log("✅ ADMIN pickTeam DB updated", payload);
+          }
+        } catch (e) {
+          console.error("❌ ADMIN pickTeam DB exception:", e);
+        }
+      })();
+
+      return;
+    }
+
+    // =========================
+    // ✅ USER (non admin): salva su wc_final_structure_userpron.user_pronsq
+    // =========================
+
+    // UI immediata (optimistic)
+    setUserPronByFg((prev) => {
+      const nextStr = buildNextStr(prev?.[destFg]);
+      return { ...(prev || {}), [destFg]: nextStr };
+    });
+
+    console.log("✅ USER pickTeam UI", {
+      fromFg: match?.fg,
+      goto,
+      destFg,
+      side,
+      code,
+      saveTo: "wc_final_structure_userpron.user_pronsq",
+    });
+
+    // DB: update-or-insert (robusto, senza UNIQUE)
+    (async () => {
+      try {
+        const userEmail = String(currentUser?.email || "").trim();
+        if (!userEmail) return;
+
+        // NB: qui uso lo stato “vecchio” solo per comporre la stringa;
+        // va bene perché buildNextStr gestisce il merge lato.
+        const currentStr = String(userPronByFg?.[destFg] || "").trim();
+        const user_pronsq = buildNextStr(currentStr);
+
+        const payload = {
+          user_email: userEmail,
+          phase_key: meta.phaseKey,
+          match_index: meta.matchIndex,
+          user_pronsq,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { data: updatedRows, error: updErr } = await supabase
+          .from("wc_final_structure_userpron")
+          .update({
+            user_pronsq: payload.user_pronsq,
+            updated_at: payload.updated_at,
+          })
+          .eq("user_email", payload.user_email)
+          .eq("phase_key", payload.phase_key)
+          .eq("match_index", payload.match_index)
+          .select();
+
+        if (updErr) {
+          console.error("❌ USER pickTeam DB update error:", updErr);
+          return;
+        }
+
+        if (!updatedRows || updatedRows.length === 0) {
+          const { error: insErr } = await supabase
+            .from("wc_final_structure_userpron")
+            .insert(payload);
+
+          if (insErr)
+            console.error("❌ USER pickTeam DB insert error:", insErr);
+          else console.log("✅ USER pickTeam DB inserted", payload);
+        } else {
+          console.log("✅ USER pickTeam DB updated", payload);
+        }
+      } catch (e) {
+        console.error("❌ USER pickTeam DB exception:", e);
+      }
+    })();
+  };
+
   const renderMatchBlock = (match, rettColor, phase) => {
     if (!match) return null;
 
@@ -784,6 +1022,9 @@ const TableBlock = ({ isLogged }) => {
         secondSquareLabel={match.pos2 || ""}
         firstTeamName={displayCode1}
         secondTeamName={displayCode2}
+        onPickTeam={(teamCode, which) =>
+          handlePickTeam(match, phase, teamCode, which)
+        }
         firstIsPron={isPron1}
         secondIsPron={isPron2}
         firstTeamFlag={displayCode1 ? getFlag(displayCode1) : null}
@@ -936,7 +1177,7 @@ const TableBlock = ({ isLogged }) => {
           {(() => {
             const { code1, code2, isPron1, isPron2 } = getDisplayTeamsFromMatch(
               mAB1,
-              "semi",
+              "semifinals",
             );
 
             return (
@@ -958,12 +1199,12 @@ const TableBlock = ({ isLogged }) => {
                   topIsPron={isPron1}
                   bottomIsPron={isPron2}
                   topAdvanced={
-                    code1 ? didTeamAdvance(code1, "semi", isPron1) : false
+                    code1 ? didTeamAdvance(code1, "semifinals", isPron1) : false
                   }
                   bottomAdvanced={
-                    code2 ? didTeamAdvance(code2, "semi", isPron2) : false
+                    code2 ? didTeamAdvance(code2, "semifinals", isPron2) : false
                   }
-                  phase="semi"
+                  phase="semifinals"
                   rettTopLabel={mAB1?.date || ""}
                   rettBottomLabel={mAB1?.city || ""}
                   rettTimeLabel={mAB1?.time || ""}
@@ -977,7 +1218,7 @@ const TableBlock = ({ isLogged }) => {
           {(() => {
             const { code1, code2, isPron1, isPron2 } = getDisplayTeamsFromMatch(
               mCD1,
-              "semi",
+              "semifinals",
             );
 
             return (
@@ -998,12 +1239,12 @@ const TableBlock = ({ isLogged }) => {
                   topIsPron={isPron1}
                   bottomIsPron={isPron2}
                   topAdvanced={
-                    code1 ? didTeamAdvance(code1, "semi", isPron1) : false
+                    code1 ? didTeamAdvance(code1, "semifinals", isPron1) : false
                   }
                   bottomAdvanced={
-                    code2 ? didTeamAdvance(code2, "semi", isPron2) : false
+                    code2 ? didTeamAdvance(code2, "semifinals", isPron2) : false
                   }
-                  phase="semi"
+                  phase="semifinals"
                   rettTopLabel={mCD1?.date || ""}
                   rettBottomLabel={mCD1?.city || ""}
                   rettTimeLabel={mCD1?.time || ""}
