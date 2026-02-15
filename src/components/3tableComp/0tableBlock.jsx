@@ -148,9 +148,20 @@ const TableBlock = ({ isLogged }) => {
           if (row.goto) match.goto = row.goto;
           if (row.fg) match.fg = row.fg;
           match.pronsq = row.pronsq ?? null; // oppure "" se preferisci stringa vuota
+          match._dbLoaded = true; // ✅ questo match è stato caricato dal DB
 
-          if (row.team1) match.team1 = row.team1;
-          if (row.team2) match.team2 = row.team2;
+          // ✅ team1/team2:
+          // - ROUND32: se nel DB è vuoto/non valorizzato, NON cancellare l'hardcoded (fallback "come prima")
+          // - altre fasi: puoi anche svuotare, perché lì di default vuoi vuoto finché non inserisci
+          if (phaseKey === "round32") {
+            if (row.team1 != null && String(row.team1).trim() !== "")
+              match.team1 = row.team1;
+            if (row.team2 != null && String(row.team2).trim() !== "")
+              match.team2 = row.team2;
+          } else {
+            match.team1 = row.team1 ?? "";
+            match.team2 = row.team2 ?? "";
+          }
 
           // risultati annidati
           if (row.results_res || row.results_ts || row.results_r) {
@@ -179,6 +190,8 @@ const TableBlock = ({ isLogged }) => {
       const clearStage = (stage) => {
         Object.values(stage).forEach((giornata) => {
           giornata.matches.forEach((m) => {
+            // ✅ NON cancellare se quel match è già arrivato dal DB
+            if (m?._dbLoaded) return;
             m.pronsq = null; // oppure ""
           });
         });
@@ -517,12 +530,99 @@ const TableBlock = ({ isLogged }) => {
   const mF2 = getMatchByFg("F2"); // se ti serve
 
   // ✅ team visualizzati (reali, oppure PRON se showPron e reali vuoti)
-  const getDisplayTeamsFromMatch = (match) => {
+  const getDisplayTeamsFromMatch = (match, phase) => {
     if (!match) {
       return { code1: "", code2: "", isPron1: false, isPron2: false };
     }
+
+    // 🏆 PRIORITÀ ASSOLUTA:
+    // se esistono team ufficiali inseriti dall'admin → vincono su TUTTO
+    // (qualifiedTeams, pronsq, user pron, ecc.)
+    const absT1 = (match.team1 || "").trim();
+    const absT2 = (match.team2 || "").trim();
+
+    if (absT1 || absT2) {
+      return {
+        code1: absT1,
+        code2: absT2,
+        isPron1: false,
+        isPron2: false,
+      };
+    }
+
+    // ✅ ROUND32: se admin inserisce team1/team2 nel DB -> sono UFFICIALI
+    // - se T1/T2 sono vuoti -> fallback a "come prima" (calcolo/qualifiedTeams/pos1-pos2)
+    // - se uno dei due è valorizzato -> sovrascrive SOLO quel lato
+    // ⚠️ eccezione: se GUEST con showPron attivo, vince l'hardcoded (regola tua)
+    const isGuestShowPron = !isLogged && showPron;
+
+    if (phase === "round32" && !isGuestShowPron) {
+      const t1 = (match.team1 || "").trim();
+      const t2 = (match.team2 || "").trim();
+
+      // 🟣 ROUND32: se l'admin ha scritto pronsq, deve avere priorità sul calcolo (anche se T1/T2 sono vuoti)
+      if (isAdmin) {
+        const dbPron32 = String(match.pronsq ?? "").trim();
+        if (dbPron32) {
+          const [p1, p2] = dbPron32.split("-").map((s) => s.trim());
+          return {
+            code1: p1 || "",
+            code2: p2 || "",
+            isPron1: !!p1,
+            isPron2: !!p2,
+          };
+        }
+      }
+
+      if (t1 || t2) {
+        const pos1 = String(match.pos1 ?? "").trim();
+        const pos2 = String(match.pos2 ?? "").trim();
+
+        const q1 = qualifiedTeams?.[pos1] || null; // { code, isPron }
+        const q2 = qualifiedTeams?.[pos2] || null;
+
+        const fb1 = q1?.code || "";
+        const fb2 = q2?.code || "";
+        const fb1IsPron = !!q1?.isPron;
+        const fb2IsPron = !!q2?.isPron;
+
+        return {
+          code1: t1 || fb1,
+          code2: t2 || fb2,
+          isPron1: t1 ? false : fb1IsPron,
+          isPron2: t2 ? false : fb2IsPron,
+        };
+      }
+    }
+
+    // ✅ ADMIN OVERRIDE (ROUND16 → FINAL):
+    // se l'admin ha inserito team1/team2 nel DB, mostrali SEMPRE
+    // ✅ UFFICIALI DA DB (ROUND16 → FINAL) visibili a TUTTI:
+    // se ci sono team1/team2 nel DB, mostrali SEMPRE
+    // ⚠️ eccezione: se GUEST con showPron attivo, vince l'hardcoded (regola tua)
+    const isFinalPhaseFromR16 = [
+      "round16",
+      "quarter",
+      "semi",
+      "final",
+    ].includes(phase);
+
+    if (isFinalPhaseFromR16 && !isGuestShowPron) {
+      const t1 = (match.team1 || "").trim();
+      const t2 = (match.team2 || "").trim();
+
+      if (t1 || t2) {
+        return {
+          code1: t1,
+          code2: t2,
+          isPron1: false,
+          isPron2: false,
+        };
+      }
+    }
+
     // ✅ OVERRIDE TOTALE (OSPITE): se NON loggato e showPron attivo,
-    // le squadre arrivano SEMPRE dal seed HARDCODED (groupFinal26 → pronsq),
+    // le squadre arrivano SEMPRE dal seed HARDCODED (groupFinal → pronsq),
     // ignorando DB, qualifiedTeams, pronsq admin, team1/team2 reali, ecc.
     if (!isLogged && showPron) {
       const seedPron = (seedPronByFg?.[match.fg] || "").trim();
@@ -540,6 +640,8 @@ const TableBlock = ({ isLogged }) => {
 
     const team1 = (match.team1 || "").trim();
     const team2 = (match.team2 || "").trim();
+
+    // ... il resto della tua funzione rimane IDENTICO sotto
 
     // ✅ GUEST: finché non ho le qualificate ufficiali nel context,
     // evito di mostrare vuoto “a scatti” nei match pos1/pos2
@@ -607,11 +709,16 @@ const TableBlock = ({ isLogged }) => {
       };
     }
 
-    // 🟣 1) ADMIN → usa pronsq del DB (perché lui lo modifica)
+    // 🟣 1) ADMIN → usa pronsq del DB SOLO come pronostico admin
     if (isAdmin) {
       if (dbPron) {
         const [p1, p2] = dbPron.split("-").map((s) => s.trim());
-        return { code1: p1, code2: p2, isPron1: true, isPron2: true };
+        return {
+          code1: p1 || "",
+          code2: p2 || "",
+          isPron1: !!p1,
+          isPron2: !!p2,
+        };
       }
 
       // niente ufficiali e niente pronsq → vuoto
@@ -667,7 +774,7 @@ const TableBlock = ({ isLogged }) => {
       code2: displayCode2,
       isPron1,
       isPron2,
-    } = getDisplayTeamsFromMatch(match);
+    } = getDisplayTeamsFromMatch(match, phase);
     // console.log("isLogged:", isLogged, "showPron:", showPron);
 
     return (
@@ -827,8 +934,10 @@ const TableBlock = ({ isLogged }) => {
 
           {/* ✅ SEMIFINALE A → AB1 (verticale) */}
           {(() => {
-            const { code1, code2, isPron1, isPron2 } =
-              getDisplayTeamsFromMatch(mAB1);
+            const { code1, code2, isPron1, isPron2 } = getDisplayTeamsFromMatch(
+              mAB1,
+              "semi",
+            );
 
             return (
               <div
@@ -866,8 +975,10 @@ const TableBlock = ({ isLogged }) => {
 
           {/* ✅ SEMIFINALE B → CD1 (verticale) */}
           {(() => {
-            const { code1, code2, isPron1, isPron2 } =
-              getDisplayTeamsFromMatch(mCD1);
+            const { code1, code2, isPron1, isPron2 } = getDisplayTeamsFromMatch(
+              mCD1,
+              "semi",
+            );
 
             return (
               <div
