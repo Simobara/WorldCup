@@ -860,7 +860,7 @@ const TableBlock = ({ isLogged }) => {
   const SEMI_OFFSET_MOBILE = "8rem";
 
   // ✅ STEP: click su una squadra -> scrive nel TURNO SUCCESSIVO usando goto -> fgDest
-  const handlePickTeam = (match, phase, pickedCode) => {
+  const handlePickTeam = async (match, phase, pickedCode) => {
     // solo utenti loggati
     if (!isLogged) return;
 
@@ -925,7 +925,19 @@ const TableBlock = ({ isLogged }) => {
     // ✅ ADMIN: salva su wc_final_structure.pronsq
     // =========================
     if (isAdmin) {
-      // ✅ ADMIN: invece di pronsq, scrivo team1/team2 nel match DEST (ufficiale)
+      const meta = getMetaByFg(destFg);
+      if (!meta) return;
+
+      // 🔥 calcolo PRIMA dal current state
+      const phaseNow = finalData?.[meta.phaseKey];
+      const flatNow = phaseNow
+        ? Object.values(phaseNow).flatMap((g) => g.matches)
+        : [];
+      const mNow = flatNow?.[meta.matchIndex];
+      const prevStr = mNow?.pronsq || "";
+      const nextPronsq = buildNextStr(prevStr);
+
+      // UI optimistic
       setFinalData((prev) => {
         const next = structuredClone(prev);
         const phaseObj = next?.[meta.phaseKey];
@@ -935,51 +947,28 @@ const TableBlock = ({ isLogged }) => {
         const m = flat?.[meta.matchIndex];
         if (!m) return prev;
 
-        if (side === "L") m.team1 = code;
-        if (side === "R") m.team2 = code;
-
-        // opzionale: se vuoi anche pulire pronsq quando scrivi ufficiale
-        m.pronsq = null;
-
+        m.pronsq = nextPronsq; // ✅ scrivo SOLO pronsq
+        // ❌ NON tocco team1/team2
         return next;
       });
 
-      console.log("✅ ADMIN pickTeam UI (official team)", {
-        fromFg: match?.fg,
-        goto,
-        destFg,
-        side,
-        code,
-        saveTo: "wc_final_structure.team1/team2",
-      });
+      // DB + log di conferma
+      const { data, error } = await supabase
+        .from("wc_final_structure")
+        .update({ pronsq: nextPronsq })
+        .eq("phase_key", meta.phaseKey)
+        .eq("match_index", meta.matchIndex)
+        .select("phase_key, match_index, fg, pronsq");
 
-      (async () => {
-        try {
-          const payload =
-            side === "L"
-              ? { team1: code, pronsq: null }
-              : { team2: code, pronsq: null };
-
-          const { error } = await supabase
-            .from("wc_final_structure")
-            .update(payload)
-            .eq("phase_key", meta.phaseKey)
-            .eq("match_index", meta.matchIndex);
-
-          if (error) {
-            console.error("❌ ADMIN pickTeam DB update error:", error);
-            return;
-          }
-
-          console.log("✅ ADMIN pickTeam DB updated", {
-            phase_key: meta.phaseKey,
-            match_index: meta.matchIndex,
-            ...payload,
-          });
-        } catch (e) {
-          console.error("❌ ADMIN pickTeam DB exception:", e);
-        }
-      })();
+      if (error) {
+        console.error("❌ ADMIN pronsq update error:", {
+          error,
+          meta,
+          nextPronsq,
+        });
+      } else {
+        console.log("✅ ADMIN pronsq update OK:", data);
+      }
 
       return;
     }
@@ -1195,9 +1184,7 @@ const TableBlock = ({ isLogged }) => {
                 md:-translate-x-1/2  -translate-x-[27vw]
                 md:translate-y-[8vh] translate-y-[14vh]
                 md:w-[300px] w-[200px]
-                max-w-none md:scale-110 scale-150
-      z-0
-    "
+                max-w-none md:scale-110 scale-150 pointer-events-none z-0 "
           />
 
           {/* ✅ Blocco FINALE F1: posizione FISSA nella colonna, sopra la coppa */}
@@ -1303,7 +1290,7 @@ const TableBlock = ({ isLogged }) => {
                   rettColor={Rett.SemiCD}
                   topSquareLabel={mCD1?.pos1 || ""}
                   onPickTeam={(teamCode) =>
-                    handlePickTeam(mAB1, "semifinals", teamCode)
+                    handlePickTeam(mCD1, "semifinals", teamCode)
                   }
                   bottomSquareLabel={mCD1?.pos2 || ""}
                   topTeamName={code1}
