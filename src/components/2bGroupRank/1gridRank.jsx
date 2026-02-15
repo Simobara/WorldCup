@@ -10,10 +10,7 @@ import {
   CssRow7,
 } from "../../START/styles/0CssGsTs";
 import { buildNameResolver } from "../2aGroupMatches/zExternal/buildNameResolver";
-import {
-  computePronTableForGroup,
-  getSortedTeamsForGroup,
-} from "../2aGroupMatches/zExternal/getSortedTeamsForGroup";
+import { computePronTableForGroup } from "../2aGroupMatches/zExternal/getSortedTeamsForGroup";
 import Quadrato from "../3tableComp/1quad";
 
 // pronData = pronRows[0].data
@@ -546,13 +543,11 @@ function sortTeamsByPron(teams, pronTableByTeam, resolveName) {
 
 function sortTeamsByTotal(
   teams,
-  tableByTeam, // punti ufficiali
-  pronTableByTeam, // punti da pronostici/bonus
+  tableByTeam, // ufficiale
+  pronTableByTeam, // +pron punti
   pronGoalsByTeam, // ✅ gf/gs da RIS (solo dove manca ufficiale)
   resolveName,
 ) {
-  if (!pronTableByTeam && !tableByTeam) return teams;
-
   return [...teams].sort((a, b) => {
     const ak = resolveName(a.name);
     const bk = resolveName(b.name);
@@ -560,31 +555,29 @@ function sortTeamsByTotal(
     const Aoff = tableByTeam?.[ak] ?? { pt: 0, gf: 0, gs: 0 };
     const Boff = tableByTeam?.[bk] ?? { pt: 0, gf: 0, gs: 0 };
 
-    const Apron = pronTableByTeam?.[ak] ?? { pt: 0 };
-    const Bpron = pronTableByTeam?.[bk] ?? { pt: 0 };
+    const ApronPt = pronTableByTeam?.[ak]?.pt ?? 0;
+    const BpronPt = pronTableByTeam?.[bk]?.pt ?? 0;
 
-    const Atot = (Aoff.pt ?? 0) + (Apron.pt ?? 0);
-    const Btot = (Boff.pt ?? 0) + (Bpron.pt ?? 0);
-
-    // 1) punti totali (blu + viola)
-    if (Btot !== Atot) return Btot - Atot;
-
-    // 2) a parità, punti ufficiali
-    if (Boff.pt !== Aoff.pt) return Boff.pt - Aoff.pt;
-
-    // 3) differenza reti ufficiale
-    const AgdOff = (Aoff.gf ?? 0) - (Aoff.gs ?? 0);
-    const BgdOff = (Boff.gf ?? 0) - (Boff.gs ?? 0);
-    if (BgdOff !== AgdOff) return BgdOff - AgdOff;
-
-    // 4) differenza reti da RIS (solo dove manca ufficiale)
     const ApronG = pronGoalsByTeam?.[ak] ?? { gf: 0, gs: 0 };
     const BpronG = pronGoalsByTeam?.[bk] ?? { gf: 0, gs: 0 };
-    const AgdPron = (ApronG.gf ?? 0) - (ApronG.gs ?? 0);
-    const BgdPron = (BpronG.gf ?? 0) - (BpronG.gs ?? 0);
-    if (BgdPron !== AgdPron) return BgdPron - AgdPron;
 
-    // 5) fallback alfabetico
+    const AtotPt = (Aoff.pt ?? 0) + ApronPt;
+    const BtotPt = (Boff.pt ?? 0) + BpronPt;
+
+    // 1) Punti totali
+    if (BtotPt !== AtotPt) return BtotPt - AtotPt;
+
+    // ✅ 2) DIFFERENZA RETI TOTALE (ufficiale + ris)
+    const AgdTot = Aoff.gf - Aoff.gs + (ApronG.gf - ApronG.gs);
+    const BgdTot = Boff.gf - Boff.gs + (BpronG.gf - BpronG.gs);
+    if (BgdTot !== AgdTot) return BgdTot - AgdTot;
+
+    // ✅ 3) Gol fatti totali (opzionale ma consigliato)
+    const AgfTot = (Aoff.gf ?? 0) + (ApronG.gf ?? 0);
+    const BgfTot = (Boff.gf ?? 0) + (BpronG.gf ?? 0);
+    if (BgfTot !== AgfTot) return BgfTot - AgfTot;
+
+    // 4) fallback alfabetico
     return ak.localeCompare(bk);
   });
 }
@@ -845,19 +838,26 @@ export default function GridRankPage({
 
           if (!byGroup[groupKey]) {
             byGroup[groupKey] = {
-              giornata_1: { matches: [] },
-              giornata_2: { matches: [] },
-              giornata_3: { matches: [] },
+              giornata_1: { matches: [null, null] },
+              giornata_2: { matches: [null, null] },
+              giornata_3: { matches: [null, null] },
             };
           }
 
-          const giornataIndex = row.match_index ?? 0;
+          const giornataIndex = Number(row.match_index ?? 0);
           const giornataKey =
             giornataIndex <= 1
               ? "giornata_1"
               : giornataIndex <= 3
                 ? "giornata_2"
                 : "giornata_3";
+
+          const slot =
+            giornataIndex <= 1
+              ? giornataIndex // 0..1
+              : giornataIndex <= 3
+                ? giornataIndex - 2 // 0..1
+                : giornataIndex - 4; // 0..1
 
           // 👉 riga utente corrispondente (stesso gruppo + stesso match_index)
           const userRow = pronMap[`${letter}-${row.match_index}`];
@@ -929,7 +929,7 @@ export default function GridRankPage({
             }
           }
 
-          byGroup[groupKey][giornataKey].matches.push({
+          byGroup[groupKey][giornataKey].matches[slot] = {
             team1: row.team1,
             team2: row.team2,
             results: row.results_official ?? null,
@@ -937,7 +937,7 @@ export default function GridRankPage({
             pron,
             seed_ris: row.seed_ris ?? null,
             seed_pron: row.seed_pron ?? null,
-          });
+          };
         }
 
         if (!cancelled) {
@@ -1013,6 +1013,12 @@ export default function GridRankPage({
     const letters = "ABCDEFGHIJKL".split("");
     const resolveName = buildNameResolver(flagsMond);
 
+    const resetAll = {};
+    for (const L of letters) {
+      resetAll[`1${L}`] = { code: "", isPron: false };
+      resetAll[`2${L}`] = { code: "", isPron: false };
+    }
+
     const nextQualified = {};
 
     for (const letter of letters) {
@@ -1026,46 +1032,71 @@ export default function GridRankPage({
 
       if (!matchesData) continue;
 
-      // ✅ 1) GUEST: qualificate SOLO quando TUTTE le 6 partite sono UFFICIALI
-      // ✅ LOGGATO: comportamento invariato (basta gruppo "chiuso": results/ris/pron)
+      // guest: solo se tutto ufficiale
       if (!isLogged) {
         if (!isGroupAllOfficial(matchesData)) continue;
       } else {
         if (!isGroupClosed(matchesData)) continue;
       }
 
-      // ✅ 2) capisco se è tutto ufficiale o “misto”
-      const allOfficial = isGroupAllOfficial(matchesData);
-      const qualifyIsPron = !allOfficial; // bordo viola se non tutto ufficiale
+      const teams = (flagsMond ?? []).filter((t) => t.group === letter);
+      const groupTeamNames = new Set(teams.map((t) => resolveName(t.name)));
 
-      const sorted = getSortedTeamsForGroup({
-        flagsMond,
-        groupLetter: letter,
+      const groupHasResults = getAllMatches(matchesData).some((m) =>
+        isScore(m?.results),
+      );
+
+      // blu: SOLO ufficiali
+      const tableByTeam = computeTableForGroup(
         matchesData,
-        maxMatches: null, // per qualificati sempre full gruppo
-        allowRis: true, // perché il tuo "group closed" include results OR ris OR pron
-        useBonus: true,
-      });
+        resolveName,
+        groupTeamNames,
+        null,
+        false,
+      );
+
+      const canShowPron = true; // per qualificati loggato sì, guest no ma tanto qui sei già dentro al gating
+      const pronTableByTeam = canShowPron
+        ? computePronTableForGroup(
+            matchesData,
+            resolveName,
+            groupTeamNames,
+            null,
+            true,
+          )
+        : null;
+
+      const pronGoalsByTeam = canShowPron
+        ? computePronGoalsForGroup(
+            matchesData,
+            resolveName,
+            groupTeamNames,
+            null,
+          )
+        : null;
+
+      const baseSorted = sortTeamsByTable(
+        teams,
+        tableByTeam,
+        resolveName,
+        groupHasResults,
+      );
+
+      const sorted = sortTeamsByTotal(
+        baseSorted,
+        tableByTeam,
+        pronTableByTeam,
+        pronGoalsByTeam,
+        resolveName,
+      );
 
       const first = sorted?.[0]?.id || "";
       const second = sorted?.[1]?.id || "";
       if (!first || !second) continue;
 
-      nextQualified[`1${letter}`] = { code: first, isPron: qualifyIsPron };
-      nextQualified[`2${letter}`] = { code: second, isPron: qualifyIsPron };
-    }
-
-    // ✅ AGGIORNO IL CONTEXT:
-    // - se loggato (useSupabase) => RESET: tengo SOLO i gruppi chiusi
-    // - se ospite => merge (come prima)
-    //
-    // 🔥 PRIMA c'era un "return" per ADMIN: così TableBlock non riceveva mai 1X/2X.
-    // Ora anche ADMIN aggiorna qualifiedTeams, usando i suoi dati (seed_* già mappati in ris/pron).
-    // ✅ sempre reset: evita 1X/2X “vecchi” quando un gruppo non è più chiuso
-    const resetAll = {};
-    for (const letter of "ABCDEFGHIJKL") {
-      resetAll[`1${letter}`] = { code: "", isPron: false };
-      resetAll[`2${letter}`] = { code: "", isPron: false };
+      const allOfficial = isGroupAllOfficial(matchesData);
+      nextQualified[`1${letter}`] = { code: first, isPron: !allOfficial };
+      nextQualified[`2${letter}`] = { code: second, isPron: !allOfficial };
     }
 
     setQualifiedTeams({ ...resetAll, ...nextQualified });
@@ -1078,7 +1109,6 @@ export default function GridRankPage({
     refreshKey,
     dataVersion,
     setQualifiedTeams,
-    showPronostics,
   ]);
 
   return (

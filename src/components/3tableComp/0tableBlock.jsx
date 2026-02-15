@@ -1,4 +1,4 @@
-import { useEffect, useRef,useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQualifiedTeams } from "../../Ap/Global/global";
 import { supabase } from "../../Services/supabase/supabaseClient";
 import { flagsMond } from "../../START/app/0main";
@@ -151,7 +151,7 @@ const TableBlock = ({ isLogged }) => {
         if (row.goto) match.goto = row.goto;
         if (row.fg) match.fg = row.fg;
 
-        match.pronsq = row.pronsq ?? null;
+        match.pronsq = row.user_pronsq ?? null;
         match._dbLoaded = true;
 
         if (phaseKey === "round32") {
@@ -480,7 +480,6 @@ const TableBlock = ({ isLogged }) => {
       setUserPronByFg({});
       return;
     }
-
     if (!currentUser?.email) return;
 
     const fetchUserPron = async () => {
@@ -507,12 +506,12 @@ const TableBlock = ({ isLogged }) => {
         const pr = String(row.user_pronsq ?? "").trim();
         if (fg && pr) map[fg] = pr;
       }
-
       setUserPronByFg(map);
     };
 
     fetchUserPron();
-  }, [isLogged, currentUser?.email, finalData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLogged, currentUser?.email]);
 
   // ✅ NON ADMIN: autopopola round32 (da qualifiedTeams) e scrive in wc_final_structure_userpron
   // - solo se l’utente è loggato e NON admin
@@ -790,6 +789,8 @@ const TableBlock = ({ isLogged }) => {
 
   // ✅ team visualizzati (reali, oppure PRON se showPron e reali vuoti)
   const getDisplayTeamsFromMatch = (match, phase) => {
+    const fgKey = String(match?.fg || "").trim(); // ✅ sempre disponibile
+
     if (!match) {
       return { code1: "", code2: "", isPron1: false, isPron2: false };
     }
@@ -884,7 +885,8 @@ const TableBlock = ({ isLogged }) => {
     // le squadre arrivano SEMPRE dal seed HARDCODED (groupFinal → pronsq),
     // ignorando DB, qualifiedTeams, pronsq admin, team1/team2 reali, ecc.
     if (!isLogged && showPron) {
-      const seedPron = (seedPronByFg?.[match.fg] || "").trim();
+      const seedPron = (seedPronByFg?.[fgKey] || "").trim();
+
       if (seedPron) {
         const [p1, p2] = seedPron.split("-").map((s) => s.trim());
         return {
@@ -953,7 +955,23 @@ const TableBlock = ({ isLogged }) => {
     const dbPron = (match.pronsq || match.pron || "").trim();
 
     // pronsq DAL FILE HARDCODED → usato per NON LOGGATO con showPron
-    const seedPron = (seedPronByFg[match.fg] || "").trim();
+    const seedPron = (seedPronByFg[fgKey] || "").trim();
+
+    // ✅ LOGGATO NON ADMIN: se ho un pron utente per questo fg, deve vincere
+    // (serve per vedere l'avanzamento round32 -> round16 ecc.)
+    if (isLogged && !isAdmin) {
+      const userPronStr = String(userPronByFg?.[fgKey] || "").trim();
+
+      if (userPronStr && userPronStr.includes("-")) {
+        const [u1, u2] = userPronStr.split("-").map((s) => (s || "").trim());
+        return {
+          code1: u1 || "",
+          code2: u2 || "",
+          isPron1: !!u1,
+          isPron2: !!u2,
+        };
+      }
+    }
 
     // 🔵 0) REGOLA BASE: SE CI SONO SQUADRE UFFICIALI, VINCONO SEMPRE
     //    (per TUTTI: admin, loggati, non loggati)
@@ -995,7 +1013,7 @@ const TableBlock = ({ isLogged }) => {
     // 🧑‍💻 3) UTENTE LOGGATO NON ADMIN
 
     // prima i pronostici personali da wc_final_user_pron
-    const userPronStr = userPronByFg[match.fg]; // es. "KOR-ITA"
+    const userPronStr = userPronByFg[fgKey];
 
     if (userPronStr) {
       const [u1, u2] = userPronStr.split("-").map((s) => s.trim());
@@ -1044,10 +1062,10 @@ const TableBlock = ({ isLogged }) => {
         .eq("match_index", matchIndex);
 
     // 1) prova UPDATE
+
     const { data: updRows, error: updErr } = await baseWhere(
       supabase.from("wc_final_structure_userpron").update({
-        user_pronsq,
-        updated_at: new Date().toISOString(),
+        user_pronsq: user_pronsq,
       }),
     ).select();
 
@@ -1057,13 +1075,10 @@ const TableBlock = ({ isLogged }) => {
     if (!updRows || updRows.length === 0) {
       const payload = {
         id: crypto.randomUUID(),
-        user_id: userId,
         user_email: userEmail,
         phase_key: phaseKey,
         match_index: matchIndex,
-        user_pronsq,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        user_pronsq: user_pronsq,
       };
 
       const { error: insErr } = await supabase
@@ -1157,7 +1172,14 @@ const TableBlock = ({ isLogged }) => {
     }
 
     const goto = String(match?.goto || "").trim(); // es "74"
-    if (!goto) return;
+    if (!goto) {
+      console.warn("❌ handlePickTeam: goto MANCANTE", {
+        fromFg: match?.fg,
+        phase,
+        match,
+      });
+      return;
+    }
 
     // 1) trovo il match di destinazione: quello che ha pos1 o pos2 uguale a goto
     const dest = allMatches.find((m) => {
@@ -1165,6 +1187,27 @@ const TableBlock = ({ isLogged }) => {
       const p2 = String(m?.pos2 ?? "").trim();
       return p1 === goto || p2 === goto;
     });
+
+    if (!dest) {
+      console.warn("❌ handlePickTeam: DEST NON TROVATO", {
+        fromFg: match?.fg,
+        phase,
+        goto,
+        allMatchesSample: allMatches
+          .slice(0, 10)
+          .map((x) => ({ fg: x?.fg, pos1: x?.pos1, pos2: x?.pos2 })),
+      });
+    } else {
+      console.log("✅ handlePickTeam: DEST TROVATO", {
+        fromFg: match?.fg,
+        phase,
+        goto,
+        destFg: dest?.fg,
+        destPos1: dest?.pos1,
+        destPos2: dest?.pos2,
+      });
+    }
+
     console.log("🟣 handlePickTeam goto->dest", {
       fromFg: match?.fg,
       goto,
@@ -1354,22 +1397,22 @@ const TableBlock = ({ isLogged }) => {
       // UI immediata
       setUserPronByFg((prev) => ({ ...(prev || {}), [destFg]: nextDest }));
 
-      // (opzionale) UI extra sul tabellone
-      setFinalData((prev) => {
-        const next = structuredClone(prev);
-        const destMeta = getMetaByFg(destFg);
-        if (!destMeta) return prev;
+      // // (opzionale) UI extra sul tabellone
+      // setFinalData((prev) => {
+      //   const next = structuredClone(prev);
+      //   const destMeta = getMetaByFg(destFg);
+      //   if (!destMeta) return prev;
 
-        const phaseObj = next?.[destMeta.phaseKey];
-        if (!phaseObj) return prev;
+      //   const phaseObj = next?.[destMeta.phaseKey];
+      //   if (!phaseObj) return prev;
 
-        const flat = Object.values(phaseObj).flatMap((g) => g.matches);
-        const m = flat?.[destMeta.matchIndex];
-        if (!m) return prev;
+      //   const flat = Object.values(phaseObj).flatMap((g) => g.matches);
+      //   const m = flat?.[destMeta.matchIndex];
+      //   if (!m) return prev;
 
-        m.pronsq = nextDest;
-        return next;
-      });
+      //   m.pronsq = nextDest;
+      //   return next;
+      // });
 
       // DB
       try {
