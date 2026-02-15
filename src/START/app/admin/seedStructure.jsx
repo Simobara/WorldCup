@@ -259,14 +259,28 @@ const setViewField = (groupLetter, matchIndex, patch) => {
     }
   };
 
-  const handleMatchChange = (
+   const handleMatchChange = (
     giornataKey,
     matchIndexLocal,
     field,
     value,
     numero,
   ) => {
+    // ✅ NORMALIZE "a prova di DB" (prima di state + DB)
+    let normalizedValue = value;
+
+    // FINALS: forza uppercase su pronsq / team1 / team2
+    if (!isGroupsMode && (field === "pronsq" || field === "team1" || field === "team2")) {
+      normalizedValue = String(value ?? "").toUpperCase().trim();
+    }
+
+    // GROUPS: forza uppercase su team1/team2 (se vuoi)
+    if (isGroupsMode && (field === "team1" || field === "team2")) {
+      normalizedValue = String(value ?? "").toUpperCase().trim();
+    }
+
     // 1) aggiorno lo state
+
     updateData((prev) => {
       const next = structuredClone(prev);
       const match = next[groupKey][giornataKey].matches[matchIndexLocal];
@@ -307,7 +321,7 @@ const setViewField = (groupLetter, matchIndex, patch) => {
     globalIndex += g.matches.length;
   }
 
-  void updateMatchFieldInDb(activeGroup, globalIndex, field, value);
+  void updateMatchFieldInDb(activeGroup, globalIndex, field, normalizedValue);
 
   // ✅ se ho cambiato ris e ho calcolato auto-pron, salvo anche la pron nel DB
 if (field === "ris") {
@@ -328,7 +342,7 @@ if (field === "ris") {
         globalIndex += g.matches.length;
       }
 
-      void updateFinalMatchFieldInDb(activeFinalKey, globalIndex, field, value);
+      void updateFinalMatchFieldInDb(activeFinalKey, globalIndex, field, normalizedValue);
     }
   };
 
@@ -1912,12 +1926,24 @@ function Field({
       return;
     }
 
+    // ✅ CAMPI TEAM: T1/T2 e team1/team2 → SOLO 3 LETTERE (AAA), sempre uppercase
+    if (["team1", "team2", "T1", "T2"].includes(label)) {
+      let v = String(raw ?? "")
+        .toUpperCase()
+        .replace(/[^A-Z]/g, "")   // solo lettere
+        .slice(0, 3);            // max 3
+
+      onChange(v);
+      return;
+    }
+
+
     // LOGICA GENERICA (city, team1, team2, pron, ecc.)
     // LOGICA GENERICA (city, team1, team2, pron, ecc.)
     let v = raw;
 
     // per questi campi vogliamo MAIUSCOLO
-    if (["team1", "team2", "pron"].includes(label)) {
+    if (["team1", "team2", "T1", "T2", "pron"].includes(label)) {
       v = v.toUpperCase();
     }
 
@@ -1946,6 +1972,10 @@ function Field({
         ? "90px"
         : widthDesktop;
 
+  const isTeamField = ["team1", "team2", "T1", "T2"].includes(label);
+  const invalidTeam = isTeamField && value && value.length !== 3;
+
+
   return (
     <div className="flex items-center gap-0 text-base md:text-xl">
       {/* LABEL DESKTOP */}
@@ -1958,9 +1988,10 @@ function Field({
         data-field={label}
         type={type}
         className={`
-          bg-slate-800 border border-white/20 rounded
+          bg-slate-800 border rounded
           px-3 py-2
           text-white text-sm md:text-lg font-semibold
+            ${invalidTeam ? "border-yellow-400" : "border-white/20"}
           ${className}
         `}
         style={{
