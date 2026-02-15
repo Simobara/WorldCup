@@ -61,8 +61,11 @@ function normalizeKeysToUppercase(obj) {
 
   const out = {};
 
+  // ✅ supporta sia day1 che DAY1
   ["day1", "day2", "day3"].forEach((k) => {
-    if (obj[k]) out[k.toUpperCase()] = obj[k];
+    const upperK = k.toUpperCase();
+    if (obj[upperK]) out[upperK] = obj[upperK];
+    else if (obj[k]) out[upperK] = obj[k];
   });
 
   if (obj.notes) out.notes = obj.notes;
@@ -75,6 +78,14 @@ function normalizeKeysToUppercase(obj) {
  *   { day1, day2, day3, notes }
  */
 function normalizeNoteForState(raw) {
+  // ✅ Se la colonna notes_user / notes_admin è TEXT con JSON dentro
+  if (typeof raw === "string") {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      raw = null;
+    }
+  }
   if (!raw) {
     return {
       day1: { items: "" },
@@ -142,19 +153,27 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
         return groupNotes ?? {};
       }
 
-      const byGroup = {};
+      // ✅ base hardcoded
+      const merged = clone(groupNotes ?? {});
 
+      // ✅ override dal DB
       for (const row of data ?? []) {
         const letter = row.group_letter;
         if (!letter) continue;
         if (!row.notes_admin) continue;
 
-        byGroup[letter] = row.notes_admin;
-      }
+        // notes_admin può essere JSON o stringa JSON
+        let raw = row.notes_admin;
+        if (typeof raw === "string") {
+          try {
+            raw = JSON.parse(raw);
+          } catch {
+            raw = null;
+          }
+        }
+        if (!raw) continue;
 
-      const merged = clone(groupNotes ?? {});
-      for (const g of Object.keys(byGroup)) {
-        if (byGroup[g]) merged[g] = byGroup[g];
+        merged[letter] = raw;
       }
 
       return merged;
@@ -173,13 +192,18 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
         notes_admin: notes?.[groupLetter] ?? null,
       };
 
-      // 🔵 SALVA nella riga 0
+      // 🔵 SALVA nella riga 0 (UPSERT: se non esiste la crea)
       const { error: err0 } = await supabase
         .from("wc_matches_structure")
-        .update(payload)
-        .eq("user_email", ADMIN_EMAIL)
-        .eq("group_letter", groupLetter)
-        .eq("match_index", 0);
+        .upsert(
+          {
+            user_email: ADMIN_EMAIL,
+            group_letter: groupLetter,
+            match_index: 0,
+            notes_admin: payload.notes_admin,
+          },
+          { onConflict: "user_email,group_letter,match_index" },
+        );
 
       if (err0) {
         console.error(
@@ -336,13 +360,18 @@ export function createNotesRepo(source = DATA_SOURCE, opts = {}) {
       for (const groupLetter of keysTouched) {
         const normalized = normalizeNoteForDb(notes[groupLetter]);
 
-        // 🔵 SALVA le note dell’utente nella riga 0
+        // 🔵 SALVA le note dell’utente nella riga 0 (UPSERT: se non esiste la crea)
         const { error: err0 } = await supabase
           .from("wc_matches_structure_userpron")
-          .update({ notes_user: normalized })
-          .eq("user_email", userEmail)
-          .eq("group_letter", groupLetter)
-          .eq("match_index", 0);
+          .upsert(
+            {
+              user_email: userEmail,
+              group_letter: groupLetter,
+              match_index: 0,
+              notes_user: normalized,
+            },
+            { onConflict: "user_email,group_letter,match_index" },
+          );
 
         if (err0) {
           console.error(

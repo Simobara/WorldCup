@@ -1755,12 +1755,9 @@ useEffect(() => {
 
                                                                        {/* --- SEZIONE NOTE --- */}
                                     <div className="text-sm mt-4 space-y-1">
-                                      {[1, 2, 3].map((dayIndex) => {
-                                        const keyUpper = `DAY${dayIndex}`;
-                                        const keyLower = `day${dayIndex}`;
-                                        const day =
-                                          data[keyLower] || // 👈 prima quello che stai editando
-                                          data[keyUpper] || // 👈 fallback al DB (DAY1)
+                                    {[1, 2, 3].map((dayIndex) => {
+  const keyLower = `day${dayIndex}`; // ✅ lo stato React usa day1/day2/day3
+  const day = data?.[keyLower] ?? { items: "" };
                                           {};
 
 
@@ -1772,7 +1769,7 @@ useEffect(() => {
                                             <div className="pl-2">
                                               <EditableText
                                                 path={`${letterP}.day${dayIndex}.items`}
-                                                value={day.items || ""}
+                                                value={String(day?.items ?? "")}
                                                 onChange={handleEditChange}
                                                 textareaClassName="
                                                   !h-[1.25rem]
