@@ -102,9 +102,22 @@ const TableBlock = ({ isLogged }) => {
 
   const qualifiedReady = true; // non bloccare mai l'output
   // 🔹 carica FINALI da Supabase e sovrascrive l'hardcoded
+
+  const flattenPhase = (phaseObj) =>
+    Object.values(phaseObj || {}).flatMap((g) => g?.matches || []);
+
+  const normPhaseKey = (k) => {
+    const key = String(k || "").trim();
+    if (key === "quarter") return "quarterFinals";
+    if (key === "semi" || key === "semifinal") return "semifinals";
+    return key; // round32, round16, final34, final...
+  };
+
   const loadFinalsFromDb = async () => {
-    const { data: finalRows, error } = await supabase.from("wc_final_structure")
-      .select(`
+    try {
+      const { data: finalRows, error } = await supabase.from(
+        "wc_final_structure",
+      ).select(`
         phase_key,
         match_index,
         city,
@@ -121,61 +134,84 @@ const TableBlock = ({ isLogged }) => {
         results_r
       `);
 
-    if (error) {
-      console.error("Errore caricando struttura FINALI (TableBlock):", error);
-      return;
-    }
-
-    setFinalData((prev) => {
-      const next = structuredClone(prev);
-
-      for (const row of finalRows ?? []) {
-        const phaseKey = row.phase_key;
-        const phase = next[phaseKey];
-        if (!phase) continue;
-
-        const orderedKeys = Object.keys(phase).sort(); // ✅ ordine stabile
-        const flat = orderedKeys.flatMap((k) => phase[k]?.matches || []);
-
-        const match = flat[row.match_index];
-        if (!match) continue;
-
-        if (row.city) match.city = row.city;
-        if (row.time) match.time = row.time;
-
-        if (row.pos1) match.pos1 = row.pos1;
-        if (row.pos2) match.pos2 = row.pos2;
-        if (row.goto) match.goto = row.goto;
-        if (row.fg) match.fg = row.fg;
-
-        // ✅ colonna reale del DB
-        match.pronsq = row.pronsq ?? null;
-        match._dbLoaded = true;
-
-        if (phaseKey === "round32") {
-          if (row.team1 != null && String(row.team1).trim() !== "")
-            match.team1 = row.team1;
-          if (row.team2 != null && String(row.team2).trim() !== "")
-            match.team2 = row.team2;
-        } else {
-          match.team1 = row.team1 ?? "";
-          match.team2 = row.team2 ?? "";
-        }
-
-        if (row.results_res || row.results_ts || row.results_r) {
-          if (!match.results) match.results = { RES: "", TS: "", R: "" };
-          if (row.results_res) match.results.RES = row.results_res;
-          if (row.results_ts) match.results.TS = row.results_ts;
-          if (row.results_r) match.results.R = row.results_r;
-        }
+      if (error) {
+        console.error("❌ loadFinalsFromDb error:", error);
+        return;
       }
 
-      return next;
-    });
+      console.log("✅ DB finals rows sample:", (finalRows ?? []).slice(0, 5));
+
+      setFinalData((prev) => {
+        const next = structuredClone(prev);
+
+        for (const row of finalRows ?? []) {
+          const phaseKey = normPhaseKey(row.phase_key);
+          const idx = Number(row.match_index);
+
+          const phase = next?.[phaseKey];
+          if (!phase || !Number.isFinite(idx)) continue;
+
+          const flat = flattenPhase(phase); // ✅ stesso ordine OVUNQUE
+          const match = flat?.[idx];
+          if (!match) continue;
+
+          if (row.city != null) match.city = row.city;
+          if (row.time != null) match.time = row.time;
+          if (row.pos1 != null) match.pos1 = row.pos1;
+          if (row.pos2 != null) match.pos2 = row.pos2;
+          if (row.goto != null) match.goto = row.goto;
+          if (row.fg != null) match.fg = row.fg;
+
+          match.pronsq = row.pronsq ?? null;
+          match._dbLoaded = true;
+
+          const cleanTeam = (v) =>
+            String(v ?? "")
+              .trim()
+              .toUpperCase();
+
+          const t1 = cleanTeam(row.team1);
+          const t2 = cleanTeam(row.team2);
+
+          if (phaseKey === "round32") {
+            // ✅ round32: scrivo SOLO se ho valore (così non cancello eventuali hardcoded utili)
+            if (t1) match.team1 = t1;
+            if (t2) match.team2 = t2;
+          } else {
+            // ✅ da round16 in poi: DB è source of truth (anche vuoto)
+            match.team1 = t1;
+            match.team2 = t2;
+          }
+
+          const cleanRes = (v) => String(v ?? "").trim(); // 🔥 toglie anche " "
+          const rRES = cleanRes(row.results_res);
+          const rTS = cleanRes(row.results_ts);
+          const rR = cleanRes(row.results_r);
+
+          const hasAnyRes = !!(rRES || rTS || rR);
+
+          if (hasAnyRes) {
+            match.results = match.results || { RES: "", TS: "", R: "" };
+            match.results.RES = rRES;
+            match.results.TS = rTS;
+            match.results.R = rR;
+          } else {
+            // ✅ se DB non ha risultati veri, svuoto eventuale roba hardcoded
+            match.results = { RES: "", TS: "", R: "" };
+          }
+        }
+
+        return next;
+      });
+    } catch (e) {
+      console.error("❌ loadFinalsFromDb exception:", e);
+    }
   };
 
   useEffect(() => {
-    loadFinalsFromDb();
+    (async () => {
+      await loadFinalsFromDb();
+    })();
   }, []); // 👈 parte una volta sola, per tutti (loggati e non)
 
   // ✅ PULIZIA: non usare mai pronsq hardcoded nello stato iniziale
@@ -250,12 +286,11 @@ const TableBlock = ({ isLogged }) => {
     if (isAdmin) return; // ✅ IMPORTANTISSIMO: admin non usa questa tabella
     if (!currentUser?.email) return;
 
-    const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
+    const getFgByPhaseAndIndex = (phaseKeyRaw, matchIndex) => {
+      const phaseKey = normPhaseKey(phaseKeyRaw);
       const phase = finalData?.[phaseKey];
       if (!phase) return "";
-      const flat = Object.keys(phase)
-        .sort()
-        .flatMap((k) => phase[k]?.matches || []);
+      const flat = flattenPhase(phase);
       return (flat?.[matchIndex]?.fg || "").trim();
     };
 
@@ -295,7 +330,8 @@ const TableBlock = ({ isLogged }) => {
       const phaseObj = next?.[meta.phaseKey];
       if (!phaseObj) return prev;
 
-      const flat = Object.values(phaseObj).flatMap((g) => g.matches);
+      const flat = flattenPhase(phaseObj);
+
       const m = flat?.[meta.matchIndex];
       if (!m) return prev;
 
@@ -535,12 +571,11 @@ const TableBlock = ({ isLogged }) => {
     if (!currentUser?.email) return;
 
     const fetchUserPron = async () => {
-      const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
+      const getFgByPhaseAndIndex = (phaseKeyRaw, matchIndex) => {
+        const phaseKey = normPhaseKey(phaseKeyRaw);
         const phase = finalData?.[phaseKey];
         if (!phase) return "";
-        const flat = Object.keys(phase)
-          .sort()
-          .flatMap((k) => phase[k]?.matches || []);
+        const flat = flattenPhase(phase);
         return (flat?.[matchIndex]?.fg || "").trim();
       };
 
@@ -793,21 +828,16 @@ const TableBlock = ({ isLogged }) => {
       "final34",
       "final",
     ];
+    const fgClean = String(fg || "").trim();
 
     for (const phaseKey of phases) {
       const phase = finalData?.[phaseKey];
       if (!phase) continue;
 
-      const flat = Object.keys(phase)
-        .sort()
-        .flatMap((k) => phase[k]?.matches || []);
-      const idx = flat.findIndex(
-        (m) => String(m?.fg || "").trim() === String(fg || "").trim(),
-      );
-
+      const flat = flattenPhase(phase); // ✅ stesso ordine
+      const idx = flat.findIndex((m) => String(m?.fg || "").trim() === fgClean);
       if (idx >= 0) return { phaseKey, matchIndex: idx };
     }
-
     return null;
   };
 
@@ -1058,7 +1088,10 @@ const TableBlock = ({ isLogged }) => {
       }
     }
 
-    // 🟣 1) ADMIN → usa pronsq del DB SOLO come pronostico admin
+    // 🟣 1) ADMIN → priorità:
+    // 1) ufficiali (già gestiti sopra)
+    // 2) pronsq scritto dall'admin (dbPron)
+    // 3) fallback da GridRank (qualifiedTeams via pos1/pos2)
     if (isAdmin) {
       if (dbPron) {
         const [p1, p2] = dbPron.split("-").map((s) => s.trim());
@@ -1070,7 +1103,25 @@ const TableBlock = ({ isLogged }) => {
         };
       }
 
-      // niente ufficiali e niente pronsq → vuoto
+      // ✅ fallback: usa qualifiedTeams (come GridRank) SOLO se non ho pronsq
+      const q1fb = qualifiedTeams?.[pos1] || null; // { code, isPron }
+      const q2fb = qualifiedTeams?.[pos2] || null;
+
+      const q1CodeFb = q1fb?.code || "";
+      const q2CodeFb = q2fb?.code || "";
+      const q1IsPronFb = !!q1fb?.isPron;
+      const q2IsPronFb = !!q2fb?.isPron;
+
+      if (q1CodeFb || q2CodeFb) {
+        return {
+          code1: q1CodeFb,
+          code2: q2CodeFb,
+          isPron1: q1IsPronFb,
+          isPron2: q2IsPronFb,
+        };
+      }
+
+      // niente ufficiali, niente pronsq, niente qualifiedTeams → vuoto
       return { code1: "", code2: "", isPron1: false, isPron2: false };
     }
 
@@ -1336,11 +1387,8 @@ const TableBlock = ({ isLogged }) => {
       // 🔥 calcolo PRIMA dal current state
 
       const phaseNow = finalData?.[meta.phaseKey];
-      const flatNow = phaseNow
-        ? Object.keys(phaseNow)
-            .sort()
-            .flatMap((k) => phaseNow[k]?.matches || [])
-        : [];
+      const flatNow = flattenPhase(phaseNow);
+
       const mNow = flatNow?.[meta.matchIndex];
 
       const prevStr = mNow?.pronsq || "";
@@ -1352,7 +1400,8 @@ const TableBlock = ({ isLogged }) => {
         const phaseObj = next?.[meta.phaseKey];
         if (!phaseObj) return prev;
 
-        const flat = Object.values(phaseObj).flatMap((g) => g.matches);
+        const flat = flattenPhase(phaseObj);
+
         const m = flat?.[meta.matchIndex];
         if (!m) return prev;
 

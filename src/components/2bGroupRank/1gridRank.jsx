@@ -862,8 +862,16 @@ export default function GridRankPage({
           // 👉 riga utente corrispondente (stesso gruppo + stesso match_index)
           const userRow = pronMap[`${letter}-${row.match_index}`];
 
-          // user_pron: "1", "X", "2" oppure stringa vuota
-          let pron = (userRow?.user_pron || "").trim().toUpperCase() || null;
+          // ✅ user_pron: se esiste la colonna (anche vuota) NON deve fare fallback al seed (serve per reset admin)
+          const rawUserPron = userRow?.user_pron;
+          const hasUserPron = rawUserPron !== undefined && rawUserPron !== null;
+
+          let pron = hasUserPron
+            ? String(rawUserPron).trim().toUpperCase()
+            : null;
+          // se esiste ma è vuoto -> tengo "" (reset esplicito)
+          if (hasUserPron && !pron) pron = "";
+
           let ris = null;
 
           // if (isAdminUser && letter === "A") {
@@ -874,8 +882,9 @@ export default function GridRankPage({
           //   });
           // }
 
-          // ✅ ADMIN: i pron arrivano da wc_matches_structure (seed_*), non da userpron
-          if (isAdminUser) {
+          // ✅ ADMIN: usa i SUOI userpron se esistono.
+          // Fallback ai seed SOLO se non esiste proprio la riga userpron (prima volta / mai salvato).
+          if (isAdminUser && !userRow) {
             const seedPron = String(row.seed_pron ?? "")
               .trim()
               .toUpperCase();
@@ -1170,10 +1179,13 @@ export default function GridRankPage({
               const teams = (flagsMond ?? []).filter((t) => t.group === letter);
               const groupKey = `group_${letter}`;
 
-              // ✅ BASE: loggato => Supabase; guest => seed hardcoded
-              const seedMatchesData = useSupabase
-                ? renderMatchesByGroup?.[groupKey]
-                : groupMatches?.[groupKey];
+              // ✅ BASE: se arriva override (da GridMatchesPage) USALO sempre (admin compreso)
+              // altrimenti: loggato => Supabase; guest => seed hardcoded
+              const seedMatchesData =
+                matchesByGroupOverride?.[groupKey] ??
+                (useSupabase
+                  ? renderMatchesByGroup?.[groupKey]
+                  : groupMatches?.[groupKey]);
 
               // ✅ GUEST: inietto results_official dal DB dentro il seed (così li vedi in blu)
               const mergedMatchesData =
