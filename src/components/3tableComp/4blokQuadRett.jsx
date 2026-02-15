@@ -28,6 +28,8 @@ const BlokQuadRett = ({
   // ✅ click-to-advance (se presente)
   // (teamCode, which) => void   where which = "first" | "second"
   onPickTeam,
+  showReset = false, // ✅ NEW
+  onReset = null, // ✅ NEW
 }) => {
   // ✅ valida SOLO per la fase finale (tabellone)
   const isFinalPhase = [
@@ -50,12 +52,19 @@ const BlokQuadRett = ({
   const t1Invalid = isFinalPhase && t1 && t1.length !== 3;
   const t2Invalid = isFinalPhase && t2 && t2.length !== 3;
 
-    // ✅ click SOLO se la coppia è completa (t1 e t2 presenti)
+  // ✅ click SOLO se la coppia è completa (t1 e t2 presenti)
   const canClickPair =
     typeof onPickTeam === "function" && isFinalPhase && !!t1 && !!t2;
 
   const canClick1 = canClickPair;
   const canClick2 = canClickPair;
+
+  // // ✅ click ABILITATO per ogni team presente (non serve la coppia completa)
+  // const canClick1 =
+  //   typeof onPickTeam === "function" && isFinalPhase && !!t1 && t1.length === 3;
+
+  // const canClick2 =
+  //   typeof onPickTeam === "function" && isFinalPhase && !!t2 && t2.length === 3;
 
   const handlePick = (code, which) => {
     if (!code) return;
@@ -67,7 +76,7 @@ const BlokQuadRett = ({
       return;
     }
 
-    onPickTeam(code, which);
+    onPickTeam(code);
     console.log("🟢 onPickTeam CHIAMATA", { code, which, phase });
   };
 
@@ -133,12 +142,15 @@ const BlokQuadRett = ({
       </div>
 
       {/* RETTANGOLO DATA/CITTÀ */}
-      <div className="absolute left-1/2 -translate-x-1/2 -mt-20 z-0 flex flex-col items-center pointer-events-none">
+      <div className="absolute left-1/2 -translate-x-1/2 -mt-20 z-0 flex flex-col items-center">
         <RettDat
           leftLabel={rettLeftLabel}
           rightLabel={rettRightLabel}
           timeLabel={rettTimeLabel}
           color={rettColor}
+          showReset={showReset}
+          onReset={onReset}
+          disableHover={String(phase) === "round32"} // ✅ round32 NO hover
         />
       </div>
 

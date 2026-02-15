@@ -4,6 +4,9 @@ const RettDat = ({
   rightLabel,
   timeLabel = "",
   color = "bg-pink-700",
+  showReset = false, // ✅ NEW
+  onReset = null, // ✅ NEW
+  disableHover = false, // ✅ NEW
 }) => {
   // 🔄 CONVERSIONE "GIU/30" → "30/6"
   const convertDate = (raw) => {
@@ -33,13 +36,39 @@ const RettDat = ({
 
   const dateFixed = convertDate(leftLabel);
   return (
-    <div
-      className={`relative z-0
+     <div
+      className={`group relative z-0
         md:h-20 h-14
         md:w-32 w-32
         md:-mt-2 -mt-1
-        ${color} rounded-[16px] shadow-xl overflow-hidden`}
+        ${color} rounded-[16px] shadow-xl overflow-hidden
+        ${disableHover ? "" : "transition-all duration-150 hover:brightness-110 hover:ring-2 hover:ring-white/70"}
+      `}
     >
+      {showReset && typeof onReset === "function" && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onReset();
+          }}
+          className="
+            absolute top-1 right-1 z-50
+            w-6 h-6 rounded-full
+            bg-white/90 text-black
+            font-extrabold text-[12px]
+            flex items-center justify-center
+            opacity-0 group-hover:opacity-100
+            transition-opacity duration-150
+            hover:scale-105
+          "
+          aria-label="Reset match"
+          title="Reset"
+        >
+          X
+        </button>
+      )}
+
       {/* DATA + ORA + CITY – stessa linea */}
       <div className="absolute -top-0 left-0 w-full h-[40%] flex items-center justify-between px-1 text-gray-900  gap-1">
         {/* DATA — più grande */}

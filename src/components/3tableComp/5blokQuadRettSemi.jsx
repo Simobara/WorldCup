@@ -25,9 +25,14 @@ const BlokQuadRettSemi = ({
 
   className = "",
   results = null,
+
+  // ✅ NEW
+  showReset = false,
+  onReset = null,
+  onPickTeam,
 }) => {
   return (
-    <div className={`relative z-[10] ${className} shadow-2xl shadow-black/40`}>
+    <div className={`relative z-[10] ${className} shadow-2xl s`}>
       {/* 🔲 QUADRATI – SOPRA / SOTTO */}
       <div className="flex flex-col items-center gap-0 relative z-10">
         <Quadrato
@@ -37,6 +42,7 @@ const BlokQuadRettSemi = ({
           advanced={topAdvanced}
           isPronTeamTable={topIsPron}
           phase={phase}
+          onPickTeam={onPickTeam}
         />
 
         <Quadrato
@@ -46,6 +52,7 @@ const BlokQuadRettSemi = ({
           advanced={bottomAdvanced}
           isPronTeamTable={bottomIsPron}
           phase={phase}
+          onPickTeam={onPickTeam}
         />
       </div>
 
@@ -56,11 +63,13 @@ const BlokQuadRettSemi = ({
           rightLabel={rettBottomLabel}
           timeLabel={rettTimeLabel}
           color={rettColor}
+          showReset={showReset}
+          onReset={onReset}
         />
       </div>
 
       {/* 🏁 RISULTATI */}
-      <div className="absolute left-1/2 -translate-x-1/2 top-0 md:-top-[4px] z-[999] flex flex-col items-center">
+      <div className="absolute left-1/2 -translate-x-1/2 top-0 md:-top-[4px] z-[999] flex flex-col items-center pointer-events-none">
         <RettRis results={results} />
       </div>
     </div>

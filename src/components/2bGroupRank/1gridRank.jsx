@@ -460,6 +460,51 @@ function computeTableForGroup(
   return table;
 }
 
+// ✅ GF/GS da RIS (pronostico): conta SOLO se NON esiste un risultato ufficiale
+function computePronGoalsForGroup(
+  matchesData,
+  resolveName,
+  groupTeamNames,
+  maxMatches = null,
+) {
+  const table = {};
+  for (const name of groupTeamNames) {
+    table[name] = { gf: 0, gs: 0 };
+  }
+
+  if (!matchesData) return table;
+
+  const giornate = Object.values(matchesData);
+  let seen = 0;
+
+  for (const g of giornate) {
+    for (const m of g?.matches ?? []) {
+      if (Number.isFinite(maxMatches) && seen >= maxMatches) return table;
+      seen++;
+
+      // ❌ se c’è ufficiale, non contare RIS
+      const official = parseResult(m, { allowRis: false });
+      if (official) continue;
+
+      // ✅ prendo solo RIS con gol
+      const parsed = parseResult(m, { allowRis: true });
+      if (!parsed || parsed.source !== "ris") continue;
+
+      const [g1, g2] = parsed.score;
+      const t1 = resolveName(m.team1);
+      const t2 = resolveName(m.team2);
+      if (!groupTeamNames.has(t1) || !groupTeamNames.has(t2)) continue;
+
+      table[t1].gf += g1;
+      table[t1].gs += g2;
+      table[t2].gf += g2;
+      table[t2].gs += g1;
+    }
+  }
+
+  return table;
+}
+
 function sortTeamsByTable(teams, tableByTeam, resolveName, groupHasResults) {
   if (!groupHasResults) return teams;
 
@@ -470,10 +515,15 @@ function sortTeamsByTable(teams, tableByTeam, resolveName, groupHasResults) {
     const A = tableByTeam[ak] ?? { pt: 0, gf: 0, gs: 0 };
     const B = tableByTeam[bk] ?? { pt: 0, gf: 0, gs: 0 };
 
+    // 1) punti
     if (B.pt !== A.pt) return B.pt - A.pt;
-    if (B.gf !== A.gf) return B.gf - A.gf;
-    if (A.gs !== B.gs) return A.gs - B.gs;
 
+    // 2) differenza reti (gf - gs)
+    const Agd = (A.gf ?? 0) - (A.gs ?? 0);
+    const Bgd = (B.gf ?? 0) - (B.gs ?? 0);
+    if (Bgd !== Agd) return Bgd - Agd;
+
+    // 3) alfabetico
     return ak.localeCompare(bk);
   });
 }
@@ -498,6 +548,7 @@ function sortTeamsByTotal(
   teams,
   tableByTeam, // punti ufficiali
   pronTableByTeam, // punti da pronostici/bonus
+  pronGoalsByTeam, // ✅ gf/gs da RIS (solo dove manca ufficiale)
   resolveName,
 ) {
   if (!pronTableByTeam && !tableByTeam) return teams;
@@ -512,31 +563,28 @@ function sortTeamsByTotal(
     const Apron = pronTableByTeam?.[ak] ?? { pt: 0 };
     const Bpron = pronTableByTeam?.[bk] ?? { pt: 0 };
 
-    const Atot = (Aoff.pt ?? 0) + (Apron.pt ?? 0); // 👈 SOMMA
-    const Btot = (Boff.pt ?? 0) + (Bpron.pt ?? 0); // 👈 SOMMA
+    const Atot = (Aoff.pt ?? 0) + (Apron.pt ?? 0);
+    const Btot = (Boff.pt ?? 0) + (Bpron.pt ?? 0);
 
-    // 1) ordino per punti totali (ufficiali + pronostici)
+    // 1) punti totali (blu + viola)
     if (Btot !== Atot) return Btot - Atot;
 
-    // 2) a parità, guardo i punti ufficiali
+    // 2) a parità, punti ufficiali
     if (Boff.pt !== Aoff.pt) return Boff.pt - Aoff.pt;
 
     // 3) differenza reti ufficiale
-    const Agd = (Aoff.gf ?? 0) - (Aoff.gs ?? 0);
-    const Bgd = (Boff.gf ?? 0) - (Boff.gs ?? 0);
-    if (Bgd !== Agd) return Bgd - Agd;
+    const AgdOff = (Aoff.gf ?? 0) - (Aoff.gs ?? 0);
+    const BgdOff = (Boff.gf ?? 0) - (Boff.gs ?? 0);
+    if (BgdOff !== AgdOff) return BgdOff - AgdOff;
 
-    // 4) più gol fatti
-    if ((Boff.gf ?? 0) !== (Aoff.gf ?? 0)) {
-      return (Boff.gf ?? 0) - (Aoff.gf ?? 0);
-    }
+    // 4) differenza reti da RIS (solo dove manca ufficiale)
+    const ApronG = pronGoalsByTeam?.[ak] ?? { gf: 0, gs: 0 };
+    const BpronG = pronGoalsByTeam?.[bk] ?? { gf: 0, gs: 0 };
+    const AgdPron = (ApronG.gf ?? 0) - (ApronG.gs ?? 0);
+    const BgdPron = (BpronG.gf ?? 0) - (BpronG.gs ?? 0);
+    if (BgdPron !== AgdPron) return BgdPron - AgdPron;
 
-    // 5) a parità di tutto, più punti pronostico
-    if ((Bpron.pt ?? 0) !== (Apron.pt ?? 0)) {
-      return (Bpron.pt ?? 0) - (Apron.pt ?? 0);
-    }
-
-    // 6) fallback alfabetico
+    // 5) fallback alfabetico
     return ak.localeCompare(bk);
   });
 }
@@ -1163,6 +1211,14 @@ export default function GridRankPage({
 
               const canShowPron = useSupabase || showPronostics;
 
+              // ✅ ordinamento BASE: solo "blu" (ufficiali)
+              const baseSorted = sortTeamsByTable(
+                teams,
+                tableByTeam,
+                resolveName,
+                groupHasResults,
+              );
+
               const pronTableByTeam = canShowPron
                 ? computePronTableForGroup(
                     matchesData, // 🔥 contiene ufficiali + (eventuali) ris/pron
@@ -1173,19 +1229,22 @@ export default function GridRankPage({
                   )
                 : null;
 
-              // ✅ ordinamento: blu (ufficiali) sempre, e se toggle ON aggiungo viola (+pron) senza sostituire blu
-              const baseSorted = sortTeamsByTable(
-                teams,
-                tableByTeam,
-                resolveName,
-                groupHasResults,
-              );
+              // ✅ GF/GS da RIS (solo dove manca l’ufficiale)
+              const pronGoalsByTeam = canShowPron
+                ? computePronGoalsForGroup(
+                    matchesData,
+                    resolveName,
+                    groupTeamNames,
+                    maxMatches,
+                  )
+                : null;
 
               const sortedTeams = canShowPron
                 ? sortTeamsByTotal(
                     baseSorted,
                     tableByTeam, // blu
                     pronTableByTeam, // viola (+pron)
+                    pronGoalsByTeam, // ✅ diff reti da RIS
                     resolveName,
                   )
                 : baseSorted;

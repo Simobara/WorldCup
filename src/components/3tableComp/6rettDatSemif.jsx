@@ -1,9 +1,13 @@
-// src/components/2rettDat.jsx
+// src/components/3tableComp/6rettDatSemif.jsx
 const RettDatSemif = ({
   leftLabel, // es: "GIU/30" (data)
   rightLabel, // es: "Lima" (città)
   timeLabel = "", // es: "20:00"
   color = "bg-pink-700",
+
+  // ✅ NEW
+  showReset = false,
+  onReset = null,
 }) => {
   const convertDate = (raw) => {
     if (!raw) return "";
@@ -33,20 +37,45 @@ const RettDatSemif = ({
   return (
     <div
       className={`
-    relative
-    ${color}
-    md:-top-[6.4rem] -top-[6.5rem]
-    md:w-32 w-32
-    md:h-40 h-40
-    rounded-[16px]
-    shadow-xl
-    overflow-hidden
-    flex
-    items-start
-    px-2
-    py-2
-  `}
+      group relative 
+      ${color}
+      md:-top-[6.4rem] -top-[6.5rem]
+      md:w-32 w-32
+      md:h-40 h-40
+      rounded-[16px]
+      shadow-xl
+      overflow-hidden
+      flex
+      items-start
+      px-2
+      py-2
+    `}
     >
+      {/* ✅ RESET X */}
+      {showReset && typeof onReset === "function" && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onReset();
+          }}
+          className="
+            absolute top-1 right-1 z-50
+            w-6 h-6 rounded-full
+            bg-white/90 text-black
+            font-extrabold text-[12px]
+            flex items-center justify-center
+            opacity-0 group-hover:opacity-100
+            transition-opacity duration-150
+            hover:scale-105
+          "
+          aria-label="Reset match"
+          title="Reset"
+        >
+          X
+        </button>
+      )}
+
       {/* ✅ DATA + ORARIO + CITTÀ — UNA SOLA RIGA */}
       <div className="w-full flex items-center gap-1 whitespace-nowrap overflow-hidden">
         {/* DATA */}

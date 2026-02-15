@@ -25,10 +25,10 @@ import BlokQuadRettSemi from "./5blokQuadRettSemi";
 // continua a usare wc_final_user_pron + squadre reali del DB.
 
 // 🔹 Costruisco una mappa fg -> pronsq **DAL FILE HARDCODED**
+
 const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
   const phase = finalData?.[phaseKey];
   if (!phase) return "";
-
   const flat = Object.values(phase).flatMap((g) => g.matches);
   return (flat?.[matchIndex]?.fg || "").trim();
 };
@@ -96,88 +96,81 @@ const TableBlock = ({ isLogged }) => {
 
   const qualifiedReady = true; // non bloccare mai l'output
   // 🔹 carica FINALI da Supabase e sovrascrive l'hardcoded
-  useEffect(() => {
-    const loadFinalsFromDb = async () => {
-      const { data: finalRows, error } = await supabase.from(
-        "wc_final_structure",
-      ).select(`
-          phase_key,
-          match_index,
-          city,
-          time,
-          pos1,
-          pos2,
-          goto,
-          fg,
-          pronsq,
-          team1,
-          team2,
-          results_res,
-          results_ts,
-          results_r
-        `);
+  const loadFinalsFromDb = async () => {
+    const { data: finalRows, error } = await supabase.from("wc_final_structure")
+      .select(`
+        phase_key,
+        match_index,
+        city,
+        time,
+        pos1,
+        pos2,
+        goto,
+        fg,
+        pronsq,
+        team1,
+        team2,
+        results_res,
+        results_ts,
+        results_r
+      `);
 
-      if (error) {
-        console.error("Errore caricando struttura FINALI (TableBlock):", error);
-        return;
-      }
+    if (error) {
+      console.error("Errore caricando struttura FINALI (TableBlock):", error);
+      return;
+    }
 
-      setFinalData((prev) => {
-        const next = structuredClone(prev);
+    setFinalData((prev) => {
+      const next = structuredClone(prev);
 
-        for (const row of finalRows ?? []) {
-          const phaseKey = row.phase_key; // es. "round32", "round16", ...
-          const phase = next[phaseKey];
-          if (!phase) continue;
+      for (const row of finalRows ?? []) {
+        const phaseKey = row.phase_key;
+        const phase = next[phaseKey];
+        if (!phase) continue;
 
-          // flatten delle giornate della fase
-          const allGiornate = Object.values(phase);
-          const flat = [];
-          for (const g of allGiornate) {
-            for (const m of g.matches) flat.push(m);
-          }
-
-          const match = flat[row.match_index];
-          if (!match) continue;
-
-          if (row.city) match.city = row.city;
-          if (row.time) match.time = row.time;
-
-          if (row.pos1) match.pos1 = row.pos1;
-          if (row.pos2) match.pos2 = row.pos2;
-          if (row.goto) match.goto = row.goto;
-          if (row.fg) match.fg = row.fg;
-          match.pronsq = row.pronsq ?? null; // oppure "" se preferisci stringa vuota
-          match._dbLoaded = true; // ✅ questo match è stato caricato dal DB
-
-          // ✅ team1/team2:
-          // - ROUND32: se nel DB è vuoto/non valorizzato, NON cancellare l'hardcoded (fallback "come prima")
-          // - altre fasi: puoi anche svuotare, perché lì di default vuoi vuoto finché non inserisci
-          if (phaseKey === "round32") {
-            if (row.team1 != null && String(row.team1).trim() !== "")
-              match.team1 = row.team1;
-            if (row.team2 != null && String(row.team2).trim() !== "")
-              match.team2 = row.team2;
-          } else {
-            match.team1 = row.team1 ?? "";
-            match.team2 = row.team2 ?? "";
-          }
-
-          // risultati annidati
-          if (row.results_res || row.results_ts || row.results_r) {
-            if (!match.results) {
-              match.results = { RES: "", TS: "", R: "" };
-            }
-            if (row.results_res) match.results.RES = row.results_res;
-            if (row.results_ts) match.results.TS = row.results_ts;
-            if (row.results_r) match.results.R = row.results_r;
-          }
+        const allGiornate = Object.values(phase);
+        const flat = [];
+        for (const g of allGiornate) {
+          for (const m of g.matches) flat.push(m);
         }
 
-        return next;
-      });
-    };
+        const match = flat[row.match_index];
+        if (!match) continue;
 
+        if (row.city) match.city = row.city;
+        if (row.time) match.time = row.time;
+
+        if (row.pos1) match.pos1 = row.pos1;
+        if (row.pos2) match.pos2 = row.pos2;
+        if (row.goto) match.goto = row.goto;
+        if (row.fg) match.fg = row.fg;
+
+        match.pronsq = row.pronsq ?? null;
+        match._dbLoaded = true;
+
+        if (phaseKey === "round32") {
+          if (row.team1 != null && String(row.team1).trim() !== "")
+            match.team1 = row.team1;
+          if (row.team2 != null && String(row.team2).trim() !== "")
+            match.team2 = row.team2;
+        } else {
+          match.team1 = row.team1 ?? "";
+          match.team2 = row.team2 ?? "";
+        }
+
+        if (row.results_res || row.results_ts || row.results_r) {
+          if (!match.results) match.results = { RES: "", TS: "", R: "" };
+          if (row.results_res) match.results.RES = row.results_res;
+          if (row.results_ts) match.results.TS = row.results_ts;
+          if (row.results_r) match.results.R = row.results_r;
+        }
+      }
+
+      return next;
+    });
+  };
+
+  useEffect(() => {
     loadFinalsFromDb();
   }, []); // 👈 parte una volta sola, per tutti (loggati e non)
 
@@ -224,6 +217,79 @@ const TableBlock = ({ isLogged }) => {
   }, [isLogged]);
 
   const isAdmin = currentUser?.email === "simobara@hotmail.it";
+
+  // ✅ ADMIN: reset SOLO UI (DB lo facciamo allo STEP 4)
+  const resetFinalMatchUi = (fg) => {
+    const meta = getMetaByFg(fg);
+    if (!meta) {
+      console.warn("❌ resetFinalMatchUi: meta non trovata per fg", fg);
+      return;
+    }
+
+    setFinalData((prev) => {
+      const next = structuredClone(prev);
+      const phaseObj = next?.[meta.phaseKey];
+      if (!phaseObj) return prev;
+
+      const flat = Object.values(phaseObj).flatMap((g) => g.matches);
+      const m = flat?.[meta.matchIndex];
+      if (!m) return prev;
+
+      // reset UI
+      m.pronsq = null;
+      m.team1 = "";
+      m.team2 = "";
+      if (m.results) {
+        m.results = { RES: "", TS: "", R: "" };
+      }
+
+      return next;
+    });
+
+    console.log("✅ resetFinalMatchUi OK", {
+      fg,
+      phaseKey: meta.phaseKey,
+      matchIndex: meta.matchIndex,
+    });
+  };
+
+  // ✅ ADMIN: reset DB (tabella giusta = wc_final_structure)
+  const resetFinalMatchDb = async (fg) => {
+    const meta = getMetaByFg(fg);
+    if (!meta) {
+      console.warn("❌ resetFinalMatchDb: meta non trovata per fg", fg);
+      return false;
+    }
+
+    try {
+      const payload = {
+        pronsq: null,
+        team1: "",
+        team2: "",
+        results_res: null,
+        results_ts: null,
+        results_r: null,
+      };
+
+      const { data, error } = await supabase
+        .from("wc_final_structure")
+        .update(payload)
+        .eq("phase_key", meta.phaseKey)
+        .eq("match_index", meta.matchIndex)
+        .select("phase_key, match_index, pronsq, team1, team2"); // ✅ mi conferma cosa ha scritto
+
+      if (error) {
+        console.error("❌ resetFinalMatchDb ERROR", { fg, meta, error });
+        return false;
+      }
+
+      console.log("✅ resetFinalMatchDb OK", { fg, meta, data });
+      return true;
+    } catch (e) {
+      console.error("❌ resetFinalMatchDb EXCEPTION", e);
+      return false;
+    }
+  };
 
   useEffect(() => {
     setShowPron(false);
@@ -793,8 +859,6 @@ const TableBlock = ({ isLogged }) => {
   const SEMI_OFFSET_DESKTOP = "10rem";
   const SEMI_OFFSET_MOBILE = "8rem";
 
-  
-  // ✅ STEP2: click su una squadra -> aggiorna UI locale (DB nello step 3)
   // ✅ STEP: click su una squadra -> scrive nel TURNO SUCCESSIVO usando goto -> fgDest
   const handlePickTeam = (match, phase, pickedCode) => {
     // solo utenti loggati
@@ -861,7 +925,7 @@ const TableBlock = ({ isLogged }) => {
     // ✅ ADMIN: salva su wc_final_structure.pronsq
     // =========================
     if (isAdmin) {
-      // UI immediata: aggiorno finalData (match destinazione) -> pronsq
+      // ✅ ADMIN: invece di pronsq, scrivo team1/team2 nel match DEST (ufficiale)
       setFinalData((prev) => {
         const next = structuredClone(prev);
         const phaseObj = next?.[meta.phaseKey];
@@ -871,60 +935,47 @@ const TableBlock = ({ isLogged }) => {
         const m = flat?.[meta.matchIndex];
         if (!m) return prev;
 
-        const nextStr = buildNextStr(m?.pronsq);
-        m.pronsq = nextStr;
+        if (side === "L") m.team1 = code;
+        if (side === "R") m.team2 = code;
+
+        // opzionale: se vuoi anche pulire pronsq quando scrivi ufficiale
+        m.pronsq = null;
+
         return next;
       });
 
-      console.log("✅ ADMIN pickTeam UI", {
+      console.log("✅ ADMIN pickTeam UI (official team)", {
         fromFg: match?.fg,
         goto,
         destFg,
         side,
         code,
-        saveTo: "wc_final_structure.pronsq",
+        saveTo: "wc_final_structure.team1/team2",
       });
 
-      // DB: update-or-insert (robusto)
       (async () => {
         try {
-          // ricavo il valore “corrente” da finalData (best-effort) e calcolo nextStr
-          const phaseObj = finalData?.[meta.phaseKey];
-          const flat = phaseObj
-            ? Object.values(phaseObj).flatMap((g) => g.matches)
-            : [];
-          const cur = flat?.[meta.matchIndex];
-          const nextStr = buildNextStr(cur?.pronsq);
+          const payload =
+            side === "L"
+              ? { team1: code, pronsq: null }
+              : { team2: code, pronsq: null };
 
-          const payload = {
-            phase_key: meta.phaseKey,
-            match_index: meta.matchIndex,
-            pronsq: nextStr,
-          };
-
-          const { data: updatedRows, error: updErr } = await supabase
+          const { error } = await supabase
             .from("wc_final_structure")
-            .update({ pronsq: payload.pronsq })
-            .eq("phase_key", payload.phase_key)
-            .eq("match_index", payload.match_index)
-            .select();
+            .update(payload)
+            .eq("phase_key", meta.phaseKey)
+            .eq("match_index", meta.matchIndex);
 
-          if (updErr) {
-            console.error("❌ ADMIN pickTeam DB update error:", updErr);
+          if (error) {
+            console.error("❌ ADMIN pickTeam DB update error:", error);
             return;
           }
 
-          if (!updatedRows || updatedRows.length === 0) {
-            const { error: insErr } = await supabase
-              .from("wc_final_structure")
-              .insert(payload);
-
-            if (insErr)
-              console.error("❌ ADMIN pickTeam DB insert error:", insErr);
-            else console.log("✅ ADMIN pickTeam DB inserted", payload);
-          } else {
-            console.log("✅ ADMIN pickTeam DB updated", payload);
-          }
+          console.log("✅ ADMIN pickTeam DB updated", {
+            phase_key: meta.phaseKey,
+            match_index: meta.matchIndex,
+            ...payload,
+          });
         } catch (e) {
           console.error("❌ ADMIN pickTeam DB exception:", e);
         }
@@ -1015,6 +1066,9 @@ const TableBlock = ({ isLogged }) => {
     } = getDisplayTeamsFromMatch(match, phase);
     // console.log("isLogged:", isLogged, "showPron:", showPron);
 
+    const canReset =
+      isAdmin && ["round16", "quarter", "semifinals", "final"].includes(phase);
+
     return (
       <BlokQuadRett
         rettColor={rettColor}
@@ -1022,9 +1076,7 @@ const TableBlock = ({ isLogged }) => {
         secondSquareLabel={match.pos2 || ""}
         firstTeamName={displayCode1}
         secondTeamName={displayCode2}
-        onPickTeam={(teamCode, which) =>
-          handlePickTeam(match, phase, teamCode, which)
-        }
+        onPickTeam={(teamCode) => handlePickTeam(match, phase, teamCode)}
         firstIsPron={isPron1}
         secondIsPron={isPron2}
         firstTeamFlag={displayCode1 ? getFlag(displayCode1) : null}
@@ -1040,6 +1092,16 @@ const TableBlock = ({ isLogged }) => {
         rettRightLabel={match.city || ""}
         rettTimeLabel={match.time || ""}
         results={match.results || null}
+        showReset={canReset}
+        onReset={
+          canReset
+            ? async () => {
+                resetFinalMatchUi(match.fg);
+                await resetFinalMatchDb(match.fg);
+                await loadFinalsFromDb();
+              }
+            : null
+        }
       />
     );
   };
@@ -1133,7 +1195,7 @@ const TableBlock = ({ isLogged }) => {
                 md:-translate-x-1/2  -translate-x-[27vw]
                 md:translate-y-[8vh] translate-y-[14vh]
                 md:w-[300px] w-[200px]
-                max-w-none pointer-events-none md:scale-110 scale-150
+                max-w-none md:scale-110 scale-150
       z-0
     "
           />
@@ -1190,6 +1252,9 @@ const TableBlock = ({ isLogged }) => {
                 <BlokQuadRettSemi
                   infoSide="left"
                   rettColor={Rett.SemiAB}
+                  onPickTeam={(teamCode) =>
+                    handlePickTeam(mAB1, "semifinals", teamCode)
+                  }
                   topSquareLabel={mAB1?.pos1 || ""}
                   bottomSquareLabel={mAB1?.pos2 || ""}
                   topTeamName={code1}
@@ -1204,11 +1269,17 @@ const TableBlock = ({ isLogged }) => {
                   bottomAdvanced={
                     code2 ? didTeamAdvance(code2, "semifinals", isPron2) : false
                   }
-                  phase="semifinals"
+                  phase="semi"
                   rettTopLabel={mAB1?.date || ""}
                   rettBottomLabel={mAB1?.city || ""}
                   rettTimeLabel={mAB1?.time || ""}
                   results={mAB1?.results || null}
+                  showReset={isAdmin}
+                  onReset={async () => {
+                    resetFinalMatchUi(mAB1?.fg);
+                    await resetFinalMatchDb(mAB1?.fg);
+                    await loadFinalsFromDb();
+                  }}
                 />
               </div>
             );
@@ -1231,6 +1302,9 @@ const TableBlock = ({ isLogged }) => {
                 <BlokQuadRettSemi
                   rettColor={Rett.SemiCD}
                   topSquareLabel={mCD1?.pos1 || ""}
+                  onPickTeam={(teamCode) =>
+                    handlePickTeam(mAB1, "semifinals", teamCode)
+                  }
                   bottomSquareLabel={mCD1?.pos2 || ""}
                   topTeamName={code1}
                   bottomTeamName={code2}
@@ -1244,11 +1318,17 @@ const TableBlock = ({ isLogged }) => {
                   bottomAdvanced={
                     code2 ? didTeamAdvance(code2, "semifinals", isPron2) : false
                   }
-                  phase="semifinals"
+                  phase="semi"
                   rettTopLabel={mCD1?.date || ""}
                   rettBottomLabel={mCD1?.city || ""}
                   rettTimeLabel={mCD1?.time || ""}
                   results={mCD1?.results || null}
+                  showReset={isAdmin}
+                  onReset={async () => {
+                    resetFinalMatchUi(mCD1?.fg);
+                    await resetFinalMatchDb(mCD1?.fg);
+                    await loadFinalsFromDb();
+                  }}
                 />
               </div>
             );

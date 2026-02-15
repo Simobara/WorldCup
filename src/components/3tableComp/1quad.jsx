@@ -16,7 +16,8 @@ const Quadrato = ({
     round32: CssQuad.BgRound32,
     round16: CssQuad.BgRound16,
     quarter: CssQuad.BgQuarter,
-    semi: CssQuad.BgSemi,
+    semifinals: CssQuad.BgSemi,
+    semi: CssQuad.BgSemi, // compatibilità vecchia
     final: CssQuad.BgFinal,
   };
 
