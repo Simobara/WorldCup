@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef,useState } from "react";
 import { useQualifiedTeams } from "../../Ap/Global/global";
 import { supabase } from "../../Services/supabase/supabaseClient";
 import { flagsMond } from "../../START/app/0main";
@@ -26,12 +26,12 @@ import BlokQuadRettSemi from "./5blokQuadRettSemi";
 
 // 🔹 Costruisco una mappa fg -> pronsq **DAL FILE HARDCODED**
 
-const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
-  const phase = finalData?.[phaseKey];
-  if (!phase) return "";
-  const flat = Object.values(phase).flatMap((g) => g.matches);
-  return (flat?.[matchIndex]?.fg || "").trim();
-};
+// const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
+//   const phase = finalData?.[phaseKey];
+//   if (!phase) return "";
+//   const flat = Object.values(phase).flatMap((g) => g.matches);
+//   return (flat?.[matchIndex]?.fg || "").trim();
+// };
 
 const buildSeedPronByFg = () => {
   const map = {};
@@ -89,6 +89,12 @@ const TableBlock = ({ isLogged }) => {
   const [userPronByFg, setUserPronByFg] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
   const { qualifiedTeams, setQualifiedTeams } = useQualifiedTeams();
+
+  // ✅ ref per leggere userPronByFg senza triggerare loop di useEffect
+  const userPronRef = useRef({});
+  useEffect(() => {
+    userPronRef.current = userPronByFg || {};
+  }, [userPronByFg]);
 
   // ✅ se loggato: aspetta che arrivino le qualificate (evita flash vuoto sul tabellone)
   // const qualifiedReady =
@@ -291,6 +297,59 @@ const TableBlock = ({ isLogged }) => {
     }
   };
 
+  // ✅ USER (non admin): reset SOLO pronostico utente (UI)
+  const resetUserMatchUi = (fg) => {
+    const fgClean = String(fg || "").trim();
+    if (!fgClean) return;
+
+    setUserPronByFg((prev) => {
+      const next = { ...(prev || {}) };
+      delete next[fgClean];
+      return next;
+    });
+
+    console.log("✅ resetUserMatchUi OK", { fg: fgClean });
+  };
+
+  // ✅ USER (non admin): reset DB su wc_final_structure_userpron
+  const resetUserMatchDb = async (fg) => {
+    const fgClean = String(fg || "").trim();
+    if (!fgClean) return false;
+
+    const meta = getMetaByFg(fgClean);
+    if (!meta) {
+      console.warn("❌ resetUserMatchDb: meta non trovata", fgClean);
+      return false;
+    }
+
+    try {
+      const userEmail = String(currentUser?.email || "").trim();
+      if (!userEmail) return false;
+
+      const { error: delErr } = await supabase
+        .from("wc_final_structure_userpron")
+        .delete()
+        .eq("user_email", userEmail)
+        .eq("phase_key", meta.phaseKey)
+        .eq("match_index", meta.matchIndex);
+
+      if (delErr) {
+        console.error("❌ resetUserMatchDb DELETE error", {
+          fg: fgClean,
+          meta,
+          delErr,
+        });
+        return false;
+      }
+
+      console.log("✅ resetUserMatchDb DELETE OK", { fg: fgClean, meta });
+      return true;
+    } catch (e) {
+      console.error("❌ resetUserMatchDb EXCEPTION", e);
+      return false;
+    }
+  };
+
   useEffect(() => {
     setShowPron(false);
   }, [isLogged]);
@@ -454,6 +513,113 @@ const TableBlock = ({ isLogged }) => {
 
     fetchUserPron();
   }, [isLogged, currentUser?.email, finalData]);
+
+  // ✅ NON ADMIN: autopopola round32 (da qualifiedTeams) e scrive in wc_final_structure_userpron
+  // - solo se l’utente è loggato e NON admin
+  // - solo se per quel fg non ho già un userPronByFg salvato
+  // - scrive formato "AAA-BBB"
+  useEffect(() => {
+    if (!isLogged) return;
+    if (isAdmin) return;
+
+    const userEmail = String(currentUser?.email || "").trim();
+    const userId = String(currentUser?.id || "").trim();
+    if (!userEmail || !userId) return;
+
+    // serve che qualifiedTeams sia pronto (1A,2A,...)
+    if (!qualifiedTeams || Object.keys(qualifiedTeams).length === 0) return;
+
+    let cancelled = false;
+
+    const buildRound32Pairs = () => {
+      const stage = finalData?.round32;
+      if (!stage) return [];
+
+      const pairs = [];
+      Object.values(stage).forEach((giornata) => {
+        (giornata?.matches || []).forEach((m) => {
+          const fg = String(m?.fg || "").trim();
+          if (!fg) return;
+
+          const pos1 = String(m?.pos1 || "").trim();
+          const pos2 = String(m?.pos2 || "").trim();
+
+          const q1 = qualifiedTeams?.[pos1]?.code || "";
+          const q2 = qualifiedTeams?.[pos2]?.code || "";
+
+          // ✅ nuova regola:
+          // - se ho entrambe -> "AAA-BBB"
+          // - se ho solo q1 -> "AAA-"
+          // - se ho solo q2 -> "-BBB"
+          if (q1 || q2) {
+            pairs.push({ fg, pr: `${q1 || ""}-${q2 || ""}` });
+          }
+        });
+      });
+
+      return pairs;
+    };
+
+    (async () => {
+      try {
+        const pairs = buildRound32Pairs();
+        if (pairs.length === 0) return;
+
+        for (const { fg, pr } of pairs) {
+          if (cancelled) return;
+
+          // se già ce l’ho in stato (caricato da DB o già salvato), non sovrascrivo
+          const existing = String(userPronRef.current?.[fg] || "").trim();
+
+          // ✅ aggiorna solo se:
+          // - non esiste nulla
+          // - oppure esiste ma è incompleto (es "AAA-" o "-BBB") e ora ho qualcosa in più
+          const isIncomplete =
+            existing.includes("-") &&
+            (existing.startsWith("-") || existing.endsWith("-"));
+
+          const wouldImprove = !existing || (isIncomplete && existing !== pr);
+
+          if (!wouldImprove) continue;
+
+          const meta = getMetaByFg(fg);
+          if (!meta) continue;
+
+          // UI
+          setUserPronByFg((prev) => {
+            const next = { ...(prev || {}) };
+            if (!next[fg]) next[fg] = pr;
+            return next;
+          });
+
+          // DB (update->insert)
+          await saveUserPronRow({
+            userId,
+            userEmail,
+            phaseKey: meta.phaseKey, // dovrebbe essere "round32"
+            matchIndex: meta.matchIndex,
+            user_pronsq: pr,
+          });
+
+          console.log("✅ AUTO round32 saved", { fg, pr, meta });
+        }
+      } catch (e) {
+        console.error("❌ AUTO round32 save error", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // ⚠️ dipendenze: quando cambiano le qualificate o la struttura round32, riprovo
+  }, [
+    isLogged,
+    isAdmin,
+    currentUser?.email,
+    currentUser?.id,
+    qualifiedTeams,
+    finalData,
+  ]);
 
   // 🔹 squadre REALI e PRON, didTeamAdvance, collectMatchesWithDate
   // (tutto identico, solo che usano round32/round16/... dallo stato)
@@ -859,15 +1025,136 @@ const TableBlock = ({ isLogged }) => {
   const SEMI_OFFSET_DESKTOP = "10rem";
   const SEMI_OFFSET_MOBILE = "8rem";
 
+  // ✅ salva (update->insert) una riga su wc_final_structure_userpron
+  async function saveUserPronRow({
+    userId,
+    userEmail,
+    phaseKey,
+    matchIndex,
+    user_pronsq,
+  }) {
+    if (!userId || !userEmail) throw new Error("Missing userId/userEmail");
+    if (!phaseKey || !Number.isFinite(matchIndex))
+      throw new Error("Missing phaseKey/matchIndex");
+
+    const baseWhere = (q) =>
+      q
+        .eq("user_email", userEmail)
+        .eq("phase_key", phaseKey)
+        .eq("match_index", matchIndex);
+
+    // 1) prova UPDATE
+    const { data: updRows, error: updErr } = await baseWhere(
+      supabase.from("wc_final_structure_userpron").update({
+        user_pronsq,
+        updated_at: new Date().toISOString(),
+      }),
+    ).select();
+
+    if (updErr) throw updErr;
+
+    // 2) se nessuna riga aggiornata -> INSERT
+    if (!updRows || updRows.length === 0) {
+      const payload = {
+        id: crypto.randomUUID(),
+        user_id: userId,
+        user_email: userEmail,
+        phase_key: phaseKey,
+        match_index: matchIndex,
+        user_pronsq,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error: insErr } = await supabase
+        .from("wc_final_structure_userpron")
+        .insert(payload);
+
+      if (insErr) throw insErr;
+      return { mode: "insert", payload };
+    }
+
+    return {
+      mode: "update",
+      payload: { userEmail, phaseKey, matchIndex, user_pronsq },
+    };
+  }
+
   // ✅ STEP: click su una squadra -> scrive nel TURNO SUCCESSIVO usando goto -> fgDest
-  const handlePickTeam = async (match, phase, pickedCode) => {
+  const handlePickTeam = async (match, phase, pickedCode, which) => {
     // solo utenti loggati
+    console.log("CLICK", {
+      fg: match?.fg,
+      phase,
+      goto: match?.goto,
+      which,
+      isLogged,
+      user: currentUser?.email,
+    });
+
     if (!isLogged) return;
+    console.log("🟣 handlePickTeam START", {
+      phase,
+      fromFg: match?.fg,
+      pickedCode,
+      goto: match?.goto,
+      pos1: match?.pos1,
+      pos2: match?.pos2,
+      isLogged,
+      isAdmin,
+      currentUser: currentUser?.email,
+    });
 
     const code = String(pickedCode || "")
       .trim()
       .toUpperCase();
     if (code.length !== 3) return;
+
+    // ✅ 0) SALVA SEMPRE IL MATCH CORRENTE SE È round32 (anche se goto manca)
+    if (!isAdmin && phase === "round32") {
+      const userEmail = String(currentUser?.email || "").trim();
+      const userId = String(currentUser?.id || "").trim();
+      const fgFrom = String(match?.fg || "").trim();
+      const fromMeta = getMetaByFg(fgFrom);
+
+      if (userEmail && userId && fgFrom && fromMeta) {
+        const sideFrom = which === "second" ? "R" : "L";
+
+        const mergeSide = (prevStr, side, teamCode) => {
+          const [oldL, oldR] = String(prevStr || "")
+            .trim()
+            .split("-")
+            .map((s) => (s || "").trim());
+          const nextL = side === "L" ? teamCode : oldL;
+          const nextR = side === "R" ? teamCode : oldR;
+          return `${nextL || ""}-${nextR || ""}`;
+        };
+
+        const prevFrom = String(userPronByFg?.[fgFrom] || "").trim();
+        const nextFrom = mergeSide(prevFrom, sideFrom, code);
+
+        // UI
+        setUserPronByFg((prev) => ({ ...(prev || {}), [fgFrom]: nextFrom }));
+
+        // DB (update->insert)
+        await saveUserPronRow({
+          userId,
+          userEmail,
+          phaseKey: fromMeta.phaseKey,
+          matchIndex: fromMeta.matchIndex,
+          user_pronsq: nextFrom,
+        });
+
+        console.log("✅ SAVED round32 SOURCE", { fgFrom, nextFrom });
+      } else {
+        console.warn("⚠️ round32 SOURCE skip", {
+          userEmail,
+          userId,
+          fgFrom,
+          fromMeta,
+        });
+      }
+    }
 
     const goto = String(match?.goto || "").trim(); // es "74"
     if (!goto) return;
@@ -877,6 +1164,17 @@ const TableBlock = ({ isLogged }) => {
       const p1 = String(m?.pos1 ?? "").trim();
       const p2 = String(m?.pos2 ?? "").trim();
       return p1 === goto || p2 === goto;
+    });
+    console.log("🟣 handlePickTeam goto->dest", {
+      fromFg: match?.fg,
+      goto,
+      destFound: !!dest,
+      destFg: dest?.fg,
+      destPos1: dest?.pos1,
+      destPos2: dest?.pos2,
+      destPhaseKey_guess: getMetaByFg(String(dest?.fg || "").trim())?.phaseKey,
+      destMatchIndex_guess: getMetaByFg(String(dest?.fg || "").trim())
+        ?.matchIndex,
     });
 
     const destFg = String(dest?.fg || "").trim();
@@ -911,14 +1209,19 @@ const TableBlock = ({ isLogged }) => {
     }
 
     // helper: merge "AAA-BBB" mantenendo l’altro lato
+    // helper: merge "AAA-BBB" mantenendo l’altro lato
+    // ✅ deve SEMPRE restituire formato con trattino (anche parziale): "ALB-" oppure "-ALB"
     const buildNextStr = (prevStr) => {
       const oldStr = String(prevStr || "").trim();
-      const [oldL, oldR] = oldStr.split("-").map((s) => (s || "").trim());
+      const parts = oldStr.split("-");
+      const oldL = String(parts?.[0] ?? "").trim();
+      const oldR = String(parts?.[1] ?? "").trim();
 
-      const nextL = side === "L" ? code : oldL || "";
-      const nextR = side === "R" ? code : oldR || "";
+      const nextL = side === "L" ? code : oldL;
+      const nextR = side === "R" ? code : oldR;
 
-      return `${nextL}-${nextR}`.replace(/^-|-$/g, "");
+      // ✅ sempre con trattino
+      return `${nextL || ""}-${nextR || ""}`;
     };
 
     // =========================
@@ -976,73 +1279,115 @@ const TableBlock = ({ isLogged }) => {
     // =========================
     // ✅ USER (non admin): salva su wc_final_structure_userpron.user_pronsq
     // =========================
-
-    // UI immediata (optimistic)
-    setUserPronByFg((prev) => {
-      const nextStr = buildNextStr(prev?.[destFg]);
-      return { ...(prev || {}), [destFg]: nextStr };
-    });
-
-    console.log("✅ USER pickTeam UI", {
-      fromFg: match?.fg,
-      goto,
-      destFg,
-      side,
-      code,
-      saveTo: "wc_final_structure_userpron.user_pronsq",
-    });
-
-    // DB: update-or-insert (robusto, senza UNIQUE)
-    (async () => {
-      try {
-        const userEmail = String(currentUser?.email || "").trim();
-        if (!userEmail) return;
-
-        // NB: qui uso lo stato “vecchio” solo per comporre la stringa;
-        // va bene perché buildNextStr gestisce il merge lato.
-        const currentStr = String(userPronByFg?.[destFg] || "").trim();
-        const user_pronsq = buildNextStr(currentStr);
-
-        const payload = {
-          user_email: userEmail,
-          phase_key: meta.phaseKey,
-          match_index: meta.matchIndex,
-          user_pronsq,
-          updated_at: new Date().toISOString(),
-        };
-
-        const { data: updatedRows, error: updErr } = await supabase
-          .from("wc_final_structure_userpron")
-          .update({
-            user_pronsq: payload.user_pronsq,
-            updated_at: payload.updated_at,
-          })
-          .eq("user_email", payload.user_email)
-          .eq("phase_key", payload.phase_key)
-          .eq("match_index", payload.match_index)
-          .select();
-
-        if (updErr) {
-          console.error("❌ USER pickTeam DB update error:", updErr);
-          return;
-        }
-
-        if (!updatedRows || updatedRows.length === 0) {
-          const { error: insErr } = await supabase
-            .from("wc_final_structure_userpron")
-            .insert(payload);
-
-          if (insErr)
-            console.error("❌ USER pickTeam DB insert error:", insErr);
-          else console.log("✅ USER pickTeam DB inserted", payload);
-        } else {
-          console.log("✅ USER pickTeam DB updated", payload);
-        }
-      } catch (e) {
-        console.error("❌ USER pickTeam DB exception:", e);
+    {
+      const userEmail = String(currentUser?.email || "").trim();
+      const userId = String(currentUser?.id || "").trim();
+      if (!userEmail || !userId) {
+        console.warn("❌ USER pickTeam: manca userEmail/userId");
+        return;
       }
-    })();
-  };
+
+      // helper: merge "AAA-BBB" mantenendo l’altro lato (sempre con "-")
+      const mergeSide = (prevStr, sideToWrite, teamCode) => {
+        const oldStr = String(prevStr || "").trim();
+        const [oldL, oldR] = oldStr
+          .split("-")
+          .map((s) => String(s || "").trim());
+
+        const nextL = sideToWrite === "L" ? teamCode : oldL;
+        const nextR = sideToWrite === "R" ? teamCode : oldR;
+
+        return `${nextL || ""}-${nextR || ""}`;
+      };
+
+      // -------------------------
+      // 1) SOURCE save (round32) - SOLO se sto cliccando un match round32
+      // -------------------------
+      if (phase === "round32") {
+        const fgFrom = String(match?.fg || "").trim();
+        const fromMeta = getMetaByFg(fgFrom); // dovrebbe tornare { phaseKey:"round32", matchIndex:... }
+
+        if (
+          fromMeta?.phaseKey &&
+          Number.isFinite(fromMeta.matchIndex) &&
+          fgFrom
+        ) {
+          const sideFrom = which === "second" ? "R" : "L"; // first -> L, second -> R
+          const prevFrom = String(userPronByFg?.[fgFrom] || "").trim();
+          const nextFrom = mergeSide(prevFrom, sideFrom, code);
+
+          // UI immediata
+          setUserPronByFg((prev) => ({ ...(prev || {}), [fgFrom]: nextFrom }));
+
+          // DB
+          try {
+            const res = await saveUserPronRow({
+              userId,
+              userEmail,
+              phaseKey: fromMeta.phaseKey, // "round32"
+              matchIndex: fromMeta.matchIndex,
+              user_pronsq: nextFrom,
+            });
+            console.log("✅ USER SOURCE saved (round32)", {
+              fgFrom,
+              ...fromMeta,
+              nextFrom,
+              res,
+            });
+          } catch (e) {
+            console.error("❌ USER SOURCE save error (round32)", e);
+          }
+        } else {
+          console.warn("⚠️ USER SOURCE skipped: meta non trovata", {
+            fgFrom,
+            fromMeta,
+          });
+        }
+      }
+
+      // -------------------------
+      // 2) DEST save (round16/quarter/semi/final) - SEMPRE
+      // -------------------------
+      const prevDest = String(userPronByFg?.[destFg] || "").trim();
+      const nextDest = mergeSide(prevDest, side, code);
+
+      // UI immediata
+      setUserPronByFg((prev) => ({ ...(prev || {}), [destFg]: nextDest }));
+
+      // (opzionale) UI extra sul tabellone
+      setFinalData((prev) => {
+        const next = structuredClone(prev);
+        const destMeta = getMetaByFg(destFg);
+        if (!destMeta) return prev;
+
+        const phaseObj = next?.[destMeta.phaseKey];
+        if (!phaseObj) return prev;
+
+        const flat = Object.values(phaseObj).flatMap((g) => g.matches);
+        const m = flat?.[destMeta.matchIndex];
+        if (!m) return prev;
+
+        m.pronsq = nextDest;
+        return next;
+      });
+
+      // DB
+      try {
+        const res = await saveUserPronRow({
+          userId,
+          userEmail,
+          phaseKey: meta.phaseKey,
+          matchIndex: meta.matchIndex,
+          user_pronsq: nextDest,
+        });
+        console.log("✅ USER DEST saved", { destFg, meta, nextDest, res });
+      } catch (e) {
+        console.error("❌ USER DEST save error", e);
+      }
+
+      return; // ✅ chiude il ramo USER qui
+    } // ✅ chiude il blocco USER
+  }; // ✅ chiude handlePickTeam
 
   const renderMatchBlock = (match, rettColor, phase) => {
     if (!match) return null;
@@ -1055,8 +1400,12 @@ const TableBlock = ({ isLogged }) => {
     } = getDisplayTeamsFromMatch(match, phase);
     // console.log("isLogged:", isLogged, "showPron:", showPron);
 
-    const canReset =
+    const canResetAdmin =
       isAdmin && ["round16", "quarter", "semifinals", "final"].includes(phase);
+
+    const canResetUser = isLogged && !isAdmin && phase !== "round32"; // ❌ no croce in round32
+
+    const canReset = canResetAdmin || canResetUser;
 
     return (
       <BlokQuadRett
@@ -1065,7 +1414,9 @@ const TableBlock = ({ isLogged }) => {
         secondSquareLabel={match.pos2 || ""}
         firstTeamName={displayCode1}
         secondTeamName={displayCode2}
-        onPickTeam={(teamCode) => handlePickTeam(match, phase, teamCode)}
+        onPickTeam={(teamCode, which) =>
+          handlePickTeam(match, phase, teamCode, which)
+        }
         firstIsPron={isPron1}
         secondIsPron={isPron2}
         firstTeamFlag={displayCode1 ? getFlag(displayCode1) : null}
@@ -1085,9 +1436,14 @@ const TableBlock = ({ isLogged }) => {
         onReset={
           canReset
             ? async () => {
-                resetFinalMatchUi(match.fg);
-                await resetFinalMatchDb(match.fg);
-                await loadFinalsFromDb();
+                if (isAdmin) {
+                  resetFinalMatchUi(match.fg);
+                  await resetFinalMatchDb(match.fg);
+                  await loadFinalsFromDb();
+                } else {
+                  resetUserMatchUi(match.fg);
+                  await resetUserMatchDb(match.fg);
+                }
               }
             : null
         }
@@ -1261,11 +1617,16 @@ const TableBlock = ({ isLogged }) => {
                   rettBottomLabel={mAB1?.city || ""}
                   rettTimeLabel={mAB1?.time || ""}
                   results={mAB1?.results || null}
-                  showReset={isAdmin}
+                  showReset={isAdmin || (isLogged && !isAdmin)}
                   onReset={async () => {
-                    resetFinalMatchUi(mAB1?.fg);
-                    await resetFinalMatchDb(mAB1?.fg);
-                    await loadFinalsFromDb();
+                    if (isAdmin) {
+                      resetFinalMatchUi(mAB1?.fg);
+                      await resetFinalMatchDb(mAB1?.fg);
+                      await loadFinalsFromDb();
+                    } else {
+                      resetUserMatchUi(mAB1?.fg);
+                      await resetUserMatchDb(mAB1?.fg);
+                    }
                   }}
                 />
               </div>
@@ -1310,11 +1671,16 @@ const TableBlock = ({ isLogged }) => {
                   rettBottomLabel={mCD1?.city || ""}
                   rettTimeLabel={mCD1?.time || ""}
                   results={mCD1?.results || null}
-                  showReset={isAdmin}
+                  showReset={isAdmin || (isLogged && !isAdmin)}
                   onReset={async () => {
-                    resetFinalMatchUi(mCD1?.fg);
-                    await resetFinalMatchDb(mCD1?.fg);
-                    await loadFinalsFromDb();
+                    if (isAdmin) {
+                      resetFinalMatchUi(mCD1?.fg);
+                      await resetFinalMatchDb(mCD1?.fg);
+                      await loadFinalsFromDb();
+                    } else {
+                      resetUserMatchUi(mCD1?.fg);
+                      await resetUserMatchDb(mCD1?.fg);
+                    }
                   }}
                 />
               </div>

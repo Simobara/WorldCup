@@ -76,7 +76,8 @@ const BlokQuadRett = ({
       return;
     }
 
-    onPickTeam(code);
+    onPickTeam(code, which);
+
     console.log("🟢 onPickTeam CHIAMATA", { code, which, phase });
   };
 

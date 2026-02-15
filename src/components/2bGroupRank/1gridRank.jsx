@@ -812,7 +812,11 @@ export default function GridRankPage({
         // mappa per accesso rapido: "A-0", "A-1", ... → riga utente
         const pronMap = {};
         for (const pr of pronRows ?? []) {
-          const key = `${pr.group_letter}-${pr.match_index}`;
+          const g = String(pr.group_letter ?? "")
+            .trim()
+            .toUpperCase();
+          const idx = Number(pr.match_index ?? 0);
+          const key = `${g}-${idx}`;
           pronMap[key] = pr;
         }
 
@@ -820,10 +824,24 @@ export default function GridRankPage({
         const byGroup = {};
 
         for (const row of structRows ?? []) {
-          const letter = row.group_letter ?? row.group ?? null;
+          const letter = String(row.group_letter ?? row.group ?? "")
+            .trim()
+            .toUpperCase();
           if (!letter) continue;
 
-          const groupKey = `group_${letter}`; // es. "group_A"
+          // ✅ DEBUG SOLO NON-ADMIN, SOLO GRUPPO H
+          if (!isAdminUser && letter === "H") {
+            console.log("🟠 DB row H:", {
+              match_index: row.match_index,
+              team1: row.team1,
+              team2: row.team2,
+              results_official: row.results_official,
+              seed_pron: row.seed_pron,
+              seed_ris: row.seed_ris,
+            });
+          }
+
+          const groupKey = `group_${letter}`; // ✅ FIX
 
           if (!byGroup[groupKey]) {
             byGroup[groupKey] = {
