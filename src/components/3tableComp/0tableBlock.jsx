@@ -1606,6 +1606,60 @@ const TableBlock = ({ isLogged }) => {
     return slotValue === code;
   };
 
+  // =========================================================
+  // ✅ ADMIN: grigio basato su GOTO (turno dopo)
+  // - round32: MAI grigio (sempre a colori)
+  // - da round16 in poi: grigio solo quando la slot destinazione è valorizzata
+  // - la slot può essere valorizzata da:
+  //   1) team ufficiale (team1/team2) nel match destinazione
+  //   2) pronsq admin nel match destinazione ("AAA-BBB")
+  // =========================================================
+  const getPronStrForMatch_admin = (m) => {
+    const fg = String(m?.fg || "").trim();
+    if (!fg) return "";
+    return String(m?.pronsq || "").trim();
+  };
+
+  const didTeamAdvanceByGoto_admin = (match, phase, teamCode) => {
+    // round32 sempre colorato
+    if (phase === "round32") return true;
+
+    const code = String(teamCode || "").trim();
+    const goto = String(match?.goto || "").trim();
+    if (!code || !goto) return true;
+
+    // match destinazione = quello che ha pos1 o pos2 uguale a goto
+    const dest = allMatches.find((m) => {
+      const p1 = String(m?.pos1 ?? "").trim();
+      const p2 = String(m?.pos2 ?? "").trim();
+      return p1 === goto || p2 === goto;
+    });
+    if (!dest) return true;
+
+    // capisco se scrivo L o R nella destinazione
+    const destPos1 = String(dest?.pos1 ?? "").trim();
+    const side = destPos1 === goto ? "L" : "R";
+
+    // ✅ 1) se nella destinazione c'è ufficiale su quel lato -> decide quello
+    const absL = String(dest?.team1 || "").trim();
+    const absR = String(dest?.team2 || "").trim();
+    const officialSlot = side === "L" ? absL : absR;
+    if (officialSlot) return officialSlot === code;
+
+    // ✅ 2) altrimenti pronsq admin "AAA-BBB"
+    const destPron = getPronStrForMatch_admin(dest);
+    if (!destPron || !destPron.includes("-")) return true; // slot vuota => entrambi a colori
+
+    const [L, R] = destPron.split("-").map((s) => (s || "").trim());
+    const slotValue = side === "L" ? L : R;
+
+    // se la slot è vuota => non deciso => entrambi a colori
+    if (!slotValue) return true;
+
+    // se slotValue == team => passa (colorata), altrimenti grigia
+    return slotValue === code;
+  };
+
   const renderMatchBlock = (match, rettColor, phase) => {
     if (!match) return null;
 
@@ -1642,16 +1696,20 @@ const TableBlock = ({ isLogged }) => {
         secondTeamFlag={displayCode2 ? getFlag(displayCode2) : null}
         firstAdvanced={
           displayCode1
-            ? isLogged && !isAdmin
-              ? didTeamAdvanceByGoto_nonAdmin(match, phase, displayCode1)
-              : didTeamAdvance(displayCode1, phase, isPron1)
+            ? isAdmin
+              ? didTeamAdvanceByGoto_admin(match, phase, displayCode1)
+              : isLogged && !isAdmin
+                ? didTeamAdvanceByGoto_nonAdmin(match, phase, displayCode1)
+                : didTeamAdvance(displayCode1, phase, isPron1)
             : false
         }
         secondAdvanced={
           displayCode2
-            ? isLogged && !isAdmin
-              ? didTeamAdvanceByGoto_nonAdmin(match, phase, displayCode2)
-              : didTeamAdvance(displayCode2, phase, isPron2)
+            ? isAdmin
+              ? didTeamAdvanceByGoto_admin(match, phase, displayCode2)
+              : isLogged && !isAdmin
+                ? didTeamAdvanceByGoto_nonAdmin(match, phase, displayCode2)
+                : didTeamAdvance(displayCode2, phase, isPron2)
             : false
         }
         phase={phase}
@@ -1835,10 +1893,30 @@ const TableBlock = ({ isLogged }) => {
                   topIsPron={isPron1}
                   bottomIsPron={isPron2}
                   topAdvanced={
-                    code1 ? didTeamAdvance(code1, "semifinals", isPron1) : false
+                    code1
+                      ? isAdmin
+                        ? didTeamAdvanceByGoto_admin(mAB1, "semifinals", code1)
+                        : isLogged && !isAdmin
+                          ? didTeamAdvanceByGoto_nonAdmin(
+                              mAB1,
+                              "semifinals",
+                              code1,
+                            )
+                          : didTeamAdvance(code1, "semifinals", isPron1)
+                      : false
                   }
                   bottomAdvanced={
-                    code2 ? didTeamAdvance(code2, "semifinals", isPron2) : false
+                    code2
+                      ? isAdmin
+                        ? didTeamAdvanceByGoto_admin(mAB1, "semifinals", code2)
+                        : isLogged && !isAdmin
+                          ? didTeamAdvanceByGoto_nonAdmin(
+                              mAB1,
+                              "semifinals",
+                              code2,
+                            )
+                          : didTeamAdvance(code2, "semifinals", isPron2)
+                      : false
                   }
                   phase="semi"
                   rettTopLabel={mAB1?.date || ""}
@@ -1890,10 +1968,30 @@ const TableBlock = ({ isLogged }) => {
                   topIsPron={isPron1}
                   bottomIsPron={isPron2}
                   topAdvanced={
-                    code1 ? didTeamAdvance(code1, "semifinals", isPron1) : false
+                    code1
+                      ? isAdmin
+                        ? didTeamAdvanceByGoto_admin(mAB1, "semifinals", code1)
+                        : isLogged && !isAdmin
+                          ? didTeamAdvanceByGoto_nonAdmin(
+                              mCD1,
+                              "semifinals",
+                              code1,
+                            )
+                          : didTeamAdvance(code1, "semifinals", isPron1)
+                      : false
                   }
                   bottomAdvanced={
-                    code2 ? didTeamAdvance(code2, "semifinals", isPron2) : false
+                    code2
+                      ? isAdmin
+                        ? didTeamAdvanceByGoto_admin(mAB1, "semifinals", code2)
+                        : isLogged && !isAdmin
+                          ? didTeamAdvanceByGoto_nonAdmin(
+                              mCD1,
+                              "semifinals",
+                              code2,
+                            )
+                          : didTeamAdvance(code2, "semifinals", isPron2)
+                      : false
                   }
                   phase="semi"
                   rettTopLabel={mCD1?.date || ""}
