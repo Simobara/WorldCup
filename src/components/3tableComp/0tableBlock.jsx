@@ -134,11 +134,8 @@ const TableBlock = ({ isLogged }) => {
         const phase = next[phaseKey];
         if (!phase) continue;
 
-        const allGiornate = Object.values(phase);
-        const flat = [];
-        for (const g of allGiornate) {
-          for (const m of g.matches) flat.push(m);
-        }
+        const orderedKeys = Object.keys(phase).sort(); // ✅ ordine stabile
+        const flat = orderedKeys.flatMap((k) => phase[k]?.matches || []);
 
         const match = flat[row.match_index];
         if (!match) continue;
@@ -151,7 +148,8 @@ const TableBlock = ({ isLogged }) => {
         if (row.goto) match.goto = row.goto;
         if (row.fg) match.fg = row.fg;
 
-        match.pronsq = row.user_pronsq ?? null;
+        // ✅ colonna reale del DB
+        match.pronsq = row.pronsq ?? null;
         match._dbLoaded = true;
 
         if (phaseKey === "round32") {
@@ -223,6 +221,66 @@ const TableBlock = ({ isLogged }) => {
   }, [isLogged]);
 
   const isAdmin = currentUser?.email === "simobara@hotmail.it";
+
+  // ✅ REALTIME (ADMIN): se cambia wc_final_structure, riallineo subito lo stato
+  useEffect(() => {
+    if (!isLogged) return;
+    if (!isAdmin) return;
+
+    const channel = supabase
+      .channel("wc_final_structure_realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "wc_final_structure" },
+        () => {
+          loadFinalsFromDb();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLogged, isAdmin]);
+
+  // ✅ ricarica pronostici utente dal DB (SOLO non-admin)
+  const reloadUserPronFromDb = async () => {
+    if (!isLogged) return;
+    if (isAdmin) return; // ✅ IMPORTANTISSIMO: admin non usa questa tabella
+    if (!currentUser?.email) return;
+
+    const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
+      const phase = finalData?.[phaseKey];
+      if (!phase) return "";
+      const flat = Object.keys(phase)
+        .sort()
+        .flatMap((k) => phase[k]?.matches || []);
+      return (flat?.[matchIndex]?.fg || "").trim();
+    };
+
+    const { data, error } = await supabase
+      .from("wc_final_structure_userpron")
+      .select("phase_key, match_index, user_pronsq")
+      .eq("user_email", currentUser.email);
+
+    if (error) {
+      console.error("Errore ricaricando pronostici utente:", error);
+      return;
+    }
+
+    const map = {};
+    for (const row of data ?? []) {
+      const fg = getFgByPhaseAndIndex(row.phase_key, row.match_index);
+      if (!fg) continue;
+
+      // ✅ mantieni anche i NULL/vuoti: chiave presente = utente ha premuto ❌
+      const pr = row.user_pronsq == null ? "" : String(row.user_pronsq).trim();
+      map[fg] = pr;
+    }
+
+    setUserPronByFg(map);
+  };
 
   // ✅ ADMIN: reset SOLO UI (DB lo facciamo allo STEP 4)
   const resetFinalMatchUi = (fg) => {
@@ -302,11 +360,11 @@ const TableBlock = ({ isLogged }) => {
     const fgClean = String(fg || "").trim();
     if (!fgClean) return;
 
-    setUserPronByFg((prev) => {
-      const next = { ...(prev || {}) };
-      delete next[fgClean];
-      return next;
-    });
+    // ✅ non fare delete: la chiave deve restare per bloccare i fallback (marca "cancellato")
+    setUserPronByFg((prev) => ({
+      ...(prev || {}),
+      [fgClean]: "", // stringa vuota = utente ha premuto ❌
+    }));
 
     console.log("✅ resetUserMatchUi OK", { fg: fgClean });
   };
@@ -324,25 +382,19 @@ const TableBlock = ({ isLogged }) => {
 
     try {
       const userEmail = String(currentUser?.email || "").trim();
-      if (!userEmail) return false;
+      const userId = String(currentUser?.id || "").trim();
+      if (!userEmail || !userId) return false;
 
-      const { error: delErr } = await supabase
-        .from("wc_final_structure_userpron")
-        .delete()
-        .eq("user_email", userEmail)
-        .eq("phase_key", meta.phaseKey)
-        .eq("match_index", meta.matchIndex);
+      // ✅ update->insert: anche se la riga non esiste ancora, la creo con NULL
+      await saveUserPronRow({
+        userId,
+        userEmail,
+        phaseKey: meta.phaseKey,
+        matchIndex: meta.matchIndex,
+        user_pronsq: null, // ✅ cancella nel DB
+      });
 
-      if (delErr) {
-        console.error("❌ resetUserMatchDb DELETE error", {
-          fg: fgClean,
-          meta,
-          delErr,
-        });
-        return false;
-      }
-
-      console.log("✅ resetUserMatchDb DELETE OK", { fg: fgClean, meta });
+      console.log("✅ resetUserMatchDb OK", { fg: fgClean, meta });
       return true;
     } catch (e) {
       console.error("❌ resetUserMatchDb EXCEPTION", e);
@@ -486,7 +538,9 @@ const TableBlock = ({ isLogged }) => {
       const getFgByPhaseAndIndex = (phaseKey, matchIndex) => {
         const phase = finalData?.[phaseKey];
         if (!phase) return "";
-        const flat = Object.values(phase).flatMap((g) => g.matches);
+        const flat = Object.keys(phase)
+          .sort()
+          .flatMap((k) => phase[k]?.matches || []);
         return (flat?.[matchIndex]?.fg || "").trim();
       };
 
@@ -503,9 +557,14 @@ const TableBlock = ({ isLogged }) => {
       const map = {};
       for (const row of data ?? []) {
         const fg = getFgByPhaseAndIndex(row.phase_key, row.match_index);
-        const pr = String(row.user_pronsq ?? "").trim();
-        if (fg && pr) map[fg] = pr;
+        if (!fg) continue;
+
+        // ✅ mantieni anche i NULL/vuoti: chiave presente = utente ha premuto ❌
+        const pr =
+          row.user_pronsq == null ? "" : String(row.user_pronsq).trim();
+        map[fg] = pr;
       }
+
       setUserPronByFg(map);
     };
 
@@ -635,17 +694,30 @@ const TableBlock = ({ isLogged }) => {
         .filter(Boolean),
     );
 
-  const collectPronTeamsFromStage = (stage) => {
-    // ✅ OSPITE + showPron: avanzamenti basati SOLO sui seed hardcoded
-    const srcStage = !isLogged && showPron ? stage : stage;
+  const getPronStrForMatch = (m) => {
+    const fg = String(m?.fg || "").trim();
 
+    // ✅ LOGGATO NON-ADMIN: i pron veri sono quelli dell’utente
+    if (isLogged && !isAdmin && fg) {
+      if (Object.prototype.hasOwnProperty.call(userPronByFg, fg)) {
+        return String(userPronByFg?.[fg] ?? "").trim(); // può essere "" (reset)
+      }
+    }
+
+    // fallback: admin/guest (o se non ho riga utente)
+    return String(m?.pronsq || m?.pron || "").trim();
+  };
+
+  const collectPronTeamsFromStage = (stage) => {
+    // ✅ guest+showPron rimane come prima (usa seed hardcoded tramite getDisplayTeamsFromMatch)
+    // ma per l’advanced-check a noi basta la stringa pron “effettiva”
     return new Set(
-      Object.values(srcStage)
+      Object.values(stage)
         .flatMap((giornata) =>
-          giornata.matches.flatMap((m) => {
-            const pron = (m.pronsq || m.pron || "").trim();
-            if (!pron) return [];
-            const [p1, p2] = pron.split("-").map((s) => s.trim());
+          (giornata?.matches || []).flatMap((m) => {
+            const pronStr = getPronStrForMatch(m);
+            if (!pronStr || !pronStr.includes("-")) return [];
+            const [p1, p2] = pronStr.split("-").map((s) => (s || "").trim());
             return [p1 || "", p2 || ""];
           }),
         )
@@ -726,7 +798,9 @@ const TableBlock = ({ isLogged }) => {
       const phase = finalData?.[phaseKey];
       if (!phase) continue;
 
-      const flat = Object.values(phase).flatMap((g) => g.matches);
+      const flat = Object.keys(phase)
+        .sort()
+        .flatMap((k) => phase[k]?.matches || []);
       const idx = flat.findIndex(
         (m) => String(m?.fg || "").trim() === String(fg || "").trim(),
       );
@@ -801,12 +875,19 @@ const TableBlock = ({ isLogged }) => {
     const absT1 = (match.team1 || "").trim();
     const absT2 = (match.team2 || "").trim();
 
+    // ✅ se ho un lato ufficiale e l'altro vuoto:
+    // - il lato ufficiale vince sempre
+    // - l'altro lato può usare i fallback (qualifiedTeams / userPron / pronsq ecc.)
     if (absT1 || absT2) {
+      // calcolo fallback come se NON avessi ufficiali
+      const matchNoOfficial = { ...match, team1: "", team2: "" };
+      const fb = getDisplayTeamsFromMatch(matchNoOfficial, phase);
+
       return {
-        code1: absT1,
-        code2: absT2,
-        isPron1: false,
-        isPron2: false,
+        code1: absT1 || fb.code1,
+        code2: absT2 || fb.code2,
+        isPron1: absT1 ? false : fb.isPron1,
+        isPron2: absT2 ? false : fb.isPron2,
       };
     }
 
@@ -957,33 +1038,24 @@ const TableBlock = ({ isLogged }) => {
     // pronsq DAL FILE HARDCODED → usato per NON LOGGATO con showPron
     const seedPron = (seedPronByFg[fgKey] || "").trim();
 
-    // ✅ LOGGATO NON ADMIN: se ho un pron utente per questo fg, deve vincere
-    // (serve per vedere l'avanzamento round32 -> round16 ecc.)
+    // ✅ LOGGATO NON ADMIN: se esiste la chiave (anche vuota) deve BLOCCARE i fallback (qualifiedTeams/dbPron)
     if (isLogged && !isAdmin) {
-      const userPronStr = String(userPronByFg?.[fgKey] || "").trim();
+      if (Object.prototype.hasOwnProperty.call(userPronByFg, fgKey)) {
+        const userPronStr = String(userPronByFg?.[fgKey] || "").trim();
 
-      if (userPronStr && userPronStr.includes("-")) {
-        const [u1, u2] = userPronStr.split("-").map((s) => (s || "").trim());
-        return {
-          code1: u1 || "",
-          code2: u2 || "",
-          isPron1: !!u1,
-          isPron2: !!u2,
-        };
+        if (userPronStr && userPronStr.includes("-")) {
+          const [u1, u2] = userPronStr.split("-").map((s) => (s || "").trim());
+          return {
+            code1: u1 || "",
+            code2: u2 || "",
+            isPron1: !!u1,
+            isPron2: !!u2,
+          };
+        }
+
+        // 👈 chiave presente ma vuota => utente ha premuto ❌
+        return { code1: "", code2: "", isPron1: false, isPron2: false };
       }
-    }
-
-    // 🔵 0) REGOLA BASE: SE CI SONO SQUADRE UFFICIALI, VINCONO SEMPRE
-    //    (per TUTTI: admin, loggati, non loggati)
-    // 🟢 0.5) Se non ho squadre ufficiali, ma ho qualificate dal girone (solo B),
-    // le mostro nel tabellone usando pos1/pos2.
-    if (q1Code || q2Code) {
-      return {
-        code1: q1Code,
-        code2: q2Code,
-        isPron1: q1IsPron, // ✅ viola se qualifica da pron
-        isPron2: q2IsPron,
-      };
     }
 
     // 🟣 1) ADMIN → usa pronsq del DB SOLO come pronostico admin
@@ -1013,28 +1085,36 @@ const TableBlock = ({ isLogged }) => {
     // 🧑‍💻 3) UTENTE LOGGATO NON ADMIN
 
     // prima i pronostici personali da wc_final_user_pron
-    const userPronStr = userPronByFg[fgKey];
+    // ✅ se esiste una riga utente per questo match,
+    // anche se è NULL, NON devo usare fallback admin
+    // if (Object.prototype.hasOwnProperty.call(userPronByFg, fgKey)) {
+    //   const userPronStr = String(userPronByFg[fgKey] || "").trim();
 
-    if (userPronStr) {
-      const [u1, u2] = userPronStr.split("-").map((s) => s.trim());
+    //   if (userPronStr && userPronStr.includes("-")) {
+    //     const [u1, u2] = userPronStr.split("-").map((s) => s.trim());
+    //     return {
+    //       code1: u1 || "",
+    //       code2: u2 || "",
+    //       isPron1: !!u1,
+    //       isPron2: !!u2,
+    //     };
+    //   }
+
+    //   // 👈 esiste ma vuoto → l'utente ha premuto ❌
+    //   return { code1: "", code2: "", isPron1: false, isPron2: false };
+    // }
+
+    // ✅ fallback: se non ho pron utente, ma l'admin ha scritto pronsq nel DB,
+    // per l'utente loggato non-admin lo mostro (round16 → finale, ecc.)
+    if (dbPron && dbPron.includes("-")) {
+      const [p1, p2] = dbPron.split("-").map((s) => s.trim());
       return {
-        code1: u1 || "",
-        code2: u2 || "",
-        isPron1: !!u1,
-        isPron2: !!u2,
+        code1: p1 || "",
+        code2: p2 || "",
+        isPron1: !!p1,
+        isPron2: !!p2,
       };
     }
-
-    // niente ufficiali (già gestito sopra) e niente pron utente → opzionale: mostra pronsq admin dal DB
-    // if (dbPron) {
-    //   const [p1, p2] = dbPron.split("-").map((s) => s.trim());
-    //   return {
-    //     code1: p1 || "",
-    //     code2: p2 || "",
-    //     isPron1: !!p1,
-    //     isPron2: !!p2,
-    //   };
-    // }
 
     return { code1: "", code2: "", isPron1: false, isPron2: false };
   };
@@ -1055,44 +1135,23 @@ const TableBlock = ({ isLogged }) => {
     if (!phaseKey || !Number.isFinite(matchIndex))
       throw new Error("Missing phaseKey/matchIndex");
 
-    const baseWhere = (q) =>
-      q
-        .eq("user_email", userEmail)
-        .eq("phase_key", phaseKey)
-        .eq("match_index", matchIndex);
-
-    // 1) prova UPDATE
-
-    const { data: updRows, error: updErr } = await baseWhere(
-      supabase.from("wc_final_structure_userpron").update({
-        user_pronsq: user_pronsq,
-      }),
-    ).select();
-
-    if (updErr) throw updErr;
-
-    // 2) se nessuna riga aggiornata -> INSERT
-    if (!updRows || updRows.length === 0) {
-      const payload = {
-        id: crypto.randomUUID(),
-        user_email: userEmail,
-        phase_key: phaseKey,
-        match_index: matchIndex,
-        user_pronsq: user_pronsq,
-      };
-
-      const { error: insErr } = await supabase
-        .from("wc_final_structure_userpron")
-        .insert(payload);
-
-      if (insErr) throw insErr;
-      return { mode: "insert", payload };
-    }
-
-    return {
-      mode: "update",
-      payload: { userEmail, phaseKey, matchIndex, user_pronsq },
+    const payload = {
+      user_id: userId,
+      user_email: userEmail,
+      phase_key: phaseKey,
+      match_index: matchIndex,
+      user_pronsq: user_pronsq,
     };
+
+    // ✅ UPSERT su chiave composta (serve UNIQUE su user_email+phase_key+match_index)
+    const { data, error } = await supabase
+      .from("wc_final_structure_userpron")
+      .upsert(payload, { onConflict: "user_email,phase_key,match_index" })
+      .select();
+
+    if (error) throw error;
+
+    return { mode: "upsert", payload, data };
   }
 
   // ✅ STEP: click su una squadra -> scrive nel TURNO SUCCESSIVO usando goto -> fgDest
@@ -1275,11 +1334,15 @@ const TableBlock = ({ isLogged }) => {
       if (!meta) return;
 
       // 🔥 calcolo PRIMA dal current state
+
       const phaseNow = finalData?.[meta.phaseKey];
       const flatNow = phaseNow
-        ? Object.values(phaseNow).flatMap((g) => g.matches)
+        ? Object.keys(phaseNow)
+            .sort()
+            .flatMap((k) => phaseNow[k]?.matches || [])
         : [];
       const mNow = flatNow?.[meta.matchIndex];
+
       const prevStr = mNow?.pronsq || "";
       const nextPronsq = buildNextStr(prevStr);
 
@@ -1314,6 +1377,9 @@ const TableBlock = ({ isLogged }) => {
         });
       } else {
         console.log("✅ ADMIN pronsq update OK:", data);
+
+        // ✅ allineo UI alla verità del DB
+        await loadFinalsFromDb();
       }
 
       return;
@@ -1344,7 +1410,9 @@ const TableBlock = ({ isLogged }) => {
       };
 
       // -------------------------
-      // 1) SOURCE save (round32) - SOLO se sto cliccando un match round32
+      // 1) SOURCE save (round32)
+      // ✅ già gestito sopra (blocco "SALVA SEMPRE IL MATCH CORRENTE SE È round32")
+      // quindi qui NON devo risalvare per evitare doppioni
       // -------------------------
       if (phase === "round32") {
         const fgFrom = String(match?.fg || "").trim();
@@ -1424,6 +1492,9 @@ const TableBlock = ({ isLogged }) => {
           user_pronsq: nextDest,
         });
         console.log("✅ USER DEST saved", { destFg, meta, nextDest, res });
+
+        // ✅ riallinea sempre dallo stato DB (evita mismatch al ritorno in pagina)
+        await reloadUserPronFromDb();
       } catch (e) {
         console.error("❌ USER DEST save error", e);
       }
@@ -1431,6 +1502,60 @@ const TableBlock = ({ isLogged }) => {
       return; // ✅ chiude il ramo USER qui
     } // ✅ chiude il blocco USER
   }; // ✅ chiude handlePickTeam
+
+  // =========================================================
+  // ✅ NON-ADMIN: helper per grigio basato su GOTO (turno dopo)
+  // - round32: MAI grigio (sempre a colori)
+  // - da round16 in poi: grigio solo quando la slot destinazione è valorizzata
+  // =========================================================
+  const getPronStrForMatch_nonAdmin = (m) => {
+    const fg = String(m?.fg || "").trim();
+    if (!fg) return "";
+
+    // per non-admin loggato: la verità è userPronByFg (anche "" per ❌)
+    if (isLogged && !isAdmin) {
+      if (Object.prototype.hasOwnProperty.call(userPronByFg, fg)) {
+        return String(userPronByFg?.[fg] ?? "").trim();
+      }
+    }
+
+    // fallback (non dovrebbe servire per non-admin, ma safe)
+    return String(m?.pronsq || "").trim();
+  };
+
+  const didTeamAdvanceByGoto_nonAdmin = (match, phase, teamCode) => {
+    // round32 sempre colorato
+    if (phase === "round32") return true;
+
+    const code = String(teamCode || "").trim();
+    const goto = String(match?.goto || "").trim();
+    if (!code || !goto) return true;
+
+    // match destinazione = quello che ha pos1 o pos2 uguale a goto
+    const dest = allMatches.find((m) => {
+      const p1 = String(m?.pos1 ?? "").trim();
+      const p2 = String(m?.pos2 ?? "").trim();
+      return p1 === goto || p2 === goto;
+    });
+    if (!dest) return true;
+
+    // capisco se scrivo L o R nella destinazione
+    const destPos1 = String(dest?.pos1 ?? "").trim();
+    const side = destPos1 === goto ? "L" : "R";
+
+    // leggo cosa c’è nella destinazione (per non-admin: userPronByFg)
+    const destPron = getPronStrForMatch_nonAdmin(dest); // es "ITA-BRA", "ITA-", ""
+    if (!destPron || !destPron.includes("-")) return true; // slot vuota => entrambi a colori
+
+    const [L, R] = destPron.split("-").map((s) => (s || "").trim());
+    const slotValue = side === "L" ? L : R;
+
+    // se la slot è vuota => non deciso => entrambi a colori
+    if (!slotValue) return true;
+
+    // se slotValue == team => passa (colorata), altrimenti grigia
+    return slotValue === code;
+  };
 
   const renderMatchBlock = (match, rettColor, phase) => {
     if (!match) return null;
@@ -1450,6 +1575,8 @@ const TableBlock = ({ isLogged }) => {
 
     const canReset = canResetAdmin || canResetUser;
 
+    const forceNoGreyRound32 = isLogged && !isAdmin && phase === "round32";
+
     return (
       <BlokQuadRett
         rettColor={rettColor}
@@ -1465,10 +1592,18 @@ const TableBlock = ({ isLogged }) => {
         firstTeamFlag={displayCode1 ? getFlag(displayCode1) : null}
         secondTeamFlag={displayCode2 ? getFlag(displayCode2) : null}
         firstAdvanced={
-          displayCode1 ? didTeamAdvance(displayCode1, phase, isPron1) : false
+          displayCode1
+            ? isLogged && !isAdmin
+              ? didTeamAdvanceByGoto_nonAdmin(match, phase, displayCode1)
+              : didTeamAdvance(displayCode1, phase, isPron1)
+            : false
         }
         secondAdvanced={
-          displayCode2 ? didTeamAdvance(displayCode2, phase, isPron2) : false
+          displayCode2
+            ? isLogged && !isAdmin
+              ? didTeamAdvanceByGoto_nonAdmin(match, phase, displayCode2)
+              : didTeamAdvance(displayCode2, phase, isPron2)
+            : false
         }
         phase={phase}
         rettLeftLabel={match.date || ""}
@@ -1486,6 +1621,7 @@ const TableBlock = ({ isLogged }) => {
                 } else {
                   resetUserMatchUi(match.fg);
                   await resetUserMatchDb(match.fg);
+                  await reloadUserPronFromDb(); // ✅ riallinea stato con DB
                 }
               }
             : null
@@ -1669,6 +1805,7 @@ const TableBlock = ({ isLogged }) => {
                     } else {
                       resetUserMatchUi(mAB1?.fg);
                       await resetUserMatchDb(mAB1?.fg);
+                      await reloadUserPronFromDb(); // ✅ riallinea stato con DB
                     }
                   }}
                 />
@@ -1723,6 +1860,7 @@ const TableBlock = ({ isLogged }) => {
                     } else {
                       resetUserMatchUi(mCD1?.fg);
                       await resetUserMatchDb(mCD1?.fg);
+                      await reloadUserPronFromDb(); // ✅ riallinea stato con DB
                     }
                   }}
                 />
