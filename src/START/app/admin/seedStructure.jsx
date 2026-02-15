@@ -1973,7 +1973,10 @@ function Field({
         : widthDesktop;
 
   const isTeamField = ["team1", "team2", "T1", "T2"].includes(label);
-  const invalidTeam = isTeamField && value && value.length !== 3;
+  //const invalidTeam = isTeamField && value && value.length !== 3;
+
+  const isFinalTeamField = label === "T1" || label === "T2";
+  const invalidFinalTeam = isFinalTeamField && value && String(value).length !== 3;
 
 
   return (
@@ -1991,7 +1994,7 @@ function Field({
           bg-slate-800 border rounded
           px-3 py-2
           text-white text-sm md:text-lg font-semibold
-            ${invalidTeam ? "border-yellow-400" : "border-white/20"}
+          ${invalidFinalTeam ? "border-yellow-400" : "border-white/20"}
           ${className}
         `}
         style={{
