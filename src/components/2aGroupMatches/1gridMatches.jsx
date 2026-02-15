@@ -364,12 +364,21 @@ function normalizeMatch(m) {
           }
         }
 
+        // ✅ NEW: MARCA PRON COME EDITED ANCHE SE VUOTO (serve per reset live)
+        if (path.includes(".plusPron.")) {
+          const idx = Number(path.split(".plusPron.")[1]?.split(".")[0]);
+          if (Number.isFinite(idx)) {
+            next = setDeep(next, `${letter}.plusPronEdited.${idx}`, true);
+          }
+        }
+
         return next;
       });
 
       keysTouchedMatches.current.add(letter);
       return;
     }
+
 
     // 👉 CASO 2: TUTTO IL RESTO → notes (come prima)
     const letter = path.split(".")[0];
@@ -1408,12 +1417,16 @@ useEffect(() => {
                                         }
 
                                          // ✅ loggato → admin: fallback ai seed DB se non ha plusPron locale
-                                        if (isLogged) {
+                                                                                if (isLogged) {
                                           const local = String(matchesState?.[letterP]?.plusPron?.[idx] ?? "")
                                             .trim()
                                             .toUpperCase();
 
                                           if (local) return local;
+
+                                          // ✅ se l’admin ha resettato → NON rimettere il seed (live)
+                                          const pronEdited = !!matchesState?.[letterP]?.plusPronEdited?.[idx];
+                                          if (pronEdited) return "";
 
                                           if (isAdminUser) {
                                             const seed = String(m?.pron ?? "").trim().toUpperCase();
@@ -2041,22 +2054,26 @@ useEffect(() => {
 
                               // ✅ loggato → solo le sue scelte
                              // ✅ loggato → admin: fallback ai seed DB (m.pron) se non ha plusPron locale
-                            if (isLogged) {
+                                                       if (isLogged) {
                               const local = String(matchesState?.[letter]?.plusPron?.[idx] ?? "")
                                 .trim()
                                 .toUpperCase();
 
                               if (local) return local;
 
-                              // admin: se non ho nulla in locale, usa il seed dal DB (seed_pron normalizzato in m.pron)
+                              // ✅ se l’admin ha resettato → NON rimettere il seed
+                              const pronEdited = !!matchesState?.[letter]?.plusPronEdited?.[idx];
+                              if (pronEdited) return "";
+
+                              // admin: fallback seed solo se non editato
                               if (isAdminUser) {
                                 const seed = String(m?.pron ?? "").trim().toUpperCase();
                                 return isSign(seed) ? seed : "";
                               }
 
-                              // user normale: nessun fallback
                               return "";
                             }
+
 
                               // ✅ guest senza toggle
                               return String(m?.pron ?? "").trim().toUpperCase();
@@ -2449,7 +2466,10 @@ useEffect(() => {
                             .toUpperCase();
 
                           if (local) return local;
-
+  
+                          const pronEdited = !!matchesState?.[letter]?.plusPronEdited?.[row];
+                          if (pronEdited) return "";
+                          
                           if (isAdminUser) {
                             const seed = String(m?.pron ?? "").trim().toUpperCase();
                             return isSign(seed) ? seed : "";

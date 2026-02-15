@@ -4,6 +4,7 @@ import { supabase } from "../../Services/supabase/supabaseClient";
 import { flagsMond } from "../../START/app/0main";
 import { groupFinal } from "../../START/app/2GroupFinal";
 import { Rett } from "../../START/styles/0CssGsTs";
+import { getSortedTeamsForGroup } from "../2aGroupMatches/zExternal/getSortedTeamsForGroup";
 import BlokQuadRett from "./4blokQuadRett";
 import BlokQuadRettSemi from "./5blokQuadRettSemi";
 
@@ -87,7 +88,7 @@ const TableBlock = ({ isLogged }) => {
   const [showPron, setShowPron] = useState(false);
   const [userPronByFg, setUserPronByFg] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
-  const { qualifiedTeams } = useQualifiedTeams();
+  const { qualifiedTeams, setQualifiedTeams } = useQualifiedTeams();
 
   // ✅ se loggato: aspetta che arrivino le qualificate (evita flash vuoto sul tabellone)
   // const qualifiedReady =
@@ -214,6 +215,121 @@ const TableBlock = ({ isLogged }) => {
   useEffect(() => {
     setShowPron(false);
   }, [isLogged]);
+
+  // ✅ GUEST: calcola e popola qualifiedTeams SOLO quando un gruppo ha TUTTE le 6 partite ufficiali
+  useEffect(() => {
+    if (isLogged) return; // solo guest
+    if (showPron) return; // se guest sta guardando i seed hardcoded, non sovrascrivo nulla
+
+    let cancelled = false;
+
+    const normalizeScore = (s) =>
+      String(s ?? "")
+        .trim()
+        .replace(/[–—−]/g, "-")
+        .replace(/:/g, "-")
+        .replace(/\s+/g, "");
+
+    const isOfficialScore = (s) => {
+      const v = normalizeScore(s);
+      if (!v || !v.includes("-")) return false;
+      const [aStr, bStr] = v.split("-");
+      const a = Number(aStr);
+      const b = Number(bStr);
+      return Number.isFinite(a) && Number.isFinite(b);
+    };
+
+    (async () => {
+      try {
+        const { data: rows, error } = await supabase
+          .from("wc_matches_structure")
+          .select("group_letter, match_index, team1, team2, results_official");
+
+        if (error) {
+          console.warn(
+            "GUEST qualify: errore caricando wc_matches_structure",
+            error,
+          );
+          return;
+        }
+
+        // costruisco matchesData stile groupMatches: giornata_1/2/3 con 2 match ciascuna
+        const byGroup = {};
+        for (const r of rows ?? []) {
+          const letter = String(r.group_letter ?? "").trim();
+          if (!letter) continue;
+
+          const idx = Number(r.match_index ?? 0);
+          const gKey =
+            idx <= 1 ? "giornata_1" : idx <= 3 ? "giornata_2" : "giornata_3";
+
+          if (!byGroup[letter]) {
+            byGroup[letter] = {
+              giornata_1: { matches: [] },
+              giornata_2: { matches: [] },
+              giornata_3: { matches: [] },
+            };
+          }
+
+          byGroup[letter][gKey].matches.push({
+            team1: r.team1,
+            team2: r.team2,
+            results: r.results_official ?? null, // ✅ ufficiale
+            ris: null,
+            pron: null,
+          });
+        }
+
+        // reset completo 1A..2L (così non restano vecchi valori)
+        const resetAll = {};
+        for (const L of "ABCDEFGHIJKL") {
+          resetAll[`1${L}`] = { code: "", isPron: false };
+          resetAll[`2${L}`] = { code: "", isPron: false };
+        }
+
+        const nextQualified = {};
+
+        for (const L of "ABCDEFGHIJKL") {
+          const matchesData = byGroup[L];
+          if (!matchesData) continue;
+
+          // ✅ guest: procede SOLO se tutte e 6 sono ufficiali
+          const all = Object.values(matchesData).flatMap(
+            (g) => g?.matches ?? [],
+          );
+          if (all.length < 6) continue;
+          if (!all.every((m) => isOfficialScore(m?.results))) continue;
+
+          // ✅ calcolo classifica ufficiale e prendo 1° e 2°
+          const sorted = getSortedTeamsForGroup({
+            flagsMond,
+            groupLetter: L,
+            matchesData,
+            maxMatches: null,
+            allowRis: false, // 🔥 SOLO ufficiali
+            useBonus: false,
+          });
+
+          const first = sorted?.[0]?.id || "";
+          const second = sorted?.[1]?.id || "";
+          if (!first || !second) continue;
+
+          nextQualified[`1${L}`] = { code: first, isPron: false };
+          nextQualified[`2${L}`] = { code: second, isPron: false };
+        }
+
+        if (!cancelled) {
+          setQualifiedTeams({ ...resetAll, ...nextQualified });
+        }
+      } catch (e) {
+        console.warn("GUEST qualify exception:", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLogged, showPron, setQualifiedTeams]);
 
   useEffect(() => {
     console.log("CURRENT USER:", currentUser);
@@ -425,11 +541,22 @@ const TableBlock = ({ isLogged }) => {
     const team1 = (match.team1 || "").trim();
     const team2 = (match.team2 || "").trim();
 
-    // ✅ se loggato ma le qualificate non sono ancora pronte,
-    // evito di mostrare vuoto “finale” nei match che dipendono da pos1/pos2
-    // if (isLogged && !qualifiedReady) {
-    //   return { code1: "", code2: "", isPron1: false, isPron2: false };
-    // }
+    // ✅ GUEST: finché non ho le qualificate ufficiali nel context,
+    // evito di mostrare vuoto “a scatti” nei match pos1/pos2
+    if (!isLogged && !showPron) {
+      const pos1 = String(match.pos1 ?? "").trim();
+      const pos2 = String(match.pos2 ?? "").trim();
+      const q1 = qualifiedTeams?.[pos1] || null;
+      const q2 = qualifiedTeams?.[pos2] || null;
+
+      const q1Code = q1?.code || "";
+      const q2Code = q2?.code || "";
+
+      // se mancano ancora entrambe → non mostrare niente (coerente con regola "solo ufficiali")
+      if (!q1Code && !q2Code) {
+        return { code1: "", code2: "", isPron1: false, isPron2: false };
+      }
+    }
 
     const pos1 = String(match.pos1 ?? "").trim(); // es "2B"
     const pos2 = String(match.pos2 ?? "").trim(); // es "2A"

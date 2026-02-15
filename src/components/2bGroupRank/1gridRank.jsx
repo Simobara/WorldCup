@@ -555,7 +555,16 @@ export default function GridRankPage({
   const STORAGE_KEY = "gridRank_showPronostics";
 
   const [supabaseMatchesByGroup, setSupabaseMatchesByGroup] = useState({});
-  const [showPronostics, setShowPronostics] = useState(false);
+  const [guestOfficialByKey, setGuestOfficialByKey] = useState({}); // ✅ NEW: results_official per guest
+  // ✅ Persistenza toggle SOLO per guest
+  const [showPronostics, setShowPronostics] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
 
   const { setQualifiedTeams } = useQualifiedTeams();
   // ✅ COLONNE: desktop e mobile (come richiesto)
@@ -617,6 +626,46 @@ export default function GridRankPage({
 
     debugFetch();
   }, []);
+
+  // ✅ GUEST: carico SEMPRE i risultati ufficiali dal DB (se tabella è leggibile pubblicamente)
+  useEffect(() => {
+    if (isLogged) return; // da loggato già fai fetch completo con useSupabase
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { data: rows, error } = await supabase
+          .from("wc_matches_structure")
+          .select("group_letter, match_index, results_official");
+
+        if (error) {
+          console.warn("GUEST fetch wc_matches_structure error:", error);
+          return;
+        }
+
+        const map = {};
+        for (const r of rows ?? []) {
+          const letter = String(r.group_letter ?? "").trim();
+          const idx = Number(r.match_index ?? 0);
+          if (!letter) continue;
+
+          const res = String(r.results_official ?? "").trim();
+          if (!res) continue;
+
+          map[`${letter}-${idx}`] = res; // es: "B-3" -> "2-1"
+        }
+
+        if (!cancelled) setGuestOfficialByKey(map);
+      } catch (e) {
+        console.warn("GUEST fetch official results exception:", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLogged]);
 
   useEffect(() => {
     const update = () => {
@@ -850,8 +899,17 @@ export default function GridRankPage({
   // }, [supabaseMatchesByGroup]);
 
   useEffect(() => {
+    // ✅ loggato: sempre OFF e NON tocca lo storage
     if (isLogged) {
-      // se loggato, disattiva sempre i pronostici
+      setShowPronostics(false);
+      return;
+    }
+
+    // ✅ guest: ripristina da localStorage
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      setShowPronostics(saved ? JSON.parse(saved) : false);
+    } catch {
       setShowPronostics(false);
     }
   }, [isLogged]);
@@ -870,13 +928,17 @@ export default function GridRankPage({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // useEffect(() => {
-  //   try {
-  //     localStorage.setItem(STORAGE_KEY, JSON.stringify(showPronostics));
-  //   } catch {
-  //     // se localStorage non disponibile, ignora
-  //   }
-  // }, [showPronostics]);
+  useEffect(() => {
+    // 🔒 IMPORTANTISSIMO: persistenza SOLO guest.
+    // Se sei loggato, NON scrivere mai (altrimenti al logout ti ritrovi lo stato sporco).
+    if (isLogged) return;
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(showPronostics));
+    } catch {
+      // ignore
+    }
+  }, [showPronostics, isLogged]);
 
   // ✅ SOLO GRUPPO B: quando tutte le 6 partite hanno un risultato (ufficiale o ris),
   // calcolo 1B/2B e li salvo nel context
@@ -898,8 +960,13 @@ export default function GridRankPage({
 
       if (!matchesData) continue;
 
-      // ✅ 1) gruppo chiuso? se no, NON scrivo nulla (quindi resta vuoto nel tabellone)
-      if (!isGroupClosed(matchesData)) continue;
+      // ✅ 1) GUEST: qualificate SOLO quando TUTTE le 6 partite sono UFFICIALI
+      // ✅ LOGGATO: comportamento invariato (basta gruppo "chiuso": results/ris/pron)
+      if (!isLogged) {
+        if (!isGroupAllOfficial(matchesData)) continue;
+      } else {
+        if (!isGroupClosed(matchesData)) continue;
+      }
 
       // ✅ 2) capisco se è tutto ufficiale o “misto”
       const allOfficial = isGroupAllOfficial(matchesData);
@@ -928,21 +995,24 @@ export default function GridRankPage({
     //
     // 🔥 PRIMA c'era un "return" per ADMIN: così TableBlock non riceveva mai 1X/2X.
     // Ora anche ADMIN aggiorna qualifiedTeams, usando i suoi dati (seed_* già mappati in ris/pron).
-    if (useSupabase) {
-      setQualifiedTeams(nextQualified);
-    } else {
-      setQualifiedTeams((prev) => ({ ...prev, ...nextQualified }));
-      // oppure reset anche per ospite:
-      // setQualifiedTeams(nextQualified);
+    // ✅ sempre reset: evita 1X/2X “vecchi” quando un gruppo non è più chiuso
+    const resetAll = {};
+    for (const letter of "ABCDEFGHIJKL") {
+      resetAll[`1${letter}`] = { code: "", isPron: false };
+      resetAll[`2${letter}`] = { code: "", isPron: false };
     }
+
+    setQualifiedTeams({ ...resetAll, ...nextQualified });
   }, [
     useSupabase,
     renderMatchesByGroup,
+    matchesByGroupOverride,
     isLogged,
     userEmail,
     refreshKey,
     dataVersion,
     setQualifiedTeams,
+    showPronostics,
   ]);
 
   return (
@@ -993,7 +1063,7 @@ export default function GridRankPage({
                 : undefined,
             }}
           >
-            {" "}
+            {showPronostics ? "⏱️" : ""}
           </button>
         )}
         {/* ✅ come Matches: in mobile 3 colonne, desktop 4 */}
@@ -1003,25 +1073,69 @@ export default function GridRankPage({
             .map((letter) => {
               const teams = (flagsMond ?? []).filter((t) => t.group === letter);
               const groupKey = `group_${letter}`;
-              const matchesData = useSupabase
-                ? renderMatchesByGroup?.[groupKey] // quando Supabase è pronto
-                : groupMatches?.[groupKey]; // altrimenti seed hardcoded
+
+              // ✅ BASE: loggato => Supabase; guest => seed hardcoded
+              const seedMatchesData = useSupabase
+                ? renderMatchesByGroup?.[groupKey]
+                : groupMatches?.[groupKey];
+
+              // ✅ GUEST: inietto results_official dal DB dentro il seed (così li vedi in blu)
+              const mergedMatchesData =
+                !useSupabase && seedMatchesData
+                  ? Object.fromEntries(
+                      Object.entries(seedMatchesData).map(([gKey, gVal]) => {
+                        const nextMatches = (gVal?.matches ?? []).map(
+                          (m, i) => {
+                            // match_index globale 0..5:
+                            // giornata_1: i=0..1 -> 0..1
+                            // giornata_2: i=0..1 -> 2..3
+                            // giornata_3: i=0..1 -> 4..5
+                            const baseIdx =
+                              gKey === "giornata_1"
+                                ? 0
+                                : gKey === "giornata_2"
+                                  ? 2
+                                  : 4;
+
+                            const matchIndex = baseIdx + i;
+                            const official =
+                              guestOfficialByKey[`${letter}-${matchIndex}`];
+
+                            return {
+                              ...m,
+                              results: official ?? m?.results ?? null, // ✅ ufficiale vince sul seed
+                            };
+                          },
+                        );
+
+                        return [gKey, { ...gVal, matches: nextMatches }];
+                      }),
+                    )
+                  : seedMatchesData;
+
+              // ✅ Questo è il matchesData finale “di vista”
+              // - OFF: mostra ufficiali (blu)
+              // - ON (guest): per il CALCOLO bypasso ufficiali, ma la UI resta coerente col toggle
+              // ✅ Questo è il matchesData finale “di vista”
+              // - SEMPRE: mostra ufficiali (blu) se esistono
+              // - Toggle ON (guest): aggiunge solo i +pron (viola) dove mancano gli ufficiali
+              const matchesData = mergedMatchesData;
 
               const resolveName = buildNameResolver(flagsMond);
               const groupTeamNames = new Set(
                 teams.map((t) => resolveName(t.name)),
               );
 
-              // 🔹 se loggato (Supabase): usa anche i "ris" come risultati provvisori
-              //    (prima results_official, se mancano allora ris)
-              const allowRisForQualify = useSupabase ? false : showPronostics;
+              // ✅ per il CALCOLO NON devo mai bypassare gli ufficiali
+              // la classifica "blu" resta sempre SOLO su results_official
+              const matchesDataForCalc = matchesData;
 
               const tableByTeam = computeTableForGroup(
-                matchesData,
+                matchesDataForCalc,
                 resolveName,
                 groupTeamNames,
                 maxMatches,
-                false,
+                false, // 🔥 mai usare "ris" per i punti ufficiali
               );
 
               const simByTeam = {};
@@ -1030,7 +1144,7 @@ export default function GridRankPage({
               for (const g of Object.values(matchesData ?? {})) {
                 for (const m of g?.matches ?? []) {
                   const parsed = parseResult(m, {
-                    allowRis: !useSupabase && showPronostics,
+                    allowRis: !useSupabase && showPronostics, // ris solo per capire SIM (non per blu)
                   });
                   if (!parsed) continue;
                   if (parsed.source !== "ris") continue;
@@ -1042,35 +1156,39 @@ export default function GridRankPage({
                 }
               }
 
-              const groupHasResults = Object.values(tableByTeam).some(
-                (t) => t.gf > 0 || t.gs > 0,
+              // ✅ "ha risultati" = esiste almeno un risultato ufficiale (anche 0-0)
+              const groupHasResults = Object.values(matchesData ?? {}).some(
+                (g) => (g?.matches ?? []).some((m) => isScore(m?.results)),
               );
 
               const canShowPron = useSupabase || showPronostics;
 
               const pronTableByTeam = canShowPron
                 ? computePronTableForGroup(
-                    matchesData,
+                    matchesData, // 🔥 contiene ufficiali + (eventuali) ris/pron
                     resolveName,
                     groupTeamNames,
                     maxMatches,
-                    true,
+                    true, // pron/ris usati SOLO se manca l'ufficiale (funzione già li skippa)
                   )
                 : null;
 
-              // 👇 QUI ora pronTableByTeam ESISTE
-              // if (groupKey === "group_B") {
-              //   console.log("🟦 GRUPPO B → pronTableByTeam:", pronTableByTeam);
-              // }
+              // ✅ ordinamento: blu (ufficiali) sempre, e se toggle ON aggiungo viola (+pron) senza sostituire blu
+              const baseSorted = sortTeamsByTable(
+                teams,
+                tableByTeam,
+                resolveName,
+                groupHasResults,
+              );
 
-              const sortedTeams = getSortedTeamsForGroup({
-                flagsMond,
-                groupLetter: letter,
-                matchesData,
-                maxMatches,
-                allowRis: !useSupabase && showPronostics, // guest: include ris solo se toggle
-                useBonus: canShowPron, // logged: true (mostra +), guest: dipende dal toggle
-              });
+              const sortedTeams = canShowPron
+                ? sortTeamsByTotal(
+                    baseSorted,
+                    tableByTeam, // blu
+                    pronTableByTeam, // viola (+pron)
+                    resolveName,
+                  )
+                : baseSorted;
 
               return (
                 <div
@@ -1142,18 +1260,21 @@ export default function GridRankPage({
                           // risultato simulato
                           const isSim = team ? !!simByTeam[teamKey] : false;
 
-                          // gol GF-GS
+                          // ✅ gol GF:GS: se il gruppo ha risultati ufficiali, mostra anche 0:0
                           const golStr =
-                            mainStats && (mainStats.gf > 0 || mainStats.gs > 0)
+                            mainStats && groupHasResults
                               ? `${mainStats.gf}:${mainStats.gs}`
                               : "";
 
-                          // quando mostrare i dati
+                          // ✅ quando mostrare i dati:
+                          // - se il gruppo ha risultati ufficiali → SEMPRE (anche guest con toggle OFF)
+                          // - altrimenti, li mostro solo se posso mostrare pronostici/bonus
                           const showStats =
                             !!mainStats && (groupHasResults || canShowPron);
 
                           const safeStats = showStats ? mainStats : null;
                           const safeGolStr = showStats ? golStr : "";
+
                           const safeIsSim = showStats ? isSim : false;
 
                           return (
