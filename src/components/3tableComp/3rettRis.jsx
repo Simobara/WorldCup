@@ -4,7 +4,7 @@ const RettRis = ({ results }) => {
     return null;
   }
 
-  const { ris, TS, R } = results;
+  const { RES, TS, R } = results;
   // helper per trasformare "4-6" => { home: "4", away: "6" }
   const parseScore = (val) => {
     if (!val || typeof val !== "string") {
@@ -17,7 +17,7 @@ const RettRis = ({ results }) => {
     };
   };
 
-  const risScore = parseScore(ris); // risultato 90'
+  const risScore = parseScore(RES); // risultato 90'
   const tsScore = parseScore(TS); // supplementari
   const rScore = parseScore(R); // rigori
 
