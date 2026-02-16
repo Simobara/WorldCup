@@ -151,7 +151,7 @@ export default function TopInfo() {
           // setOpenLogin(false); // NON chiudere automaticamente
           setPendingEmail(null); // ✅ se arriva sessione valida, resetta pending
         }
-      }
+      },
     );
 
     return () => {
@@ -244,7 +244,7 @@ export default function TopInfo() {
         () => {
           navigate(path);
         },
-        EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET)
+        EXPAND_MS + Math.max(0, SNAP_MS - NAV_OFFSET),
       );
 
       // 5️⃣ alla fine riporti la fase su idle
@@ -462,6 +462,60 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
   const [showPw, setShowPw] = useState(false);
   const emailRef = useRef(null);
 
+  const modalRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  const [emailChoices, setEmailChoices] = useState([]); // lista email già usate
+  const [showEmailChoices, setShowEmailChoices] = useState(false);
+
+  useEffect(() => {
+    if (mode === "signup") {
+      // in signup non vogliamo dati precompilati
+      setEmail("");
+      setPassword("");
+      setShowEmailChoices(false);
+      setErr("");
+      setInfo("");
+      return;
+    }
+
+    // quando torno su login, mostra di nuovo le email
+    setShowEmailChoices(true);
+  }, [mode]);
+
+  useEffect(() => {
+    // prende tutte le email salvate come wc26_pw:<email>
+    const prefix = PW_KEY_PREFIX; // "wc26_pw:"
+    const emails = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith(prefix)) continue;
+      const em = k.slice(prefix.length);
+      if (em) emails.push(em);
+    }
+    // uniche + ordinate
+    const uniq = Array.from(new Set(emails)).sort();
+    setEmailChoices(uniq);
+  }, []);
+
+  useEffect(() => {
+    const onPointerDown = (e) => {
+      // se clicco dentro al modal, non chiudo
+      if (modalRef.current && modalRef.current.contains(e.target)) return;
+      // clic fuori => chiudi
+      onClose();
+    };
+
+    // capture=true: prende l’evento prima di stopPropagation / click-through
+    document.addEventListener("mousedown", onPointerDown, true);
+    document.addEventListener("touchstart", onPointerDown, true);
+
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown, true);
+      document.removeEventListener("touchstart", onPointerDown, true);
+    };
+  }, [onClose]);
+
   useEffect(() => {
     emailRef.current?.focus();
   }, []);
@@ -500,7 +554,7 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
         setPendingEmail(email);
         setErr("");
         setInfo(
-          "✉️ Revisa la tua email per confermare. Poi torna qui e fai Login."
+          "✉️ Revisa la tua email per confermare. Poi torna qui e fai Login.",
         );
         return;
       }
@@ -545,41 +599,41 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-start bg-black/60 md:justify-center md:top-[10rem]">
-      <div className="w-[320px] rounded-xl bg-slate-900 p-2 border border-white/10 md:mr-[0] mr-4 shadow-xl -ml-[12rem] md:ml-0">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="text-white font-semibold">User Login</div>
-
-            {/* DESKTOP ONLY: Login / Sign up tabs */}
-            <div className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1">
-              <button
-                type="button"
-                onClick={() => setMode("login")}
-                className={`px-2 py-1 text-xs rounded-md ${
-                  mode === "login"
-                    ? "bg-white/15 text-white"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                Login
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("signup")}
-                className={`px-2 py-1 text-xs rounded-md ${
-                  mode === "signup"
-                    ? "bg-white/15 text-white"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                Sign up
-              </button>
-            </div>
+      <div
+        ref={modalRef}
+        className="w-[320px] min-h-[360px] rounded-xl bg-slate-900 p-2 border border-white/10 md:mr-[10] mt-10 mr-4 shadow-xl -ml-[12rem] md:ml-0"
+      >
+        <div className="relative flex items-center justify-center mb-3">
+          {/* Tabs centrati */}
+          <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setMode("login")}
+              className={`px-2 py-1 text-lg rounded-lg ${
+                mode === "login"
+                  ? "bg-sky-800 text-white"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("signup")}
+              className={`px-2 py-1 text-lg rounded-lg ${
+                mode === "signup"
+                  ? "bg-white/15 text-white"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              Sign up
+            </button>
           </div>
 
+          {/* X sempre a destra */}
           <button
             onClick={onClose}
-            className="text-white/70 hover:text-white"
+            className="absolute right-0 text-white/70 hover:text-white"
             type="button"
           >
             ✕
@@ -591,9 +645,96 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
           autoComplete="on"
           className="flex flex-col gap-2"
         >
+          {/* spazio lista email (fisso anche in signup) */}
+          <div className="min-h-[110px]">
+            {mode === "login" &&
+              showEmailChoices &&
+              emailChoices.length > 0 && (
+                <div className="rounded-md border border-white/10 bg-slate-950/80 p-1">
+                  {emailChoices.map((em) => (
+                    <button
+                      key={em}
+                      type="button"
+                      className="w-full text-left px-2 py-1 text-xs text-white/80 hover:bg-pink-700 rounded"
+                      onMouseEnter={() => {
+                        // 🟦 HOVER: preview (riempi i campi, NO login)
+                        setErr("");
+                        setInfo("");
+
+                        const normalized = normEmail(em);
+                        const key = PW_KEY_PREFIX + normalized;
+                        const savedPw = localStorage.getItem(key) || "";
+
+                        setEmail(em);
+                        setPassword(savedPw);
+                        // non chiudo lista, non faccio focus, è solo preview
+                        if (!savedPw) {
+                          setInfo("Password non salvata per questa email.");
+                        }
+                      }}
+                      onClick={async () => {
+                        // 🟩 CLICK: chiude lista + focus + autologin (se pw esiste)
+                        setErr("");
+                        setInfo("");
+
+                        const normalized = normEmail(em);
+                        const key = PW_KEY_PREFIX + normalized;
+                        const savedPw = localStorage.getItem(key) || "";
+
+                        // riempi comunque i campi
+                        setEmail(em);
+                        setPassword(savedPw);
+                        setShowEmailChoices(false);
+                        setTimeout(() => passwordRef.current?.focus(), 0);
+
+                        if (!savedPw) {
+                          setInfo(
+                            "Password non salvata per questa email. Inseriscila e premi Login.",
+                          );
+                          return;
+                        }
+
+                        if (mode !== "login") return;
+
+                        // ⏳ delay (metti qui 1500 se vuoi 1.5s)
+                        await new Promise((r) => setTimeout(r, 500));
+
+                        setLoading(true);
+                        const { error } =
+                          await supabase.auth.signInWithPassword({
+                            email: em,
+                            password: savedPw,
+                          });
+                        setLoading(false);
+
+                        if (error) {
+                          const msg = (error.message || "").toLowerCase();
+                          if (msg.includes("email not confirmed")) {
+                            setPendingEmail(em);
+                            setErr("");
+                            setInfo(
+                              "✉️ Email non confermata. Controlla la mail e poi riprova.",
+                            );
+                            return;
+                          }
+                          setErr(error.message);
+                          return;
+                        }
+
+                        onClose();
+                      }}
+                    >
+                      {em}
+                    </button>
+                  ))}
+                </div>
+              )}
+          </div>
           <input
             ref={emailRef}
             id="email"
+            onFocus={() => setShowEmailChoices(true)}
+            onClick={() => setShowEmailChoices(true)}
             name="email"
             type="email"
             autoComplete="email"
@@ -609,6 +750,7 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
           <div className="relative">
             <input
               id="password"
+              ref={passwordRef}
               name="password"
               type={showPw ? "text" : "password"}
               autoComplete={
@@ -644,7 +786,7 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 rounded-md bg-white/10 hover:bg-white/20 text-white py-2 text-sm disabled:opacity-60"
+            className="mt-2 rounded-md bg-sky-900 hover:bg-sky-600 text-white py-2 text-sm disabled:opacity-60"
           >
             {loading
               ? mode === "login"
