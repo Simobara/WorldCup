@@ -29,7 +29,7 @@ const EXPAND_MS = 200;
 const SNAP_MS = 200;
 const NAV_OFFSET = 10;
 
-export default function TopInfo() {
+export default function TopInfo({ onModalChange }) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -92,7 +92,9 @@ export default function TopInfo() {
       ];
 
   //---------------------------------------------------------
-
+  useEffect(() => {
+    onModalChange?.(openLogin);
+  }, [openLogin, onModalChange]);
   // ✅ ogni volta che cambia login/logout → reset su standings
   useEffect(() => {
     // primo render: inizializza e basta
@@ -598,10 +600,10 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-start bg-black/60 md:justify-center md:top-[10rem]">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-start bg-black/75 backdrop-blur-[2px] md:justify-center md:top-[9rem]">
       <div
         ref={modalRef}
-        className="w-[320px] min-h-[360px] rounded-xl bg-slate-900 p-2 border border-white/10 md:mr-[10] mt-10 mr-4 shadow-xl -ml-[12rem] md:ml-0"
+        className="w-[320px] min-h-[90px] rounded-xl bg-slate-900 p-2 border border-white/10 md:mr-[10] mt-10 mr-4 shadow-xl -ml-[12rem] md:ml-0"
       >
         <div className="relative flex items-center justify-center mb-3">
           {/* Tabs centrati */}
@@ -622,7 +624,7 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
               onClick={() => setMode("signup")}
               className={`px-2 py-1 text-lg rounded-lg ${
                 mode === "signup"
-                  ? "bg-white/15 text-white"
+                  ? "bg-teal-500 text-white"
                   : "text-white/60 hover:text-white"
               }`}
             >
@@ -786,7 +788,11 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 rounded-md bg-sky-900 hover:bg-sky-600 text-white py-2 text-sm disabled:opacity-60"
+            className={`mt-6 rounded-md text-white py-2 text-sm disabled:opacity-60 ${
+              mode === "login"
+                ? "bg-sky-800 hover:bg-sky-600"
+                : "bg-teal-500 hover:bg-teal-400"
+            }`}
           >
             {loading
               ? mode === "login"
@@ -809,11 +815,11 @@ function LoginModal({ onClose, pendingEmail, setPendingEmail }) {
             </button>
           )}
 
-          <div className="hidden md:block text-[11px] text-white/40 mt-1">
+          {/* <div className="hidden md:block text-[11px] text-white mt-1">
             {mode === "signup"
               ? "Crea un nuovo account con email e password."
               : "Accedi con email e password."}
-          </div>
+          </div> */}
         </form>
       </div>
     </div>

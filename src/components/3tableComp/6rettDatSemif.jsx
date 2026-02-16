@@ -52,27 +52,26 @@ const RettDatSemif = ({
     `}
     >
       {/* ✅ RESET X */}
+
       {showReset && typeof onReset === "function" && (
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onReset();
+            onReset?.();
           }}
           className="
-            absolute top-1 right-1 z-50
-            w-6 h-6 rounded-full
-            bg-white/90 text-black
-            font-extrabold text-[12px]
-            flex items-center justify-center
-            opacity-0 group-hover:opacity-100
-            transition-opacity duration-150
-            hover:scale-105
-          "
-          aria-label="Reset match"
-          title="Reset"
+      absolute -right-1 top-0 z-50
+      w-5 h-6
+      bg-cyan-400 text-black
+      font-extrabold text-[14px]
+      flex items-center justify-center
+      opacity-100
+      hover:scale-105
+    "
+          aria-label="Reset"
         >
-          X
+          ✕
         </button>
       )}
 

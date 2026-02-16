@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 // src/components/2rettDat.jsx
 const RettDat = ({
   leftLabel,
@@ -35,8 +37,23 @@ const RettDat = ({
   };
 
   const dateFixed = convertDate(leftLabel);
+
+  const flashX = () => {
+    setXActive(true);
+    if (xTimerRef.current) clearTimeout(xTimerRef.current);
+    xTimerRef.current = setTimeout(() => setXActive(false), 1000);
+  };
+  const [xActive, setXActive] = useState(false);
+  const xTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (xTimerRef.current) clearTimeout(xTimerRef.current);
+    };
+  }, []);
+
   return (
-     <div
+    <div
       className={`group relative z-0
         md:h-20 h-14
         md:w-32 w-32
@@ -48,24 +65,27 @@ const RettDat = ({
       {showReset && typeof onReset === "function" && (
         <button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onReset();
+          onPointerDown={flashX} // ✅ mobile: touch immediato
+          onClick={async () => {
+            flashX(); // ✅ anche click desktop
+            await onReset?.();
           }}
-          className="
-            absolute top-1 right-1 z-50
-            w-6 h-6 rounded-full
-            bg-white/90 text-black
-            font-extrabold text-[12px]
-            flex items-center justify-center
-            opacity-0 group-hover:opacity-100
-            transition-opacity duration-150
-            hover:scale-105
-          "
-          aria-label="Reset match"
-          title="Reset"
+          className={`
+  absolute right-0 -top-1 z-50
+  rounded-full bg-cyan-300 px-0 py-1
+  text-black
+  transition-opacity duration-200
+  
+
+  opacity-100 md:${xActive ? "opacity-100" : "opacity-35"}
+
+  
+  hover:opacity-100
+  active:opacity-100
+`}
+          aria-label="Reset"
         >
-          X
+          ✕
         </button>
       )}
 

@@ -65,43 +65,40 @@ const App = () => {
   const [isLogged, setIsLogged] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
-  // 🔹 1) inizializzo SOLO lo stato (NO refreshKey)
-  supabase.auth.getSession().then(({ data }) => {
-    const session = data?.session ?? null;
-    setIsLogged(!!session);
-    setUserEmail(session?.user?.email ?? "");
-  });
+    supabase.auth.getSession().then(({ data }) => {
+      const session = data?.session ?? null;
+      setIsLogged(!!session);
+      setUserEmail(session?.user?.email ?? "");
+    });
 
-  // 🔹 2) refreshKey SOLO quando Supabase notifica un cambio reale
-  const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-    setIsLogged(!!session);
-    setUserEmail(session?.user?.email ?? "");
-    setRefreshKey((k) => k + 1); // 👈 UNICA fonte
-  });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLogged(!!session);
+      setUserEmail(session?.user?.email ?? "");
+      setRefreshKey((k) => k + 1);
+    });
 
-  return () => sub?.subscription?.unsubscribe?.();
-}, []);
-
+    return () => sub?.subscription?.unsubscribe?.();
+  }, []);
 
   return (
     <AuthProvider>
       <EditModeProvider>
         <Router>
-           <QualifiedTeamsProvider
-            isLogged={isLogged}
-            userEmail={userEmail}
-            refreshKey={refreshKey}
-          >          
+          <QualifiedTeamsProvider isLogged={isLogged} userEmail={userEmail} refreshKey={refreshKey}>
             <div className="relative h-[100svh] md:h-screen w-screen bg-slate-900 overflow-hidden overscroll-none touch-none">
-              <TopInfo />
+              
+              {/* ✅ overlay globale (sotto al modal) */}
+              {loginOpen && (
+                <div className="absolute inset-0 bg-black/70 backdrop-blur-[opx] z-[900]" />
+              )}
+
+              <TopInfo onModalChange={setLoginOpen} />
+
               <div className="h-full w-full flex">
-                <AppRoutes
-                  isLogged={isLogged}
-                  userEmail={userEmail}
-                  refreshKey={refreshKey}
-                />
+                <AppRoutes isLogged={isLogged} userEmail={userEmail} refreshKey={refreshKey} />
               </div>
             </div>
           </QualifiedTeamsProvider>
