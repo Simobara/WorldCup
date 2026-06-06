@@ -11,7 +11,7 @@ import FlagSudafrica from '/gironi/A/SAf.png';
 //        GRUPPO B
 // =======================
 import FlagCanada from '/gironi/B/Can.png';
-import FlagItalia from '/gironi/B/Ita.png';
+import PlayB from '/gironi/B/PlayB.png';
 import FlagQatar from '/gironi/B/Qtr.png';
 import FlagSvizzera from '/gironi/B/Swi.png';
 
@@ -107,12 +107,12 @@ export const flagsMond26 = {
     { id: 'MEX', name: 'Mexico',    group: 'A', flag: FlagMexico },
     { id: 'SAF', name: 'Sudafrica', group: 'A', flag: FlagSudafrica },
     { id: 'KOR', name: 'Korea',     group: 'A', flag: FlagKorea },
-    { id: 'IRL', name: 'IRL',       group: 'A', flag: PlayA },
+    { id: 'RCE', name: 'RCE',       group: 'A', flag: PlayA },
   ],
 
   B: [
     { id: 'CAN', name: 'Canada',    group: 'B', flag: FlagCanada },
-    { id: 'ITA', name: 'Italia',    group: 'B', flag: FlagItalia },
+    { id: 'BOS', name: 'BOS',       group: 'B', flag: PlayB },
     { id: 'QTR', name: 'Qatar',     group: 'B', flag: FlagQatar },
     { id: 'SWI', name: 'Svizzera',  group: 'B', flag: FlagSvizzera },
   ],
@@ -142,7 +142,7 @@ export const flagsMond26 = {
     { id: 'NDL', name: 'Netherland',group: 'F', flag: FlagOlanda },
     { id: 'TUN', name: 'Tunisia',   group: 'F', flag: FlagTunisia },
     { id: 'JAP', name: 'Japan',     group: 'F', flag: FlagJapan },
-    { id: 'ALB', name: 'ALB',       group: 'F', flag: PlayF },
+    { id: 'SWE', name: 'SWE',       group: 'F', flag: PlayF },
   ],
 
   G: [
@@ -163,7 +163,7 @@ export const flagsMond26 = {
     { id: 'FRA',  name: 'Francia',  group: 'I', flag: FlagFrancia },
     { id: 'SEN',  name: 'Senegal',  group: 'I', flag: FlagSenegal },
     { id: 'NOR',  name: 'Norvegia', group: 'I', flag: FlagNorvegia },
-    { id: 'BOL',  name: 'BOL',      group: 'I', flag: PlayI },
+    { id: 'IRQ',  name: 'IRQ',      group: 'I', flag: PlayI },
   ],
 
   J: [
@@ -177,7 +177,7 @@ export const flagsMond26 = {
     { id: 'POR', name: 'Portogallo',group: 'K', flag: FlagPortogallo },
     { id: 'COL', name: 'Colombia',  group: 'K', flag: FlagColombia },
     { id: 'UZB', name: 'Uzbekistan',group: 'K', flag: FlagUzbekistan },
-    { id: 'JAM',name: 'JAM',      group: 'K', flag: PlayK },
+    { id: 'CON', name: 'CON',       group: 'K', flag: PlayK },
   ],
 
   L: [

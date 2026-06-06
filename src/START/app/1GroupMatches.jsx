@@ -1,5 +1,5 @@
 const groupMatches26 = {
-// Gruppo A – Mexico Sudafrica Korea PlayUefaD--------------------------------------------------------------------------------------------------A
+// Gruppo A – Mexico Sudafrica Korea RCE--------------------------------------------------------------------------------------------------A
 group_A: {    
     giornata_1:{
         dates: [
@@ -7,7 +7,7 @@ group_A: {
         ],
         matches: [
             { numero: 1, city: 'CDMX',             time: '19:00',      team1: 'Mexico',         team2: 'SAfrica',           pron:'1', ris: '2-1 ' ,  results:' ' },
-            { numero: 2, city: 'Guadalajara',      time: '02:00',      team1: 'Korea',          team2: 'IRL',               pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 2, city: 'Guadalajara',      time: '02:00',      team1: 'Korea',          team2: 'RCE',               pron:'1', ris: ' ' ,  results:' ' },
         ],
     },
     giornata_2:{
@@ -15,7 +15,7 @@ group_A: {
             'GIU/18',
         ],
         matches: [
-            { numero: 3, city: 'Atlanta',          time: '16:00',      team1: 'IRL',            team2: 'SAfrica',           pron:'2', ris: ' ' ,  results:' ' }, 
+            { numero: 3, city: 'Atlanta',          time: '16:00',      team1: 'RCE',            team2: 'SAfrica',           pron:'2', ris: ' ' ,  results:' ' }, 
             { numero: 4, city: 'Guadalajara',      time: '01:00',      team1: 'Mexico',         team2: 'Korea',             pron:'1', ris: ' ' ,  results:' ' },
         ],
     },
@@ -25,11 +25,11 @@ group_A: {
         ],
         matches: [            
             { numero: 5, city: 'Monterrey',        time: '01:00',      team1: 'SAfrica',        team2: 'Korea',             pron: '1', ris: ' ' ,  results: ' '},            
-            { numero: 6, city: 'CDMX',             time: '01:00',      team1: 'IRL',            team2: 'Mexico',            pron: '2', ris: ' ' ,  results: ' '},
+            { numero: 6, city: 'CDMX',             time: '01:00',      team1: 'RCE',            team2: 'Mexico',            pron: '2', ris: ' ' ,  results: ' '},
         ],
     },
 },
-// Gruppo B - Canada Qatar Svizzera Italia -------------------------------------------------------------------------------------------------------B
+// Gruppo B - Canada Qatar Svizzera BOS -------------------------------------------------------------------------------------------------------B
 group_B: {
     giornata_1: {
         dates: [
@@ -37,8 +37,8 @@ group_B: {
             'GIU/13',
         ],
         matches: [
-            { numero: 1, city: 'Toronto',          time: '20:00',     team1: 'Canada',          team2: 'Italia',           pron:'2', ris: '0-1 ' ,  results:' ' },
-            { numero: 2, city: 'SFrancisco',       time: '20:00',     team1: 'Svizzera',        team2: 'Qatar',            pron:'1', ris: '2-0 ' ,  results:' ' },
+            { numero: 1, city: 'Toronto',          time: '20:00',     team1: 'Canada',          team2: 'BOS',               pron:'2', ris: '0-1 ' ,  results:' ' },
+            { numero: 2, city: 'SFrancisco',       time: '20:00',     team1: 'Svizzera',        team2: 'Qatar',             pron:'1', ris: '2-0 ' ,  results:' ' },
         ],
     },
     giornata_2: {
@@ -46,8 +46,8 @@ group_B: {
             'GIU/18',
         ],
         matches: [
-            { numero: 3, city: 'LAngeles',          time: '20:00',     team1: 'Svizzera',        team2: 'Italia',          pron:'X', ris: '1-1 ' ,  results:' ' },
-            { numero: 4, city: 'Vancouver',         time: '23:00',     team1: 'Canada',          team2: 'Qatar',           pron:'1', ris: '3-0 ' ,  results:' ' },
+            { numero: 3, city: 'LAngeles',          time: '20:00',     team1: 'Svizzera',        team2: 'BOS',              pron:'X', ris: '1-1 ' ,  results:' ' },
+            { numero: 4, city: 'Vancouver',         time: '23:00',     team1: 'Canada',          team2: 'Qatar',            pron:'1', ris: '3-0 ' ,  results:' ' },
         ],
     },
     giornata_3: {
@@ -56,7 +56,7 @@ group_B: {
         ],
         matches: [
             { numero: 5, city: 'Vancouver',         time: '20:00',     team1: 'Svizzera',        team2: 'Canada',           pron:'2', ris: '0-4 ' ,  results:' ' },
-            { numero: 6, city: 'Seattle',           time: '20:00',     team1: 'Italia',          team2: 'Qatar',            pron:'X', ris: '1-1 ' ,  results:' ' },
+            { numero: 6, city: 'Seattle',           time: '20:00',     team1: 'BOS',             team2: 'Qatar',            pron:'X', ris: '1-1 ' ,  results:' ' },
         ],
     },
 },
@@ -90,7 +90,7 @@ group_C: {
         ],
     },
 },
-// Gruppo D - Usa Paraguay Australia PlayUefaC-----------------------------------------------------------------------------------------------------D
+// Gruppo D - Usa Paraguay Australia TUR-----------------------------------------------------------------------------------------------------D
 group_D: {
     giornata_1: {
         dates: [
@@ -151,7 +151,7 @@ group_E: {
         ],
     },
 },
-// Gruppo F - Olanda Japan PlayUefaB Tunisia-----------------------------------------------------------------------------------------------------F
+// Gruppo F - Olanda Japan SWE Tunisia-----------------------------------------------------------------------------------------------------F
 group_F: {
     giornata_1: {
         dates: [
@@ -159,7 +159,7 @@ group_F: {
         ],
         matches: [
             { numero: 1, city: 'Dallas',            time: '03:00',  team1: 'Netherland',       team2: 'Japan',               pron:'2', ris: ' ' ,  results:' ' },
-            { numero: 2, city: 'Monterrey',         time: '10:00',  team1: 'ALB',              team2: 'Tunisia',             pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 2, city: 'Monterrey',         time: '10:00',  team1: 'SWE',              team2: 'Tunisia',             pron:'1', ris: ' ' ,  results:' ' },
         ],
     },
     giornata_2: {
@@ -168,7 +168,7 @@ group_F: {
         ],
         matches: [
             { numero: 3, city: 'Monterrey',         time: '12:00',  team1: 'Tunisia',           team2: 'Japan',             pron:'2', ris: ' ' ,  results:' ' },
-            { numero: 4, city: 'Houston',           time: '00:00',  team1: 'Netherland',        team2: 'ALB',               pron:'X', ris: ' ' ,  results:' ' },
+            { numero: 4, city: 'Houston',           time: '00:00',  team1: 'Netherland',        team2: 'SWE',               pron:'X', ris: ' ' ,  results:' ' },
         ],
     },
     giornata_3: {
@@ -177,7 +177,7 @@ group_F: {
         ],
         matches: [
             { numero: 5, city: 'Kansas',            time: '06:00',  team1: 'Tunisia',            team2: 'Netherland',       pron:'2', ris: ' ' ,  results:' ' },
-            { numero: 6, city: 'Dallas',            time: '06:00',  team1: 'Japan',              team2: 'ALB',              pron:'2', ris: ' ' ,  results:' ' },
+            { numero: 6, city: 'Dallas',            time: '06:00',  team1: 'Japan',              team2: 'SWE',              pron:'2', ris: ' ' ,  results:' ' },
         ],
     },
 },
@@ -241,7 +241,7 @@ group_H: {
         ],
     },
 },
-// Gruppo I - Francia Senegal PlayFifa2 Norvegia-------------------------------------------------------------------------------------------------I
+// Gruppo I - Francia Senegal IRQ Norvegia-------------------------------------------------------------------------------------------------I
 group_I: {
     giornata_1: {
         dates: [
@@ -249,7 +249,7 @@ group_I: {
         ],
         matches: [
             { numero: 1, city: 'NewYork',          time: '01:00', team1: 'Francia',            team2: 'Senegal',            pron:'X', ris: '1-1 ' ,  results:' ' },
-            { numero: 2, city: 'Boston',           time: '04:00', team1: 'BOL',                team2: 'Norvegia',           pron:'2', ris: '0-4 ' ,  results:' ' },
+            { numero: 2, city: 'Boston',           time: '04:00', team1: 'IRQ',                team2: 'Norvegia',           pron:'2', ris: '0-4 ' ,  results:' ' },
         ],
     },
     giornata_2: {
@@ -257,7 +257,7 @@ group_I: {
             'GIU/22',
         ],
         matches: [
-            { numero: 3, city: 'Philadelphia',     time: '03:00', team1: 'Francia',            team2: 'BOL',                pron:'1', ris: '2-0 ' ,  results:' ' },
+            { numero: 3, city: 'Philadelphia',     time: '03:00', team1: 'Francia',            team2: 'IRQ',                pron:'1', ris: '2-0 ' ,  results:' ' },
             { numero: 4, city: 'NewYork',          time: '06:00', team1: 'Norvegia',           team2: 'Senegal',            pron:'1', ris: '2-0 ' ,  results:' ' },
         ],
     },
@@ -267,11 +267,11 @@ group_I: {
         ],
         matches: [
             { numero: 5, city: 'Boston',            time: '01:00', team1: 'Norvegia',           team2: 'Francia',           pron:'1', ris: '2-1 ' ,  results:' ' },
-            { numero: 6, city: 'Toronto',           time: '01:00', team1: 'Senegal',            team2: 'BOL',               pron:'1', ris: '4-0 ' ,  results:' ' },
+            { numero: 6, city: 'Toronto',           time: '01:00', team1: 'Senegal',            team2: 'IRQ',               pron:'1', ris: '4-0 ' ,  results:' ' },
       ],
     },
 },
-// Gruppo J - Argentina Algeria Autria Jordania--------------------------------------------------------------------------------------------------J
+// Gruppo J - Argentina Algeria Austria Jordania--------------------------------------------------------------------------------------------------J
 group_J: {
     giornata_1: {
         dates: [
@@ -279,7 +279,7 @@ group_J: {
         ],
         matches: [
             { numero: 1, city: 'SFrancisco',       time: '13:00', team1: 'Austria',            team2: 'Jordania',          pron:'X', ris: ' ' ,  results:' ' },
-            { numero: 2, city: 'Kansas',             time: '08:00', team1: 'Argentina',          team2: 'Algeria',           pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 2, city: 'Kansas',           time: '08:00', team1: 'Argentina',          team2: 'Algeria',           pron:'1', ris: ' ' ,  results:' ' },
         ],
     },
     giornata_2: {
@@ -301,14 +301,14 @@ group_J: {
         ],
     },
 },
-// Gruppo K - Portogallo PlayFifa1 Uzbekistan Colombia-------------------------------------------------------------------------------------------K
+// Gruppo K - Portogallo CON Uzbekistan Colombia-------------------------------------------------------------------------------------------K
 group_K: {
     giornata_1: {
         dates: [
             'GIU/17',
         ],
         matches: [
-            { numero: 1, city: 'Houston',           time: '00:00', team1: 'Portogallo',         team2: 'JAM',               pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 1, city: 'Houston',           time: '00:00', team1: 'Portogallo',         team2: 'CON',               pron:'1', ris: ' ' ,  results:' ' },
             { numero: 2, city: 'CDMX',              time: '10:00', team1: 'Uzbekistan',         team2: 'Colombia',          pron:'X', ris: ' ' ,  results:' ' },
         ],
     },
@@ -318,7 +318,7 @@ group_K: {
         ],
         matches: [
             { numero: 3, city: 'Houston',           time: '00:00', team1: 'Portogallo',         team2: 'Uzbekistan',        pron:'1', ris: ' ' ,  results:' ' },
-            { numero: 4, city: 'Guadalajara',       time: '10:00', team1: 'Colombia',           team2: 'JAM',               pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 4, city: 'Guadalajara',       time: '10:00', team1: 'Colombia',           team2: 'CON',               pron:'1', ris: ' ' ,  results:' ' },
         ],
     },
     giornata_3: {
@@ -327,7 +327,7 @@ group_K: {
         ],
         matches: [
             { numero: 5, city: 'Miami',             time: '05:30', team1: 'Colombia',           team2: 'Portogallo',        pron:'2', ris: ' ' ,  results:' ' },
-            { numero: 6, city: 'Atlanta',           time: '05:30', team1: 'JAM',                team2: 'Uzbekistan',        pron:'1', ris: ' ' ,  results:' ' },
+            { numero: 6, city: 'Atlanta',           time: '05:30', team1: 'CON',                team2: 'Uzbekistan',        pron:'1', ris: ' ' ,  results:' ' },
         ],
     },
 },
