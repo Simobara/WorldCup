@@ -82,23 +82,23 @@ const StandingsBlock = () => {
         ))}
       </div>
 
-      {/* REGIONI */}
-      <RettangoloVerticale
-  top="md:top-[0rem] top-[2rem]"
+     {/* REGIONI */}
+<RettangoloVerticale
+  top="md:top-[0rem] -top-4"
   height="md:h-[12rem] h-[10rem]"
   color="bg-sky-400"
   label="Western Region"
 />
 
-     <RettangoloVerticale
-  top="md:top-[12rem] top-[12rem]"
+<RettangoloVerticale
+  top="md:top-[12rem] top-[9rem]"
   height="md:h-[18rem] h-[15rem]"
   color="bg-green-300"
   label="Central Region"
 />
 
-     <RettangoloVerticale
-  top="md:top-[30rem] top-[27rem]"
+<RettangoloVerticale
+  top="md:top-[30rem] top-[24rem]"
   height="md:h-[18rem] h-[15rem]"
   color="bg-rose-300"
   label="Eastern Region"
@@ -132,14 +132,14 @@ const StandingsBlock = () => {
             <RettGroup color={CssHighlights.Final} colsSpan={2} label="Finals" />
           </div>
 
-         <Grid
+        <Grid
   rows={1}
   cols={39}
   cellHeightClass="md:h-20 h-16"
   columnLabels={titleLabels}
 />
 
-         <Grid
+<Grid
   rows={citiesOsp.length}
   cols={39}
   cellHeightClass="md:h-12 h-10"
