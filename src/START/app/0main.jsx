@@ -107,12 +107,12 @@ export const flagsMond26 = {
     { id: 'MEX', name: 'Mexico',    group: 'A', flag: FlagMexico },
     { id: 'SAF', name: 'Sudafrica', group: 'A', flag: FlagSudafrica },
     { id: 'KOR', name: 'Korea',     group: 'A', flag: FlagKorea },
-    { id: 'RCE', name: 'RCE',       group: 'A', flag: PlayA },
+    { id: 'RCE', name: 'PlayA',       group: 'A', flag: PlayA },
   ],
 
   B: [
     { id: 'CAN', name: 'Canada',    group: 'B', flag: FlagCanada },
-    { id: 'BOS', name: 'BOS',       group: 'B', flag: PlayB },
+    { id: 'BOS', name: 'PlayB',       group: 'B', flag: PlayB },
     { id: 'QTR', name: 'Qatar',     group: 'B', flag: FlagQatar },
     { id: 'SWI', name: 'Svizzera',  group: 'B', flag: FlagSvizzera },
   ],
@@ -128,7 +128,7 @@ export const flagsMond26 = {
     { id: 'USA', name: 'StatiUniti',group: 'D', flag: FlagUsa },
     { id: 'PAR', name: 'Paraguay',  group: 'D', flag: FlagParaguay },
     { id: 'AUS', name: 'Australia', group: 'D', flag: FlagAustralia },
-    { id: 'TUR', name: 'TUR',       group: 'D', flag: PlayD },
+    { id: 'TUR', name: 'PlayD',       group: 'D', flag: PlayD },
   ],
 
   E: [
@@ -142,7 +142,7 @@ export const flagsMond26 = {
     { id: 'NDL', name: 'Netherland',group: 'F', flag: FlagOlanda },
     { id: 'TUN', name: 'Tunisia',   group: 'F', flag: FlagTunisia },
     { id: 'JAP', name: 'Japan',     group: 'F', flag: FlagJapan },
-    { id: 'SWE', name: 'SWE',       group: 'F', flag: PlayF },
+    { id: 'SWE', name: 'PlayF',       group: 'F', flag: PlayF },
   ],
 
   G: [
@@ -163,7 +163,7 @@ export const flagsMond26 = {
     { id: 'FRA',  name: 'Francia',  group: 'I', flag: FlagFrancia },
     { id: 'SEN',  name: 'Senegal',  group: 'I', flag: FlagSenegal },
     { id: 'NOR',  name: 'Norvegia', group: 'I', flag: FlagNorvegia },
-    { id: 'IRQ',  name: 'IRQ',      group: 'I', flag: PlayI },
+    { id: 'IRQ',  name: 'PlayI',      group: 'I', flag: PlayI },
   ],
 
   J: [
@@ -177,7 +177,7 @@ export const flagsMond26 = {
     { id: 'POR', name: 'Portogallo',group: 'K', flag: FlagPortogallo },
     { id: 'COL', name: 'Colombia',  group: 'K', flag: FlagColombia },
     { id: 'UZB', name: 'Uzbekistan',group: 'K', flag: FlagUzbekistan },
-    { id: 'CON', name: 'CON',       group: 'K', flag: PlayK },
+    { id: 'CON', name: 'PlayK',       group: 'K', flag: PlayK },
   ],
 
   L: [

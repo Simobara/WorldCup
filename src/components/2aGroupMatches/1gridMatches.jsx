@@ -1108,13 +1108,24 @@ useEffect(() => {
             const rowsCount = matchesFlat.length;
 
             const findTeam = (rawName) => {
-              const name = resolveName(rawName);
-              if (!name) return null;
-              return (
-                (flagsMond ?? []).find((t) => resolveName(t.name) === name) ??
-                null
-              );
-            };
+            const resolved = resolveName(rawName);
+            const raw = String(rawName ?? "").trim().toUpperCase();
+            const resolvedUpper = String(resolved ?? "").trim().toUpperCase();
+
+            return (
+              (flagsMond ?? []).find((t) => {
+                const id = String(t.id ?? "").trim().toUpperCase();
+                const name = String(t.name ?? "").trim().toUpperCase();
+
+                return (
+                  id === raw ||
+                  id === resolvedUpper ||
+                  name === raw ||
+                  name === resolvedUpper
+                );
+              }) ?? null
+            );
+          };
             // ====== COMPUTE RES: ADMIN / NON-ADMIN ======
 
             // ADMIN: legge seed (m.ris) se NON edited
@@ -1350,15 +1361,24 @@ useEffect(() => {
                                   : getFlatMatchesForGroup(groupMatches?.[groupKey]).map(normalizeMatch);
 
                               const findTeamP = (rawName) => {
-                                const name = resolveName(rawName);
-                                if (!name) return null;
-                                return (
-                                  (flagsMond ?? []).find(
-                                    (t) => resolveName(t.name) === name
-                                  ) ?? null
-                                );
-                              };
+                              const resolved = resolveName(rawName);
+                              const raw = String(rawName ?? "").trim().toUpperCase();
+                              const resolvedUpper = String(resolved ?? "").trim().toUpperCase();
 
+                              return (
+                                (flagsMond ?? []).find((t) => {
+                                  const id = String(t.id ?? "").trim().toUpperCase();
+                                  const name = String(t.name ?? "").trim().toUpperCase();
+
+                                  return (
+                                    id === raw ||
+                                    id === resolvedUpper ||
+                                    name === raw ||
+                                    name === resolvedUpper
+                                  );
+                                }) ?? null
+                              );
+                            };
                               // Mobile: stessa logica del desktop (results / seed / plusRis)
                               const computeResP = (m, idx) => {
                                 return computeRes(m, letterP, idx);
