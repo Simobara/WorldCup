@@ -1970,7 +1970,7 @@ const TableBlock = ({ isLogged }) => {
                   topAdvanced={
                     code1
                       ? isAdmin
-                        ? didTeamAdvanceByGoto_admin(mAB1, "semifinals", code1)
+                        ? didTeamAdvanceByGoto_admin(mCD1, "semifinals", code1)
                         : isLogged && !isAdmin
                           ? didTeamAdvanceByGoto_nonAdmin(
                               mCD1,
@@ -1983,7 +1983,7 @@ const TableBlock = ({ isLogged }) => {
                   bottomAdvanced={
                     code2
                       ? isAdmin
-                        ? didTeamAdvanceByGoto_admin(mAB1, "semifinals", code2)
+                        ? didTeamAdvanceByGoto_admin(mCD1, "semifinals", code2)
                         : isLogged && !isAdmin
                           ? didTeamAdvanceByGoto_nonAdmin(
                               mCD1,

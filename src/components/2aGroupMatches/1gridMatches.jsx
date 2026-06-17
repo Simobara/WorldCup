@@ -2840,11 +2840,15 @@ function Row7({
   const isThisMobileButtonOpen =
     isThisMobileGroupOpen && mobileCutoff === rowIndex + 1;
 
-  // DESKTOP: bandiere grigie sempre, tranne nel gruppo hoverato (quello con classifica aperta)
-  const flagsGrayOnDesktop = hoverGroup !== groupLetter; // hoverGroup null => true (tutte grigie)
+  // // DESKTOP: bandiere grigie sempre, tranne nel gruppo hoverato (quello con classifica aperta)
+  // const flagsGrayOnDesktop = hoverGroup !== groupLetter; // hoverGroup null => true (tutte grigie)
 
-  // MOBILE: bandiere grigie sempre, tranne nel gruppo selezionato
-  const flagsGrayOnMobile = !mobileRankOpen || !isThisMobileGroupOpen;
+  // // MOBILE: bandiere grigie sempre, tranne nel gruppo selezionato
+  // const flagsGrayOnMobile = !mobileRankOpen || !isThisMobileGroupOpen;
+
+  const flagsGrayOnDesktop = false;
+const flagsGrayOnMobile = false;
+  
 
   // (se vuoi anche quando drawer chiuso: puoi usare true fisso, vedi nota sotto)
   const activeDesk = isActivePair
